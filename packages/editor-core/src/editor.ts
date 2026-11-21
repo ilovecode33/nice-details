@@ -48,9 +48,10 @@ function readHeading(selection: RangeSelection): HeadingLevel | null {
 }
 
 /**
- * 以 Lexical 為核心的極簡 WYSIWYG SDK。
- * 對外 API 維持不變，內部改用結構化文件狀態，
- * 因此跨瀏覽器一致性、undo/redo、序列化都交給 Lexical 處理。
+ * Minimal WYSIWYG SDK built on Lexical.
+ * The public API is unchanged; the internals now use a structured document
+ * model so cross-browser consistency, undo/redo, and serialization are handled
+ * by Lexical.
  */
 export function createEditor(options: EditorOptions): EditorController {
   const {

@@ -4,11 +4,11 @@ import { createEditor } from '@ilovecode33/editor-core';
 const content = document.querySelector<HTMLElement>('#post-content');
 
 if (!content) {
-  throw new Error('找不到文章容器');
+  throw new Error('Article container not found');
 }
 
-// 博客只需要展示：readonly 模式不會掛載輸入監聽，
-// 也不允許 bold / italic / setHeading 等編輯操作。
+// The blog only needs display: readonly mode attaches no input listeners and
+// disables bold / italic / setHeading.
 const editor = createEditor({
   element: content,
   readonly: true,
@@ -16,5 +16,5 @@ const editor = createEditor({
 });
 
 if (editor.isReadonly() && editor.getText().trim() !== 'Hallo world!') {
-  throw new Error('文章內容未正確載入');
+  throw new Error('Article content was not loaded correctly');
 }

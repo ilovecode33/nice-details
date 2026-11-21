@@ -1,55 +1,63 @@
 # @ilovecode33/nice-details
 
-前端 apps / libs 共存的 monorepo。
+A monorepo where frontend apps and shared libraries coexist. English is the default language for documentation.
 
-- **Workspace manager**：Bun workspaces（環境沒有 Node/pnpm；Turborepo 2.11 已穩定支援 Bun）
-- **Task runner**：Turborepo（快取 + affected）
-- **App 構建**：Rsbuild（Rspack 的上層工具，自帶 dev server / HMR）
-- **Lib 構建**：Rslib（基於 Rspack，產出 ESM + `.d.ts`）
-- **編輯器核心**：Lexical（Meta 開源的文件模型，含 undo/redo、序列化、rich-text 快捷鍵）
+- **Workspace manager**: Bun workspaces (no Node/pnpm in this environment; Turborepo 2.11 supports Bun as a stable package manager)
+- **Task runner**: Turborepo (caching + affected runs)
+- **App builds**: Rsbuild (the official layer on top of Rspack, with dev server and HMR)
+- **Library builds**: Rslib (based on Rspack, emits ESM + `.d.ts`)
+- **Editor core**: Lexical (Meta's document model, with undo/redo, serialization, rich-text shortcuts)
+- **React component library**: `@ilovecode33/ui`, built with Rslib; showcased in the landing page's **Component details** section
+- **Landing page i18n**: app-level, with `en` (default), `zh-TW`, and `de`
 
-## 結構
+## Structure
 
 ```
 apps/
-  editor/          # WYSIWYG 編輯器範例（port 3000）
-  blog/            # 博客，用 SDK readonly 模式展示文章（port 3100）
+  editor/          # WYSIWYG editor demo (port 3000)
+  blog/            # Blog using the SDK in readonly mode (port 3100)
+  ui-landing/      # Component library landing page (port 3200)
 packages/
-  editor-core/     # @ilovecode33/editor-core，框架無關的編輯器 SDK
+  editor-core/     # @ilovecode33/editor-core, framework-agnostic editor SDK
+  ui/              # @ilovecode33/ui, React component library
+    QUALITY.md     # Entry / exit criteria (HIG, mobile-first, touch-first)
+AGENTS.md          # Agent rules for this repository
 ```
 
-所有 package name 都用 `@ilovecode33/` scope。
+Every package name uses the `@ilovecode33/` scope.
 
-## 常用指令
+## Common commands
 
 ```bash
 bun install
-bun run dev                 # 啟動所有 app
-bunx turbo run dev --filter=@ilovecode33/editor-app
-bunx turbo run dev --filter=@ilovecode33/blog   # http://localhost:3100
-bun run build               # Turbo 依依賴順序構建，輸出快取到 .turbo
+bun run dev                                            # start all apps
+bunx turbo run dev --filter=@ilovecode33/editor-app     # editor (3000)
+bunx turbo run dev --filter=@ilovecode33/blog           # blog (3100)
+bunx turbo run dev --filter=@ilovecode33/ui-landing     # component landing page (3200)
+bun run build                                          # topological build, cached in .turbo
 bun run typecheck
 ```
 
-要注意：app 的 `tsconfig.json` 用 `paths` 直接指向 `editor-core/src`，因此改 SDK 後不用先 build lib 就能看到熱更新；`editor-core` 仍可單獨 build 產出可發布的 `dist/`。
+App `tsconfig.json` files map paths directly to `editor-core/src` and `ui/src`, so editing a library shows hot updates without a separate build. Each library can still be built on its own to produce a publishable `dist/`.
 
-## SDK 用法
+## Editor SDK
 
 ```ts
 import { createEditor } from '@ilovecode33/editor-core';
 
-// 可編輯
+// Editable
 const editor = createEditor({
   element,
   onChange: ({ html, text }) => console.log(html, text),
-  onStateChange: ({ bold, italic, heading }) => console.log(bold, italic, heading),
+  onStateChange: ({ bold, italic, heading }) =>
+    console.log(bold, italic, heading),
 });
 
 editor.bold();
 editor.italic();
-editor.setHeading(1); // 1 | 2 | 3，再按一次同層級會切回 <p>
+editor.setHeading(1); // 1 | 2 | 3; pressing the same level again returns to <p>
 
-// 唯讀（博客）
+// Readonly (blog)
 const readonly = createEditor({
   element,
   readonly: true,
@@ -59,13 +67,50 @@ const readonly = createEditor({
 readonly.isReadonly(); // true
 ```
 
-唯讀模式下不會掛輸入監聽，`bold()` / `italic()` / `setHeading()` 都是 no-op；`setHTML()` 仍可由宿主用來載入文章內容。
+In readonly mode no input listeners are attached and `bold()` / `italic()` / `setHeading()` are no-ops. `setHTML()` remains available so the host can load article content.
 
-## 目前範圍
+## Component library
 
-- ✅ 標題 H1–H3、粗體、斜體
-- ✅ 工具列 active 狀態同步
-- ✅ 內容 HTML / 純文字輸出
-- ✅ readonly 展示模式
-- ✅ undo / redo、JSON / HTML 序列化（由 Lexical 提供）
-- ❌ 多人協作 / 協同編輯（要做的話可接 Lexical + Yjs）
+```tsx
+import {
+  AccentProvider, Button, ThemeProvider, ThemeSwitcher, AccentSwitcher,
+} from '@ilovecode33/ui';
+import '@ilovecode33/ui/styles.css';
+
+<ThemeProvider>
+  <AccentProvider>
+    <ThemeSwitcher />
+    <AccentSwitcher />
+    <Button variant="primary">Get started</Button>
+  </AccentProvider>
+</ThemeProvider>
+```
+
+The library includes Button, Card, Stack/Row, Segmented, SliderRow, Switch, Field, Select, TextInput, Stat, StatusStat, EmptyState, Sheet, plus Theme/Accent providers and switchers. All text is passed via props with English defaults; the library does not depend on any i18n package.
+
+`Select` is a custom dropdown (not a native `<select>`). Options accept `leading` / `trailing` React nodes — for example a color swatch next to each option — and it supports keyboard navigation, ARIA, and click-outside. Its `onChange` receives `{ target: { value } }` rather than a native `ChangeEvent<HTMLSelectElement>`.
+
+```tsx
+<Select
+  value={tone}
+  onChange={(event) => setTone(event.target.value)}
+  options={TONES.map((item) => ({
+    value: item.value,
+    label: item.label,
+    leading: <span className="ui-color-swatch" style={{ background: item.color }} />,
+  }))}
+/>
+```
+
+`<option>` children still work for backward compatibility, but `options` is preferred.
+
+Before adding or changing a component, read [`packages/ui/QUALITY.md`](packages/ui/QUALITY.md). Agent-specific rules live in [`AGENTS.md`](AGENTS.md).
+
+## Current scope
+
+- ✅ Headings H1–H3, bold, italic
+- ✅ Toolbar active state sync
+- ✅ HTML / plain-text output
+- ✅ Readonly display mode
+- ✅ Undo / redo and JSON / HTML serialization (provided by Lexical)
+- ❌ Multi-user collaboration (would require Lexical + Yjs)

@@ -1,0 +1,129 @@
+.landing__container {
+  width: 100%;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.landing__header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-glass);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.landing__header-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.landing__brand {
+  font-size: var(--text-base);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.landing__brand-mark {
+  color: var(--accent);
+}
+
+.landing__header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.landing__locale { width: 104px; }
+
+.landing__hero {
+  padding: 72px 0 56px;
+}
+
+.landing__eyebrow {
+  margin: 0 0 12px;
+  color: var(--accent);
+  font-size: var(--text-sm);
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.landing__hero h1 {
+  margin: 0 0 16px;
+  font-size: clamp(32px, 7vw, 52px);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1.12;
+}
+
+.landing__lead {
+  max-width: 560px;
+  margin: 0 0 28px;
+  color: var(--text-dim);
+  font-size: var(--text-lg);
+  line-height: 1.7;
+}
+
+.landing__section {
+  padding: 32px 0;
+}
+
+.landing__section h2 {
+  margin: 0 0 6px;
+  font-size: var(--text-xl);
+  letter-spacing: -0.02em;
+}
+
+.landing__subtitle {
+  margin: 0 0 20px;
+  color: var(--text-dim);
+  font-size: var(--text-sm);
+}
+
+.landing__tone-preview {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  color: var(--text-dim);
+  font-size: var(--text-sm);
+}
+
+.landing__section .ui-card + .ui-card {
+  margin-top: 16px;
+}
+
+.landing__footer {
+  border-top: 1px solid var(--border);
+  padding: 28px 0;
+  color: var(--text-faint);
+  font-size: var(--text-sm);
+}
+
+@media (min-width: 768px) {
+  .landing__header-inner {
+    flex-wrap: nowrap;
+    min-height: 60px;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  .landing__hero {
+    padding: 104px 0 72px;
+  }
+
+  .landing__section {
+    padding: 44px 0;
+  }
+}

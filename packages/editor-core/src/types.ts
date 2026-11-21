@@ -13,9 +13,9 @@ export interface EditorState {
 
 export interface EditorOptions {
   element: HTMLElement;
-  /** 唯讀模式：使用者無法編輯，只由宿主傳入內容展示 */
+  /** Readonly mode: the user cannot edit; the host supplies the content */
   readonly?: boolean;
-  /** 初始 HTML 內容，唯讀模式常用 */
+  /** Initial HTML content, commonly used in readonly mode */
   initialHTML?: string;
   onChange?: (snapshot: EditorSnapshot) => void;
   onStateChange?: (state: EditorState) => void;
@@ -26,7 +26,7 @@ export interface EditorController {
   italic(): void;
   setHeading(level: HeadingLevel): void;
   getHTML(): string;
-  /** 由宿主寫入內容；唯讀模式下仍可用於載入文章 */
+  /** Written by the host; still available in readonly mode to load content */
   setHTML(html: string): void;
   getText(): string;
   getState(): EditorState;

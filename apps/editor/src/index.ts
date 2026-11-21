@@ -6,7 +6,7 @@ const status = document.querySelector<HTMLElement>('#status');
 const output = document.querySelector<HTMLElement>('#output');
 
 if (!surface || !status || !output) {
-  throw new Error('編輯器模板缺少必要元素');
+  throw new Error('Editor template is missing required elements');
 }
 
 const buttons = Array.from(
@@ -16,8 +16,8 @@ const buttons = Array.from(
 const editor = createEditor({
   element: surface,
   onChange: ({ html, text }) => {
-    output.textContent = html.trim() || '<!-- 空白 -->';
-    status.textContent = `${text.replace(/\s/g, '').length} 字元`;
+    output.textContent = html.trim() || '<!-- empty -->';
+    status.textContent = `${text.replace(/\s/g, '').length} characters`;
   },
   onStateChange: ({ bold, italic, heading }) => {
     for (const button of buttons) {
@@ -37,7 +37,7 @@ const editor = createEditor({
 });
 
 for (const button of buttons) {
-  // 防止按下工具列時焦點轉移、造成編輯器內的選取範圍消失
+  // Keep the editor selection when a toolbar button is pressed
   button.addEventListener('mousedown', (event) => event.preventDefault());
 
   button.addEventListener('click', () => {
@@ -54,6 +54,6 @@ for (const button of buttons) {
 }
 
 editor.setHTML(
-  '<h1>歡迎使用編輯器</h1><p>試著選取一段文字，然後按 <strong>B</strong> 或 <em>I</em>，或切換 H1 / H2 / H3。</p>',
+  '<h1>Welcome to the editor</h1><p>Select some text and press <strong>B</strong> or <em>I</em>, or switch between H1 / H2 / H3.</p>',
 );
 editor.focus();
