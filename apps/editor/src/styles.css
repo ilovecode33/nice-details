@@ -1,0 +1,167 @@
+:root {
+  color-scheme: light;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', sans-serif;
+  color: #1f2937;
+  background: #f3f4f6;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 48px 20px;
+}
+
+.app {
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.app__header {
+  margin-bottom: 20px;
+}
+
+.app__header h1 {
+  margin: 0 0 4px;
+  font-size: 22px;
+  letter-spacing: -0.01em;
+}
+
+.app__header p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.editor {
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 10px 30px rgb(15 23 42 / 8%);
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f9fafb;
+}
+
+.toolbar__group {
+  display: flex;
+  gap: 4px;
+}
+
+.toolbar__divider {
+  width: 1px;
+  height: 20px;
+  background: #e5e7eb;
+}
+
+.toolbar button {
+  min-width: 34px;
+  height: 32px;
+  padding: 0 9px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: #374151;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease;
+}
+
+.toolbar button:hover {
+  background: #eef2f7;
+}
+
+.toolbar button:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 1px;
+}
+
+.toolbar button.is-active {
+  border-color: #bfdbfe;
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.editor__surface {
+  min-height: 320px;
+  padding: 28px 32px;
+  outline: none;
+  line-height: 1.75;
+  font-size: 15px;
+}
+
+.editor__surface:empty::before {
+  content: attr(data-placeholder);
+  color: #9ca3af;
+  pointer-events: none;
+}
+
+.editor__surface h1,
+.editor__surface h2,
+.editor__surface h3 {
+  margin: 1.2em 0 0.5em;
+  line-height: 1.3;
+}
+
+.editor__surface h1:first-child,
+.editor__surface h2:first-child,
+.editor__surface h3:first-child,
+.editor__surface p:first-child {
+  margin-top: 0;
+}
+
+.editor__surface h1 {
+  font-size: 28px;
+}
+
+.editor__surface h2 {
+  font-size: 22px;
+}
+
+.editor__surface h3 {
+  font-size: 18px;
+}
+
+.editor__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 16px;
+  border-top: 1px solid #e5e7eb;
+  background: #f9fafb;
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.editor__inspect {
+  min-width: 0;
+}
+
+.editor__inspect summary {
+  cursor: pointer;
+}
+
+.editor__output {
+  max-height: 180px;
+  margin: 10px 0 0;
+  padding: 10px;
+  overflow: auto;
+  border-radius: 6px;
+  background: #111827;
+  color: #a7f3d0;
+  font-size: 11px;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
