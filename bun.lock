@@ -42,6 +42,7 @@
       "name": "@ilovecode33/ui-landing",
       "version": "0.1.0",
       "dependencies": {
+        "@ilovecode33/photo-wall": "workspace:*",
         "@ilovecode33/ui": "workspace:*",
         "react": "^19.3.1",
         "react-dom": "^19.3.1",

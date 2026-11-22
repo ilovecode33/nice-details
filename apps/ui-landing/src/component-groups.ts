@@ -98,6 +98,12 @@ export const COMPONENT_GROUPS: readonly ComponentGroup[] = [
       'Carousel',
     ],
   },
+  {
+    id: 'photoWall',
+    title: 'toc.photoWall',
+    subtitle: 'demo.photoWall.subtitle',
+    components: ['PhotoWall', 'VirtualLight'],
+  },
 ] as const;
 
 export function componentAnchor(name: string): string {

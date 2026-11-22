@@ -65,6 +65,7 @@ import {
   type TranslationKey,
 } from './i18n';
 import { COMPONENT_GROUPS, group } from './component-groups';
+import { PhotoWallDemo } from './photo-wall-demo';
 
 type Tone = 'warm' | 'ocean' | 'forest' | 'violet' | 'citrus';
 type LibraryTab = 'albums' | 'shared' | 'archive';
@@ -589,6 +590,14 @@ function App() {
                   <span id="component-photoviewer" className="component-anchor" aria-hidden="true" />
                   <span id="component-carousel" className="component-anchor" aria-hidden="true" />
                   <Carousel items={photoItems.slice(0, 3)} label={t('gallery.carouselLabel')} index={carouselIndex} onIndexChange={setCarouselIndex} />
+                </div>
+              </Card>
+
+              <Card id="group-photoWall" title={t(group('photoWall').title)} subtitle={t(group('photoWall').subtitle)}>
+                <div className={cn('ui-stack ui-stack--md')}>
+                  <span id="component-photowall" className="component-anchor" aria-hidden="true" />
+                  <span id="component-virtuallight" className="component-anchor" aria-hidden="true" />
+                  <PhotoWallDemo />
                 </div>
               </Card>
           </div>
