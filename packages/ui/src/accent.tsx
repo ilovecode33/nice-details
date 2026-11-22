@@ -7,113 +7,24 @@ import {
   useState,
   type ReactNode,
 } from 'react';
+import {
+  ACCENTS,
+  ACCENT_PALETTES,
+  DEFAULT_ACCENT,
+  type Accent,
+} from '@ilovecode33/ui-tokens';
 import { Select } from './components';
 import { useTheme } from './theme';
 
-/**
- * Accent colors are named by meaning, never by the color itself.
- * Each palette is adjusted for light and dark themes so text contrast stays sufficient.
- */
-export const ACCENTS = [
-  'warmth',
-  'serenity',
-  'growth',
-  'gentle',
-  'vitality',
-] as const;
-export type Accent = (typeof ACCENTS)[number];
-export const DEFAULT_ACCENT: Accent = 'warmth';
-
-export interface Palette {
-  accent: string;
-  ink: string; // text on top of accent
-  soft: string; // subtle tinted background
-  glow: string; // halo / focus ring
-  tint: string; // page background radial wash
-}
-
-export const ACCENT_PALETTES: Record<Accent, Record<'light' | 'dark', Palette>> = {
-  warmth: {
-    light: {
-      accent: '#b23a0a',
-      ink: '#ffffff',
-      soft: 'rgba(178,58,10,0.12)',
-      glow: 'rgba(178,58,10,0.45)',
-      tint: 'rgba(178,58,10,0.08)',
-    },
-    dark: {
-      accent: '#ff9a76',
-      ink: '#2a0e04',
-      soft: 'rgba(255,154,118,0.16)',
-      glow: 'rgba(255,154,118,0.55)',
-      tint: 'rgba(255,154,118,0.07)',
-    },
-  },
-  serenity: {
-    light: {
-      accent: '#1565c0',
-      ink: '#ffffff',
-      soft: 'rgba(21,101,192,0.12)',
-      glow: 'rgba(21,101,192,0.4)',
-      tint: 'rgba(21,101,192,0.08)',
-    },
-    dark: {
-      accent: '#7ab8ff',
-      ink: '#082744',
-      soft: 'rgba(122,184,255,0.16)',
-      glow: 'rgba(122,184,255,0.5)',
-      tint: 'rgba(122,184,255,0.07)',
-    },
-  },
-  growth: {
-    light: {
-      accent: '#2e7d32',
-      ink: '#ffffff',
-      soft: 'rgba(46,125,50,0.12)',
-      glow: 'rgba(46,125,50,0.4)',
-      tint: 'rgba(46,125,50,0.08)',
-    },
-    dark: {
-      accent: '#8fd694',
-      ink: '#0a2a0d',
-      soft: 'rgba(143,214,148,0.16)',
-      glow: 'rgba(143,214,148,0.5)',
-      tint: 'rgba(143,214,148,0.07)',
-    },
-  },
-  gentle: {
-    light: {
-      accent: '#6a1b9a',
-      ink: '#ffffff',
-      soft: 'rgba(106,27,154,0.12)',
-      glow: 'rgba(106,27,154,0.4)',
-      tint: 'rgba(106,27,154,0.08)',
-    },
-    dark: {
-      accent: '#c4a8f0',
-      ink: '#1a0e2e',
-      soft: 'rgba(196,168,240,0.16)',
-      glow: 'rgba(196,168,240,0.5)',
-      tint: 'rgba(196,168,240,0.07)',
-    },
-  },
-  vitality: {
-    light: {
-      accent: '#5a7d00',
-      ink: '#ffffff',
-      soft: 'rgba(90,125,0,0.12)',
-      glow: 'rgba(90,125,0,0.4)',
-      tint: 'rgba(90,125,0,0.08)',
-    },
-    dark: {
-      accent: '#d7ff5f',
-      ink: '#15190a',
-      soft: 'rgba(215,255,95,0.14)',
-      glow: 'rgba(215,255,95,0.55)',
-      tint: 'rgba(215,255,95,0.07)',
-    },
-  },
-};
+/** Token definitions are owned by `@ilovecode33/ui-tokens` and re-exported for API stability. */
+export {
+  ACCENTS,
+  ACCENT_PALETTES,
+  DEFAULT_ACCENT,
+  type Accent,
+  type Palette,
+} from '@ilovecode33/ui-tokens';
+import { cn } from './css';
 
 const STORAGE_KEY = 'gallery.accent';
 
@@ -208,7 +119,7 @@ export function AccentSwitcher({ labels }: { labels?: AccentSwitcherLabels }) {
   const l = { ...DEFAULT_ACCENT_LABELS, ...labels };
 
   return (
-    <label className="ui-inline-select" title={l.group}>
+    <label className={cn('ui-inline-select')} title={l.group}>
       <span aria-hidden="true">✦</span>
       <Select
         aria-label={l.group}
@@ -219,7 +130,7 @@ export function AccentSwitcher({ labels }: { labels?: AccentSwitcherLabels }) {
           label: l[a],
           leading: (
             <span
-              className="ui-color-swatch"
+              className={cn('ui-color-swatch')}
               style={{ background: ACCENT_PALETTES[a][resolved].accent }}
             />
           ),

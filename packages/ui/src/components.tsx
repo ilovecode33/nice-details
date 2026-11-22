@@ -7,6 +7,20 @@
  * `@media (min-width: 768px)`.
  */
 
+import { Deformable, useDeform } from './motion';
+import {
+  comboboxSemantics,
+  createSelectionState,
+  enabledIndexes,
+  optionSemantics,
+  selectionReducer,
+  sheetSemantics,
+  tabSemantics,
+  toggleReducer,
+  toggleSemantics,
+  type SelectionEvent,
+  type SelectionState,
+} from '@ilovecode33/ui-core';
 import {
   Children,
   isValidElement,
@@ -21,6 +35,7 @@ import {
   type KeyboardEvent as ReactKeyboardEvent,
   type ReactNode,
 } from 'react';
+import { cn } from './css';
 
 /* ── Button ──────────────────────────────────────────────────────────────── */
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -28,6 +43,8 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   size?: 'default' | 'compact';
   icon?: ReactNode;
   block?: boolean;
+  /** Directional press/drag deformation. Disabled automatically under reduced motion. */
+  deform?: boolean;
 }
 
 export function Button({
@@ -35,18 +52,24 @@ export function Button({
   size = 'default',
   icon,
   block,
+  deform = true,
   className = '',
+  style,
   children,
   ...rest
 }: ButtonProps) {
+  // Buttons keep vertical page scrolling; horizontal drags still deform them.
+  const motion = useDeform({ enabled: deform, touchAction: 'pan-y' });
   return (
     <button
       type="button"
-      className={`ui-btn ui-btn--${variant} ui-btn--${size} ${block ? 'ui-btn--block' : ''} ${className}`}
+      className={cn(`ui-btn ui-btn--${variant} ui-btn--${size} ${block ? 'ui-btn--block' : ''} ${className}`)}
+      style={{ ...motion.style, ...style }}
       {...rest}
+      {...motion.handlers}
     >
       {icon && (
-        <span className="ui-btn__icon" aria-hidden="true">
+        <span className={cn('ui-btn__icon')} aria-hidden="true">
           {icon}
         </span>
       )}
@@ -74,19 +97,20 @@ export function Card({
 }: CardProps) {
   return (
     <section
-      className={`ui-card ${padded ? 'ui-card--padded' : ''} ${className}`}
+      data-ui="card"
+      className={cn(`ui-card ${padded ? 'ui-card--padded' : ''} ${className}`)}
       {...rest}
     >
       {(title || actions) && (
-        <header className="ui-card__head">
-          <div className="ui-card__titles">
-            {title && <h2 className="ui-card__title">{title}</h2>}
-            {subtitle && <p className="ui-card__subtitle">{subtitle}</p>}
+        <header className={cn('ui-card__head')}>
+          <div className={cn('ui-card__titles')}>
+            {title && <h2 className={cn('ui-card__title')}>{title}</h2>}
+            {subtitle && <p className={cn('ui-card__subtitle')}>{subtitle}</p>}
           </div>
-          {actions && <div className="ui-card__actions">{actions}</div>}
+          {actions && <div className={cn('ui-card__actions')}>{actions}</div>}
         </header>
       )}
-      <div className="ui-card__body">{children}</div>
+      <div className={cn('ui-card__body')}>{children}</div>
     </section>
   );
 }
@@ -99,7 +123,7 @@ export function Stack({
   ...rest
 }: HTMLAttributes<HTMLDivElement> & { gap?: 'sm' | 'md' | 'lg' }) {
   return (
-    <div className={`ui-stack ui-stack--${gap} ${className}`} {...rest}>
+    <div className={cn(`ui-stack ui-stack--${gap} ${className}`)} {...rest}>
       {children}
     </div>
   );
@@ -107,7 +131,7 @@ export function Stack({
 
 export function Row({ className = '', children, ...rest }: HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={`ui-row ${className}`} {...rest}>
+    <div className={cn(`ui-row ${className}`)} {...rest}>
       {children}
     </div>
   );
@@ -118,6 +142,7 @@ export interface SegmentOption<T extends string> {
   value: T;
   label: ReactNode;
   icon?: ReactNode;
+  disabled?: boolean;
 }
 
 export function Segmented<T extends string>({
@@ -125,28 +150,54 @@ export function Segmented<T extends string>({
   value,
   onChange,
   label,
+  deform = true,
 }: {
   options: SegmentOption<T>[];
   value: T;
   onChange: (v: T) => void;
   label?: string;
+  deform?: boolean;
 }) {
   return (
-    <div className="ui-segmented" role="tablist" aria-label={label}>
-      {options.map((o) => (
-        <button
-          key={o.value}
-          type="button"
-          role="tab"
-          aria-selected={value === o.value}
-          className={`ui-segmented__item ${value === o.value ? 'is-active' : ''}`}
-          onClick={() => onChange(o.value)}
-        >
-          {o.icon && <span aria-hidden="true">{o.icon}</span>}
-          {o.label}
-        </button>
-      ))}
-    </div>
+    <Deformable
+      className={cn('ui-segmented')}
+      role="tablist"
+      aria-label={label}
+      enabled={deform}
+      touchAction="pan-y"
+    >
+      {options.map((o) => {
+        const semantics = tabSemantics(o, value);
+        return (
+          <button
+            key={o.value}
+            type="button"
+            role={semantics.role}
+            aria-selected={semantics.selected}
+            aria-disabled={semantics.disabled || undefined}
+            aria-label={semantics.label}
+            tabIndex={o.value === value ? 0 : -1}
+            className={cn(`ui-segmented__item ${value === o.value ? 'is-active' : ''}`)}
+            onClick={() => !o.disabled && onChange(o.value)}
+            onKeyDown={(event) => {
+              const index = options.findIndex((item) => item.value === value);
+              let next: number | undefined;
+              if (event.key === 'ArrowRight') next = (index + 1) % options.length;
+              if (event.key === 'ArrowLeft') next = (index - 1 + options.length) % options.length;
+              if (event.key === 'Home') next = 0;
+              if (event.key === 'End') next = options.length - 1;
+              if (next === undefined) return;
+              event.preventDefault();
+              const option = options[next];
+              if (option && !option.disabled) onChange(option.value);
+            }}
+          >
+            {o.icon && <span aria-hidden="true">{o.icon}</span>}
+            {o.label}
+          </button>
+        );
+      })}
+    </Deformable>
   );
 }
 
@@ -169,10 +220,10 @@ export function SliderRow({
   onChange: (v: number) => void;
 }) {
   return (
-    <label className="ui-slider">
-      <span className="ui-slider__top">
-        <span className="ui-slider__label">{label}</span>
-        <output className="ui-slider__value">{fmt(value)}</output>
+    <label className={cn('ui-slider')}>
+      <span className={cn('ui-slider__top')}>
+        <span className={cn('ui-slider__label')}>{label}</span>
+        <output className={cn('ui-slider__value')}>{fmt(value)}</output>
       </span>
       <input
         type="range"
@@ -191,22 +242,27 @@ export function Switch({
   checked,
   onChange,
   label,
+  deform = true,
 }: {
   checked: boolean;
   onChange: (v: boolean) => void;
   label: string;
+  deform?: boolean;
 }) {
+  const semantics = toggleSemantics({ checked }, label);
   return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      aria-label={label}
-      className={`ui-switch ${checked ? 'is-on' : ''}`}
-      onClick={() => onChange(!checked)}
-    >
-      <span className="ui-switch__knob" />
-    </button>
+    <Deformable enabled={deform} touchAction="pan-y">
+      <button
+        type="button"
+        role={semantics.role}
+        aria-checked={semantics.checked}
+        aria-label={semantics.label}
+        className={cn(`ui-switch ${checked ? 'is-on' : ''}`)}
+        onClick={() => onChange(toggleReducer({ checked }, { type: 'toggle' }).checked)}
+      >
+        <span className={cn('ui-switch__knob')} />
+      </button>
+    </Deformable>
   );
 }
 
@@ -221,10 +277,10 @@ export function Field({
   children: ReactNode;
 }) {
   return (
-    <label className="ui-field">
-      <span className="ui-field__label">{label}</span>
+    <label className={cn('ui-field')}>
+      <span className={cn('ui-field__label')}>{label}</span>
       {children}
-      {hint && <span className="ui-field__hint">{hint}</span>}
+      {hint && <span className={cn('ui-field__hint')}>{hint}</span>}
     </label>
   );
 }
@@ -259,6 +315,8 @@ export interface SelectProps<T extends string = string> {
   className?: string;
   id?: string;
   name?: string;
+  /** Elastic drag feedback. Defaults to true. */
+  deform?: boolean;
   /** Backward compatibility: <option> children */
   children?: ReactNode;
 }
@@ -298,178 +356,207 @@ export function Select<T extends string = string>({
   className = '',
   id,
   name,
+  deform = true,
   children,
 }: SelectProps<T>) {
-  const list = (options ?? (optionsFromChildren(children) as SelectOption<T>[]));
+  const list = options ?? (optionsFromChildren(children) as SelectOption<T>[]);
   const [internalValue, setInternalValue] = useState<T | undefined>(defaultValue);
   const currentValue = value !== undefined ? value : internalValue;
   const selected = list.find((o) => o.value === currentValue);
 
-  const [open, setOpen] = useState(false);
-  const [activeIndex, setActiveIndex] = useState(0);
+  // Open/active interaction is owned by the platform-neutral selection contract.
+  const [interaction, setInteraction] = useState<Pick<SelectionState<T>, 'open' | 'activeIndex'>>(
+    () => ({ open: false, activeIndex: 0 }),
+  );
+  const state: SelectionState<T> = {
+    options: list.map((o) => ({ value: o.value, disabled: o.disabled })),
+    value: currentValue,
+    open: interaction.open,
+    activeIndex: interaction.activeIndex,
+  };
+  const enabled = enabledIndexes(state);
+  const accessibleLabel = ariaLabel ?? label;
+  const semantics = comboboxSemantics(state, accessibleLabel);
+
   const wrapRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const listId = useId();
 
-  const enabledIndexes = list.flatMap((o, i) => (o.disabled ? [] : [i]));
+  const dispatch = (event: SelectionEvent<T>) => {
+    const next = selectionReducer(state, event);
+    setInteraction({ open: next.open, activeIndex: next.activeIndex });
+  };
 
   const openList = () => {
     if (disabled) return;
-    const currentIndex = list.findIndex((o) => o.value === currentValue);
-    setActiveIndex(currentIndex >= 0 ? currentIndex : (enabledIndexes[0] ?? 0));
-    setOpen(true);
+    dispatch({ type: 'open' });
   };
 
   const closeList = (focusTrigger = true) => {
-    setOpen(false);
+    dispatch({ type: 'close' });
     if (focusTrigger) triggerRef.current?.focus();
   };
 
   const choose = (option: SelectOption<T>) => {
     if (option.disabled) return;
+    dispatch({ type: 'select', value: option.value });
     if (value === undefined) setInternalValue(option.value);
     onChange?.({ target: { value: option.value } });
     closeList();
   };
 
-  const move = (direction: 1 | -1) => {
-    if (enabledIndexes.length === 0) return;
-    const position = enabledIndexes.indexOf(activeIndex);
-    const next =
-      position === -1
-        ? 0
-        : (position + direction + enabledIndexes.length) % enabledIndexes.length;
-    setActiveIndex(enabledIndexes[next]);
-  };
-
   useEffect(() => {
-    if (!open) return;
+    if (!state.open) return;
     const onPointerDown = (event: PointerEvent) => {
-      if (!wrapRef.current?.contains(event.target as Node)) setOpen(false);
+      if (!wrapRef.current?.contains(event.target as Node)) dispatch({ type: 'close' });
     };
     document.addEventListener('pointerdown', onPointerDown);
     return () => document.removeEventListener('pointerdown', onPointerDown);
-  }, [open]);
+  }, [state.open]);
 
   useEffect(() => {
-    if (!open) return;
+    if (!state.open) return;
     listRef.current
-      ?.querySelector<HTMLElement>(`[data-index="${activeIndex}"]`)
+      ?.querySelector<HTMLElement>(`[data-index="${state.activeIndex}"]`)
       ?.scrollIntoView({ block: 'nearest' });
-  }, [activeIndex, open]);
+  }, [state.activeIndex, state.open]);
 
   const onTriggerKeyDown = (event: ReactKeyboardEvent<HTMLButtonElement>) => {
     if (disabled) return;
 
     if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
       event.preventDefault();
-      if (!open) {
+      if (!state.open) {
         openList();
-        if (event.key === 'ArrowUp') setActiveIndex(enabledIndexes.at(-1) ?? 0);
+        if (event.key === 'ArrowUp') {
+          setInteraction((prev) => ({ ...prev, activeIndex: enabled.at(-1) ?? 0 }));
+        }
       } else {
-        move(event.key === 'ArrowDown' ? 1 : -1);
+        dispatch({ type: 'move', delta: event.key === 'ArrowDown' ? 1 : -1 });
       }
+      return;
+    }
+
+    if (event.key === 'Home' || event.key === 'End') {
+      event.preventDefault();
+      if (!state.open) openList();
+      setInteraction((prev) => ({
+        ...prev,
+        activeIndex:
+          event.key === 'Home' ? (enabled[0] ?? 0) : (enabled.at(-1) ?? 0),
+      }));
       return;
     }
 
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
-      if (!open) openList();
+      if (!state.open) openList();
       else {
-        const option = list[activeIndex];
+        const option = list[state.activeIndex];
         if (option) choose(option);
       }
       return;
     }
 
-    if (event.key === 'Escape' && open) {
+    if (event.key === 'Escape' && state.open) {
       event.preventDefault();
       closeList();
       return;
     }
 
-    if (event.key === 'Tab' && open) setOpen(false);
+    if (event.key === 'Tab' && state.open) dispatch({ type: 'close' });
   };
 
-  const accessibleLabel = ariaLabel ?? label;
-
   return (
-    <div ref={wrapRef} className={`ui-select__wrap ${className}`}>
+    <Deformable
+      enabled={deform}
+      touchAction="pan-y"
+      style={{ zIndex: state.open ? 50 : undefined }}
+    >
+    <div
+      ref={wrapRef}
+      className={cn(`ui-select__wrap ${className}`)}
+      style={{ zIndex: state.open ? 50 : undefined }}
+    >
       <button
         id={id}
         ref={triggerRef}
         type="button"
-        className={`ui-select ui-select--trigger ${open ? 'is-open' : ''}`}
-        role="combobox"
+        className={cn(`ui-select ui-select--trigger ${state.open ? 'is-open' : ''}`)}
+        role={semantics.role}
         aria-haspopup="listbox"
-        aria-expanded={open}
-        aria-controls={open ? listId : undefined}
-        aria-activedescendant={open ? `${listId}-${activeIndex}` : undefined}
-        aria-label={accessibleLabel}
-        aria-disabled={disabled || undefined}
+        aria-expanded={semantics.expanded}
+        aria-controls={state.open ? listId : undefined}
+        aria-activedescendant={state.open ? `${listId}-${state.activeIndex}` : undefined}
+        aria-label={semantics.label}
+        aria-disabled={disabled || semantics.disabled || undefined}
         disabled={disabled}
-        onClick={() => (open ? closeList(false) : openList())}
+        onClick={() => (state.open ? closeList(false) : openList())}
         onKeyDown={onTriggerKeyDown}
       >
-        <span className="ui-select__value">
+        <span className={cn('ui-select__value')}>
           {selected ? (
             <>
               {selected.leading}
               <span>{selected.label}</span>
             </>
           ) : (
-            <span className="ui-select__placeholder">{placeholder}</span>
+            <span className={cn('ui-select__placeholder')}>{placeholder}</span>
           )}
         </span>
-        <span className="ui-select__chevron" aria-hidden="true">
+        <span className={cn('ui-select__chevron')} aria-hidden="true">
           ⌄
         </span>
       </button>
 
-      {open && (
+      {state.open && (
         <div
           ref={listRef}
           id={listId}
           role="listbox"
           aria-label={accessibleLabel}
-          className="ui-select__menu"
+          className={cn('ui-select__menu')}
         >
-          {list.length === 0 && <div className="ui-select__empty">No options</div>}
-          {list.map((option, index) => (
-            <button
-              type="button"
-              key={option.value}
-              id={`${listId}-${index}`}
-              data-index={index}
-              role="option"
-              tabIndex={-1}
-              aria-selected={option.value === currentValue}
-              aria-disabled={option.disabled || undefined}
-              aria-label={option.textValue}
-              className={`ui-select__option ${index === activeIndex ? 'is-active' : ''}`}
-              onPointerEnter={() => !option.disabled && setActiveIndex(index)}
-              onClick={() => choose(option)}
-            >
-              {option.leading && (
-                <span className="ui-select__leading" aria-hidden="true">
-                  {option.leading}
-                </span>
-              )}
-              <span className="ui-select__option-label">{option.label}</span>
-              {option.trailing ??
-                (option.value === currentValue ? (
-                  <span className="ui-select__check" aria-hidden="true">
-                    ✓
+          {list.length === 0 && <div className={cn('ui-select__empty')}>No options</div>}
+          {list.map((option, index) => {
+            const optionState = optionSemantics(option, state, option.textValue);
+            return (
+              <button
+                type="button"
+                key={option.value}
+                id={`${listId}-${index}`}
+                data-index={index}
+                role={optionState.role}
+                tabIndex={-1}
+                aria-selected={optionState.selected}
+                aria-disabled={optionState.disabled || undefined}
+                aria-label={optionState.label}
+                className={cn(`ui-select__option ${index === state.activeIndex ? 'is-active' : ''}`)}
+                onPointerEnter={() => !option.disabled && dispatch({ type: 'setActive', index })}
+                onClick={() => choose(option)}
+              >
+                {option.leading && (
+                  <span className={cn('ui-select__leading')} aria-hidden="true">
+                    {option.leading}
                   </span>
-                ) : null)}
-            </button>
-          ))}
+                )}
+                <span className={cn('ui-select__option-label')}>{option.label}</span>
+                {option.trailing ??
+                  (optionState.selected ? (
+                    <span className={cn('ui-select__check')} aria-hidden="true">
+                      ✓
+                    </span>
+                  ) : null)}
+              </button>
+            );
+          })}
         </div>
       )}
 
       {name && <input type="hidden" name={name} value={currentValue ?? ''} />}
     </div>
+    </Deformable>
   );
 }
 
@@ -477,7 +564,7 @@ export function TextInput({
   className = '',
   ...rest
 }: InputHTMLAttributes<HTMLInputElement>) {
-  return <input className={`ui-input ${className}`} {...rest} />;
+  return <input className={cn(`ui-input ${className}`)} {...rest} />;
 }
 
 /* ── Stat / StatusStat / EmptyState ──────────────────────────────────────── */
@@ -491,11 +578,11 @@ export function Stat({
   tone?: 'accent' | 'success' | 'danger';
 }) {
   return (
-    <div className="ui-stat">
-      <strong className={tone ? `ui-stat__value is-${tone}` : 'ui-stat__value'}>
+    <div className={cn('ui-stat')}>
+      <strong className={cn(tone ? `ui-stat__value is-${tone}` : 'ui-stat__value')}>
         {value}
       </strong>
-      <span className="ui-stat__label">{label}</span>
+      <span className={cn('ui-stat__label')}>{label}</span>
     </div>
   );
 }
@@ -515,14 +602,14 @@ export function StatusStat({
 }) {
   const icon = status === 'success' ? '✓' : status === 'danger' ? '✕' : '·';
   return (
-    <div className="ui-status-stat">
-      <span className={`ui-status-stat__value is-${status}`}>
-        <span className="ui-status-stat__icon" aria-hidden="true">
+    <div className={cn('ui-status-stat')}>
+      <span className={cn(`ui-status-stat__value is-${status}`)}>
+        <span className={cn('ui-status-stat__icon')} aria-hidden="true">
           {icon}
         </span>
         {value}
       </span>
-      <span className="ui-status-stat__label">{label}</span>
+      <span className={cn('ui-status-stat__label')}>{label}</span>
     </div>
   );
 }
@@ -537,14 +624,14 @@ export function EmptyState({
   detail?: string;
 }) {
   return (
-    <div className="ui-empty">
+    <div className={cn('ui-empty')}>
       {icon && (
-        <div className="ui-empty__icon" aria-hidden="true">
+        <div className={cn('ui-empty__icon')} aria-hidden="true">
           {icon}
         </div>
       )}
-      <p className="ui-empty__title">{title}</p>
-      {detail && <p className="ui-empty__detail">{detail}</p>}
+      <p className={cn('ui-empty__title')}>{title}</p>
+      {detail && <p className={cn('ui-empty__detail')}>{detail}</p>}
     </div>
   );
 }
@@ -563,24 +650,48 @@ export function Sheet({
   children: ReactNode;
   style?: CSSProperties;
 }) {
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const restoreRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    restoreRef.current = document.activeElement as HTMLElement | null;
+    closeRef.current?.focus();
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      restoreRef.current?.focus();
+    };
+  }, [open, onClose]);
+
   if (!open) return null;
+  const semantics = sheetSemantics({ presented: open }, typeof title === 'string' ? title : undefined);
   return (
     <div
-      className="ui-sheet"
-      role="dialog"
-      aria-modal="true"
-      aria-label={typeof title === 'string' ? title : undefined}
+      className={cn('ui-sheet')}
+      role={semantics.role}
+      aria-modal={semantics.modal}
+      aria-label={semantics.label}
     >
-      <div className="ui-sheet__scrim" onClick={onClose} />
-      <div className="ui-sheet__panel" style={style}>
-        <div className="ui-sheet__grabber" aria-hidden="true" />
-        <header className="ui-sheet__head">
+      <div className={cn('ui-sheet__scrim')} onClick={onClose} />
+      <div className={cn('ui-sheet__panel')} style={style}>
+        <div className={cn('ui-sheet__grabber')} aria-hidden="true" />
+        <header className={cn('ui-sheet__head')}>
           <h2>{title}</h2>
-          <Button variant="plain" size="compact" onClick={onClose} aria-label="Close">
+          <button
+            ref={closeRef}
+            type="button"
+            className={cn('ui-btn ui-btn--plain ui-btn--compact')}
+            aria-label="Close"
+            onClick={onClose}
+          >
             ✕
-          </Button>
+          </button>
         </header>
-        <div className="ui-sheet__body">{children}</div>
+        <div className={cn('ui-sheet__body')}>{children}</div>
       </div>
     </div>
   );

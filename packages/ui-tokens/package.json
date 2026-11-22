@@ -1,0 +1,30 @@
+{
+  "name": "@ilovecode33/ui-tokens",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "generated"
+  ],
+  "scripts": {
+    "build": "rslib build",
+    "dev": "rslib build --watch",
+    "typecheck": "tsc --noEmit",
+    "generate": "bun scripts/generate.ts",
+    "clean": "rm -rf dist"
+  },
+  "devDependencies": {
+    "@rslib/core": "^1.0.7",
+    "@types/node": "^24.0.0",
+    "typescript": "^5.9.3"
+  }
+}

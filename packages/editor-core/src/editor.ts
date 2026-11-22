@@ -117,12 +117,17 @@ export function createEditor(options: EditorOptions): EditorController {
 
   function setHTML(html: string): void {
     const dom = new DOMParser().parseFromString(html, 'text/html');
-    editor.update(() => {
-      const nodes = $generateNodesFromDOM(editor, dom);
-      const root = $getRoot();
-      root.clear();
-      root.append(...(nodes.length > 0 ? nodes : [$createParagraphNode()]));
-    });
+    // Discrete commit: getHTML()/getText() must see the new state immediately,
+    // including during creation when initialHTML is passed in.
+    editor.update(
+      () => {
+        const nodes = $generateNodesFromDOM(editor, dom);
+        const root = $getRoot();
+        root.clear();
+        root.append(...(nodes.length > 0 ? nodes : [$createParagraphNode()]));
+      },
+      { discrete: true },
+    );
   }
 
   if (initialHTML) setHTML(initialHTML);

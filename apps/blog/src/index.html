@@ -2,32 +2,23 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <script>
+      // Apply the saved theme before any stylesheet renders, so a full page
+      // load (e.g. following a nav link) never paints the light base first.
+      try {
+        var theme = localStorage.getItem('gallery.theme');
+        document.documentElement.setAttribute(
+          'data-theme',
+          theme === 'light' || theme === 'dark' || theme === 'system' ? theme : 'system',
+        );
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'system');
+      }
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="ilovecode33 blog" />
   </head>
   <body>
-    <header class="site-header">
-      <div class="site-header__inner">
-        <a class="site-header__brand" href="/">ilovecode33</a>
-        <nav class="site-header__nav" aria-label="Main navigation">
-          <a href="/">Posts</a>
-          <a href="/about">About</a>
-        </nav>
-      </div>
-    </header>
-
-    <main class="main">
-      <article class="post">
-        <div class="post__meta">
-          <time datetime="2026-11-21">November 21, 2026</time>
-          <span class="post__badge">Readonly mode</span>
-        </div>
-        <div id="post-content" class="post__content" aria-label="Article content"></div>
-      </article>
-    </main>
-
-    <footer class="site-footer">
-      <p>© 2026 ilovecode33</p>
-    </footer>
+    <div id="root"></div>
   </body>
 </html>

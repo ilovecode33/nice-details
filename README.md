@@ -19,8 +19,12 @@ apps/
   ui-landing/      # Component library landing page (port 3200)
 packages/
   editor-core/     # @ilovecode33/editor-core, framework-agnostic editor SDK
+  ui-tokens/       # @ilovecode33/ui-tokens, design tokens as data + generators
+  ui-core/         # @ilovecode33/ui-core, platform-neutral state contracts
   ui/              # @ilovecode33/ui, React component library
     QUALITY.md     # Entry / exit criteria (HIG, mobile-first, touch-first)
+    ROADMAP.md     # Component expansion plan and platform-neutral architecture
+  ui-swift/        # SwiftUI skeleton (Swift package, not an npm workspace)
 AGENTS.md          # Agent rules for this repository
 ```
 
@@ -86,7 +90,17 @@ import '@ilovecode33/ui/styles.css';
 </ThemeProvider>
 ```
 
-The library includes Button, Card, Stack/Row, Segmented, SliderRow, Switch, Field, Select, TextInput, Stat, StatusStat, EmptyState, Sheet, plus Theme/Accent providers and switchers. All text is passed via props with English defaults; the library does not depend on any i18n package.
+The library includes Button, Card, Stack/Row, Segmented, SliderRow, Switch, Field, Select, TextInput, Stat, StatusStat, EmptyState, Sheet, NavBar, TabBar, List/ListRow, Disclosure, Divider, Badge, Chip, FormField, Checkbox, RadioGroup, TextArea, Stepper, NumberField, SearchBar, DatePicker, Toast, Banner, ActivityIndicator, Skeleton, ProgressBar, ActionSheet, AlertDialog, Popover, AspectImage, PhotoGrid, PhotoViewer, Avatar, Thumbnail, Carousel, plus Theme/Accent providers and switchers. All text is passed via props with English defaults; the library does not depend on any i18n package.
+
+The landing page **Component details** section now shows these in real scenarios: upload overview, settings, album library, create-album form, upload progress, photo gallery, empty search, and delete confirmation.
+
+Design values live in `@ilovecode33/ui-tokens` (CSS, JSON, and Swift generators); state models and reducers live in `@ilovecode33/ui-core`. The React package is a thin renderer over both. `packages/ui-swift` is a SwiftUI skeleton that mirrors the same contracts — build it with `swift build --package-path packages/ui-swift`. Regenerate tokens with `bun run generate` in `packages/ui-tokens`.
+
+The design language uses translucent glass tokens (`--glass-*`) for chrome that floats above content: `GlassSurface` and `FloatingBar` reserve space in the host instead of occupying layout, while `DockNavigation` builds a collapsible, scrollable navigation dock on top of `FloatingBar`. `Deformable` and `useDeform` add directional drag deformation with a spring back, built into `Button` and floating surfaces. All motion and material values are tokens, and deformation is disabled under `prefers-reduced-motion`. `UIFoundation` is the single provider for theme, accent and locale. The host supplies plain dictionaries (the library has no i18n dependency); `useLocale()` exposes `locale`, `setLocale` and `t()`. Wrapped content disables text selection by default so it does not fight the elastic drag feedback — inputs, textareas and editable regions keep normal selection.
+
+All component styles are CSS Modules. `cn()` maps class names to the generated local names, and the package build merges the global design tokens with the module output into a single `dist/styles.css`. Consumers can keep importing `@ilovecode33/ui/styles.css`.
+
+The landing page uses a single floating footer dock as its only navigation; the component index and section links all live there instead of a separate header or sidebar.
 
 `Select` is a custom dropdown (not a native `<select>`). Options accept `leading` / `trailing` React nodes — for example a color swatch next to each option — and it supports keyboard navigation, ARIA, and click-outside. Its `onChange` receives `{ target: { value } }` rather than a native `ChangeEvent<HTMLSelectElement>`.
 
@@ -104,7 +118,7 @@ The library includes Button, Card, Stack/Row, Segmented, SliderRow, Switch, Fiel
 
 `<option>` children still work for backward compatibility, but `options` is preferred.
 
-Before adding or changing a component, read [`packages/ui/QUALITY.md`](packages/ui/QUALITY.md). Agent-specific rules live in [`AGENTS.md`](AGENTS.md).
+Before adding or changing a component, read [`packages/ui/QUALITY.md`](packages/ui/QUALITY.md). For the planned component expansion and the platform-neutral architecture that can back a future SwiftUI renderer, see [`packages/ui/ROADMAP.md`](packages/ui/ROADMAP.md). Agent-specific rules live in [`AGENTS.md`](AGENTS.md).
 
 ## Current scope
 

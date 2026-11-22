@@ -41,6 +41,26 @@ Design reference: [Apple Human Interface Guidelines — Design Principles](https
 
 ---
 
+## 3a. Floating surfaces and gesture feedback
+
+Chrome (headers, navigation, footers, docks) floats above content instead of
+occupying layout space. The host reserves room with padding or `scroll-padding`
+so nothing is permanently covered.
+
+- [ ] Glass material comes from `--glass-*` tokens: fill, stroke, highlight, shadow, blur, saturation. No hardcoded translucency.
+- [ ] A solid `--bg-elevated` fallback exists when `backdrop-filter` is unsupported.
+- [ ] Floating bars resolve safe-area insets and keep every interactive target at least 44 × 44 pt.
+- [ ] Translucent surfaces keep text contrast in light, dark, and all five accents.
+- [ ] Drag deformation is direct manipulation feedback: rubber-band resistance (harder the farther it is pulled), directional stretch/squash, spring back on release.
+- [ ] Stretch is driven by the dragged axis's own displacement; the perpendicular squash is paired with that pull. No rotation or tilt is added.
+- [ ] A drag beyond the click threshold, or a release outside the control, must not fire the control's click / activation handlers.
+- [ ] Deformation is disabled under `prefers-reduced-motion`; the static layout and state remain correct.
+- [ ] On touch, `touch-action` follows the drag axis (x → `pan-y`, y → `pan-x`, both → `none`) and a non-passive `touchmove` guard keeps the browser from canceling the gesture; page scrolling still works on Buttons.
+- [ ] The state model and semantics live in `@ilovecode33/ui-core`; the React renderer only maps them to styles.
+- [ ] A SwiftUI counterpart is recorded on the contract (material plus spring).
+
+---
+
 ## 4. Entry criteria (before a new component is merged)
 
 Every PR adding a component must satisfy all of the following:

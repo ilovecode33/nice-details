@@ -2,6 +2,19 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <script>
+      // Apply the saved theme before any stylesheet renders, so a full page
+      // load never paints the light base first in dark mode.
+      try {
+        var theme = localStorage.getItem('gallery.theme');
+        document.documentElement.setAttribute(
+          'data-theme',
+          theme === 'light' || theme === 'dark' || theme === 'system' ? theme : 'system',
+        );
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'system');
+      }
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="description" content="@ilovecode33/ui component library gallery" />
   </head>
