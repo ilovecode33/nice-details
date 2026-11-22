@@ -275,16 +275,18 @@
   position: absolute;
   inset: 0;
   z-index: 4;
-  /* Broad ceiling spot centred above the screen, lower corners in shade. */
+  /* The first gradient follows the virtual light; the other two keep the
+     gentle ambient falloff toward the lower corners. */
   background:
     radial-gradient(
-      56% 38% at 50% -6%,
-      rgba(255, 250, 236, 0.72),
+      var(--glow-size, 115cqw) var(--glow-size, 115cqw) at
+        var(--glow-x, 50%) var(--glow-y, -48vh),
+      rgba(255, 250, 236, var(--glow-alpha, 0.42)),
       transparent 72%
     ),
     radial-gradient(
       96% 64% at 50% 0%,
-      rgba(255, 255, 255, 0.14),
+      rgba(255, 255, 255, 0.1),
       transparent 70%
     ),
     radial-gradient(

@@ -45,6 +45,51 @@ seed and params generate it.
 Every frame carries `data-wall-frame`, a stable hook for counting or querying
 frames without depending on generated CSS Module class names.
 
+## The virtual light
+
+A soft ceiling light is part of the scene. It is defined in the same coordinate
+systems as the frames — `x` in tile-percent, `y` in stage-percent (negative is
+above the screen), `z` in virtual-stage px, plus an emitter `radius` in cqw and
+an `intensity`:
+
+```ts
+import { DEFAULT_LIGHT, computeFrameLighting } from '@ilovecode33/photo-wall';
+
+<PhotoWall light={{ ...DEFAULT_LIGHT, x: 25, y: -20, z: 500, intensity: 0.8 }} />
+```
+
+Changing the prop updates every shadow immediately; tiles do not need to be
+regenerated. The solver is exported as a pure function so the same maths can be
+used by a control panel or a non-React renderer.
+
+How each shadow is derived:
+
+1. **Direction and throw — pinhole projection.** The ray from the light through
+   the frame centre hits the wall (z = 0) at `L + t(F - L)`, with
+   `t = Lz / (Lz - Fz)`. The shadow offset is `(t - 1)(F - L)`: it points away
+   from the light and grows with both the frame's depth and its distance from
+   the light axis.
+2. **Softness — penumbra of an area light.** By similar triangles a radius-`r`
+   emitter casts a penumbra of `r · Fz / (Lz - Fz)` on the wall. The same
+   `t - 1` factor therefore drives the throw and the blur: prints near the
+   wall keep a crisp contact shadow, prints nearer the light get a long, soft
+   one.
+3. **Strength — normalised falloff.** Inverse-square attenuation in raw pixels
+   would erase the shadows of edge frames, because the wall is ~1.6 viewport
+   widths across while the light sits much closer than that. A normalised
+   scene distance dims off-axis frames gently while keeping every shadow
+   visible. The light's cosine against the frame normal drives the bevel
+   highlight.
+
+All outputs are in cqw or dimensionless, so the scaled console preview and the
+fullscreen TV resolve identically. `computeWallGlow` maps the light onto the
+wall's wash gradient using stage percentages for the same reason.
+
+The original `shadowX*`, `shadowY*`, `shadowBlur*` and `shadowSpread*` tuning
+fields are still honoured: each acts as a gain over its geometric counterpart,
+normalised so the default values are exactly 1×. Existing console sliders keep
+working without any migration.
+
 ## Generate tiles without React
 
 ```ts

@@ -58,15 +58,15 @@ describe('createWallTiles', () => {
     }
   });
 
-  it('keeps generated styles within the tunable ranges', () => {
+  it('keeps the aesthetic style values within the tunable ranges', () => {
     for (const tile of tiles) {
       for (const style of tile.styles) {
         expect(style.railScale).toBeGreaterThanOrEqual(DEFAULT_WALL_PARAMS.railScaleMin);
         expect(style.railScale).toBeLessThanOrEqual(DEFAULT_WALL_PARAMS.railScaleMax);
-        expect(style.shadowAlpha).toBeGreaterThanOrEqual(DEFAULT_WALL_PARAMS.shadowAlphaBase);
-        expect(style.shadowAlpha).toBeLessThanOrEqual(
-          DEFAULT_WALL_PARAMS.shadowAlphaBase + DEFAULT_WALL_PARAMS.shadowAlphaRandom,
-        );
+        expect(style.sheen).toBeGreaterThanOrEqual(DEFAULT_WALL_PARAMS.sheenMin);
+        expect(style.sheen).toBeLessThanOrEqual(DEFAULT_WALL_PARAMS.sheenMax);
+        expect(style.lightJitter).toBeGreaterThanOrEqual(0);
+        expect(style.lightJitter).toBeLessThanOrEqual(1);
       }
     }
   });

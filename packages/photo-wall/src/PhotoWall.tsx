@@ -2,6 +2,13 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { solveFrameGeometry, type FrameGeometry } from './geometry';
 import {
+  computeFrameLighting,
+  computeWallGlow,
+  DEFAULT_LIGHT,
+  type FrameLighting,
+  type VirtualLight,
+} from './light';
+import {
   createWallTiles,
   wrapImages,
   type FrameKind,
@@ -46,11 +53,18 @@ export interface PhotoWallProps {
   viewportAspect?: number;
   /** Known ratios keyed by src, for photos without stored dimensions. */
   imageRatios?: Map<string, number>;
+  /** Virtual ceiling light. Defaults to a broad warm spot above the wall. */
+  light?: VirtualLight;
   className?: string;
 }
 
-/** Turn a solved frame plus its generated style into CSS custom properties. */
-function frameVars(frame: WallFrame, style: WallStyle, geo: FrameGeometry): CSSProperties {
+/** Turn a solved frame, its generated style and the light result into CSS vars. */
+function frameVars(
+  frame: WallFrame,
+  style: WallStyle,
+  geo: FrameGeometry,
+  lighting: FrameLighting,
+): CSSProperties {
   return {
     '--x': `${frame.x}%`,
     '--y': `${geo.yPct}%`,
@@ -64,13 +78,13 @@ function frameVars(frame: WallFrame, style: WallStyle, geo: FrameGeometry): CSSP
     '--rail': `calc(clamp(10px, 1.5vw, 26px) * ${style.railScale.toFixed(2)})`,
     '--sheen': style.sheen.toFixed(2),
     '--grain-jitter': `${style.grainJitter}deg`,
-    '--shadow-x': String(style.shadowX),
-    '--shadow-y': String(style.shadowY),
-    '--shadow-blur': String(style.shadowBlur),
-    '--shadow-spread': String(style.shadowSpread),
-    '--shadow-a': String(style.shadowAlpha),
-    '--shadow-a-soft': (style.shadowAlpha * 0.42).toFixed(3),
-    '--light': String(style.highlight),
+    '--shadow-x': String(lighting.shadowX),
+    '--shadow-y': String(lighting.shadowY),
+    '--shadow-blur': String(lighting.shadowBlur),
+    '--shadow-spread': String(lighting.shadowSpread),
+    '--shadow-a': String(lighting.shadowAlpha),
+    '--shadow-a-soft': (lighting.shadowAlpha * 0.42).toFixed(3),
+    '--light': String(lighting.highlight),
   } as CSSProperties;
 }
 
@@ -144,6 +158,7 @@ export function PhotoWall({
   playing = true,
   viewportAspect,
   imageRatios,
+  light = DEFAULT_LIGHT,
   className,
 }: PhotoWallProps) {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -175,6 +190,13 @@ export function PhotoWall({
   const photos = wrapImages(images, 0, tiles.length * FRAMES_PER_TILE);
   const passCount = tiles.length * 2;
   const aspect = viewportAspect && viewportAspect > 0 ? viewportAspect : measuredAspect;
+  const glow = computeWallGlow(light);
+  const glowStyle = {
+    '--glow-x': `${glow.xPct}%`,
+    '--glow-y': `${glow.yPct}%`,
+    '--glow-size': `${glow.sizeCqw}cqw`,
+    '--glow-alpha': glow.alpha,
+  } as CSSProperties;
 
   const rootStyle = {
     '--pass-count': passCount,
@@ -225,12 +247,20 @@ export function PhotoWall({
                     minFrameHeight: activeParams.minFrameHeight,
                     high: position % 2 === 0,
                   });
+                  const lighting = computeFrameLighting({
+                    frame,
+                    geometry: geo,
+                    light,
+                    params: activeParams,
+                    aspect,
+                    jitter: tile.styles[position]?.lightJitter ?? 0.5,
+                  });
                   return (
                     <div
                       key={position}
                       className={`${styles.frame} ${FRAME_CLASS[frame.frame]}`}
                       data-wall-frame=""
-                      style={frameVars(frame, tile.styles[position], geo)}
+                      style={frameVars(frame, tile.styles[position], geo, lighting)}
                     >
                       <span className={`${styles.rail} ${styles.railTop}`} aria-hidden="true" />
                       <span className={`${styles.rail} ${styles.railRight}`} aria-hidden="true" />
@@ -246,7 +276,7 @@ export function PhotoWall({
             );
           })}
         </div>
-        <div className={styles.light} aria-hidden="true" />
+        <div className={styles.light} style={glowStyle} aria-hidden="true" />
         <div className={styles.vignette} aria-hidden="true" />
       </div>
     </div>

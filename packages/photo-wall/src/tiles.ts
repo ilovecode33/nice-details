@@ -28,14 +28,8 @@ export interface WallStyle {
   railScale: number;
   sheen: number;
   grainJitter: number;
-  /** Top-light shadow vector, in vw, derived from position and depth. */
-  shadowX: number;
-  shadowY: number;
-  shadowBlur: number;
-  shadowSpread: number;
-  shadowAlpha: number;
-  /** Strength of the highlight on the top bevel of the wood rails. */
-  highlight: number;
+  /** Stable per-frame variation (0..1) consumed by the virtual-light solver. */
+  lightJitter: number;
 }
 
 /** One repeatable segment of the endless Photo Wall. */
@@ -78,7 +72,6 @@ const heightInVh = (width: number, ratio: number) =>
 /** Builds one frame's wood, mat and lighting from the seeded PRNG. */
 export function createWallStyle(
   random: () => number,
-  frame: WallFrame,
   params: WallParams,
 ): WallStyle {
   const roll = random();
@@ -102,12 +95,9 @@ export function createWallStyle(
   const matBottom =
     matRoll < 0.25 ? '#e7dfcd' : matRoll < 0.6 ? '#efe9dc' : '#e4dac6';
 
-  // A ceiling spot above the centre of the screen: side prints throw their
-  // shadow outward, nearer prints throw it farther and softer.
-  const unit = frame.w * 1.64;
-  const offset = (frame.x + frame.w / 2 - 50) / 50;
-  const depth = frame.z / 100;
-
+  // Lighting is no longer baked here: shadow direction, throw, penumbra and
+  // highlight are solved per frame from the virtual light at render time, so
+  // moving the light updates every frame without regenerating the wall.
   return {
     wood,
     matTop,
@@ -115,18 +105,7 @@ export function createWallStyle(
     railScale: params.railScaleMin + random() * (params.railScaleMax - params.railScaleMin),
     sheen: params.sheenMin + random() * (params.sheenMax - params.sheenMin),
     grainJitter: Math.round(random() * params.grainJitterRange * 2 - params.grainJitterRange),
-    shadowX: round2(offset * (params.shadowXBase + random() * params.shadowXRandom) * unit),
-    shadowY: round2(
-      (params.shadowYBase + depth * params.shadowYDepth + random() * params.shadowYRandom) * unit,
-    ),
-    shadowBlur: round2(
-      (params.shadowBlurBase + depth * params.shadowBlurDepth + random() * params.shadowBlurRandom) * unit,
-    ),
-    shadowSpread: round2(
-      (random() * params.shadowSpreadBase - params.shadowSpreadRandom) * unit,
-    ),
-    shadowAlpha: round2(params.shadowAlphaBase + random() * params.shadowAlphaRandom),
-    highlight: round2(params.highlightBase + random() * params.highlightRandom),
+    lightJitter: random(),
   };
 }
 
@@ -215,7 +194,7 @@ export function createWallTile(
     };
 
     frames.push(frame);
-    styles.push(createWallStyle(random, frame, params));
+    styles.push(createWallStyle(random, params));
     x += w + gap;
   }
 
