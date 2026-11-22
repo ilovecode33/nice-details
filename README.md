@@ -136,10 +136,8 @@ on pushes to `main`; pull requests get a preview deployment from
 `.github/workflows/preview-blog.yml`. The client-side router uses
 `apps/blog/public/_redirects` for direct visits to `/about`.
 
-Zone-level cache settings cannot be expressed in `wrangler.toml`, so the
-one-year cache for hashed `/static/*` assets is declared in
-`apps/blog/cloudflare/cache-rules.json` and applied by
-`apps/blog/scripts/apply-cache-rules.ts` during deployment. The expression is
-restricted to the blog host and `/static/*`; HTML keeps Pages'
-`max-age=0, must-revalidate` so deployments refresh immediately. The API token
-needs Zone → Zone → Read and Zone → Cache Rules → Edit.
+Caching is declared with Cloudflare Pages' native `apps/blog/public/_headers`
+file: only hashed `/static/*` assets get a one-year immutable cache. HTML is
+intentionally not matched, so it keeps Pages' `max-age=0, must-revalidate` and
+every deployment refreshes immediately. No extra API token or zone-level
+configuration is required.
