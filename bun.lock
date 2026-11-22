@@ -69,6 +69,26 @@
         "typescript": "^5.9.3",
       },
     },
+    "packages/photo-wall": {
+      "name": "@ilovecode33/photo-wall",
+      "version": "0.1.0",
+      "devDependencies": {
+        "@rsbuild/core": "^2.3.3",
+        "@rsbuild/plugin-react": "^2.1.1",
+        "@rslib/core": "^1.0.7",
+        "@rstest/adapter-rslib": "^0.12.6",
+        "@rstest/core": "^0.12.6",
+        "@types/react": "^19.0.0",
+        "@types/react-dom": "^19.0.0",
+        "react": "^19.3.1",
+        "react-dom": "^19.3.1",
+        "typescript": "^5.9.3",
+      },
+      "peerDependencies": {
+        "react": "^19.0.0",
+        "react-dom": "^19.0.0",
+      },
+    },
     "packages/ui": {
       "name": "@ilovecode33/ui",
       "version": "0.1.0",
@@ -154,6 +174,8 @@
     "@ilovecode33/editor-app": ["@ilovecode33/editor-app@workspace:apps/editor"],
 
     "@ilovecode33/editor-core": ["@ilovecode33/editor-core@workspace:packages/editor-core"],
+
+    "@ilovecode33/photo-wall": ["@ilovecode33/photo-wall@workspace:packages/photo-wall"],
 
     "@ilovecode33/ui": ["@ilovecode33/ui@workspace:packages/ui"],
 
