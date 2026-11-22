@@ -128,3 +128,18 @@ Before adding or changing a component, read [`packages/ui/QUALITY.md`](packages/
 - ✅ Readonly display mode
 - ✅ Undo / redo and JSON / HTML serialization (provided by Lexical)
 - ❌ Multi-user collaboration (would require Lexical + Yjs)
+
+## Blog deployment
+
+The blog is deployed to Cloudflare Pages by `.github/workflows/deploy-blog.yml`
+on pushes to `main`; pull requests get a preview deployment from
+`.github/workflows/preview-blog.yml`. The client-side router uses
+`apps/blog/public/_redirects` for direct visits to `/about`.
+
+Zone-level cache settings cannot be expressed in `wrangler.toml`, so the
+one-year cache for hashed `/static/*` assets is declared in
+`apps/blog/cloudflare/cache-rules.json` and applied by
+`apps/blog/scripts/apply-cache-rules.ts` during deployment. The expression is
+restricted to the blog host and `/static/*`; HTML keeps Pages'
+`max-age=0, must-revalidate` so deployments refresh immediately. The API token
+needs Zone → Zone → Read and Zone → Cache Rules → Edit.

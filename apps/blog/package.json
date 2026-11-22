@@ -8,6 +8,7 @@
     "build": "rsbuild build",
     "preview": "rsbuild preview",
     "typecheck": "tsc --noEmit",
+    "configure:cache": "bun scripts/apply-cache-rules.ts",
     "clean": "rm -rf dist"
   },
   "dependencies": {
