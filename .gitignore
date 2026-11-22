@@ -6,3 +6,6 @@ dist
 .env*.local
 
 .idea/
+
+# Swift Package Manager build output
+packages/ui-swift/.build/

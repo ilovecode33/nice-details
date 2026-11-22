@@ -1,0 +1,72 @@
+/* Blog layout on top of the shared design tokens. All colour, spacing and
+   radius values come from @ilovecode33/ui/styles.css. */
+
+:global(body) {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+}
+
+/* UIFoundation renders the wrapper element, so the sticky footer flex layout
+   has to live here instead of on <body>. The bottom padding reserves room for
+   the floating dock without covering the copyright. */
+.blogApp {
+  display: flex;
+  min-height: 100vh;
+  padding-bottom: calc(var(--space-8) * 4 + var(--safe-bottom));
+  flex-direction: column;
+}
+
+/* ── Article ────────────────────────────────────────────────────────────── */
+
+.blogMain {
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: calc(var(--safe-top) + var(--space-8) * 2) var(--space-5) var(--space-8);
+  flex: 1;
+}
+
+.blogPostMeta {
+  display: flex;
+  margin-bottom: var(--space-5);
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--text-dim);
+  font-size: var(--text-sm);
+}
+
+.blogPostContent {
+  outline: none;
+  line-height: 1.4;
+}
+
+.blogPostContent h1 {
+  margin: 0;
+  font-size: calc(var(--text-xl) * 2);
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+}
+
+.blogPostContent h2 {
+  margin: 1.6em 0 0.5em;
+  font-size: calc(var(--text-xl) * 1.2);
+}
+
+.blogPostContent h3 {
+  margin: 1.4em 0 0.4em;
+  font-size: var(--text-xl);
+}
+
+.blogPostContent p {
+  line-height: 1.85;
+}
+
+.blogFooter {
+  border-top: 1px solid var(--border);
+  padding: var(--space-6) var(--space-5);
+  color: var(--text-faint);
+  font-size: var(--text-xs);
+  text-align: center;
+}

@@ -11,10 +11,17 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@ilovecode33/editor-core": "workspace:*"
+    "@ilovecode33/editor-core": "workspace:*",
+    "@ilovecode33/ui": "workspace:*",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-router-dom": "^7.18.6"
   },
   "devDependencies": {
     "@rsbuild/core": "^2.3.3",
+    "@rsbuild/plugin-react": "^2.1.1",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
     "typescript": "^5.9.3"
   }
 }

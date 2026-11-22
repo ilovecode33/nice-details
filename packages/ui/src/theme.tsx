@@ -2,10 +2,12 @@ import {
   createContext,
   useContext,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useState,
   type ReactNode,
 } from 'react';
+import { cn } from './css';
 
 export type Theme = 'system' | 'light' | 'dark';
 export const DEFAULT_THEME: Theme = 'system';
@@ -58,7 +60,9 @@ export function ThemeProvider({
   const resolved: 'light' | 'dark' =
     theme === 'system' ? (systemDark ? 'dark' : 'light') : theme;
 
-  useEffect(() => {
+  // Layout effect: commit the attribute before the browser paints. A passive
+  // effect would leave one light frame on every full page load in dark mode.
+  useLayoutEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
     try {
       localStorage.setItem(STORAGE_KEY, theme);
@@ -106,18 +110,18 @@ export function ThemeSwitcher({ labels }: { labels?: ThemeSwitcherLabels }) {
   ];
 
   return (
-    <div className="ui-theme" role="group" aria-label={l.group} title={l.group}>
+    <div className={cn('ui-theme')} role="group" aria-label={l.group} title={l.group}>
       {options.map((o) => (
         <button
           key={o.value}
           type="button"
-          className={`ui-theme__option ${theme === o.value ? 'is-active' : ''}`}
+          className={cn(`ui-theme__option ${theme === o.value ? 'is-active' : ''}`)}
           aria-pressed={theme === o.value}
           title={o.label}
           onClick={() => setTheme(o.value)}
         >
           <span aria-hidden="true">{o.icon}</span>
-          <span className="ui-sr-only">{o.label}</span>
+          <span className={cn('ui-sr-only')}>{o.label}</span>
         </button>
       ))}
     </div>

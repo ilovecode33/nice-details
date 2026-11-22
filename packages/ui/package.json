@@ -10,7 +10,8 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
-    "./styles.css": "./dist/styles.css"
+    "./styles.css": "./dist/styles.css",
+    "./index.css": "./dist/index.css"
   },
   "files": [
     "dist"
@@ -19,10 +20,15 @@
     "**/*.css"
   ],
   "scripts": {
-    "build": "rslib build && cp src/styles.css dist/styles.css",
+    "build": "rslib build && cp src/styles.css dist/styles.css && cat dist/index.css >> dist/styles.css",
     "dev": "rslib build --watch",
     "typecheck": "tsc --noEmit",
+    "test": "rstest run",
     "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@ilovecode33/ui-core": "workspace:*",
+    "@ilovecode33/ui-tokens": "workspace:*"
   },
   "peerDependencies": {
     "react": "^19.0.0",
@@ -32,8 +38,13 @@
     "@rsbuild/core": "^2.3.3",
     "@rsbuild/plugin-react": "^2.1.1",
     "@rslib/core": "^1.0.7",
+    "@rstest/adapter-rslib": "^0.12.6",
+    "@rstest/core": "^0.12.6",
+    "@testing-library/jest-dom": "^8.0.0",
+    "@testing-library/react": "^16.3.3",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "happy-dom": "^21.0.4",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "typescript": "^5.9.3"
