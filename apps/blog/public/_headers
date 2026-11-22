@@ -1,0 +1,4 @@
+# Hashed build assets can be cached forever. HTML is intentionally not
+# matched, so every deployment serves fresh markup immediately.
+/static/*
+  Cache-Control: public, max-age=31536000, immutable

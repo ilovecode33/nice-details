@@ -35,11 +35,3 @@ jobs:
           command: pages deploy apps/blog/dist --project-name=ilovecode33-blog --branch=main
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
 
-      # Declarative zone-level cache rules (cannot live in wrangler.toml).
-      # continue-on-error keeps a token-permission issue from failing an
-      # otherwise successful site deployment.
-      - name: Apply Cloudflare cache rules
-        continue-on-error: true
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-        run: bun apps/blog/scripts/apply-cache-rules.ts
