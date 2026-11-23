@@ -166,6 +166,78 @@ describe('Segmented', () => {
     fireEvent.keyDown(month, { key: 'Home' });
     expect(day).toHaveAttribute('aria-selected', 'true');
   });
+
+  function withGeometry() {
+    const track = screen.getByRole('tablist', { name: 'Range' });
+    const tabs = ['Day', 'Week', 'Month'].map((name) => screen.getByRole('tab', { name }));
+    const rect = (left: number) =>
+      ({
+        left,
+        top: 0,
+        width: 100,
+        height: 44,
+        right: left + 100,
+        bottom: 44,
+        x: left,
+        y: 0,
+        toJSON: () => ({}),
+      }) as DOMRect;
+    track.getBoundingClientRect = () => rect(0);
+    tabs.forEach((tab, index) => {
+      tab.getBoundingClientRect = () => rect(index * 100);
+    });
+    return { track, day: tabs[0], week: tabs[1], month: tabs[2] };
+  }
+
+  test('moves the selected pill to the active option with a slide transition', () => {
+    render(<SegmentedDemo />);
+    const { track, week } = withGeometry();
+    const thumb = track.querySelector('[class*="ui-segmented__thumb"]') as HTMLElement;
+
+    expect(thumb.style.transition).toContain('left var(--dur)');
+    fireEvent.click(week);
+    expect(thumb.style.left).toBe('100px');
+    expect(thumb.style.width).toBe('100px');
+    expect(week).toHaveAttribute('data-active', 'true');
+  });
+
+  test('deforms the pill and switches options while dragging', async () => {
+    render(<SegmentedDemo />);
+    const { track, day, week } = withGeometry();
+    const thumb = track.querySelector('[class*="ui-segmented__thumb"]') as HTMLElement;
+
+    fireEvent.pointerDown(day, {
+      clientX: 10,
+      clientY: 20,
+      pointerType: 'mouse',
+      button: 0,
+      buttons: 1,
+    });
+    expect(thumb.style.transition).toBe('none');
+    expect(thumb.style.getPropertyValue('--glow-x')).toBe('10%');
+    expect(thumb.querySelector('span[aria-hidden="true"]')).not.toBeNull();
+
+    fireEvent.pointerMove(day, {
+      clientX: 150,
+      clientY: 20,
+      pointerType: 'mouse',
+      button: 0,
+      buttons: 1,
+    });
+    expect(week).toHaveAttribute('aria-selected', 'true');
+
+    fireEvent.pointerUp(day, {
+      clientX: 150,
+      clientY: 20,
+      pointerType: 'mouse',
+      button: 0,
+      buttons: 1,
+    });
+    expect(week).toHaveAttribute('aria-selected', 'true');
+    expect(thumb.style.transition).toContain('left var(--dur)');
+    // useDeform removes its click-suppression guard on the next tick.
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  });
 });
 
 describe('FloatingBar', () => {

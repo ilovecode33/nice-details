@@ -53,6 +53,7 @@ so nothing is permanently covered.
 - [ ] Translucent surfaces keep text contrast in light, dark, and all five accents.
 - [ ] Drag deformation is direct manipulation feedback: rubber-band resistance (harder the farther it is pulled), directional stretch/squash, spring back on release.
 - [ ] Press feedback blooms from the pointer position via `useDeform()`'s `--glow-*` variables and `PressGlow`. It sits behind content, uses only `--glow-*` tokens, never takes focus, and is disabled with deformation or under reduced motion.
+- [ ] Segmented selection is one moving pill: deformation and the bloom belong to the selected block, not the track. Dragging across options changes selection; clicks and keyboard changes slide the pill (no slide under reduced motion).
 - [ ] Stretch is driven by the dragged axis's own displacement; the perpendicular squash is paired with that pull. No rotation or tilt is added.
 - [ ] A drag beyond the click threshold, or a release outside the control, must not fire the control's click / activation handlers.
 - [ ] Deformation is disabled under `prefers-reduced-motion`; the static layout and state remain correct.

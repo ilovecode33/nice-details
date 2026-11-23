@@ -74,6 +74,7 @@
 
 /* ── Segmented control ───────────────────────────────────────────────────── */
 .ui-segmented {
+  position: relative;
   display: flex;
   gap: 2px;
   padding: 3px;
@@ -82,7 +83,20 @@
   border-radius: var(--radius-sm);
   overflow: hidden;
 }
+.ui-segmented__thumb {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  z-index: 0;
+  border-radius: 8px;
+  background: var(--bg-elevated);
+  box-shadow: var(--shadow-sm);
+  isolation: isolate; /* the press bloom sits above the pill, below its label */
+  pointer-events: none;
+}
 .ui-segmented__item {
+  position: relative;
+  z-index: 1;
   flex: 1 1 0;
   display: inline-flex;
   align-items: center;
@@ -97,13 +111,11 @@
   font-size: var(--text-sm);
   font-weight: 600;
   cursor: pointer;
-  transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
+  transition: color var(--dur) var(--ease);
   white-space: nowrap;
 }
 .ui-segmented__item.is-active {
-  background: var(--bg-elevated);
   color: var(--text);
-  box-shadow: var(--shadow-sm);
 }
 
 /* ── Slider ──────────────────────────────────────────────────────────────── */

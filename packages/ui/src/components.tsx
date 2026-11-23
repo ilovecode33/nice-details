@@ -7,7 +7,12 @@
  * `@media (min-width: 768px)`.
  */
 
-import { Deformable, PressGlow, useDeform } from './motion';
+import {
+  Deformable,
+  PressGlow,
+  useDeform,
+  usePrefersReducedMotion,
+} from './motion';
 import {
   comboboxSemantics,
   createSelectionState,
@@ -26,10 +31,12 @@ import {
   isValidElement,
   useEffect,
   useId,
+  useLayoutEffect,
   useRef,
   useState,
   type ButtonHTMLAttributes,
   type CSSProperties,
+  type PointerEvent as ReactPointerEvent,
   type HTMLAttributes,
   type InputHTMLAttributes,
   type KeyboardEvent as ReactKeyboardEvent,
@@ -146,6 +153,14 @@ export interface SegmentOption<T extends string> {
   disabled?: boolean;
 }
 
+const DRAG_THRESHOLD = 4;
+const clampPercent = (value: number) => Math.min(100, Math.max(0, value));
+
+/**
+ * iOS-style segmented control. The selected pill is the interactive surface:
+ * it deforms and glows under the pointer, follows a horizontal drag to switch
+ * options, and slides to the new option on a click or keyboard change.
+ */
 export function Segmented<T extends string>({
   options,
   value,
@@ -159,21 +174,115 @@ export function Segmented<T extends string>({
   label?: string;
   deform?: boolean;
 }) {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const drag = useRef<{ startX: number; applied: T } | null>(null);
+  // Render the pill only once measured, so it mounts at its final size
+  // instead of transitioning in from zero on first paint.
+  const [thumb, setThumb] = useState<{ left: number; width: number } | null>(null);
+  const [glowAt, setGlowAt] = useState({ x: 50, y: 50 });
+  const reduced = usePrefersReducedMotion();
+  const motion = useDeform({ enabled: deform, axis: 'x', touchAction: 'pan-y' });
+
+  // The pill is absolutely positioned, so measure the real button geometry —
+  // labels can have different intrinsic widths even with flex: 1.
+  useLayoutEffect(() => {
+    const track = trackRef.current;
+    if (!track) return;
+    const measure = () => {
+      const active =
+        track.querySelector<HTMLElement>('[data-active="true"]') ??
+        track.querySelector<HTMLElement>('button');
+      if (!active) return;
+      const trackRect = track.getBoundingClientRect();
+      const rect = active.getBoundingClientRect();
+      setThumb({ left: rect.left - trackRect.left, width: rect.width });
+    };
+    measure();
+    if (typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(measure);
+    observer.observe(track);
+    track.querySelectorAll('button').forEach((button) => observer.observe(button));
+    return () => observer.disconnect();
+  }, [value, options]);
+
+  const onPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+    motion.handlers.onPointerDown(event);
+    if (!deform) return;
+    // Place the bloom on the pill the pointer actually pressed, not on the
+    // whole track, so the glow travels with the selected block.
+    const hit = (event.target as HTMLElement).closest<HTMLElement>('[data-index]');
+    const rect = (
+      hit ?? trackRef.current?.querySelector<HTMLElement>('[data-active="true"]')
+    )?.getBoundingClientRect();
+    if (rect) {
+      setGlowAt({
+        x: clampPercent(((event.clientX - rect.left) / (rect.width || 1)) * 100),
+        y: clampPercent(((event.clientY - rect.top) / (rect.height || 1)) * 100),
+      });
+    }
+    drag.current = { startX: event.clientX, applied: value };
+  };
+
+  const onPointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
+    motion.handlers.onPointerMove(event);
+    const session = drag.current;
+    if (!session || Math.abs(event.clientX - session.startX) <= DRAG_THRESHOLD) return;
+    const buttons = trackRef.current?.querySelectorAll<HTMLElement>('[data-index]');
+    if (!buttons) return;
+    const target = [...buttons].find((button) => {
+      const rect = button.getBoundingClientRect();
+      return event.clientX >= rect.left && event.clientX <= rect.right;
+    });
+    const index = target ? Number(target.dataset.index) : -1;
+    const option = options[index];
+    if (option && !option.disabled && option.value !== session.applied) {
+      session.applied = option.value;
+      onChange(option.value);
+    }
+  };
+
+  const onEnd = (event: ReactPointerEvent<HTMLDivElement>) => {
+    motion.handlers.onPointerUp(event);
+    drag.current = null;
+  };
+
+  const thumbStyle = {
+    ...motion.style,
+    left: thumb?.left ?? 0,
+    width: thumb?.width ?? 0,
+    '--glow-x': `${glowAt.x}%`,
+    '--glow-y': `${glowAt.y}%`,
+    transition:
+      motion.state.active || reduced
+        ? 'none'
+        : `left var(--dur) var(--ease), width var(--dur) var(--ease), transform var(--spring-dur) var(--spring-ease)`,
+  } as CSSProperties;
+
   return (
-    <Deformable
+    <div
+      ref={trackRef}
       className={cn('ui-segmented')}
       role="tablist"
       aria-label={label}
-      enabled={deform}
-      touchAction="pan-y"
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onEnd}
+      onPointerCancel={onEnd}
     >
-      {options.map((o) => {
+      {thumb && (
+        <div className={cn('ui-segmented__thumb')} style={thumbStyle}>
+          <PressGlow pulse={motion.pulse} />
+        </div>
+      )}
+      {options.map((o, index) => {
         const semantics = tabSemantics(o, value);
         return (
           <button
             key={o.value}
             type="button"
             role={semantics.role}
+            data-index={index}
+            data-active={value === o.value}
             aria-selected={semantics.selected}
             aria-disabled={semantics.disabled || undefined}
             aria-label={semantics.label}
@@ -181,10 +290,10 @@ export function Segmented<T extends string>({
             className={cn(`ui-segmented__item ${value === o.value ? 'is-active' : ''}`)}
             onClick={() => !o.disabled && onChange(o.value)}
             onKeyDown={(event) => {
-              const index = options.findIndex((item) => item.value === value);
+              const current = options.findIndex((item) => item.value === value);
               let next: number | undefined;
-              if (event.key === 'ArrowRight') next = (index + 1) % options.length;
-              if (event.key === 'ArrowLeft') next = (index - 1 + options.length) % options.length;
+              if (event.key === 'ArrowRight') next = (current + 1) % options.length;
+              if (event.key === 'ArrowLeft') next = (current - 1 + options.length) % options.length;
               if (event.key === 'Home') next = 0;
               if (event.key === 'End') next = options.length - 1;
               if (next === undefined) return;
@@ -198,7 +307,7 @@ export function Segmented<T extends string>({
           </button>
         );
       })}
-    </Deformable>
+    </div>
   );
 }
 
