@@ -227,8 +227,10 @@ describe('Segmented', () => {
       buttons: 1,
     });
     expect(thumb.style.transition).toBe('none');
-    expect(thumb.style.getPropertyValue('--glow-x')).toBe('10%');
-    expect(thumb.querySelector('span[aria-hidden="true"]')).not.toBeNull();
+    const spot = thumb.querySelector('[class*="ui-segmented__spot"]') as HTMLElement;
+    expect(spot).not.toBeNull();
+    expect(spot.style.getPropertyValue('--seg-glow-x')).toBe('10%');
+    expect(thumb.querySelector('[class*="ui-segmented__sheen"]')?.className).toContain('is-held');
 
     fireEvent.pointerMove(day, {
       clientX: 150,
@@ -251,16 +253,23 @@ describe('Segmented', () => {
     expect(week).toHaveAttribute('aria-selected', 'true');
     expect(thumb.style.left).toBe('100px');
     expect(thumb.style.transition).toContain('left var(--dur)');
+    expect(thumb.querySelector('[class*="ui-segmented__sheen"]')?.className).not.toContain(
+      'is-held',
+    );
+    expect(thumb.querySelector('[class*="ui-segmented__spot"]')?.className).not.toContain(
+      'is-held',
+    );
     // useDeform removes its click-suppression guard on the next tick.
     await new Promise((resolve) => setTimeout(resolve, 0));
   });
 
-  test('clicking another slot slides the pill without lighting it', () => {
+  test('clicking another slot slides the pill and lights the target', () => {
     render(<SegmentedDemo />);
     const { track, week } = withGeometry();
     const thumb = track.querySelector('[class*="ui-segmented__thumb"]') as HTMLElement;
 
-    expect(thumb.querySelector('span[aria-hidden="true"]')).toBeNull();
+    const spot = thumb.querySelector('[class*="ui-segmented__spot"]') as HTMLElement;
+    expect(spot.className).not.toContain('is-held');
     fireEvent.pointerDown(week, {
       clientX: 150,
       clientY: 20,
@@ -268,10 +277,12 @@ describe('Segmented', () => {
       button: 0,
       buttons: 1,
     });
-    expect(thumb.querySelector('span[aria-hidden="true"]')).toBeNull();
-    expect(thumb.style.getPropertyValue('--glow-x')).toBe('50%');
+    expect(spot.className).not.toContain('is-held');
+    expect(thumb.querySelector('[class*="ui-segmented__sheen"]')?.className).not.toContain('is-held');
 
     fireEvent.click(week);
+    expect(spot.className).toContain('is-held');
+    expect(spot.style.getPropertyValue('--seg-glow-x')).toBe('50%');
     expect(thumb.style.left).toBe('100px');
     expect(thumb.style.transition).toContain('left var(--dur)');
   });

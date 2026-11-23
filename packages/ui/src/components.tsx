@@ -176,12 +176,20 @@ export function Segmented<T extends string>({
   deform?: boolean;
 }) {
   const trackRef = useRef<HTMLDivElement>(null);
+  const thumbRef = useRef<HTMLDivElement>(null);
   const drag = useRef<{ startX: number; baseLeft: number } | null>(null);
   // Render the pill only once measured, so it mounts at its final size
   // instead of transitioning in from zero on first paint.
   const [slots, setSlots] = useState<Array<{ left: number; width: number }> | null>(null);
   const [dragOffset, setDragOffset] = useState<number | null>(null);
-  const [glowAt, setGlowAt] = useState({ x: 50, y: 50 });
+  const [glow, setGlow] = useState({ x: 50, y: 50, held: false });
+  const glowTimer = useRef<number | null>(null);
+  useEffect(
+    () => () => {
+      if (glowTimer.current !== null) window.clearTimeout(glowTimer.current);
+    },
+    [],
+  );
   const reduced = usePrefersReducedMotion();
   const motion = useDeform({ enabled: deform, axis: 'x', touchAction: 'pan-y' });
   const activeIndex = Math.max(
@@ -219,6 +227,33 @@ export function Segmented<T extends string>({
     return hit ? Number(hit.dataset.index) : -1;
   };
 
+  const relativeTo = (element: HTMLElement | null, x: number, y: number) => {
+    if (!element) return { x: 50, y: 50 };
+    const rect = element.getBoundingClientRect();
+    return {
+      x: clampPercent(((x - rect.left) / (rect.width || 1)) * 100),
+      y: clampPercent(((y - rect.top) / (rect.height || 1)) * 100),
+    };
+  };
+
+  const spark = (position = { x: 50, y: 50 }, held = true) => {
+    if (glowTimer.current !== null) {
+      window.clearTimeout(glowTimer.current);
+      glowTimer.current = null;
+    }
+    setGlow((current) => ({ ...position, held }));
+  };
+
+  /** Clicking a target slot keeps the bloom alive briefly, then returns to the
+      pill's resting halo instead of vanishing with a one-shot animation. */
+  const sparkTarget = () => {
+    spark();
+    glowTimer.current = window.setTimeout(() => {
+      setGlow((current) => ({ ...current, held: false }));
+      glowTimer.current = null;
+    }, 600);
+  };
+
   const onPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
     const index = pressedIndex(event);
     const option = options[index];
@@ -226,11 +261,7 @@ export function Segmented<T extends string>({
     // light up the pill; its native click simply slides the pill there.
     if (!deform || index !== activeIndex || !option || option.disabled) return;
     motion.handlers.onPointerDown(event);
-    const rect = (event.target as HTMLElement).getBoundingClientRect();
-    setGlowAt({
-      x: clampPercent(((event.clientX - rect.left) / (rect.width || 1)) * 100),
-      y: clampPercent(((event.clientY - rect.top) / (rect.height || 1)) * 100),
-    });
+    spark(relativeTo(event.target as HTMLElement, event.clientX, event.clientY), true);
     drag.current = { startX: event.clientX, baseLeft: geometry.left };
   };
 
@@ -246,6 +277,9 @@ export function Segmented<T extends string>({
         maxLeft - drag.current.baseLeft,
       ),
     );
+    // The spotlight follows the finger inside the pill as it is dragged.
+    const position = relativeTo(thumbRef.current, event.clientX, event.clientY);
+    setGlow((current) => ({ ...current, ...position }));
   };
 
   const onEnd = (event: ReactPointerEvent<HTMLDivElement>) => {
@@ -271,6 +305,11 @@ export function Segmented<T extends string>({
     if (option && !option.disabled && option.value !== value) onChange(option.value);
     drag.current = null;
     setDragOffset(null);
+    if (glowTimer.current !== null) {
+      window.clearTimeout(glowTimer.current);
+      glowTimer.current = null;
+    }
+    setGlow((current) => ({ ...current, held: false }));
   };
 
   const dragging = dragOffset !== null;
@@ -278,8 +317,6 @@ export function Segmented<T extends string>({
     ...motion.style,
     left: geometry.left + (dragOffset ?? 0),
     width: geometry.width,
-    '--glow-x': `${glowAt.x}%`,
-    '--glow-y': `${glowAt.y}%`,
     transition:
       dragging || motion.state.active || reduced
         ? 'none'
@@ -298,8 +335,21 @@ export function Segmented<T extends string>({
       onPointerCancel={onEnd}
     >
       {slots && (
-        <div className={cn('ui-segmented__thumb')} style={thumbStyle}>
-          <PressGlow pulse={motion.pulse} />
+        <div ref={thumbRef} className={cn('ui-segmented__thumb')} style={thumbStyle}>
+          <span
+            className={cn(`ui-segmented__sheen ${glow.held ? 'is-held' : ''}`)}
+            aria-hidden="true"
+          />
+          <span
+            className={cn(`ui-segmented__spot ${glow.held ? 'is-held' : ''}`)}
+            style={
+              {
+                '--seg-glow-x': `${glow.x}%`,
+                '--seg-glow-y': `${glow.y}%`,
+              } as CSSProperties
+            }
+            aria-hidden="true"
+          />
         </div>
       )}
       {options.map((o, index) => {
@@ -316,7 +366,11 @@ export function Segmented<T extends string>({
             aria-label={semantics.label}
             tabIndex={o.value === value ? 0 : -1}
             className={cn(`ui-segmented__item ${value === o.value ? 'is-active' : ''}`)}
-            onClick={() => !o.disabled && onChange(o.value)}
+            onClick={() => {
+              if (o.disabled) return;
+              if (index !== activeIndex) sparkTarget();
+              onChange(o.value);
+            }}
             onKeyDown={(event) => {
               const current = options.findIndex((item) => item.value === value);
               let next: number | undefined;
@@ -327,7 +381,10 @@ export function Segmented<T extends string>({
               if (next === undefined) return;
               event.preventDefault();
               const option = options[next];
-              if (option && !option.disabled) onChange(option.value);
+              if (option && !option.disabled) {
+                if (next !== activeIndex) sparkTarget();
+                onChange(option.value);
+              }
             }}
           >
             {o.icon && <span aria-hidden="true">{o.icon}</span>}

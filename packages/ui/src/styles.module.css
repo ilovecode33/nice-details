@@ -81,18 +81,57 @@
   background: var(--bg-elevated-2);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  overflow: hidden;
 }
 .ui-segmented__thumb {
   position: absolute;
   top: 3px;
   bottom: 3px;
   z-index: 0;
+  border: 1px solid var(--seg-thumb-stroke);
   border-radius: 8px;
-  background: var(--bg-elevated);
+  background: var(--seg-thumb-fill);
   box-shadow: var(--shadow-sm);
-  isolation: isolate; /* the press bloom sits above the pill, below its label */
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  isolation: isolate; /* the light layers sit above the pill, below its label */
   pointer-events: none;
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .ui-segmented__thumb { background: var(--seg-thumb-solid); }
+}
+/* The selected pill keeps a quiet outer halo at rest and lifts to a full
+   glow for as long as it is held — no highlight painted inside the surface. */
+.ui-segmented__sheen {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  z-index: 0;
+  opacity: 0.35;
+  box-shadow:
+    0 0 calc(var(--space-4)) var(--accent-glow),
+    0 0 calc(var(--space-2)) var(--accent-glow);
+  transition: opacity var(--glow-dur) var(--glow-ease);
+}
+.ui-segmented__sheen.is-held { opacity: 1; }
+/* The spotlight follows the finger while held and marks a clicked target —
+   it only fades after the interaction ends, never after a single frame. */
+.ui-segmented__spot {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  z-index: 0;
+  opacity: 0;
+  background: radial-gradient(
+    circle at var(--seg-glow-x, 50%) var(--seg-glow-y, 50%),
+    var(--accent-glow) 0%,
+    transparent 64%
+  );
+  transition: opacity var(--glow-dur) var(--glow-ease);
+}
+.ui-segmented__spot.is-held { opacity: 0.85; }
+@media (prefers-reduced-motion: reduce) {
+  .ui-segmented__sheen,
+  .ui-segmented__spot { display: none; }
 }
 .ui-segmented__item {
   position: relative;
@@ -115,7 +154,7 @@
   white-space: nowrap;
 }
 .ui-segmented__item.is-active {
-  color: var(--text);
+  color: var(--seg-thumb-ink);
 }
 
 /* ── Slider ──────────────────────────────────────────────────────────────── */
