@@ -38,12 +38,11 @@
 .ui-btn--block { width: 100%; }
 .ui-btn--compact { min-height: var(--touch); padding: 0 var(--space-3); font-size: var(--text-sm); }
 
-/* Primary shares the Segmented pill's glass recipe, just a touch stronger
-   than secondary so the two levels stay distinct. */
-/* The halo is interaction feedback only — it appears on hover or while the
-   button is held, never at rest, and no press-point spotlight is rendered. */
+/* Primary carries a clearly stronger accent fill than secondary so it reads
+   as the main action. The halo is interaction feedback only — it appears on
+   hover or while held, never at rest, with no press-point spotlight. */
 .ui-btn--primary {
-  background: color-mix(in srgb, var(--accent) 34%, transparent);
+  background: color-mix(in srgb, var(--accent) 58%, transparent);
   color: var(--text);
   border-color: var(--seg-thumb-stroke);
 }
