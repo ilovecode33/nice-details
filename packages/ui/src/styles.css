@@ -160,9 +160,11 @@
      Keeping the label in the theme's text colour avoids a harsh inversion. */
   --seg-thumb-fill: color-mix(in srgb, var(--accent) 34%, transparent);
   --seg-thumb-solid: color-mix(in srgb, var(--accent) 55%, var(--bg-elevated));
-  --seg-thumb-stroke: var(--accent-glow);
+  --seg-thumb-stroke: var(--glass-highlight); /* white glass edge */
   --seg-thumb-ink: var(--text);
   --seg-thumb-glow: var(--accent-glow);
+  /* A brightened accent reads as a glow on both light and dark tracks. */
+  --seg-thumb-halo: color-mix(in srgb, var(--accent) 45%, var(--glass-highlight));
 
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);

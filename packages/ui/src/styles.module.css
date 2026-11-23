@@ -106,11 +106,15 @@
   inset: 0;
   border-radius: inherit;
   z-index: 0;
-  opacity: 0.35;
+  opacity: 0.4;
   box-shadow:
-    0 0 calc(var(--space-4)) var(--accent-glow),
-    0 0 calc(var(--space-2)) var(--accent-glow);
+    0 0 calc(var(--space-1)) var(--glass-highlight),
+    0 0 calc(var(--space-4)) var(--seg-thumb-halo);
   transition: opacity var(--glow-dur) var(--glow-ease);
+}
+.ui-segmented__sheen.is-held { box-shadow:
+  0 0 calc(var(--space-2)) var(--glass-highlight),
+  0 0 calc(var(--space-6)) var(--seg-thumb-halo);
 }
 .ui-segmented__sheen.is-held { opacity: 1; }
 /* The spotlight follows the finger while held and marks a clicked target —
