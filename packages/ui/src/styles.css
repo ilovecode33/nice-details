@@ -172,6 +172,17 @@
   --safe-right: env(safe-area-inset-right, 0px);
 }
 
+/* A white edge disappears on a near-white light track. Use the accent itself
+   as a dark outline there, and in the OS-light branch of system mode. */
+:root[data-theme='light'] {
+  --seg-thumb-stroke: color-mix(in srgb, var(--accent) 55%, transparent);
+}
+@media (prefers-color-scheme: light) {
+  :root[data-theme='system'] {
+    --seg-thumb-stroke: color-mix(in srgb, var(--accent) 55%, transparent);
+  }
+}
+
 *, *::before, *::after { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
 
