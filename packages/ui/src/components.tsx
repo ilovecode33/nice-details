@@ -75,7 +75,7 @@ export function Button({
       {...rest}
       {...motion.handlers}
     >
-      <PressGlow pulse={motion.pulse} />
+      <PressGlow pulse={motion.pulse} held={motion.state.active} />
       {icon && (
         <span className={cn('ui-btn__icon')} aria-hidden="true">
           {icon}

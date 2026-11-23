@@ -72,14 +72,17 @@ export interface DeformResult {
 const clampPercent = (value: number) => Math.min(100, Math.max(0, value));
 
 /**
- * A single liquid-glass style bloom that replays at the press point. Render it
- * inside any element whose `useDeform().style` is applied; `pulse` remounts the
- * layer so the CSS animation restarts on every press. Hidden under reduced
+ * A liquid-glass style bloom at the press point. Render it inside any element
+ * whose `useDeform().style` is applied. `pulse` remounts the layer so each press
+ * starts fresh; pass `held` from `useDeform().state.active` to keep the glow
+ * alive for the whole press and fade it only on release. Hidden under reduced
  * motion and never focusable, so it adds no semantics or tab stop.
  */
-export function PressGlow({ pulse }: { pulse: number }) {
+export function PressGlow({ pulse, held = false }: { pulse: number; held?: boolean }) {
   if (pulse === 0) return null;
-  return <span key={pulse} className={cn('ui-glow')} aria-hidden="true" />;
+  return (
+    <span key={pulse} className={cn(`ui-glow ${held ? 'is-held' : ''}`)} aria-hidden="true" />
+  );
 }
 
 function initialState(): DeformState {

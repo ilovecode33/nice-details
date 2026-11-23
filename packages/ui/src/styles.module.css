@@ -25,6 +25,8 @@
   font-size: var(--text-base);
   font-weight: 600;
   line-height: 1;
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
   cursor: pointer;
   transition: background var(--dur) var(--ease), transform var(--dur) var(--ease), border-color var(--dur) var(--ease);
   user-select: none;
@@ -38,7 +40,12 @@
 
 .ui-btn--primary { background: var(--accent); color: var(--accent-ink); --glow-core: var(--glow-specular); --glow-color: var(--glow-specular); --glow-peak: 0.34; }
 .ui-btn--primary:hover:not(:disabled) { filter: brightness(1.08); }
-.ui-btn--secondary { background: var(--bg-elevated-2); color: var(--text); border-color: var(--border-strong); }
+.ui-btn--secondary {
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  color: var(--text);
+  border-color: var(--seg-thumb-stroke);
+  box-shadow: 0 0 calc(var(--space-2)) var(--seg-thumb-halo);
+}
 .ui-btn--secondary:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
 .ui-btn--destructive { background: var(--danger-soft); color: var(--danger); border-color: var(--border-strong); }
 .ui-btn--plain { background: transparent; color: var(--text-dim); min-width: var(--touch); }
@@ -897,6 +904,13 @@
     opacity: 0;
     transform: translate(-50%, -50%) scale(1);
   }
+}
+/* While held, the bloom stays lit at the press point and only plays the
+   fade-out bloom once the pointer is released. */
+.ui-glow.is-held::before {
+  animation: none;
+  opacity: var(--glow-peak, 0.55);
+  transform: translate(-50%, -50%) scale(0.85);
 }
 @media (prefers-reduced-motion: reduce) {
   .ui-glow { display: none; }
