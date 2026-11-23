@@ -20,8 +20,8 @@ import {
 import { DEFAULT_WALL_PARAMS, type WallParams } from './params';
 import styles from './photo-wall.module.css';
 
-/** Frames per tile in the scrolling strip. */
-const FRAMES_PER_TILE = 4;
+/** Fallback frames per tile for malformed tile data. */
+const DEFAULT_FRAMES_PER_TILE = 4;
 
 const FRAME_CLASS: Record<FrameKind, string> = {
   black: styles.frameBlack,
@@ -187,7 +187,8 @@ export function PhotoWall({
     [activeSeed, activeParams],
   );
   const tiles = tilesProp && tilesProp.length > 0 ? tilesProp : generated;
-  const photos = wrapImages(images, 0, tiles.length * FRAMES_PER_TILE);
+  const framesPerTile = tiles[0]?.frames.length || DEFAULT_FRAMES_PER_TILE;
+  const photos = wrapImages(images, 0, tiles.length * framesPerTile);
   const passCount = tiles.length * 2;
   const aspect = viewportAspect && viewportAspect > 0 ? viewportAspect : measuredAspect;
   const activeLights = lights && lights.length > 0 ? lights : [light];
@@ -216,8 +217,8 @@ export function PhotoWall({
             const tileIndex = pass % tiles.length;
             const tile = tiles[tileIndex];
             const picked = photos.slice(
-              tileIndex * FRAMES_PER_TILE,
-              (tileIndex + 1) * FRAMES_PER_TILE,
+              tileIndex * framesPerTile,
+              (tileIndex + 1) * framesPerTile,
             );
             return (
               <div
