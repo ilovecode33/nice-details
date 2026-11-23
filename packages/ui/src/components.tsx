@@ -7,7 +7,7 @@
  * `@media (min-width: 768px)`.
  */
 
-import { Deformable, useDeform } from './motion';
+import { Deformable, PressGlow, useDeform } from './motion';
 import {
   comboboxSemantics,
   createSelectionState,
@@ -68,6 +68,7 @@ export function Button({
       {...rest}
       {...motion.handlers}
     >
+      <PressGlow pulse={motion.pulse} />
       {icon && (
         <span className={cn('ui-btn__icon')} aria-hidden="true">
           {icon}

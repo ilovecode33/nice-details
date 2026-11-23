@@ -4,6 +4,7 @@ import { createRef, useState } from 'react';
 import { Button, Segmented, Switch } from '../components';
 import { DockNavigation, type DockNavigationHandle } from '../dock';
 import { FloatingBar } from '../floating';
+import { Deformable } from '../motion';
 
 function SwitchDemo({ initial = false }: { initial?: boolean }) {
   const [checked, setChecked] = useState(initial);
@@ -59,6 +60,61 @@ describe('Button', () => {
   test('is a submit-less button by default so it never submits a form', () => {
     render(<Button>Neutral</Button>);
     expect(screen.getByRole('button', { name: 'Neutral' })).toHaveAttribute('type', 'button');
+  });
+
+  test('blooms from the press point and replays on the next press', () => {
+    render(<Button>Save</Button>);
+    const button = screen.getByRole('button', { name: 'Save' });
+    button.getBoundingClientRect = () =>
+      ({
+        left: 0,
+        top: 0,
+        width: 200,
+        height: 40,
+        right: 200,
+        bottom: 40,
+        x: 0,
+        y: 0,
+        toJSON: () => ({}),
+      }) as DOMRect;
+
+    expect(button.querySelector('span[aria-hidden="true"]')).toBeNull();
+
+    fireEvent.pointerDown(button, { clientX: 50, clientY: 20, pointerType: 'mouse', button: 0 });
+    expect(button.style.getPropertyValue('--glow-x')).toBe('25%');
+    expect(button.style.getPropertyValue('--glow-y')).toBe('50%');
+    const first = button.querySelector('span[aria-hidden="true"]');
+    expect(first).not.toBeNull();
+    expect(first).toHaveAttribute('aria-hidden', 'true');
+
+    fireEvent.pointerDown(button, { clientX: 150, clientY: 20, pointerType: 'mouse', button: 0 });
+    expect(button.style.getPropertyValue('--glow-x')).toBe('75%');
+    expect(button.querySelector('span[aria-hidden="true"]')).not.toBe(first);
+  });
+
+  test('does not bloom when press feedback is disabled', () => {
+    render(<Button deform={false}>Quiet</Button>);
+    const button = screen.getByRole('button', { name: 'Quiet' });
+    fireEvent.pointerDown(button, { clientX: 10, clientY: 10, pointerType: 'mouse', button: 0 });
+    expect(button.querySelector('span[aria-hidden="true"]')).toBeNull();
+    expect(button.style.getPropertyValue('--glow-x')).toBe('50%');
+  });
+});
+
+describe('Deformable press bloom', () => {
+  test('shares the same press-point highlight with wrapped content', () => {
+    render(
+      <Deformable>
+        <span>Content</span>
+      </Deformable>,
+    );
+    const surface = document.querySelector('[class*="ui-deform"]') as HTMLElement;
+    expect(surface).not.toBeNull();
+    expect(surface.querySelector('span[aria-hidden="true"]')).toBeNull();
+
+    fireEvent.pointerDown(surface, { clientX: 20, clientY: 10, pointerType: 'mouse', button: 0 });
+    expect(surface.querySelector('span[aria-hidden="true"]')).not.toBeNull();
+    expect(screen.getByText('Content')).toBeInTheDocument();
   });
 });
 

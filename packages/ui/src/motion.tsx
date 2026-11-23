@@ -62,8 +62,24 @@ export interface DeformResult {
     onPointerUp: (event: ReactPointerEvent<HTMLElement>) => void;
     onPointerCancel: (event: ReactPointerEvent<HTMLElement>) => void;
   };
+  /** Transform feedback plus the CSS variables that place the press glow. */
   style: CSSProperties;
   state: DeformState;
+  /** Bump on every press. Pass to `PressGlow` to replay the highlight once. */
+  pulse: number;
+}
+
+const clampPercent = (value: number) => Math.min(100, Math.max(0, value));
+
+/**
+ * A single liquid-glass style bloom that replays at the press point. Render it
+ * inside any element whose `useDeform().style` is applied; `pulse` remounts the
+ * layer so the CSS animation restarts on every press. Hidden under reduced
+ * motion and never focusable, so it adds no semantics or tab stop.
+ */
+export function PressGlow({ pulse }: { pulse: number }) {
+  if (pulse === 0) return null;
+  return <span key={pulse} className={cn('ui-glow')} aria-hidden="true" />;
 }
 
 function initialState(): DeformState {
@@ -90,6 +106,7 @@ export function useDeform({
   touchAction,
 }: DeformOptions = {}): DeformResult {
   const [state, dispatch] = useReducer(deformReducer, undefined, initialState);
+  const [glow, setGlow] = useState({ x: 50, y: 50, pulse: 0 });
   const origin = useRef<{ x: number; y: number } | null>(null);
   const size = useRef({ width: 0, height: 0 });
   const moved = useRef(false);
@@ -103,6 +120,13 @@ export function useDeform({
     origin.current = { x: event.clientX, y: event.clientY };
     const rect = event.currentTarget.getBoundingClientRect();
     size.current = { width: rect.width, height: rect.height };
+    const width = rect.width || 1;
+    const height = rect.height || 1;
+    setGlow((current) => ({
+      x: clampPercent(((event.clientX - rect.left) / width) * 100),
+      y: clampPercent(((event.clientY - rect.top) / height) * 100),
+      pulse: current.pulse + 1,
+    }));
     moved.current = false;
     // Touch gestures must not be stolen by the page scroller mid-drag.
     if (event.pointerType === 'touch') {
@@ -212,7 +236,12 @@ export function useDeform({
         transformOrigin: '50% 50%',
         transition: 'transform var(--spring-dur) var(--spring-ease)',
       };
-  const style: CSSProperties = { ...motionStyle, touchAction: resolvedTouchAction };
+  const style = {
+    ...motionStyle,
+    touchAction: resolvedTouchAction,
+    '--glow-x': `${glow.x}%`,
+    '--glow-y': `${glow.y}%`,
+  } as CSSProperties;
 
   return {
     handlers: {
@@ -223,6 +252,7 @@ export function useDeform({
     },
     style,
     state,
+    pulse: glow.pulse,
   };
 }
 
@@ -258,6 +288,7 @@ export function Deformable({
       {...rest}
       {...deform.handlers}
     >
+      <PressGlow pulse={deform.pulse} />
       {children}
     </div>
   );

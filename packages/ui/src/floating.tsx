@@ -13,7 +13,7 @@ import {
   type FloatingState,
 } from '@ilovecode33/ui-core';
 import { useReducer, type CSSProperties, type HTMLAttributes, type ReactNode } from 'react';
-import { useDeform } from './motion';
+import { PressGlow, useDeform } from './motion';
 import { cn } from './css';
 
 /* ── GlassSurface ─────────────────────────────────────────────────────────── */
@@ -37,6 +37,7 @@ export function GlassSurface({
       {...rest}
       {...(deform ? motion.handlers : {})}
     >
+      {deform && <PressGlow pulse={motion.pulse} />}
       {children}
     </div>
   );
@@ -100,6 +101,7 @@ export function FloatingBar({
         style={motion.style}
         {...(deform ? motion.handlers : {})}
       >
+        {deform && <PressGlow pulse={motion.pulse} />}
         <div className={cn('ui-floating__content')}>{children}</div>
         {collapsible && (
           <button

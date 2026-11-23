@@ -52,6 +52,7 @@ so nothing is permanently covered.
 - [ ] Floating bars resolve safe-area insets and keep every interactive target at least 44 × 44 pt.
 - [ ] Translucent surfaces keep text contrast in light, dark, and all five accents.
 - [ ] Drag deformation is direct manipulation feedback: rubber-band resistance (harder the farther it is pulled), directional stretch/squash, spring back on release.
+- [ ] Press feedback blooms from the pointer position via `useDeform()`'s `--glow-*` variables and `PressGlow`. It sits behind content, uses only `--glow-*` tokens, never takes focus, and is disabled with deformation or under reduced motion.
 - [ ] Stretch is driven by the dragged axis's own displacement; the perpendicular squash is paired with that pull. No rotation or tilt is added.
 - [ ] A drag beyond the click threshold, or a release outside the control, must not fire the control's click / activation handlers.
 - [ ] Deformation is disabled under `prefers-reduced-motion`; the static layout and state remain correct.
