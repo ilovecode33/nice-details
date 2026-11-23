@@ -153,13 +153,14 @@ export interface SegmentOption<T extends string> {
   disabled?: boolean;
 }
 
-const DRAG_THRESHOLD = 4;
-const clampPercent = (value: number) => Math.min(100, Math.max(0, value));
+const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+const clampPercent = (value: number) => clamp(value, 0, 100);
 
 /**
- * iOS-style segmented control. The selected pill is the interactive surface:
- * it deforms and glows under the pointer, follows a horizontal drag to switch
- * options, and slides to the new option on a click or keyboard change.
+ * iOS-style segmented control. The selected pill is the drag surface: pressing
+ * it gives press feedback, dragging moves it freely with the pointer, and
+ * release snaps it to the nearest slot and selects that option. Pressing any
+ * other slot only slides the pill there — no press feedback on the pill.
  */
 export function Segmented<T extends string>({
   options,
@@ -175,27 +176,35 @@ export function Segmented<T extends string>({
   deform?: boolean;
 }) {
   const trackRef = useRef<HTMLDivElement>(null);
-  const drag = useRef<{ startX: number; applied: T } | null>(null);
+  const drag = useRef<{ startX: number; baseLeft: number } | null>(null);
   // Render the pill only once measured, so it mounts at its final size
   // instead of transitioning in from zero on first paint.
-  const [thumb, setThumb] = useState<{ left: number; width: number } | null>(null);
+  const [slots, setSlots] = useState<Array<{ left: number; width: number }> | null>(null);
+  const [dragOffset, setDragOffset] = useState<number | null>(null);
   const [glowAt, setGlowAt] = useState({ x: 50, y: 50 });
   const reduced = usePrefersReducedMotion();
   const motion = useDeform({ enabled: deform, axis: 'x', touchAction: 'pan-y' });
+  const activeIndex = Math.max(
+    0,
+    options.findIndex((option) => option.value === value),
+  );
+  const geometry = slots?.[activeIndex] ?? { left: 0, width: 0 };
 
-  // The pill is absolutely positioned, so measure the real button geometry —
-  // labels can have different intrinsic widths even with flex: 1.
+  // Measure every slot, not just the active one: the pill needs the other
+  // positions to snap on release, and labels can have different widths.
   useLayoutEffect(() => {
     const track = trackRef.current;
     if (!track) return;
     const measure = () => {
-      const active =
-        track.querySelector<HTMLElement>('[data-active="true"]') ??
-        track.querySelector<HTMLElement>('button');
-      if (!active) return;
-      const trackRect = track.getBoundingClientRect();
-      const rect = active.getBoundingClientRect();
-      setThumb({ left: rect.left - trackRect.left, width: rect.width });
+      const buttons = [...track.querySelectorAll<HTMLElement>('[data-index]')];
+      if (!buttons.length) return;
+      const trackLeft = track.getBoundingClientRect().left;
+      setSlots(
+        buttons.map((button) => {
+          const rect = button.getBoundingClientRect();
+          return { left: rect.left - trackLeft, width: rect.width };
+        }),
+      );
     };
     measure();
     if (typeof ResizeObserver === 'undefined') return;
@@ -205,55 +214,74 @@ export function Segmented<T extends string>({
     return () => observer.disconnect();
   }, [value, options]);
 
-  const onPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
-    motion.handlers.onPointerDown(event);
-    if (!deform) return;
-    // Place the bloom on the pill the pointer actually pressed, not on the
-    // whole track, so the glow travels with the selected block.
+  const pressedIndex = (event: ReactPointerEvent<HTMLDivElement>) => {
     const hit = (event.target as HTMLElement).closest<HTMLElement>('[data-index]');
-    const rect = (
-      hit ?? trackRef.current?.querySelector<HTMLElement>('[data-active="true"]')
-    )?.getBoundingClientRect();
-    if (rect) {
-      setGlowAt({
-        x: clampPercent(((event.clientX - rect.left) / (rect.width || 1)) * 100),
-        y: clampPercent(((event.clientY - rect.top) / (rect.height || 1)) * 100),
-      });
-    }
-    drag.current = { startX: event.clientX, applied: value };
+    return hit ? Number(hit.dataset.index) : -1;
+  };
+
+  const onPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+    const index = pressedIndex(event);
+    const option = options[index];
+    // Only the selected pill is draggable. Pressing another slot must not
+    // light up the pill; its native click simply slides the pill there.
+    if (!deform || index !== activeIndex || !option || option.disabled) return;
+    motion.handlers.onPointerDown(event);
+    const rect = (event.target as HTMLElement).getBoundingClientRect();
+    setGlowAt({
+      x: clampPercent(((event.clientX - rect.left) / (rect.width || 1)) * 100),
+      y: clampPercent(((event.clientY - rect.top) / (rect.height || 1)) * 100),
+    });
+    drag.current = { startX: event.clientX, baseLeft: geometry.left };
   };
 
   const onPointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (!drag.current || !slots?.length) return;
     motion.handlers.onPointerMove(event);
-    const session = drag.current;
-    if (!session || Math.abs(event.clientX - session.startX) <= DRAG_THRESHOLD) return;
-    const buttons = trackRef.current?.querySelectorAll<HTMLElement>('[data-index]');
-    if (!buttons) return;
-    const target = [...buttons].find((button) => {
-      const rect = button.getBoundingClientRect();
-      return event.clientX >= rect.left && event.clientX <= rect.right;
-    });
-    const index = target ? Number(target.dataset.index) : -1;
-    const option = options[index];
-    if (option && !option.disabled && option.value !== session.applied) {
-      session.applied = option.value;
-      onChange(option.value);
-    }
+    const minLeft = slots[0].left;
+    const maxLeft = slots[slots.length - 1].left;
+    setDragOffset(
+      clamp(
+        event.clientX - drag.current.startX,
+        minLeft - drag.current.baseLeft,
+        maxLeft - drag.current.baseLeft,
+      ),
+    );
   };
 
   const onEnd = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (!drag.current) return;
     motion.handlers.onPointerUp(event);
+    // Snap to the slot under the released pointer, not the pill's centre —
+    // that is where the user's finger actually is.
+    const trackLeft = trackRef.current?.getBoundingClientRect().left ?? 0;
+    const pointerX =
+      event.type === 'pointercancel'
+        ? drag.current.baseLeft + (dragOffset ?? 0) + geometry.width / 2
+        : event.clientX - trackLeft;
+    let nearest = 0;
+    let distance = Infinity;
+    slots?.forEach((slot, index) => {
+      const delta = Math.abs(slot.left + slot.width / 2 - pointerX);
+      if (delta < distance) {
+        distance = delta;
+        nearest = index;
+      }
+    });
+    const option = options[nearest];
+    if (option && !option.disabled && option.value !== value) onChange(option.value);
     drag.current = null;
+    setDragOffset(null);
   };
 
+  const dragging = dragOffset !== null;
   const thumbStyle = {
     ...motion.style,
-    left: thumb?.left ?? 0,
-    width: thumb?.width ?? 0,
+    left: geometry.left + (dragOffset ?? 0),
+    width: geometry.width,
     '--glow-x': `${glowAt.x}%`,
     '--glow-y': `${glowAt.y}%`,
     transition:
-      motion.state.active || reduced
+      dragging || motion.state.active || reduced
         ? 'none'
         : `left var(--dur) var(--ease), width var(--dur) var(--ease), transform var(--spring-dur) var(--spring-ease)`,
   } as CSSProperties;
@@ -269,7 +297,7 @@ export function Segmented<T extends string>({
       onPointerUp={onEnd}
       onPointerCancel={onEnd}
     >
-      {thumb && (
+      {slots && (
         <div className={cn('ui-segmented__thumb')} style={thumbStyle}>
           <PressGlow pulse={motion.pulse} />
         </div>
