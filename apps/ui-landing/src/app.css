@@ -162,7 +162,7 @@ main.landing__container {
 .pw-demo__stage {
   position: relative;
   width: 100%;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 1 / 1;
   container-type: size;
   overflow: hidden;
   border-radius: var(--radius);

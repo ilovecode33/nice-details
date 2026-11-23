@@ -15,20 +15,31 @@ import {
 import '@ilovecode33/photo-wall/styles.css';
 import { Button, cn, Segmented, SliderRow, useLocale } from '@ilovecode33/ui';
 
-/** The stage is one wall tile; the library's camera pans across a mirrored strip. */
-const STAGE_ASPECT = 4 / 3;
+/** A square stage gives a taller canvas: lights above, framed prints below. */
+const STAGE_ASPECT = 1;
+
+/** Frames stay in the lower band so the upper area is free for the lights. */
+const WALL_PARAMS: WallParams = {
+  ...DEFAULT_WALL_PARAMS,
+  count: 3,
+  safeTop: 52,
+  safeBottom: 96,
+  verticalJitter: 2,
+  maxFrameHeight: 38,
+  minFrameHeight: 18,
+};
 
 interface DemoLight extends VirtualLight {
   id: string;
 }
 
 const INITIAL_LIGHTS: DemoLight[] = [
-  { ...DEFAULT_LIGHT, id: 'l1', x: 30, y: 14, glowColor: '255, 244, 214' },
+  { ...DEFAULT_LIGHT, id: 'l1', x: 30, y: 10, glowColor: '255, 244, 214' },
   {
     ...DEFAULT_LIGHT,
     id: 'l2',
     x: 50,
-    y: 10,
+    y: 8,
     z: 480,
     radius: 38,
     intensity: 0.65,
@@ -38,7 +49,7 @@ const INITIAL_LIGHTS: DemoLight[] = [
     ...DEFAULT_LIGHT,
     id: 'l3',
     x: 70,
-    y: 18,
+    y: 12,
     z: 420,
     radius: 30,
     intensity: 0.5,
@@ -78,10 +89,7 @@ export function PhotoWallDemo() {
   const dragging = useRef<string | null>(null);
   const [lights, setLights] = useState<DemoLight[]>(INITIAL_LIGHTS);
   const [selectedLightId, setSelectedLightId] = useState(INITIAL_LIGHTS[0].id);
-  const [params, setParams] = useState<WallParams>({
-    ...DEFAULT_WALL_PARAMS,
-    count: 3,
-  });
+  const [params, setParams] = useState<WallParams>(WALL_PARAMS);
 
   const selectedLight = lights.find((item) => item.id === selectedLightId) ?? lights[0];
 
@@ -92,7 +100,7 @@ export function PhotoWallDemo() {
           ? {
               ...item,
               x: clamp(stageXToLight(stageX), 5, 95),
-              y: clamp(stageY, 3, 97),
+              y: clamp(stageY, 2, 42),
             }
           : item,
       ),
@@ -244,7 +252,7 @@ export function PhotoWallDemo() {
             variant="secondary"
             onClick={() => {
               setLights(INITIAL_LIGHTS);
-              setParams({ ...DEFAULT_WALL_PARAMS, count: 3 });
+              setParams(WALL_PARAMS);
               setSelectedLightId(INITIAL_LIGHTS[0].id);
             }}
           >
