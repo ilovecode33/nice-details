@@ -62,6 +62,36 @@ Changing the prop updates every shadow immediately; tiles do not need to be
 regenerated. The solver is exported as a pure function so the same maths can be
 used by a control panel or a non-React renderer.
 
+### Several lights
+
+Pass an array to `lights` (it overrides `light`). Each light is solved
+independently and contributes **its own shadow layer**, so overlapping shadows
+accumulate instead of replacing one another — the linear superposition of
+independent sources. Bevel highlights add together and saturate at the existing
+0.4 ceiling. The wall wash gets one gradient per light, tinted by its optional
+`glowColor` (an RGB triplet such as `'214, 232, 255'`).
+
+```tsx
+<PhotoWall
+  lights={[
+    { ...DEFAULT_LIGHT, x: 22, glowColor: '255, 244, 214' },
+    { ...DEFAULT_LIGHT, x: 50, z: 480, intensity: 0.6, glowColor: '214, 232, 255' },
+    { ...DEFAULT_LIGHT, x: 78, z: 420, intensity: 0.4, glowColor: '255, 224, 196' },
+  ]}
+/>
+```
+
+```ts
+import { computeFrameLightingMulti, computeWallGlows } from '@ilovecode33/photo-wall';
+
+const { shadows, highlight } = computeFrameLightingMulti({ frame, geometry, lights, params, aspect });
+// shadows[i] belongs to lights[i]; render each as one CSS box-shadow layer.
+```
+
+No light changes the geometry of another light's shadow; it only adds a new
+darkening layer or a share of the brightness. That keeps the solver O(lights)
+and makes adding a light purely additive.
+
 How each shadow is derived:
 
 1. **Direction and throw — pinhole projection.** The ray from the light through

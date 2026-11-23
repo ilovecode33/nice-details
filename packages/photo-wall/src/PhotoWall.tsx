@@ -2,10 +2,11 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { solveFrameGeometry, type FrameGeometry } from './geometry';
 import {
-  computeFrameLighting,
-  computeWallGlow,
+  computeFrameLightingMulti,
+  computeWallGlows,
+  formatFrameShadow,
+  formatWallGlow,
   DEFAULT_LIGHT,
-  type FrameLighting,
   type VirtualLight,
 } from './light';
 import {
@@ -55,15 +56,18 @@ export interface PhotoWallProps {
   imageRatios?: Map<string, number>;
   /** Virtual ceiling light. Defaults to a broad warm spot above the wall. */
   light?: VirtualLight;
+  /** Several lights; each contributes its own shadow layer. Overrides `light`. */
+  lights?: VirtualLight[];
   className?: string;
 }
 
-/** Turn a solved frame, its generated style and the light result into CSS vars. */
+/** Turn a solved frame, its generated style and the lighting result into CSS. */
 function frameVars(
   frame: WallFrame,
   style: WallStyle,
   geo: FrameGeometry,
-  lighting: FrameLighting,
+  shadow: string,
+  highlight: number,
 ): CSSProperties {
   return {
     '--x': `${frame.x}%`,
@@ -78,13 +82,8 @@ function frameVars(
     '--rail': `calc(clamp(10px, 1.5vw, 26px) * ${style.railScale.toFixed(2)})`,
     '--sheen': style.sheen.toFixed(2),
     '--grain-jitter': `${style.grainJitter}deg`,
-    '--shadow-x': String(lighting.shadowX),
-    '--shadow-y': String(lighting.shadowY),
-    '--shadow-blur': String(lighting.shadowBlur),
-    '--shadow-spread': String(lighting.shadowSpread),
-    '--shadow-a': String(lighting.shadowAlpha),
-    '--shadow-a-soft': (lighting.shadowAlpha * 0.42).toFixed(3),
-    '--light': String(lighting.highlight),
+    boxShadow: shadow,
+    '--light': String(highlight),
   } as CSSProperties;
 }
 
@@ -159,6 +158,7 @@ export function PhotoWall({
   viewportAspect,
   imageRatios,
   light = DEFAULT_LIGHT,
+  lights,
   className,
 }: PhotoWallProps) {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -190,12 +190,9 @@ export function PhotoWall({
   const photos = wrapImages(images, 0, tiles.length * FRAMES_PER_TILE);
   const passCount = tiles.length * 2;
   const aspect = viewportAspect && viewportAspect > 0 ? viewportAspect : measuredAspect;
-  const glow = computeWallGlow(light);
+  const activeLights = lights && lights.length > 0 ? lights : [light];
   const glowStyle = {
-    '--glow-x': `${glow.xPct}%`,
-    '--glow-y': `${glow.yPct}%`,
-    '--glow-size': `${glow.sizeCqw}cqw`,
-    '--glow-alpha': glow.alpha,
+    backgroundImage: formatWallGlow(computeWallGlows(activeLights)),
   } as CSSProperties;
 
   const rootStyle = {
@@ -247,10 +244,10 @@ export function PhotoWall({
                     minFrameHeight: activeParams.minFrameHeight,
                     high: position % 2 === 0,
                   });
-                  const lighting = computeFrameLighting({
+                  const lighting = computeFrameLightingMulti({
                     frame,
                     geometry: geo,
-                    light,
+                    lights: activeLights,
                     params: activeParams,
                     aspect,
                     jitter: tile.styles[position]?.lightJitter ?? 0.5,
@@ -260,7 +257,13 @@ export function PhotoWall({
                       key={position}
                       className={`${styles.frame} ${FRAME_CLASS[frame.frame]}`}
                       data-wall-frame=""
-                      style={frameVars(frame, tile.styles[position], geo, lighting)}
+                      style={frameVars(
+                        frame,
+                        tile.styles[position],
+                        geo,
+                        formatFrameShadow(lighting.shadows),
+                        lighting.highlight,
+                      )}
                     >
                       <span className={`${styles.rail} ${styles.railTop}`} aria-hidden="true" />
                       <span className={`${styles.rail} ${styles.railRight}`} aria-hidden="true" />

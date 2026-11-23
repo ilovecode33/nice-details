@@ -49,6 +49,8 @@ export interface VirtualLight {
   radius: number;
   /** Relative brightness. 1 is the reference warm ceiling spot. */
   intensity: number;
+  /** Tint of the light's wash as an RGB triplet, e.g. '255, 250, 236'. */
+  glowColor?: string;
 }
 
 /** A broad warm ceiling spot above the centre of the wall. */
@@ -218,6 +220,39 @@ export function computeFrameLighting(input: FrameLightingInput): FrameLighting {
   };
 }
 
+/**
+ * Several lights are handled by solving each one independently and compositing
+ * the results. Each light contributes its OWN shadow layer (so overlapping
+ * shadows accumulate as separate CSS box-shadows rather than replacing each
+ * other), while their bevel highlights add together. This is the linear
+ * superposition of independent light sources: no light changes where another
+ * light's shadow falls — it only adds brightness or another darkening layer.
+ */
+export interface FrameLightingSet {
+  /** One entry per light, in the same order as the input; paint in that order. */
+  shadows: FrameLighting[];
+  /** Sum of all light contributions to the top bevel, clamped to 0..0.4. */
+  highlight: number;
+}
+
+export type MultiFrameLightingInput = Omit<FrameLightingInput, 'light'> & {
+  lights?: VirtualLight[];
+};
+
+/** Solve a frame against any number of lights. Empty input falls back to the default spot. */
+export function computeFrameLightingMulti(
+  input: MultiFrameLightingInput,
+): FrameLightingSet {
+  const lights = input.lights?.length ? input.lights : [DEFAULT_LIGHT];
+  const shadows = lights.map((light) => computeFrameLighting({ ...input, light }));
+  const highlight = clamp(
+    shadows.reduce((sum, shadow) => sum + shadow.highlight, 0),
+    0,
+    0.4,
+  );
+  return { shadows, highlight };
+}
+
 export interface WallGlow {
   /** Horizontal position as a percent of the stage width. */
   xPct: number;
@@ -227,6 +262,8 @@ export interface WallGlow {
   sizeCqw: number;
   /** Strength of the warm ceiling wash, 0..1. */
   alpha: number;
+  /** Tint as an RGB triplet, e.g. '255, 250, 236'. */
+  color: string;
 }
 
 /**
@@ -245,5 +282,47 @@ export function computeWallGlow(light: VirtualLight = DEFAULT_LIGHT): WallGlow {
     yPct: light.y,
     sizeCqw: Math.max(20, Math.abs(light.radius) * 2.4),
     alpha: clamp(0.42 * Math.max(0, light.intensity), 0, 0.85),
+    color: light.glowColor ?? '255, 250, 236',
   };
+}
+
+/** Wall wash for every light, in the same order as the input. */
+export function computeWallGlows(lights?: VirtualLight[]): WallGlow[] {
+  const active = lights?.length ? lights : [DEFAULT_LIGHT];
+  return active.map(computeWallGlow);
+}
+
+/**
+ * Paint one box-shadow layer per light, plus the shared contact line. Overlapping
+ * shadows composite in CSS instead of replacing one another, which is how
+ * independent light sources behave.
+ */
+export function formatFrameShadow(shadows: FrameLighting[]): string {
+  const contact = '0 0.12cqw 0.3cqw rgba(36, 26, 15, 0.16)';
+  const layers = shadows.flatMap((shadow) => {
+    const x = shadow.shadowX.toFixed(3);
+    const y = shadow.shadowY.toFixed(3);
+    const blur = shadow.shadowBlur.toFixed(3);
+    const spread = shadow.shadowSpread.toFixed(3);
+    const alpha = shadow.shadowAlpha.toFixed(3);
+    const soft = (shadow.shadowAlpha * 0.42).toFixed(3);
+    return [
+      `calc(${x} * 1cqw) calc(${y} * 1cqw) calc(${blur} * 1cqw) calc(${spread} * 1cqw) rgba(38, 27, 16, ${alpha})`,
+      `calc(${x} * 2.1cqw) calc(${y} * 2.3cqw) calc(${blur} * 2.1cqw) calc(${spread} * 1.7cqw) rgba(38, 27, 16, ${soft})`,
+    ];
+  });
+  return [contact, ...layers].join(', ');
+}
+
+/** One wall-wash gradient per light, followed by the ambient falloff. */
+export function formatWallGlow(glows: WallGlow[]): string {
+  const washes = glows.map(
+    (glow) =>
+      `radial-gradient(${glow.sizeCqw.toFixed(1)}cqw ${glow.sizeCqw.toFixed(1)}cqw at ${glow.xPct.toFixed(2)}% ${glow.yPct.toFixed(2)}%, rgba(${glow.color}, ${glow.alpha.toFixed(3)}), transparent 72%)`,
+  );
+  return [
+    ...washes,
+    'radial-gradient(96% 64% at 50% 0%, rgba(255, 255, 255, 0.1), transparent 70%)',
+    'radial-gradient(62% 62% at 88% 98%, rgba(84, 66, 43, 0.15), transparent 72%)',
+  ].join(', ');
 }

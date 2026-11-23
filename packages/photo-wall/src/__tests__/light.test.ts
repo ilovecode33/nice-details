@@ -1,9 +1,12 @@
 import { describe, expect, it } from '@rstest/core';
 import {
   computeFrameLighting,
+  computeFrameLightingMulti,
   computeWallGlow,
+  computeWallGlows,
   DEFAULT_LIGHT,
   type FrameLightingInput,
+  type MultiFrameLightingInput,
   type VirtualLight,
 } from '../light';
 import { DEFAULT_WALL_PARAMS } from '../params';
@@ -36,6 +39,10 @@ const input = (over: Partial<FrameLightingInput> = {}): FrameLightingInput => ({
   jitter: 0.5,
   ...over,
 });
+
+const multiInput = (
+  over: Partial<MultiFrameLightingInput> = {},
+): MultiFrameLightingInput => ({ ...input(), ...over });
 
 const lightAt = (over: Partial<VirtualLight> = {}): VirtualLight => ({
   ...DEFAULT_LIGHT,
@@ -145,6 +152,61 @@ describe('existing shadow tuning knobs', () => {
     );
     expect(Math.abs(tuned.shadowX)).toBeGreaterThan(Math.abs(base.shadowX));
     expect(tuned.shadowBlur).toBeGreaterThan(base.shadowBlur);
+  });
+});
+
+describe('multiple lights', () => {
+  const lights: VirtualLight[] = [
+    lightAt({ x: 20, y: 10 }),
+    lightAt({ x: 50, y: 20, intensity: 0.6 }),
+    lightAt({ x: 80, y: 8, intensity: 0.4 }),
+  ];
+
+  it('produces one independent shadow layer per light, in input order', () => {
+    const result = computeFrameLightingMulti(multiInput({ lights }));
+    expect(result.shadows).toHaveLength(3);
+    expect(result.shadows[0].shadowX).toBe(
+      computeFrameLighting(input({ light: lights[0] })).shadowX,
+    );
+    expect(result.shadows[2].shadowX).toBe(
+      computeFrameLighting(input({ light: lights[2] })).shadowX,
+    );
+  });
+
+  it('saturates the combined bevel highlight instead of exceeding it', () => {
+    const result = computeFrameLightingMulti(
+      multiInput({ lights: lights.map((light) => ({ ...light, intensity: 20 })) }),
+    );
+    expect(result.highlight).toBeLessThanOrEqual(0.4);
+  });
+
+  it('adds bevel contributions from every light', () => {
+    const one = computeFrameLightingMulti(multiInput({ lights: [lights[0]] }));
+    const three = computeFrameLightingMulti(multiInput({ lights }));
+    expect(three.highlight).toBeGreaterThan(one.highlight);
+  });
+
+  it('falls back to the default spot for an empty light list', () => {
+    const result = computeFrameLightingMulti(multiInput({ lights: [] }));
+    expect(result.shadows).toHaveLength(1);
+    expect(result.shadows[0].shadowX).toBe(
+      computeFrameLighting(input({ light: DEFAULT_LIGHT })).shadowX,
+    );
+  });
+
+  it('maps one wall glow per light and keeps each tint', () => {
+    const tinted = lights.map((light, index) => ({
+      ...light,
+      glowColor: `10, 20, ${30 + index}`,
+    }));
+    const glows = computeWallGlows(tinted);
+    expect(glows).toHaveLength(3);
+    expect(glows.map((glow) => glow.color)).toEqual([
+      '10, 20, 30',
+      '10, 20, 31',
+      '10, 20, 32',
+    ]);
+    expect(computeWallGlows()).toEqual([computeWallGlow(DEFAULT_LIGHT)]);
   });
 });
 
