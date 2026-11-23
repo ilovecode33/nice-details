@@ -149,6 +149,7 @@
   --spring-ease: cubic-bezier(0.16, 1.45, 0.3, 1);
   --morph-dur: 0.26s;
   --morph-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --dock-scroll-dur: 0.24s; /* collapsed dock centering when the active item changes */
 
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);

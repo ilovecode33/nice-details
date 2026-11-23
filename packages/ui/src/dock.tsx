@@ -65,6 +65,10 @@ function morphDurationMs(): number {
   return durationMs('--morph-dur', 260);
 }
 
+function dockScrollDurationMs(): number {
+  return durationMs('--dock-scroll-dur', 240);
+}
+
 function morphEasing(): string {
   if (typeof window === 'undefined') return 'cubic-bezier(0.4, 0, 0.2, 1)';
   return (
@@ -182,25 +186,37 @@ export const DockNavigation = forwardRef<DockNavigationHandle, DockNavigationPro
     }, [collapsed]);
 
     // The strip scrolls horizontally; its viewport width changes throughout
-    // the morph, so re-center every frame until the geometry settles.
+    // the morph, so re-center every frame until the geometry settles. The
+    // centering is an exponential follow rather than an instant assignment, so
+    // changing the active item eases the strip to the new centre. A time-based
+    // factor keeps the easing identical at 60 Hz and 120 Hz.
     useLayoutEffect(() => {
       if (!collapsed) return;
       const container = dockRef.current;
       if (!container) return;
-      let frame = 0;
+      const reduced = prefersReducedMotion();
+      const tau = Math.max(16, dockScrollDurationMs() / 3);
       const started = performance.now();
-      const settleMs = morphDurationMs() + 40;
-      const center = () => {
+      const settleMs = morphDurationMs() + dockScrollDurationMs() + 80;
+      let last = started;
+      let frame = 0;
+      const center = (now: number) => {
         const active = container.querySelector<HTMLElement>('[data-active="true"]');
         if (active) {
           const view = container.getBoundingClientRect();
           const item = active.getBoundingClientRect();
-          container.scrollLeft +=
+          const delta =
             item.left + item.width / 2 - (view.left + view.width / 2);
+          if (reduced || Math.abs(delta) < 0.5) {
+            container.scrollLeft += delta;
+          } else {
+            const step = Math.min(64, now - last);
+            last = now;
+            container.scrollLeft += delta * (1 - Math.exp(-step / tau));
+          }
         }
-        if (performance.now() - started < settleMs) frame = requestAnimationFrame(center);
+        if (now - started < settleMs) frame = requestAnimationFrame(center);
       };
-      center();
       frame = requestAnimationFrame(center);
       return () => cancelAnimationFrame(frame);
     }, [activeId, collapsed]);
