@@ -237,7 +237,8 @@ export function useDeform({
       }
     : {
         transformOrigin: '50% 50%',
-        transition: 'transform var(--spring-dur) var(--spring-ease)',
+        transition:
+          'transform var(--spring-dur) var(--spring-ease), box-shadow var(--glow-dur) var(--glow-ease)',
       };
   const style = {
     ...motionStyle,
