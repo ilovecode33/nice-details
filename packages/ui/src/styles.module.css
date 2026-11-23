@@ -40,23 +40,29 @@
 
 /* Primary shares the Segmented pill's glass recipe, just a touch stronger
    than secondary so the two levels stay distinct. */
+/* The halo is interaction feedback only — it appears on hover or while the
+   button is held, never at rest, and no press-point spotlight is rendered. */
 .ui-btn--primary {
   background: color-mix(in srgb, var(--accent) 34%, transparent);
   color: var(--text);
   border-color: var(--seg-thumb-stroke);
-  box-shadow: 0 0 calc(var(--space-2)) var(--seg-thumb-halo);
-  --glow-core: var(--glow-specular);
-  --glow-color: var(--glow-specular);
-  --glow-peak: 0.34;
 }
-.ui-btn--primary:hover:not(:disabled) { border-color: var(--accent); }
+.ui-btn--primary:hover:not(:disabled),
+.ui-btn--primary:active:not(:disabled) {
+  border-color: var(--accent);
+  box-shadow: 0 0 calc(var(--space-2)) var(--seg-thumb-halo);
+}
 .ui-btn--secondary {
   background: color-mix(in srgb, var(--accent) 18%, transparent);
   color: var(--text);
   border-color: var(--seg-thumb-stroke);
+}
+.ui-btn--secondary:hover:not(:disabled),
+.ui-btn--secondary:active:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
   box-shadow: 0 0 calc(var(--space-2)) var(--seg-thumb-halo);
 }
-.ui-btn--secondary:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
 .ui-btn--destructive { background: var(--danger-soft); color: var(--danger); border-color: var(--border-strong); }
 .ui-btn--plain { background: transparent; color: var(--text-dim); min-width: var(--touch); }
 .ui-btn--plain:hover:not(:disabled) { color: var(--text); }

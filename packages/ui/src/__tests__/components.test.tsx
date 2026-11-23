@@ -62,42 +62,18 @@ describe('Button', () => {
     expect(screen.getByRole('button', { name: 'Neutral' })).toHaveAttribute('type', 'button');
   });
 
-  test('blooms from the press point and replays on the next press', () => {
-    render(<Button>Save</Button>);
+  test('has no press-point glow layer', () => {
+    render(<Button variant="primary">Save</Button>);
     const button = screen.getByRole('button', { name: 'Save' });
-    button.getBoundingClientRect = () =>
-      ({
-        left: 0,
-        top: 0,
-        width: 200,
-        height: 40,
-        right: 200,
-        bottom: 40,
-        x: 0,
-        y: 0,
-        toJSON: () => ({}),
-      }) as DOMRect;
-
-    expect(button.querySelector('span[aria-hidden="true"]')).toBeNull();
-
     fireEvent.pointerDown(button, { clientX: 50, clientY: 20, pointerType: 'mouse', button: 0 });
-    expect(button.style.getPropertyValue('--glow-x')).toBe('25%');
-    expect(button.style.getPropertyValue('--glow-y')).toBe('50%');
-    const first = button.querySelector('span[aria-hidden="true"]');
-    expect(first).not.toBeNull();
-    expect(first).toHaveAttribute('aria-hidden', 'true');
-
-    fireEvent.pointerDown(button, { clientX: 150, clientY: 20, pointerType: 'mouse', button: 0 });
-    expect(button.style.getPropertyValue('--glow-x')).toBe('75%');
-    expect(button.querySelector('span[aria-hidden="true"]')).not.toBe(first);
+    expect(button.querySelector('[class*="ui-glow"]')).toBeNull();
   });
 
-  test('does not bloom when press feedback is disabled', () => {
+  test('keeps transform feedback without a glow layer', () => {
     render(<Button deform={false}>Quiet</Button>);
     const button = screen.getByRole('button', { name: 'Quiet' });
     fireEvent.pointerDown(button, { clientX: 10, clientY: 10, pointerType: 'mouse', button: 0 });
-    expect(button.querySelector('span[aria-hidden="true"]')).toBeNull();
-    expect(button.style.getPropertyValue('--glow-x')).toBe('50%');
+    expect(button.querySelector('[class*="ui-glow"]')).toBeNull();
   });
 });
 
