@@ -97,7 +97,10 @@
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
   box-shadow: var(--shadow-sm);
-  overflow: hidden;
+  /* Clip to the rounded corners, but let child halos (e.g. a hovered button's
+     outer glow) extend past the card edge. `hidden` would cut them off. */
+  overflow: clip;
+  overflow-clip-margin: var(--space-6);
 }
 .ui-card--padded { padding: var(--space-4); }
 .ui-card__head { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-3); margin-bottom: var(--space-4); }
