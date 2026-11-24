@@ -165,6 +165,10 @@
   --seg-thumb-glow: var(--accent-glow);
   /* A brightened accent reads as a glow on both light and dark tracks. */
   --seg-thumb-halo: color-mix(in srgb, var(--accent) 45%, var(--glass-highlight));
+  /* Button hover glow: pure accent (no white) stays visible against both a
+     near-white and a near-dark track. */
+  --btn-glow: color-mix(in srgb, var(--accent) 60%, transparent);
+  --btn-glow-soft: color-mix(in srgb, var(--accent) 32%, transparent);
 
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
