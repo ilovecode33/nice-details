@@ -169,6 +169,10 @@
      near-white and a near-dark track. */
   --btn-glow: color-mix(in srgb, var(--accent) 60%, transparent);
   --btn-glow-soft: color-mix(in srgb, var(--accent) 32%, transparent);
+  /* Destructive buttons mirror the glass recipe in the semantic danger hue. */
+  --btn-danger-stroke: var(--glass-highlight);
+  --btn-danger-glow: color-mix(in srgb, var(--danger) 60%, transparent);
+  --btn-danger-glow-soft: color-mix(in srgb, var(--danger) 32%, transparent);
 
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -180,10 +184,12 @@
    as a dark outline there, and in the OS-light branch of system mode. */
 :root[data-theme='light'] {
   --seg-thumb-stroke: color-mix(in srgb, var(--accent) 55%, transparent);
+  --btn-danger-stroke: color-mix(in srgb, var(--danger) 55%, transparent);
 }
 @media (prefers-color-scheme: light) {
   :root[data-theme='system'] {
     --seg-thumb-stroke: color-mix(in srgb, var(--accent) 55%, transparent);
+    --btn-danger-stroke: color-mix(in srgb, var(--danger) 55%, transparent);
   }
 }
 

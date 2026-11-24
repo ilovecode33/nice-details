@@ -66,7 +66,18 @@
     0 0 calc(var(--space-2)) var(--btn-glow),
     0 0 calc(var(--space-5)) var(--btn-glow-soft);
 }
-.ui-btn--destructive { background: var(--danger-soft); color: var(--danger); border-color: var(--border-strong); }
+.ui-btn--destructive {
+  background: color-mix(in srgb, var(--danger) 18%, transparent);
+  color: var(--danger);
+  border-color: var(--btn-danger-stroke);
+}
+.ui-btn--destructive:hover:not(:disabled),
+.ui-btn--destructive:active:not(:disabled) {
+  border-color: var(--danger);
+  box-shadow:
+    0 0 calc(var(--space-2)) var(--btn-danger-glow),
+    0 0 calc(var(--space-5)) var(--btn-danger-glow-soft);
+}
 .ui-btn--plain { background: transparent; color: var(--text-dim); min-width: var(--touch); }
 .ui-btn--plain:hover:not(:disabled) { color: var(--text); }
 
