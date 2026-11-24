@@ -623,7 +623,7 @@ function App() {
       <Sheet open={sheetOpen} onClose={() => setSheetOpen(false)} title={t('intro.title')}>
         <div className={cn('ui-stack ui-stack--md')}>
           <p>{t('intro.body')}</p>
-          <Button variant="primary" block onClick={() => setSheetOpen(false)}>{t('intro.gotIt')}</Button>
+          <Button variant="primary" block haloPortal onClick={() => setSheetOpen(false)}>{t('intro.gotIt')}</Button>
         </div>
       </Sheet>
 

@@ -8,6 +8,7 @@
  */
 
 import { Deformable, useDeform, usePrefersReducedMotion } from './motion';
+import { AnchorHalo } from './anchor-halo';
 import {
   comboboxSemantics,
   createSelectionState,
@@ -47,6 +48,13 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   block?: boolean;
   /** Directional press/drag deformation. Disabled automatically under reduced motion. */
   deform?: boolean;
+  /**
+   * Render the hover/active glow on document.body with CSS Anchor Positioning
+   * so a scrolling ancestor cannot clip it. The glow stays glued to the button
+   * (including drag transforms) without JS position tracking. The button itself
+   * stays in the DOM. Requires anchor-positioning browser support.
+   */
+  haloPortal?: boolean;
 }
 
 export function Button({
@@ -55,6 +63,7 @@ export function Button({
   icon,
   block,
   deform = true,
+  haloPortal = false,
   className = '',
   style,
   children,
@@ -62,21 +71,53 @@ export function Button({
 }: ButtonProps) {
   // Buttons keep vertical page scrolling; horizontal drags still deform them.
   const motion = useDeform({ enabled: deform, touchAction: 'pan-y' });
+  const [hovered, setHovered] = useState(false);
+  const reduced = usePrefersReducedMotion();
+  // A unique dashed-ident per button so multiple portalled halos never bind to
+  // the same anchor. useId() contains ':' which is invalid in an ident.
+  const anchorName = `--btn-halo-${useId().replace(/[^a-zA-Z0-9-]/g, '')}`;
+  const buttonStyle = {
+    ...motion.style,
+    ...(haloPortal ? { anchorName } : {}),
+    ...style,
+  } as CSSProperties;
+  const haloVisible = haloPortal && !reduced && (hovered || motion.state.active);
+
   return (
-    <button
-      type="button"
-      className={cn(`ui-btn ui-btn--${variant} ui-btn--${size} ${block ? 'ui-btn--block' : ''} ${className}`)}
-      style={{ ...motion.style, ...style }}
-      {...rest}
-      {...motion.handlers}
-    >
-      {icon && (
-        <span className={cn('ui-btn__icon')} aria-hidden="true">
-          {icon}
-        </span>
+    <>
+      <button
+        type="button"
+        className={cn(
+          `ui-btn ui-btn--${variant} ui-btn--${size} ${block ? 'ui-btn--block' : ''} ${haloPortal ? 'ui-btn--portal' : ''} ${className}`,
+        )}
+        style={buttonStyle}
+        onPointerOver={() => setHovered(true)}
+        onPointerOut={() => setHovered(false)}
+        {...rest}
+        {...motion.handlers}
+      >
+        {icon && (
+          <span className={cn('ui-btn__icon')} aria-hidden="true">
+            {icon}
+          </span>
+        )}
+        {children && <span>{children}</span>}
+      </button>
+      {haloPortal && (
+        <AnchorHalo
+          anchorName={anchorName}
+          visible={haloVisible}
+          color={
+            variant === 'destructive' ? 'var(--btn-danger-glow)' : 'var(--btn-glow)'
+          }
+          softColor={
+            variant === 'destructive'
+              ? 'var(--btn-danger-glow-soft)'
+              : 'var(--btn-glow-soft)'
+          }
+        />
       )}
-      {children && <span>{children}</span>}
-    </button>
+    </>
   );
 }
 

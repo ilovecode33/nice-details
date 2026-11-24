@@ -62,6 +62,34 @@ describe('Button', () => {
     expect(screen.getByRole('button', { name: 'Neutral' })).toHaveAttribute('type', 'button');
   });
 
+  test('portals an anchor-positioned halo while hovered, with a unique anchor name', () => {
+    const { unmount } = render(
+      <>
+        <Button haloPortal>Save</Button>
+        <Button haloPortal>Discard</Button>
+      </>,
+    );
+    const save = screen.getByRole('button', { name: 'Save' });
+    const discard = screen.getByRole('button', { name: 'Discard' });
+
+    const a1 = getComputedStyle(save).getPropertyValue('anchor-name');
+    const a2 = getComputedStyle(discard).getPropertyValue('anchor-name');
+    expect(a1).toMatch(/^--btn-halo-/);
+    expect(a1).not.toBe(a2);
+    expect(document.querySelectorAll('[class*="ui-anchor-halo"]')).toHaveLength(0);
+
+    fireEvent.pointerOver(save);
+    const halos = document.querySelectorAll('[class*="ui-anchor-halo"]');
+    expect(halos).toHaveLength(1);
+    expect(halos[0].parentElement).toBe(document.body);
+    expect(getComputedStyle(halos[0]).getPropertyValue('position-anchor')).toBe(a1);
+    expect(halos[0]).toHaveAttribute('aria-hidden', 'true');
+
+    fireEvent.pointerOut(save);
+    expect(document.querySelectorAll('[class*="ui-anchor-halo"]')).toHaveLength(0);
+    unmount();
+  });
+
   test('has no press-point glow layer', () => {
     render(<Button variant="primary">Save</Button>);
     const button = screen.getByRole('button', { name: 'Save' });
