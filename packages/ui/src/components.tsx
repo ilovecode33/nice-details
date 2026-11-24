@@ -176,15 +176,11 @@ export function Segmented<T extends string>({
   // instead of transitioning in from zero on first paint.
   const [slots, setSlots] = useState<Array<{ left: number; width: number }> | null>(null);
   const [dragOffset, setDragOffset] = useState<number | null>(null);
-  const [hovered, setHovered] = useState(false);
+  // Track which slot the pointer is over, not a boolean: after a click changes
+  // the active slot, the indicator is still over the same spot and the pill
+  // should light immediately without waiting for another pointer event.
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [glow, setGlow] = useState({ x: 50, y: 50, held: false });
-  const glowTimer = useRef<number | null>(null);
-  useEffect(
-    () => () => {
-      if (glowTimer.current !== null) window.clearTimeout(glowTimer.current);
-    },
-    [],
-  );
   const reduced = usePrefersReducedMotion();
   const motion = useDeform({ enabled: deform, axis: 'x', touchAction: 'pan-y' });
   const activeIndex = Math.max(
@@ -231,23 +227,8 @@ export function Segmented<T extends string>({
     };
   };
 
-  const spark = (position = { x: 50, y: 50 }, held = true) => {
-    if (glowTimer.current !== null) {
-      window.clearTimeout(glowTimer.current);
-      glowTimer.current = null;
-    }
+  const spark = (position = { x: 50, y: 50 }, held = true) =>
     setGlow((current) => ({ ...position, held }));
-  };
-
-  /** Clicking a target slot keeps the bloom alive briefly, then returns to the
-      pill's resting halo instead of vanishing with a one-shot animation. */
-  const sparkTarget = () => {
-    spark();
-    glowTimer.current = window.setTimeout(() => {
-      setGlow((current) => ({ ...current, held: false }));
-      glowTimer.current = null;
-    }, 600);
-  };
 
   const onPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
     const index = pressedIndex(event);
@@ -299,17 +280,16 @@ export function Segmented<T extends string>({
     const option = options[nearest];
     if (option && !option.disabled && option.value !== value) onChange(option.value);
     // The pill snapped under the pointer; keep it highlighted on release.
-    if (event.type === 'pointerup') setHovered(true);
+    if (event.type === 'pointerup') setHoveredIndex(nearest);
     drag.current = null;
     setDragOffset(null);
-    if (glowTimer.current !== null) {
-      window.clearTimeout(glowTimer.current);
-      glowTimer.current = null;
-    }
     setGlow((current) => ({ ...current, held: false }));
   };
 
   const dragging = dragOffset !== null;
+  // Lit only when the pointer sits on the selected slot. Derived at render, so
+  // a click that moves the active slot under a stationary pointer lights at once.
+  const hovered = hoveredIndex !== null && hoveredIndex === activeIndex;
   const thumbStyle = {
     ...motion.style,
     left: geometry.left + (dragOffset ?? 0),
@@ -365,23 +345,14 @@ export function Segmented<T extends string>({
             aria-label={semantics.label}
             tabIndex={o.value === value ? 0 : -1}
             className={cn(`ui-segmented__item ${value === o.value ? 'is-active' : ''}`)}
-            onPointerEnter={() => {
-              // Only the selected pill highlights on hover, matching the
-              // button's hover glow. Other slots stay quiet.
-              setHovered(index === activeIndex);
-            }}
-            onPointerLeave={() => setHovered(false)}
-            onClick={(event) => {
+            onPointerEnter={() => setHoveredIndex(index)}
+            onPointerLeave={() => setHoveredIndex(null)}
+            onClick={() => {
               if (o.disabled) return;
-              if (index !== activeIndex) {
-                sparkTarget();
-                onChange(o.value);
-                // The pointer is still over this slot after it becomes active;
-                // keep the pill highlighted once the press bloom fades.
-                if (event.detail > 0) setHovered(true);
-              } else {
-                onChange(o.value);
-              }
+              // Just slide the pill to the target. No press bloom: the hover
+              // state already lights the pill the moment the pointer is over
+              // the now-active slot, so there is no delayed highlight.
+              onChange(o.value);
             }}
             onKeyDown={(event) => {
               const current = options.findIndex((item) => item.value === value);
@@ -393,10 +364,7 @@ export function Segmented<T extends string>({
               if (next === undefined) return;
               event.preventDefault();
               const option = options[next];
-              if (option && !option.disabled) {
-                if (next !== activeIndex) sparkTarget();
-                onChange(option.value);
-              }
+              if (option && !option.disabled) onChange(option.value);
             }}
           >
             {o.icon && <span aria-hidden="true">{o.icon}</span>}

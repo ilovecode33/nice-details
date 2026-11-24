@@ -266,26 +266,21 @@ describe('Segmented', () => {
     expect(week).toHaveAttribute('aria-selected', 'true');
   });
 
-  test('clicking another slot slides the pill and lights the target', () => {
+  test('clicking another slot slides the pill without a delayed bloom', () => {
     render(<SegmentedDemo />);
     const { track, week } = withGeometry();
     const thumb = track.querySelector('[class*="ui-segmented__thumb"]') as HTMLElement;
-
+    const sheen = thumb.querySelector('[class*="ui-segmented__sheen"]') as HTMLElement;
     const spot = thumb.querySelector('[class*="ui-segmented__spot"]') as HTMLElement;
-    expect(spot.className).not.toContain('is-held');
-    fireEvent.pointerDown(week, {
-      clientX: 150,
-      clientY: 20,
-      pointerType: 'mouse',
-      button: 0,
-      buttons: 1,
-    });
-    expect(spot.className).not.toContain('is-held');
-    expect(thumb.querySelector('[class*="ui-segmented__sheen"]')?.className).not.toContain('is-held');
 
+    fireEvent.pointerEnter(week);
     fireEvent.click(week);
-    expect(spot.className).toContain('is-held');
-    expect(spot.style.getPropertyValue('--seg-glow-x')).toBe('50%');
+
+    // No press bloom is left running after the click — the highlight comes
+    // purely from the pointer resting on the now-active slot.
+    expect(spot.className).not.toContain('is-held');
+    expect(sheen.className).not.toContain('is-held');
+    expect(sheen.className).toContain('is-hovered');
     expect(thumb.style.left).toBe('100px');
     expect(thumb.style.transition).toContain('left var(--dur)');
   });
