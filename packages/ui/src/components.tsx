@@ -176,6 +176,7 @@ export function Segmented<T extends string>({
   // instead of transitioning in from zero on first paint.
   const [slots, setSlots] = useState<Array<{ left: number; width: number }> | null>(null);
   const [dragOffset, setDragOffset] = useState<number | null>(null);
+  const [hovered, setHovered] = useState(false);
   const [glow, setGlow] = useState({ x: 50, y: 50, held: false });
   const glowTimer = useRef<number | null>(null);
   useEffect(
@@ -297,6 +298,8 @@ export function Segmented<T extends string>({
     });
     const option = options[nearest];
     if (option && !option.disabled && option.value !== value) onChange(option.value);
+    // The pill snapped under the pointer; keep it highlighted on release.
+    if (event.type === 'pointerup') setHovered(true);
     drag.current = null;
     setDragOffset(null);
     if (glowTimer.current !== null) {
@@ -331,7 +334,9 @@ export function Segmented<T extends string>({
       {slots && (
         <div ref={thumbRef} className={cn('ui-segmented__thumb')} style={thumbStyle}>
           <span
-            className={cn(`ui-segmented__sheen ${glow.held ? 'is-held' : ''}`)}
+            className={cn(
+              `ui-segmented__sheen ${glow.held ? 'is-held' : ''} ${hovered ? 'is-hovered' : ''}`,
+            )}
             aria-hidden="true"
           />
           <span
@@ -360,10 +365,23 @@ export function Segmented<T extends string>({
             aria-label={semantics.label}
             tabIndex={o.value === value ? 0 : -1}
             className={cn(`ui-segmented__item ${value === o.value ? 'is-active' : ''}`)}
-            onClick={() => {
+            onPointerEnter={() => {
+              // Only the selected pill highlights on hover, matching the
+              // button's hover glow. Other slots stay quiet.
+              setHovered(index === activeIndex);
+            }}
+            onPointerLeave={() => setHovered(false)}
+            onClick={(event) => {
               if (o.disabled) return;
-              if (index !== activeIndex) sparkTarget();
-              onChange(o.value);
+              if (index !== activeIndex) {
+                sparkTarget();
+                onChange(o.value);
+                // The pointer is still over this slot after it becomes active;
+                // keep the pill highlighted once the press bloom fades.
+                if (event.detail > 0) setHovered(true);
+              } else {
+                onChange(o.value);
+              }
             }}
             onKeyDown={(event) => {
               const current = options.findIndex((item) => item.value === value);

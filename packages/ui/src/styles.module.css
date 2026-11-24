@@ -136,7 +136,15 @@
   box-shadow:
     0 0 calc(var(--space-1)) var(--glass-highlight),
     0 0 calc(var(--space-4)) var(--seg-thumb-halo);
-  transition: opacity var(--glow-dur) var(--glow-ease);
+  transition: opacity var(--glow-dur) var(--glow-ease), box-shadow var(--glow-dur) var(--glow-ease);
+}
+/* Hovering the selected pill lifts it to the same two-layer accent glow as a
+   button, so the interactive target reads clearly in both themes. */
+.ui-segmented__sheen.is-hovered:not(.is-held) {
+  opacity: 0.9;
+  box-shadow:
+    0 0 calc(var(--space-2)) var(--btn-glow),
+    0 0 calc(var(--space-5)) var(--btn-glow-soft);
 }
 .ui-segmented__sheen.is-held { box-shadow:
   0 0 calc(var(--space-2)) var(--glass-highlight),

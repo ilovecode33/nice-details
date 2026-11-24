@@ -190,6 +190,20 @@ describe('Segmented', () => {
     expect(week).toHaveAttribute('data-active', 'true');
   });
 
+  test('highlights the pill only when the selected item is hovered', () => {
+    render(<SegmentedDemo />);
+    const { track, day, week } = withGeometry();
+    const sheen = track.querySelector('[class*="ui-segmented__sheen"]') as HTMLElement;
+
+    expect(sheen.className).not.toContain('is-hovered');
+    fireEvent.pointerEnter(week);
+    expect(sheen.className).not.toContain('is-hovered');
+    fireEvent.pointerEnter(day);
+    expect(sheen.className).toContain('is-hovered');
+    fireEvent.pointerLeave(day);
+    expect(sheen.className).not.toContain('is-hovered');
+  });
+
   test('follows the pointer while dragging the pill and snaps on release', async () => {
     render(<SegmentedDemo />);
     const { track, day, week } = withGeometry();
@@ -237,6 +251,19 @@ describe('Segmented', () => {
     );
     // useDeform removes its click-suppression guard on the next tick.
     await new Promise((resolve) => setTimeout(resolve, 0));
+  });
+
+  test('keeps the pill highlighted after clicking a non-active slot', () => {
+    render(<SegmentedDemo />);
+    const { track, week } = withGeometry();
+    const sheen = track.querySelector('[class*="ui-segmented__sheen"]') as HTMLElement;
+
+    fireEvent.pointerEnter(week);
+    fireEvent.click(week, { detail: 1 });
+    // Even after the click bloom fades, the pointer is still over the now-active
+    // slot, so the pill must stay lit instead of dropping back to rest.
+    expect(sheen.className).toContain('is-hovered');
+    expect(week).toHaveAttribute('aria-selected', 'true');
   });
 
   test('clicking another slot slides the pill and lights the target', () => {
