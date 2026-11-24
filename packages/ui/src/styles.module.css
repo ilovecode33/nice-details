@@ -364,7 +364,14 @@
 .ui-sheet__grabber { width: 40px; height: 4px; border-radius: 2px; background: var(--border-strong); margin: 6px auto 10px; }
 .ui-sheet__head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); margin-bottom: var(--space-3); }
 .ui-sheet__head h2 { margin: 0; font-size: var(--text-lg); }
-.ui-sheet__body { overflow-y: auto; min-height: 0; }
+/* Horizontal padding is the halo's breathing room: overflow:auto clips a
+   child's box-shadow at the container edge. Insetting the content lets block
+   buttons (width:100%) keep their glow even when flush with the scroll edge. */
+.ui-sheet__body {
+  overflow-y: auto;
+  min-height: 0;
+  padding-inline: var(--space-5);
+}
 
 /* ── Desktop enhancements ───────────────────────────────────────────────── */
 /* ── Console shell (mobile-first) ────────────────────────────────────────── */
