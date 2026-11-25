@@ -19,6 +19,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Structural Rstest snapshots for every component in
+  `src/components/component-snapshots.spec.tsx`, covering roles, ARIA, `data-ui`
+  slots and CSS Module classes. Generated ids and persisted provider state are
+  normalized so unrelated renders do not churn the snapshots.
 - Stable `data-ui` slots for every public styling hook (`data-ui="row"`,
   `data-ui="stack stack--md"`, `data-ui="console-topbar"`, …). The rules live in
   `styles.css` as `[data-ui~='...']` selectors, so attribute selectors are never
