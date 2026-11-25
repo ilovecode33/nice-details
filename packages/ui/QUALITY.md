@@ -77,7 +77,7 @@ Every PR adding a component must satisfy all of the following:
 - [ ] **Landing page showcase** — at least one real usage scenario in `apps/ui-landing` under **Component details**, not an isolated button array.
 - [ ] **Accessible** — correct role, aria-label, focus ring, 44pt touch target.
 - [ ] **Design tokens only** — colors, spacing, radii, and motion come from `styles.css`.
-- [ ] **Colocation** — every component lives in `src/components/<Component>.tsx` next to its `<Component>.module.css` and `<Component>.spec.tsx`, all named after the component.
+- [ ] **Colocation & coverage** — every component lives in `src/components/<Component>.tsx` next to its `<Component>.module.css` and `<Component>.spec.tsx`, all named after the component. Every component has a spec; `ui-core` contracts are covered by `core.spec.ts`.
 - [ ] **Stylesheet ownership** — class names are read directly from the imported CSS Module (`styles['ui-btn']`); no class-name mapper is used. A rule must not target a class defined in another module — import that module's own class map instead. `src/styles/` holds app-level shared styles, and `src/styles/index.ts` only exists to back the public `cn()` used by consuming apps.
 - [ ] **Mobile-first CSS** — phone base rules; no horizontal scrolling at 375px.
 - [ ] **Reduced motion** — animation is disabled when `prefers-reduced-motion: reduce` is set.
