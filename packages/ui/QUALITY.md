@@ -73,7 +73,7 @@ Every PR adding a component must satisfy all of the following:
 
 - [ ] **Single responsibility** — its purpose is one sentence; no overlap with existing components.
 - [ ] **Minimal API** — props extend native HTML attributes where possible; no boolean-flag explosion.
-- [ ] **Complete types** — all types from `ui` and `ui-core` (props, options, state/event contracts, `Semantics`, `PortableComponent`, deform types) live in `@ilovecode33/ui-types`; both packages re-export them so their public APIs stay stable. `tsc --noEmit` passes.
+- [ ] **Complete types** — all types from `ui` and `ui-core` live in `@ilovecode33/ui-types`, grouped by domain (`semantics`, `deform`, `toggle`, `selection`, `disclosure`, `list`, `sheet`, `field`, `feedback`, `media`, `navigation`, `floating`, `appearance`, `foundation`, `primitives`), not by source package. `ui` and `ui-core` re-export them so their public APIs stay stable. `tsc --noEmit` passes.
 - [ ] **Landing page showcase** — at least one real usage scenario in `apps/ui-landing` under **Component details**, not an isolated button array.
 - [ ] **Accessible** — correct role, aria-label, focus ring, 44pt touch target.
 - [ ] **Design tokens only** — colors, spacing, radii, and motion come from `styles.css`.

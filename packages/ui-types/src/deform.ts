@@ -1,28 +1,32 @@
 import type { CSSProperties, PointerEvent as ReactPointerEvent } from 'react';
-import type { DeformAxis, DeformState } from './core';
-import type { Accent } from '@ilovecode33/ui-tokens';
 
-/** Appearance preference: follow the OS, or force a mode. */
-export type Theme = 'system' | 'light' | 'dark';
+export type DeformAxis = 'x' | 'y' | 'both';
 
-export interface ThemeValue {
-  theme: Theme;
-  setTheme: (t: Theme) => void;
-  /** The theme actually displayed (system is resolved to light/dark). */
-  resolved: 'light' | 'dark';
+export interface DeformState {
+  active: boolean;
+  /** Resisted offset in px. */
+  dx: number;
+  dy: number;
+  /** Unresisted pointer delta, kept for hosts that need it. */
+  rawX: number;
+  rawY: number;
+  /** 0 → 1 along each axis. */
+  intensityX: number;
+  intensityY: number;
+  /** 0 → 1 overall. */
+  progress: number;
 }
 
-export interface AccentValue {
-  accent: Accent;
-  setAccent: (a: Accent) => void;
-}
-
-export interface LocaleValue {
-  locale: string;
-  setLocale: (locale: string) => void;
-  t: (key: string) => string;
-  dictionary: Record<string, string>;
-}
+export type DeformEvent =
+  | { type: 'start' }
+  | {
+      type: 'move';
+      dx: number;
+      dy: number;
+      max?: number;
+      axis?: DeformAxis;
+    }
+  | { type: 'end' };
 
 export interface DeformOptions {
   /** Resistance limit in px. Farther drags approach it asymptotically. */
