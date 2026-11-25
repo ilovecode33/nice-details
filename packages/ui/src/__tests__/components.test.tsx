@@ -2,9 +2,9 @@ import { afterEach, beforeEach, describe, expect, test } from '@rstest/core';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { createRef, useState } from 'react';
 import { Button, Segmented, Switch } from '../components';
-import { DockNavigation, type DockNavigationHandle } from '../dock';
-import { FloatingBar } from '../floating';
-import { Deformable } from '../motion';
+import { DockNavigation, type DockNavigationHandle } from '../components/DockNavigation';
+import { FloatingBar } from '../components/FloatingBar';
+import { Deformable } from '../components/Deformable';
 
 function SwitchDemo({ initial = false }: { initial?: boolean }) {
   const [checked, setChecked] = useState(initial);

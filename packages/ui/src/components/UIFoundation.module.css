@@ -1,0 +1,12 @@
+/* ── Foundation ──────────────────────────────────────────────────────────── */
+.ui-foundation {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.ui-foundation input,
+.ui-foundation textarea,
+.ui-foundation [contenteditable='true'] {
+  -webkit-user-select: text;
+  user-select: text;
+}

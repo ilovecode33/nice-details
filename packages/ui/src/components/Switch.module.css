@@ -1,0 +1,30 @@
+/* ── Switch ──────────────────────────────────────────────────────────────── */
+.ui-switch {
+  position: relative;
+  width: 52px; height: var(--touch); /* 44pt target, 32pt visual track */
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.ui-switch::before {
+  content: ''; position: absolute; left: 0; right: 0; top: 6px; height: 32px;
+  border-radius: var(--radius-pill);
+  background: var(--track);
+  transition: background var(--dur) var(--ease);
+}
+
+.ui-switch.is-on::before { background: var(--accent); }
+
+.ui-switch__knob {
+  position: absolute; top: 8px; left: 2px;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--dur) var(--ease);
+}
+
+.ui-switch.is-on .ui-switch__knob { transform: translateX(20px); }

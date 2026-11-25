@@ -1,0 +1,19 @@
+.ui-searchbar {
+  display: flex; align-items: center; gap: var(--space-2);
+  min-height: var(--touch); padding: 0 var(--space-3);
+  border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
+  background: var(--bg-elevated-2);
+}
+
+.ui-searchbar__icon { color: var(--text-faint); font-size: 20px; line-height: 1; }
+
+.ui-searchbar__input {
+  flex: 1 1 auto; min-width: 0; min-height: var(--touch);
+  border: 0; outline: 0; background: transparent;
+  color: var(--text); font-size: var(--text-base);
+}
+
+.ui-searchbar__clear {
+  min-width: var(--touch); min-height: var(--touch);
+  border: 0; background: transparent; color: var(--text-dim); cursor: pointer;
+}

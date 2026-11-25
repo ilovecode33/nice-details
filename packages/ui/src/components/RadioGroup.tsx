@@ -1,0 +1,73 @@
+import classes from './RadioGroup.module.css';
+import {
+  checkboxSemantics,
+  fieldSemantics,
+  radioSemantics,
+} from '@ilovecode33/ui-core';
+import { Deformable } from './Deformable';
+import {
+  cloneElement,
+  isValidElement,
+  useId,
+  type InputHTMLAttributes,
+  type ReactNode,
+  type TextareaHTMLAttributes,
+} from 'react';
+import { createCn } from '../css';
+
+const cn = createCn(classes);
+
+/**
+ * Data-entry components. Validation state follows the `FormFieldState`
+ * contract in `@ilovecode33/ui-core`, so a native renderer can use the same
+ * touched / error model.
+ */
+
+export interface RadioOption<T extends string = string> {
+  value: T;
+  label: string;
+}
+
+export function RadioGroup<T extends string = string>({
+  options,
+  value,
+  onChange,
+  label,
+}: {
+  options: Array<RadioOption<T>>;
+  value: T;
+  onChange: (value: T) => void;
+  label: string;
+}) {
+  return (
+    <div className={cn('ui-radio')} role="radiogroup" aria-label={label}>
+      {options.map((option) => {
+        const checked = option.value === value;
+        const semantics = radioSemantics(checked, option.label);
+        return (
+          <button
+            key={option.value}
+            type="button"
+            role={semantics.role}
+            aria-checked={semantics.checked}
+            aria-label={semantics.label}
+            tabIndex={checked ? 0 : -1}
+            className={cn(`ui-radio__option ${checked ? 'is-checked' : ''}`)}
+            onClick={() => onChange(option.value)}
+            onKeyDown={(event) => {
+              if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return;
+              event.preventDefault();
+              const index = options.findIndex((item) => item.value === value);
+              const delta = event.key === 'ArrowDown' ? 1 : -1;
+              const next = options[(index + delta + options.length) % options.length];
+              if (next) onChange(next.value);
+            }}
+          >
+            <span className={cn('ui-radio__dot')} aria-hidden="true" />
+            <span>{option.label}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}

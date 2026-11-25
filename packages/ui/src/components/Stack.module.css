@@ -1,0 +1,8 @@
+/* ── Stack / Row ─────────────────────────────────────────────────────────── */
+.ui-stack { display: flex; flex-direction: column; }
+
+.ui-stack--sm { gap: var(--space-2); }
+
+.ui-stack--md { gap: var(--space-4); }
+
+.ui-stack--lg { gap: var(--space-6); }

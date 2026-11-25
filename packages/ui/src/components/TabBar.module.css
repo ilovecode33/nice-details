@@ -1,0 +1,36 @@
+/* ── TabBar ───────────────────────────────────────────────────────────────── */
+.ui-tabbar { background: var(--bg-glass); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
+
+.ui-tabbar--fixed {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 400;
+  border-top: 1px solid var(--border);
+  padding-bottom: var(--safe-bottom);
+}
+
+.ui-tabbar--inline { border: 1px solid var(--border); border-radius: var(--radius); }
+
+.ui-tabbar__inner { display: flex; }
+
+.ui-tabbar__item {
+  position: relative;
+  flex: 1 1 0; min-width: 0; min-height: var(--touch);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px; padding: var(--space-2) var(--space-1);
+  border: 0; background: transparent;
+  color: var(--text-dim); font-size: var(--text-xs); font-weight: 600;
+  cursor: pointer;
+}
+
+.ui-tabbar__item.is-active { color: var(--accent); }
+
+.ui-tabbar__icon svg:global(.lucide) { width: var(--icon-md); height: var(--icon-md); }
+
+.ui-tabbar__label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+
+.ui-tabbar__badge {
+  position: absolute; top: 4px; right: 50%; transform: translateX(140%);
+  min-width: 16px; height: 16px; padding: 0 4px;
+  border-radius: var(--radius-pill);
+  background: var(--danger); color: #fff;
+  font-size: 10px; line-height: 16px; text-align: center;
+}

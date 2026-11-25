@@ -1,0 +1,19 @@
+/* ── NavBar ───────────────────────────────────────────────────────────────── */
+.ui-navbar { border-bottom: 1px solid var(--border); }
+
+.ui-navbar__row { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-3) 0; }
+
+.ui-navbar__back {
+  min-width: var(--touch); min-height: var(--touch);
+  border: 0; border-radius: var(--radius-sm);
+  background: transparent; color: var(--accent);
+  font-size: 28px; line-height: 1; cursor: pointer;
+}
+
+.ui-navbar__titles { flex: 1 1 auto; min-width: 0; }
+
+.ui-navbar__title { margin: 0; font-size: var(--text-lg); font-weight: 650; letter-spacing: -0.02em; }
+
+.ui-navbar__subtitle { margin: 2px 0 0; font-size: var(--text-sm); color: var(--text-dim); }
+
+.ui-navbar__actions { display: flex; gap: var(--space-2); flex-shrink: 0; }

@@ -1,0 +1,36 @@
+/* ── StatusStat (semantic, mood-independent) ─────────────────────────────── */
+.ui-status-stat { display: flex; flex-direction: column; gap: 4px; min-width: 64px; }
+
+.ui-status-stat__value {
+  display: inline-flex; align-items: center; gap: 6px;
+  align-self: flex-start;
+  padding: 2px 10px 2px 6px;
+  border-radius: var(--radius-pill);
+  font-size: var(--text-xl);
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+
+.ui-status-stat__icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.14);
+}
+
+.ui-status-stat__icon svg:global(.lucide) { width: var(--icon-sm); height: var(--icon-sm); }
+
+.ui-status-stat__value.is-success { color: var(--success); background: var(--success-soft); }
+
+.ui-status-stat__value.is-success .ui-status-stat__icon { background: var(--success); color: var(--bg); }
+
+.ui-status-stat__value.is-danger { color: var(--danger); background: var(--danger-soft); }
+
+.ui-status-stat__value.is-danger .ui-status-stat__icon { background: var(--danger); color: #fff; }
+
+.ui-status-stat__value.is-neutral { color: var(--text); }
+
+.ui-status-stat__value.is-neutral .ui-status-stat__icon { background: var(--track); color: var(--text-dim); }
+
+.ui-status-stat__label { font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-dim); }

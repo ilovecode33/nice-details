@@ -1,0 +1,13 @@
+/* ── ActionSheet / AlertDialog / Popover ──────────────────────────────────── */
+.ui-actionsheet__list { display: flex; flex-direction: column; gap: var(--space-2); }
+
+.ui-actionsheet__action, .ui-actionsheet__cancel {
+  min-height: var(--touch); width: 100%;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--bg-elevated-2); color: var(--text);
+  font-size: var(--text-base); font-weight: 600; cursor: pointer;
+}
+
+.ui-actionsheet__action.is-destructive { color: var(--danger); background: var(--danger-soft); border-color: transparent; }
+
+.ui-actionsheet__cancel { margin-top: var(--space-2); background: transparent; color: var(--text-dim); }

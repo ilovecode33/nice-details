@@ -1,0 +1,118 @@
+.ui-floating {
+  position: fixed;
+  z-index: 450;
+  pointer-events: none;
+}
+
+.ui-floating__surface {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  border-radius: inherit; /* the glass background follows the bar's radius */
+}
+
+.ui-floating__content {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.ui-floating__surface.is-collapsed {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.ui-floating__toggle {
+  min-width: var(--touch);
+  min-height: var(--touch);
+  flex-shrink: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-dim);
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.ui-floating--top {
+  top: calc(var(--safe-top) + var(--space-3));
+  left: var(--space-3);
+  right: var(--space-3);
+  max-width: 720px;
+  margin-inline: auto;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-pill);
+}
+
+.ui-floating--bottom {
+  bottom: calc(var(--safe-bottom) + var(--space-3));
+  left: 50%;
+  right: auto;
+  width: min(760px, calc(100% - var(--space-6)));
+  max-width: 760px;
+  transform: translateX(-50%);
+  padding: var(--space-2);
+  border-radius: var(--radius-lg);
+}
+
+.ui-floating--leading { display: none; }
+
+@media (min-width: 768px) {
+  .ui-floating--top {
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    width: min(720px, calc(100% - 48px));
+  }
+  .ui-floating--bottom {
+    left: 50%;
+    right: auto;
+    width: min(760px, calc(100% - 48px));
+    transform: translateX(-50%);
+  }
+  .ui-floating--leading {
+    display: block;
+    top: 50%;
+    left: var(--space-4);
+    bottom: auto;
+    right: auto;
+    width: auto;
+    max-width: 220px;
+    padding: var(--space-3);
+    border-radius: var(--radius-lg);
+    transform: translateY(-50%);
+  }
+  .ui-floating--leading .ui-floating__content {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+/* ── Collapse geometry ───────────────────────────────────────────────────────
+ * The resting positions are plain CSS: expanded is centered (left 50% +
+ * translateX(-50%)), collapsed is right anchored. The expand/collapse motion is
+ * driven from the host with pixel keyframes instead of CSS transitions, because
+ * a percentage transform resolves against the element's own width — and that
+ * width is animating at the same time, so engines disagree about when to
+ * resolve it (some snap to the final value only after the transition ends).
+ */
+.ui-floating--bottom.is-collapsed {
+  left: calc(100% - var(--space-3));
+  width: min(360px, calc(100% - var(--space-6)));
+  transform: translateX(-100%);
+}
+
+.ui-floating__surface {
+  transition: padding var(--morph-dur) var(--morph-ease);
+}
+
+@media (min-width: 768px) {
+  .ui-floating--bottom.is-collapsed {
+    left: calc(100% - var(--space-4));
+    width: min(360px, calc(100% - 48px));
+    transform: translateX(-100%);
+  }
+}
