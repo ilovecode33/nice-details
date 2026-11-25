@@ -4,6 +4,11 @@ import type { Theme, ThemeValue } from '@ilovecode33/ui-types';
 
 export { DEFAULT_THEME } from '../hooks/useTheme';
 
+/**
+ * Provides theme context, applying the saved/default theme to `data-theme`
+ * in a layout effect so dark mode is set before paint. Reads saved preferences
+ * on mount, follows system changes for `system`, and persists to localStorage.
+ */
 export function ThemeProvider({
   children,
   defaultTheme = DEFAULT_THEME,

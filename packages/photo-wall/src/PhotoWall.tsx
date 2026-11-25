@@ -40,6 +40,7 @@ export interface WallImage {
   height?: number;
 }
 
+/** Props controlling the endless Photo Wall's photos, tiles, tuning, playback and lighting. */
 export interface PhotoWallProps {
   /** Photo pool. One group of four is used per tile. */
   images: WallImage[];
@@ -61,7 +62,11 @@ export interface PhotoWallProps {
   className?: string;
 }
 
-/** Turn a solved frame, its generated style and the lighting result into CSS. */
+/**
+ * Map a solved frame, its generated style and lighting result to the CSS
+ * custom properties (--x, --y, --w, --ratio, --z, --tilt, --wood, --mat-a,
+ * --mat-b, --rail, --sheen, --grain-jitter, --light) plus `boxShadow`.
+ */
 function frameVars(
   frame: WallFrame,
   style: WallStyle,

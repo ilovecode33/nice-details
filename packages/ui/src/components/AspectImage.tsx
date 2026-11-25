@@ -2,7 +2,12 @@ import styles from './AspectImage.module.css';
 
 import { type CSSProperties, type ReactNode } from 'react';
 
-/** Responsive image with a fixed aspect ratio and an emoji fallback. */
+/**
+ * Renders a lazily loaded image inside a box with a fixed aspect ratio.
+ * Without `src` it shows `children` as a labelled `role="img"` placeholder (for example
+ * an emoji); native images fall back to an empty `alt`. `ratio` defaults to "4 / 3"
+ * and `style` is merged after it, so callers can override the layout.
+ */
 
 export function AspectImage({
   src,

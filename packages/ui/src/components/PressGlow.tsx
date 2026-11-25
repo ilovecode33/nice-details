@@ -8,11 +8,9 @@ import styles from './PressGlow.module.css';
  */
 
 /**
- * A liquid-glass style bloom at the press point. Render it inside any element
- * whose `useDeform().style` is applied. `pulse` remounts the layer so each press
- * starts fresh; pass `held` from `useDeform().state.active` to keep the glow
- * alive for the whole press and fade it only on release. Hidden under reduced
- * motion and never focusable, so it adds no semantics or tab stop.
+ * Decorative bloom layer for an element using `useDeform().style`. `pulse`
+ * remounts the layer per press; `held` keeps it visible until release. It is
+ * aria-hidden, never focusable, and returns null when `pulse` is zero.
  */
 export function PressGlow({ pulse, held = false }: { pulse: number; held?: boolean }) {
   if (pulse === 0) return null;

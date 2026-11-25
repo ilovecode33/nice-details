@@ -2,7 +2,12 @@ import type { RadioOption } from '@ilovecode33/ui-types';
 import styles from './RadioGroup.module.css';
 import { radioSemantics } from '@ilovecode33/ui-core';
 
-/** Accessible radio group with semantic options. */
+/**
+ * Controlled radio group: `value` and `onChange` come from the caller, with
+ * only the checked option in the tab order. Arrow Up/Down wrap through the
+ * options and call `onChange`. Option labels, including the group `label`, are
+ * caller-supplied; no English defaults are built in.
+ */
 
 export function RadioGroup<T extends string = string>({
   options,

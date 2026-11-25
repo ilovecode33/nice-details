@@ -12,13 +12,7 @@ const SQUASH = num(MOTION.deformSquash);
 const CLICK_THRESHOLD = 4;
 const clampPercent = (value: number) => Math.min(100, Math.max(0, value));
 
-/**
- * A liquid-glass style bloom at the press point. Render it inside any element
- * whose `useDeform().style` is applied. `pulse` remounts the layer so each press
- * starts fresh; pass `held` from `useDeform().state.active` to keep the glow
- * alive for the whole press and fade it only on release. Hidden under reduced
- * motion and never focusable, so it adds no semantics or tab stop.
- */
+/** Create the resting deform state: inactive, with zero offsets and intensities. */
 function initialState(): DeformState {
   return {
     active: false, dx: 0, dy: 0, rawX: 0, rawY: 0,
@@ -26,6 +20,14 @@ function initialState(): DeformState {
   };
 }
 
+/**
+ * Pointer-drag feedback returning handlers for the target, a transform/glow
+ * style, the deform state, and a `pulse` counter incremented per press. `max`
+ * is the px resistance limit, `axis` selects responsive directions, `enabled`
+ * disables feedback, and `touchAction` overrides the axis-derived default.
+ * Inactive under reduced motion; capture starts after a 4px move, and drags or
+ * outside releases suppress the following click so nested controls still tap.
+ */
 export function useDeform({
   max = DEFAULT_MAX,
   axis = 'both',

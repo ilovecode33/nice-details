@@ -5,7 +5,12 @@ import { sheetSemantics } from '@ilovecode33/ui-core';
 import { type ReactNode } from 'react';
 import { useEscape } from '../hooks/useEscape';
 
-/** Modal confirmation dialog built on the shared Sheet surface. */
+/**
+ * Renders a modal confirmation dialog on the shared Sheet surface.
+ * Controlled by `open`; Escape, scrim click, and cancel call `onClose`, while confirm
+ * runs `onConfirm` first. `destructive` switches the confirm button to the danger style.
+ * Labels come from props, with "Confirm" and "Cancel" as English defaults.
+ */
 export function AlertDialog({
   open,
   onClose,

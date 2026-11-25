@@ -1,7 +1,10 @@
 import styles from './Stepper.module.css';
 
-/** Numeric stepper with increment and decrement buttons. */
-
+/**
+ * Numeric stepper with decrement/increment buttons and a polite live output.
+ * Controlled via `value`/`onChange`; steps are clamped to `min`/`max` (0-99 by
+ * default) and buttons disable at the bounds. `label` is supplied by props.
+ */
 export function Stepper({
   value,
   onChange,

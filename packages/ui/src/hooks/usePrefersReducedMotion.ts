@@ -1,5 +1,10 @@
 import { useEffect, useState } from 'react';
 
+/**
+ * Track the `prefers-reduced-motion: reduce` media query. Initializes from the
+ * current match (false on the server) and subscribes to changes for the lifetime
+ * of the component. Returns true while the user requests reduced motion.
+ */
 export function usePrefersReducedMotion(): boolean {
   const [reduced, setReduced] = useState(
     () =>

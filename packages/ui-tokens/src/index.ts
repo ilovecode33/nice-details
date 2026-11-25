@@ -9,6 +9,7 @@
 
 /* ── Accent palettes ─────────────────────────────────────────────────────── */
 
+/** The five selectable accent palette names. */
 export const ACCENTS = [
   'warmth',
   'serenity',
@@ -16,9 +17,12 @@ export const ACCENTS = [
   'gentle',
   'vitality',
 ] as const;
+/** Union of the accent names declared in `ACCENTS`. */
 export type Accent = (typeof ACCENTS)[number];
+/** Accent applied when no override is supplied. */
 export const DEFAULT_ACCENT: Accent = 'warmth';
 
+/** Accent-derived colors: base, on-color and soft/glow/tint washes. */
 export interface Palette {
   accent: string;
   ink: string;
@@ -27,6 +31,7 @@ export interface Palette {
   tint: string;
 }
 
+/** Light and dark palette values for every accent. */
 export const ACCENT_PALETTES: Record<Accent, Record<'light' | 'dark', Palette>> = {
   warmth: {
     light: {
@@ -112,6 +117,7 @@ export const ACCENT_PALETTES: Record<Accent, Record<'light' | 'dark', Palette>> 
 
 /* ── Surfaces (theme-dependent, accent-independent) ─────────────────────── */
 
+/** Theme-dependent surface, semantic and shadow colors. */
 export interface Surfaces {
   bg: string;
   bgElevated: string;
@@ -133,6 +139,7 @@ export interface Surfaces {
   shadowMd: string;
 }
 
+/** Light and dark surface token sets. */
 export const SURFACES: Record<'light' | 'dark', Surfaces> = {
   light: {
     bg: '#f2f3f7',
@@ -198,6 +205,7 @@ export const SURFACE_VARS: Record<keyof Surfaces, string> = {
   shadowMd: '--shadow-md',
 };
 
+/** CSS variable name for each palette key. */
 export const PALETTE_VARS: Record<keyof Palette, string> = {
   accent: '--accent',
   ink: '--accent-ink',
@@ -208,6 +216,7 @@ export const PALETTE_VARS: Record<keyof Palette, string> = {
 
 /* ── Glass material ───────────────────────────────────────────────────────── */
 
+/** Colors of the translucent material used by floating surfaces. */
 export interface Glass {
   fill: string;
   stroke: string;
@@ -231,11 +240,13 @@ export const GLASS: Record<'light' | 'dark', Glass> = {
   },
 };
 
+/** Backdrop-filter metrics shared by the CSS and Swift generators. */
 export const GLASS_METRICS = {
   blur: '20px',
   saturate: '180%',
 } as const;
 
+/** CSS variable name for each glass material key. */
 export const GLASS_VARS: Record<keyof Glass, string> = {
   fill: '--glass-fill',
   stroke: '--glass-stroke',
@@ -243,6 +254,7 @@ export const GLASS_VARS: Record<keyof Glass, string> = {
   shadow: '--glass-shadow',
 };
 
+/** Map a glass material's keys to their CSS variable names. */
 function glassEntries(mode: 'light' | 'dark'): Array<[string, string]> {
   return Object.entries(GLASS[mode]).map(
     ([key, value]) => [GLASS_VARS[key as keyof Glass], value] as [string, string],
@@ -251,6 +263,7 @@ function glassEntries(mode: 'light' | 'dark'): Array<[string, string]> {
 
 /* ── Scales ──────────────────────────────────────────────────────────────── */
 
+/** Spacing scale tokens (s1..s8). */
 export const SPACING = {
   s1: '4px',
   s2: '8px',
@@ -261,6 +274,7 @@ export const SPACING = {
   s8: '32px',
 } as const;
 
+/** Corner-radius scale tokens. */
 export const RADII = {
   sm: '10px',
   md: '14px',
@@ -268,6 +282,7 @@ export const RADII = {
   pill: '999px',
 } as const;
 
+/** Font stacks and type-size tokens. */
 export const TYPOGRAPHY = {
   font: "'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif",
   fontMono: 'ui-monospace, SFMono-Regular, Menlo, monospace',
@@ -278,6 +293,7 @@ export const TYPOGRAPHY = {
   xl: '22px',
 } as const;
 
+/** Easing, duration and drag/spring/morph tuning tokens. */
 export const MOTION = {
   ease: 'cubic-bezier(0.32, 0.72, 0, 1)',
   duration: '0.2s',
@@ -297,8 +313,10 @@ export const MOTION = {
   morphEase: 'cubic-bezier(0.4, 0, 0.2, 1)',
 } as const;
 
+/** Minimum target size for interactive elements, in CSS pixels. */
 export const TOUCH = '44px';
 
+/** env() safe-area inset tokens for each screen edge. */
 export const SAFE_AREA = {
   top: 'env(safe-area-inset-top, 0px)',
   bottom: 'env(safe-area-inset-bottom, 0px)',
@@ -312,6 +330,10 @@ export const SAFE_AREA = {
    so a runtime accent override still cascades correctly.
    ──────────────────────────────────────────────────────────────────────────── */
 
+/**
+ * Composite tokens written as CSS var()/color-mix() recipes so a runtime
+ * accent override still cascades; every renderer receives these values.
+ */
 export const DERIVED = {
   bgGradient:
     'radial-gradient(1100px 700px at 12% -12%, var(--accent-tint), transparent 60%), radial-gradient(900px 620px at 92% -4%, var(--accent-tint), transparent 55%)',
@@ -339,6 +361,7 @@ export const DERIVED = {
   glassBackdrop: 'blur(var(--glass-blur)) saturate(var(--glass-saturate))',
 } as const;
 
+/** CSS variable name for each derived token. */
 export const DERIVED_VARS: Record<keyof typeof DERIVED, string> = {
   bgGradient: '--bg-gradient',
   iconSm: '--icon-sm',
@@ -371,17 +394,20 @@ export const DERIVED_LIGHT = {
   btnDangerStroke: 'color-mix(in srgb, var(--danger) 55%, transparent)',
 } as const;
 
+/** CSS variable names for the light-theme derived overrides. */
 export const DERIVED_LIGHT_VARS: Record<keyof typeof DERIVED_LIGHT, string> = {
   segThumbStroke: '--seg-thumb-stroke',
   btnDangerStroke: '--btn-danger-stroke',
 };
 
+/** Map derived token keys to their CSS variable names. */
 function derivedEntries(): Array<[string, string]> {
   return Object.entries(DERIVED).map(
     ([key, value]) => [DERIVED_VARS[key as keyof typeof DERIVED], value] as [string, string],
   );
 }
 
+/** Map light-theme derived override keys to their CSS variable names. */
 function derivedLightEntries(): Array<[string, string]> {
   return Object.entries(DERIVED_LIGHT).map(
     ([key, value]) =>
@@ -391,12 +417,17 @@ function derivedLightEntries(): Array<[string, string]> {
 
 /* ── Generators (dev-time only) ──────────────────────────────────────────── */
 
+/** Render a CSS rule with one `name: value;` declaration per entry. */
 function cssBlock(selector: string, entries: Array<[string, string]>): string {
   const body = entries.map(([name, value]) => `  ${name}: ${value};`).join('\n');
   return `${selector} {\n${body}\n}`;
 }
 
-/** CSS custom properties matching the values in `packages/ui/src/styles.css`. */
+/**
+ * Generate CSS custom properties for light, dark and system themes plus the
+ * spacing/type/motion scales and derived recipes. System mode omits accent
+ * variables so a runtime accent override still cascades.
+ */
 export function buildCssVariables(): string {
   const defaultPalette = ACCENT_PALETTES[DEFAULT_ACCENT];
   const surfaceEntries = (mode: 'light' | 'dark'): Array<[string, string]> => [
@@ -471,7 +502,10 @@ export function buildCssVariables(): string {
   ].join('\n');
 }
 
-/** A portable JSON representation for non-web clients. */
+/**
+ * Serialize all token groups (accents, palettes, surfaces, glass, scales,
+ * motion, safe area and derived recipes) as indented JSON for non-web clients.
+ */
 export function buildTokensJson(): string {
   return JSON.stringify(
     {
@@ -503,6 +537,10 @@ interface Rgba {
   a: number;
 }
 
+/**
+ * Parse a token color into normalized RGBA channels (RGB in 0..1). Accepts
+ * `#rrggbb` and `rgba(r, g, b, a)`; throws on any other format.
+ */
 function parseColor(value: string): Rgba {
   const hex = value.match(/^#([0-9a-f]{6})$/i);
   if (hex) {
@@ -526,17 +564,23 @@ function parseColor(value: string): Rgba {
   throw new Error(`Unsupported token color: ${value}`);
 }
 
+/** Format a token color as a SwiftUI Color(red:green:blue:opacity:) literal. */
 function swiftColor(value: string): string {
   const { r, g, b, a } = parseColor(value);
   const f = (n: number) => n.toFixed(3);
   return `Color(red: ${f(r)}, green: ${f(g)}, blue: ${f(b)}, opacity: ${f(a)})`;
 }
 
+/** Lowercase a token key's first character for Swift naming. */
 function swiftName(key: string): string {
   return key.charAt(0).toLowerCase() + key.slice(1);
 }
 
-/** A SwiftUI draft with the same values, intended for a future native renderer. */
+/**
+ * Generate a SwiftUI `UITokens` enum with palettes, surfaces, scales and
+ * derived recipes. Colors become Color literals; shadows and CSS var()/
+ * color-mix() recipes remain raw strings.
+ */
 export function buildSwiftTokens(): string {
   const derivedLines = Object.entries(DERIVED)
     .map(

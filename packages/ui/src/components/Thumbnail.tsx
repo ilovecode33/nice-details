@@ -2,8 +2,10 @@ import styles from './Thumbnail.module.css';
 
 import { type ReactNode } from 'react';
 
-/** Small square image or emoji thumbnail. */
-
+/**
+ * Small square thumbnail rendering a lazy-loaded image, or an emoji fallback
+ * that is hidden from assistive technology. `alt` defaults to an empty string.
+ */
 export function Thumbnail({
   src,
   alt = '',

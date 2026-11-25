@@ -1,7 +1,11 @@
 import type { CardProps } from '@ilovecode33/ui-types';
 import styles from './Card.module.css';
 
-/** Container surface with an optional header, subtitle and actions. */
+/**
+ * Renders a container surface with an optional header and a content body.
+ * The header is skipped unless `title` or `actions` is provided, so a `subtitle`
+ * alone is not rendered. `padded` defaults to true; extra props reach the `<section>`.
+ */
 
 export function Card({
   title,

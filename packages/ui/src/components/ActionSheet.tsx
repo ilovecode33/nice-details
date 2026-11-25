@@ -5,7 +5,12 @@ import { sheetSemantics } from '@ilovecode33/ui-core';
 
 import { useEscape } from '../hooks/useEscape';
 
-/** Bottom sheet that lists actions with an optional cancel button. */
+/**
+ * Renders a bottom sheet of actions with a separate cancel button.
+ * Controlled by `open`; Escape, scrim click, cancel, and action selection all close
+ * it (the action's `onSelect` runs before `onClose`). Destructive actions are styled
+ * distinctly. Labels come from props, with `cancelLabel` defaulting to "Cancel".
+ */
 
 export function ActionSheet({
   open,

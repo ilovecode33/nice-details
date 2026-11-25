@@ -2,7 +2,10 @@ import styles from './Field.module.css';
 
 import { type ReactNode } from 'react';
 
-/** Inline field wrapper for compact form rows. */
+/**
+ * Inline `label` wrapper for compact form rows: a label, the control and an
+ * optional hint. All text is passed in via props; no labels are built in.
+ */
 export function Field({
   label,
   hint,

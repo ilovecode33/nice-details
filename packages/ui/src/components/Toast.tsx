@@ -4,8 +4,12 @@ import type { FeedbackTone } from '@ilovecode33/ui-types';
 
 import { X } from 'lucide-react';
 
-/** Dismissible transient status message. */
-
+/**
+ * Conditionally rendered transient message with tone styling and optional
+ * action/dismiss buttons. Renders nothing when `visible` is false; danger
+ * messages are announced assertively. `message`, `actionLabel`, and
+ * `dismissLabel` (default 'Dismiss') come from props.
+ */
 export function Toast({
   tone = 'info',
   message,

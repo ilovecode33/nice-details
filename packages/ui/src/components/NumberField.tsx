@@ -2,7 +2,11 @@ import styles from './NumberField.module.css';
 
 import { type InputHTMLAttributes } from 'react';
 
-/** Native number input with field-state styling. */
+/**
+ * Native `type="number"` input with `inputMode="decimal"` and field-state
+ * styling. Value and behaviour are governed entirely by the forwarded input
+ * attributes; the control supplies no text or label of its own.
+ */
 
 export function NumberField({
   className = '',

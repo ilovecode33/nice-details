@@ -1,5 +1,10 @@
 import type { FloatingState, FloatingEvent, Semantics, PortableComponent } from '@ilovecode33/ui-types';
 
+/**
+ * Floating-bar state machine over two independent flags: collapse/expand (with
+ * `toggleCollapse`) changes `collapsed`, hide/show changes `hidden`. Hiding does
+ * not implicitly change the collapsed state, or vice versa.
+ */
 export function floatingReducer(
   state: FloatingState,
   event: FloatingEvent,
@@ -18,6 +23,10 @@ export function floatingReducer(
   }
 }
 
+/**
+ * Map floating-bar state to `{ role: 'toolbar', label, expanded }`, where
+ * `expanded` is true only when the bar is neither collapsed nor hidden.
+ */
 export function floatingSemantics(state: FloatingState, label?: string): Semantics {
   return {
     role: 'toolbar',
@@ -26,6 +35,7 @@ export function floatingSemantics(state: FloatingState, label?: string): Semanti
   };
 }
 
+/** Portable definition of `FloatingBar`: initial state, reducer, and role mapping. */
 export const floatingContract: PortableComponent<FloatingState, FloatingEvent> = {
   name: 'FloatingBar',
   swiftUI: '.safeAreaInset with .ultraThinMaterial',

@@ -2,8 +2,10 @@ import styles from './TextArea.module.css';
 
 import { type TextareaHTMLAttributes } from 'react';
 
-/** Multi-line text input with field-state styling. */
-
+/**
+ * Native multi-line text input with field-state styling. Forwards all textarea
+ * attributes; labels and placeholder come from the caller.
+ */
 export function TextArea({
   className = '',
   ...rest

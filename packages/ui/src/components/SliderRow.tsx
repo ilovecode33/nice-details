@@ -1,7 +1,10 @@
 import styles from './SliderRow.module.css';
 
-/** Labelled range slider row. */
-
+/**
+ * Labelled native range input with a live formatted value output.
+ * Fully controlled through `value`/`onChange`; `label` and `fmt` are supplied
+ * by props (there is no default label).
+ */
 export function SliderRow({
   label,
   min,

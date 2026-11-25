@@ -7,8 +7,10 @@
  */
 import { DEFAULT_WALL_PARAMS, type WallParams } from './params';
 
+/** Frame finishes, used to key the CSS frame classes. */
 export type FrameKind = 'black' | 'walnut' | 'oak' | 'gold' | 'cherry' | 'ash';
 
+/** One frame's procedural layout: tile position/size, ratio, finish, depth, tilt. */
 export interface WallFrame {
   x: number;
   y: number;
@@ -21,6 +23,7 @@ export interface WallFrame {
   tilt?: number;
 }
 
+/** One frame's decorative style: wood/mat colors and stable lighting variation. */
 export interface WallStyle {
   wood: string;
   matTop: string;
@@ -47,7 +50,10 @@ const FRAME_KINDS: FrameKind[] = [
   'ash',
 ];
 
-/** Small, fast, seedable PRNG. Same seed always rebuilds the same wall. */
+/**
+ * Mulberry32 PRNG seeded by `seed`; the returned function yields values in
+ * [0, 1). The same seed always rebuilds the same wall, so only the seed is saved.
+ */
 export function createSeededRandom(seed: number): () => number {
   let state = seed >>> 0;
   return () => {
@@ -69,7 +75,11 @@ const round2 = (value: number) => Math.round(value * 100) / 100;
 const heightInVh = (width: number, ratio: number) =>
   (width * 1.64 * (16 / 9)) / ratio;
 
-/** Builds one frame's wood, mat and lighting from the seeded PRNG. */
+/**
+ * Draw one frame's wood, mat and rail/sheen values from `random` using the
+ * ranges in `params`. Lighting is solved later from the virtual light, so only
+ * stable per-frame jitter is baked in here.
+ */
 export function createWallStyle(
   random: () => number,
   params: WallParams,
@@ -211,7 +221,11 @@ export function createWallTiles(seed: number, params?: WallParams): WallTile[] {
   return [createWallTile(random, p), createWallTile(random, p)];
 }
 
-/** Repeats a collection so sparse galleries still fill a layout. */
+/**
+ * Repeat `items` from `offset` into exactly `count` entries, cycling back to
+ * the start when the pool is short; returns empty for an empty pool. Used so
+ * sparse galleries still fill a tile.
+ */
 export function wrapImages<T>(items: T[], offset: number, count: number): T[] {
   if (!items.length) return [];
   return Array.from(

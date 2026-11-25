@@ -1,8 +1,10 @@
 import styles from './Stat.module.css';
 import { type ReactNode } from 'react';
 
-/** Compact label and value stat. */
-
+/**
+ * Compact stat displaying a value above its label, with an optional tone
+ * class. `label` and `value` come from props.
+ */
 export function Stat({
   label,
   value,

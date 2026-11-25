@@ -1,6 +1,10 @@
 import { useEffect } from 'react';
 
-/** Close an overlay when Escape is pressed while it is active. */
+/**
+ * Call `onClose` on document-level Escape keydowns while `active` is true.
+ * The listener is added only for the active period and removed on cleanup;
+ * it does not prevent default or stop propagation.
+ */
 export function useEscape(active: boolean, onClose: () => void) {
   useEffect(() => {
     if (!active) return;

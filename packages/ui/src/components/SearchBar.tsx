@@ -1,6 +1,10 @@
 import styles from './SearchBar.module.css';
 
-/** Search input with a leading icon. */
+/**
+ * Controlled search input with a leading icon and a clear button that appears
+ * only when `value` is non-empty. Clearing calls `onChange('')` then `onClear`.
+ * `placeholder`, `label` and `clearLabel` are props with English defaults.
+ */
 
 export function SearchBar({
   value,

@@ -4,7 +4,12 @@ import type { FeedbackState, FeedbackTone } from '@ilovecode33/ui-types';
 
 import { Check, Info, X } from 'lucide-react';
 
-/** Inline message banner with a tone and an optional dismiss action. */
+/**
+ * Renders an inline message banner with a tone-driven icon and role.
+ * The action button appears only with `actionLabel`; the dismiss button appears only
+ * with `onDismiss`. Labels come from props: `dismissLabel` defaults to "Dismiss" and
+ * `tone` defaults to "info".
+ */
 
 export function Banner({
   tone = 'info',

@@ -4,7 +4,12 @@ import { useEffect, useRef } from 'react';
 import { AspectImage } from './AspectImage';
 import type { PhotoItem } from '@ilovecode33/ui-types';
 
-/** Fullscreen photo viewer backed by `MediaState` from `@ilovecode33/ui-core`. */
+/**
+ * Fullscreen dialog showing one photo with previous/next controls, a scrim and
+ * swipe/arrow-key navigation. `index` is controlled; steps are clamped by the
+ * shared media reducer. Escape or a downward swipe closes via `onClose`.
+ * `title` and the three button `labels` have English defaults.
+ */
 
 export function PhotoViewer({
   items,
@@ -26,6 +31,10 @@ export function PhotoViewer({
   const touchStart = useRef<{ x: number; y: number } | null>(null);
   const current = items[index];
 
+  /**
+   * Routes button and swipe steps through the shared media reducer so bounds
+   * are clamped consistently with keyboard navigation.
+   */
   const go = (event: { type: 'next' } | { type: 'previous' }) =>
     onIndexChange(mediaReducer(state, event).index);
 

@@ -3,7 +3,11 @@ import { toggleReducer, toggleSemantics } from '@ilovecode33/ui-core';
 
 import { Deformable } from './Deformable';
 
-/** Switch with a synced checked state. */
+/**
+ * Toggle switch button with `aria-checked` synced to the controlled `checked`
+ * prop. Clicking calls `onChange` with the toggled value; `label` is supplied
+ * by props and used as the accessible name.
+ */
 export function Switch({
   checked,
   onChange,

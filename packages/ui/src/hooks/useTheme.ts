@@ -7,6 +7,10 @@ export const STORAGE_KEY = 'gallery.theme';
 
 export const ThemeContext = createContext<ThemeValue | null>(null);
 
+/**
+ * Check `prefers-color-scheme: dark` once at call time via `matchMedia`.
+ * Returns false when `window` is unavailable (server rendering).
+ */
 export function systemPrefersDark(): boolean {
   return (
     typeof window !== 'undefined' &&
@@ -14,6 +18,11 @@ export function systemPrefersDark(): boolean {
   );
 }
 
+/**
+ * Read `gallery.theme` from `localStorage`, accepting only `light`, `dark`, or
+ * `system`. Missing, invalid, or inaccessible storage falls back to
+ * `defaultTheme`; no preference is detected from the OS here.
+ */
 export function readSaved(defaultTheme: Theme): Theme {
   try {
     const v = localStorage.getItem(STORAGE_KEY);
@@ -24,6 +33,10 @@ export function readSaved(defaultTheme: Theme): Theme {
   return defaultTheme;
 }
 
+/**
+ * Return the theme context: `theme`, the resolved `light`/`dark` value, and
+ * `setTheme`. Throws when used outside `<ThemeProvider>`.
+ */
 export function useTheme(): ThemeValue {
   const ctx = useContext(ThemeContext);
   if (!ctx) throw new Error('useTheme must be used within <ThemeProvider>');

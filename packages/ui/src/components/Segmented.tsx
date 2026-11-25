@@ -5,16 +5,20 @@ import { useLayoutEffect, useRef, useState, type CSSProperties, type PointerEven
 import { useDeform } from '../hooks/useDeform';
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
 
-/** iOS-style segmented control with a draggable selected pill. */
+/**
+ * Clamp helpers shared by pill geometry, drag offsets, and spotlight
+ * percentages; `clampPercent` bounds a value to the 0-100 range.
+ */
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 const clampPercent = (value: number) => clamp(value, 0, 100);
 
 /**
- * iOS-style segmented control. The selected pill is the drag surface: pressing
- * it gives press feedback, dragging moves it freely with the pointer, and
- * release snaps it to the nearest slot and selects that option. Pressing any
- * other slot only slides the pill there — no press feedback on the pill.
+ * iOS-style segmented control rendering a measured pill over option buttons.
+ * Controlled through `value`/`onChange`; slot geometry is measured in a layout
+ * effect so the pill mounts at its final size and snaps on drag release.
+ * Only the selected pill is draggable; arrow/Home/End keys change selection.
+ * Option labels and the optional `label` are supplied by props.
  */
 export function Segmented<T extends string>({
   options,
@@ -78,6 +82,7 @@ export function Segmented<T extends string>({
     return hit ? Number(hit.dataset.index) : -1;
   };
 
+  /** Converts client coordinates into clamped 0-100 percentages inside `element`. */
   const relativeTo = (element: HTMLElement | null, x: number, y: number) => {
     if (!element) return { x: 50, y: 50 };
     const rect = element.getBoundingClientRect();

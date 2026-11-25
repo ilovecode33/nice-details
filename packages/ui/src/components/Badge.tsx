@@ -2,7 +2,11 @@ import styles from './Badge.module.css';
 
 import { type ReactNode } from 'react';
 
-/** Small status badge. */
+/**
+ * Renders a small inline badge for status or categorization.
+ * `tone` selects one of four visual variants and defaults to "neutral"; all content
+ * comes from `children`, so the component builds in no user-facing text.
+ */
 
 export function Badge({
   children,

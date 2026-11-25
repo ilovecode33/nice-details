@@ -4,7 +4,12 @@ import { createPortal } from 'react-dom';
 import { useId, type CSSProperties } from 'react';
 import { useDeform } from '../hooks/useDeform';
 
-/** The Button, including its clipping-safe portalled halo. */
+/**
+ * Renders a pressable button with optional icon, variants, and deformation feedback.
+ * With `haloPortal`, the whole button is portalled to `document.body` and tethered to a
+ * transparent anchor placeholder so its glow cannot be clipped; `deform` keeps vertical
+ * scrolling while still allowing horizontal drag feedback. Text comes from `children`.
+ */
 
 export function Button({
   variant = 'secondary',
