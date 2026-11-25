@@ -14,6 +14,10 @@ export default defineConfig({
         '../../packages/ui-tokens/src/index.ts',
         import.meta.url,
       ).pathname,
+      '@ilovecode33/editor-core': new URL(
+        '../../packages/editor-core/src/index.ts',
+        import.meta.url,
+      ).pathname,
     },
   },
   source: {
