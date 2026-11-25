@@ -9,7 +9,7 @@ import {
   type ReactNode,
 } from 'react';
 import { Monitor, Moon, Sun } from 'lucide-react';
-import { useTheme, type Theme } from './ThemeProvider';
+import { useTheme, type Theme } from '../hooks/useTheme';
 
 
 export interface ThemeSwitcherLabels {

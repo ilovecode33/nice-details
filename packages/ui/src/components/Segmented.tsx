@@ -8,8 +8,8 @@ import {
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from 'react';
-import { useDeform } from './Deformable';
-import { usePrefersReducedMotion } from './PressGlow';
+import { useDeform } from '../hooks/useDeform';
+import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
 
 
 /** iOS-style segmented control with a draggable selected pill. */

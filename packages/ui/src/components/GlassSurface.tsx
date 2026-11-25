@@ -7,7 +7,7 @@ import {
 import { useReducer, type CSSProperties, type HTMLAttributes, type ReactNode } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { PressGlow } from './PressGlow';
-import { useDeform } from './Deformable';
+import { useDeform } from '../hooks/useDeform';
 
 
 /**

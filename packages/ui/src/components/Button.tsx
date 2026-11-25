@@ -1,7 +1,7 @@
 import styles from './Button.module.css';
 import { createPortal } from 'react-dom';
 import { useId, type ButtonHTMLAttributes, type CSSProperties, type ReactNode } from 'react';
-import { useDeform } from './Deformable';
+import { useDeform } from '../hooks/useDeform';
 
 
 /** The Button, including its clipping-safe portalled halo. */

@@ -2,6 +2,7 @@ import sheetClasses from './Sheet.module.css';
 import styles from './ActionSheet.module.css';
 import { sheetSemantics } from '@ilovecode33/ui-core';
 import { useEffect, useRef, type ReactNode } from 'react';
+import { useEscape } from '../hooks/useEscape';
 
 
 /**
@@ -14,17 +15,6 @@ export interface ActionItem {
   label: string;
   onSelect: () => void;
   destructive?: boolean;
-}
-
-function useEscape(active: boolean, onClose: () => void) {
-  useEffect(() => {
-    if (!active) return;
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose();
-    };
-    document.addEventListener('keydown', onKeyDown);
-    return () => document.removeEventListener('keydown', onKeyDown);
-  }, [active, onClose]);
 }
 
 export function ActionSheet({

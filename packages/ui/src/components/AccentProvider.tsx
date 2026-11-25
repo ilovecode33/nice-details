@@ -1,20 +1,17 @@
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useState,
-  type ReactNode,
-} from 'react';
+import { useEffect, useLayoutEffect, useMemo, useState, type ReactNode } from 'react';
 import {
   ACCENTS,
   ACCENT_PALETTES,
   DEFAULT_ACCENT,
   type Accent,
 } from '@ilovecode33/ui-tokens';
-import { Select } from './Select';
-import { useTheme } from './ThemeProvider';
+import {
+  AccentContext,
+  STORAGE_KEY,
+  readSaved,
+  type AccentValue,
+} from '../hooks/useAccent';
+import { useTheme } from '../hooks/useTheme';
 
 /** Token definitions are owned by `@ilovecode33/ui-tokens` and re-exported for API stability. */
 export {
@@ -24,25 +21,6 @@ export {
   type Accent,
   type Palette,
 } from '@ilovecode33/ui-tokens';
-
-const STORAGE_KEY = 'gallery.accent';
-
-function readSaved(defaultAccent: Accent): Accent {
-  try {
-    const v = localStorage.getItem(STORAGE_KEY);
-    if (ACCENTS.includes(v as Accent)) return v as Accent;
-  } catch {
-    /* storage unavailable */
-  }
-  return defaultAccent;
-}
-
-interface AccentValue {
-  accent: Accent;
-  setAccent: (a: Accent) => void;
-}
-
-const AccentContext = createContext<AccentValue | null>(null);
 
 export function AccentProvider({
   children,
@@ -81,14 +59,11 @@ export function AccentProvider({
     );
   }, [accent, resolved]);
 
-  const value = useMemo(() => ({ accent, setAccent: setAccentState }), [accent]);
+  const value = useMemo<AccentValue>(
+    () => ({ accent, setAccent: setAccentState }),
+    [accent],
+  );
   return (
     <AccentContext.Provider value={value}>{children}</AccentContext.Provider>
   );
-}
-
-export function useAccent(): AccentValue {
-  const ctx = useContext(AccentContext);
-  if (!ctx) throw new Error('useAccent must be used within <AccentProvider>');
-  return ctx;
 }

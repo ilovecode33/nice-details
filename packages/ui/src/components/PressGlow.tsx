@@ -1,21 +1,4 @@
 import styles from './PressGlow.module.css';
-import {
-  deformReducer,
-  type DeformAxis,
-  type DeformState,
-} from '@ilovecode33/ui-core';
-import { MOTION } from '@ilovecode33/ui-tokens';
-import {
-  useEffect,
-  useReducer,
-  useRef,
-  useState,
-  type CSSProperties,
-  type HTMLAttributes,
-  type PointerEvent as ReactPointerEvent,
-  type ReactNode,
-} from 'react';
-import { useDeform } from './Deformable';
 
 
 /**
@@ -26,26 +9,6 @@ import { useDeform } from './Deformable';
  */
 
 
-const num = (value: string) => Number.parseFloat(value);
-const DEFAULT_MAX = num(MOTION.deformShift);
-const STRETCH = num(MOTION.deformStretch);
-const SQUASH = num(MOTION.deformSquash);
-const CLICK_THRESHOLD = 4;
-export function usePrefersReducedMotion(): boolean {
-  const [reduced, setReduced] = useState(
-    () =>
-      typeof window !== 'undefined' &&
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches,
-  );
-  useEffect(() => {
-    const query = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const onChange = () => setReduced(query.matches);
-    query.addEventListener('change', onChange);
-    return () => query.removeEventListener('change', onChange);
-  }, []);
-  return reduced;
-}
-const clampPercent = (value: number) => Math.min(100, Math.max(0, value));
 
 /**
  * A liquid-glass style bloom at the press point. Render it inside any element

@@ -1,17 +1,10 @@
 import styles from './UIFoundation.module.css';
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-  type ReactNode,
-} from 'react';
-import { useTheme, type Theme, DEFAULT_THEME } from './ThemeProvider';
-import { useAccent, type Accent, DEFAULT_ACCENT } from './AccentProvider';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { DEFAULT_THEME, type Theme } from '../hooks/useTheme';
+import { DEFAULT_ACCENT, type Accent } from '@ilovecode33/ui-tokens';
+import { LocaleContext, readSavedLocale, type LocaleValue } from '../hooks/useLocale';
 import { ThemeProvider } from './ThemeProvider';
 import { AccentProvider } from './AccentProvider';
-
 
 /**
  * UIFoundation — the single entry point for theme, accent and locale context.
@@ -20,24 +13,6 @@ import { AccentProvider } from './AccentProvider';
  * Wrapped content disables text selection by default because it conflicts with
  * the elastic drag feedback; form fields keep normal text selection.
  */
-
-
-
-export interface LocaleValue {
-  locale: string;
-  setLocale: (locale: string) => void;
-  t: (key: string) => string;
-  dictionary: Record<string, string>;
-}
-
-const LocaleContext = createContext<LocaleValue | null>(null);
-
-export function useLocale(): LocaleValue {
-  const value = useContext(LocaleContext);
-  if (!value) throw new Error('useLocale must be used within <UIFoundation>');
-  return value;
-}
-
 export interface UIFoundationProps {
   children: ReactNode;
   defaultTheme?: Theme;
@@ -53,15 +28,6 @@ export interface UIFoundationProps {
   /** localStorage key for the locale. Empty string disables persistence. */
   localeStorageKey?: string;
   className?: string;
-}
-
-function readSavedLocale(key: string, fallback: string): string {
-  if (!key || typeof window === 'undefined') return fallback;
-  try {
-    return window.localStorage.getItem(key) ?? fallback;
-  } catch {
-    return fallback;
-  }
 }
 
 export function UIFoundation({

@@ -1,6 +1,6 @@
 import { describe, expect, test } from '@rstest/core';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { useTheme } from './ThemeProvider';
+import { useTheme } from '../hooks/useTheme';
 import { ThemeProvider } from './ThemeProvider';
 describe('ThemeProvider', () => {
   test('exposes the default theme to consumers', () => {

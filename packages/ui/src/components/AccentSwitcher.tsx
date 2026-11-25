@@ -15,8 +15,8 @@ import {
   type Accent,
 } from '@ilovecode33/ui-tokens';
 import { Select } from './Select';
-import { useAccent } from './AccentProvider';
-import { useTheme } from './ThemeProvider';
+import { useAccent } from '../hooks/useAccent';
+import { useTheme } from '../hooks/useTheme';
 
 
 export interface AccentSwitcherLabels {
