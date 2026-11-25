@@ -73,7 +73,7 @@ Every PR adding a component must satisfy all of the following:
 
 - [ ] **Single responsibility** — its purpose is one sentence; no overlap with existing components.
 - [ ] **Minimal API** — props extend native HTML attributes where possible; no boolean-flag explosion.
-- [ ] **Complete types** — all props exported as `type` / `interface`; `tsc --noEmit` passes.
+- [ ] **Complete types** — all shared props/option/state types live in `@ilovecode33/ui-types`; `ui` re-exports them so its public API stays stable. `tsc --noEmit` passes.
 - [ ] **Landing page showcase** — at least one real usage scenario in `apps/ui-landing` under **Component details**, not an isolated button array.
 - [ ] **Accessible** — correct role, aria-label, focus ring, 44pt touch target.
 - [ ] **Design tokens only** — colors, spacing, radii, and motion come from `styles.css`.

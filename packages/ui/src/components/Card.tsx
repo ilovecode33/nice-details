@@ -1,17 +1,13 @@
+import type { CardProps } from '@ilovecode33/ui-types';
+export type { CardProps } from '@ilovecode33/ui-types';
 import styles from './Card.module.css';
 import { type HTMLAttributes, type ReactNode } from 'react';
+
 
 
 /** Layout primitives: Card, Stack, Row. */
 
 /* ── Card ────────────────────────────────────────────────────────────────── */
-export interface CardProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title'> {
-  title?: ReactNode;
-  subtitle?: ReactNode;
-  actions?: ReactNode;
-  padded?: boolean;
-}
-
 export function Card({
   title,
   subtitle,

@@ -1,3 +1,5 @@
+import type { DockItem, DockNavigationHandle, DockNavigationProps } from '@ilovecode33/ui-types';
+export type { DockItem, DockNavigationHandle, DockNavigationProps } from '@ilovecode33/ui-types';
 import styles from './DockNavigation.module.css';
 import {
   forwardRef,
@@ -11,6 +13,7 @@ import {
 import { FloatingBar } from './FloatingBar';
 
 
+
 /**
  * Reusable floating dock navigation — the collapsed bar sits in the bottom
  * trailing corner, expands into a wrapped panel, and keeps the active item
@@ -18,36 +21,6 @@ import { FloatingBar } from './FloatingBar';
  * transform never has to resolve against the animating width.
  */
 
-
-export interface DockItem {
-  id: string;
-  label: ReactNode;
-  /** Renders an anchor instead of a button. */
-  href?: string;
-  icon?: ReactNode;
-}
-
-export interface DockNavigationHandle {
-  toggle(): void;
-  setCollapsed(collapsed: boolean): void;
-}
-
-export interface DockNavigationProps {
-  items: readonly DockItem[];
-  activeId?: string;
-  /** Receives the click event so hosts can implement client-side navigation. */
-  onSelect?: (id: string, event: ReactMouseEvent<HTMLElement>) => void;
-  label?: string;
-  collapsible?: boolean;
-  /** Controlled collapse state. */
-  collapsed?: boolean;
-  defaultCollapsed?: boolean;
-  onCollapsedChange?: (collapsed: boolean) => void;
-  collapseLabel?: string;
-  expandLabel?: string;
-  deform?: boolean;
-  className?: string;
-}
 
 interface Geometry {
   left: number;

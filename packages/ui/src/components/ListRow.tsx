@@ -1,19 +1,13 @@
+import type { ListItem } from '@ilovecode33/ui-types';
+export type { ListItem } from '@ilovecode33/ui-types';
 import styles from './ListRow.module.css';
 import { disclosureReducer, disclosureSemantics, listSemantics } from '@ilovecode33/ui-core';
 import { useId, useState, type ReactNode } from 'react';
 
 
+
 /** Disclosure and List components backed by `ui-core` contracts. */
 /* ── List / ListRow ───────────────────────────────────────────────────────── */
-
-export interface ListItem<T extends string = string> {
-  id: T;
-  title: ReactNode;
-  subtitle?: ReactNode;
-  leading?: ReactNode;
-  trailing?: ReactNode;
-  expandedContent?: ReactNode;
-}
 
 export function ListRow<T extends string = string>({
   item,

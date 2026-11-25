@@ -1,16 +1,11 @@
 import { createContext, useContext } from 'react';
+import type { Theme, ThemeValue } from '@ilovecode33/ui-types';
+export type { Theme, ThemeValue } from '@ilovecode33/ui-types';
 
-export type Theme = 'system' | 'light' | 'dark';
+
 export const DEFAULT_THEME: Theme = 'system';
 
 export const STORAGE_KEY = 'gallery.theme';
-
-export interface ThemeValue {
-  theme: Theme;
-  setTheme: (t: Theme) => void;
-  /** The theme actually displayed (system is resolved to light/dark). */
-  resolved: 'light' | 'dark';
-}
 
 export const ThemeContext = createContext<ThemeValue | null>(null);
 

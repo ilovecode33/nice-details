@@ -1,3 +1,5 @@
+import type { DeformOptions, DeformResult } from '@ilovecode33/ui-types';
+export type { DeformOptions, DeformResult } from '@ilovecode33/ui-types';
 import {
   deformReducer,
   type DeformAxis,
@@ -14,36 +16,12 @@ import {
 } from 'react';
 import { usePrefersReducedMotion } from './usePrefersReducedMotion';
 
+
 const num = (value: string) => Number.parseFloat(value);
 const DEFAULT_MAX = num(MOTION.deformShift);
 const STRETCH = num(MOTION.deformStretch);
 const SQUASH = num(MOTION.deformSquash);
 const CLICK_THRESHOLD = 4;
-export interface DeformOptions {
-  /** Resistance limit in px. Farther drags approach it asymptotically. */
-  max?: number;
-  /** Which axis responds to the drag. */
-  axis?: DeformAxis;
-  /** Set false to disable gesture feedback. */
-  enabled?: boolean;
-  /** Override `touch-action`; by axis: x → pan-y, y → pan-x, both → none. */
-  touchAction?: CSSProperties['touchAction'];
-}
-
-export interface DeformResult {
-  handlers: {
-    onPointerDown: (event: ReactPointerEvent<HTMLElement>) => void;
-    onPointerMove: (event: ReactPointerEvent<HTMLElement>) => void;
-    onPointerUp: (event: ReactPointerEvent<HTMLElement>) => void;
-    onPointerCancel: (event: ReactPointerEvent<HTMLElement>) => void;
-  };
-  /** Transform feedback plus the CSS variables that place the press glow. */
-  style: CSSProperties;
-  state: DeformState;
-  /** Bump on every press. Pass to `PressGlow` to replay the highlight once. */
-  pulse: number;
-}
-
 const clampPercent = (value: number) => Math.min(100, Math.max(0, value));
 
 /**

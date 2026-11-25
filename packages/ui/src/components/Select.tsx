@@ -1,3 +1,5 @@
+import type { SelectOption, SelectChangeEvent, SelectProps } from '@ilovecode33/ui-types';
+export type { SelectOption, SelectChangeEvent, SelectProps } from '@ilovecode33/ui-types';
 import styles from './Select.module.css';
 import {
   comboboxSemantics,
@@ -21,43 +23,8 @@ import {
 import { Deformable } from './Deformable';
 
 
+
 /** Accessible custom dropdown with rich option content. */
-
-export interface SelectOption<T extends string = string> {
-  value: T;
-  /** May be a ReactNode, e.g. a color swatch plus text */
-  label: ReactNode;
-  disabled?: boolean;
-  /** Visual element on the left of the option, e.g. a color example */
-  leading?: ReactNode;
-  /** Element on the right; defaults to ✓ when selected */
-  trailing?: ReactNode;
-  /** Plain text for screen readers when label is a ReactNode */
-  textValue?: string;
-}
-
-export interface SelectChangeEvent<T extends string> {
-  target: { value: T };
-}
-
-export interface SelectProps<T extends string = string> {
-  options?: SelectOption<T>[];
-  value?: T;
-  defaultValue?: T;
-  onChange?: (event: SelectChangeEvent<T>) => void;
-  placeholder?: string;
-  /** Alias for aria-label */
-  label?: string;
-  'aria-label'?: string;
-  disabled?: boolean;
-  className?: string;
-  id?: string;
-  name?: string;
-  /** Elastic drag feedback. Defaults to true. */
-  deform?: boolean;
-  /** Backward compatibility: <option> children */
-  children?: ReactNode;
-}
 
 function optionsFromChildren(children: ReactNode): SelectOption[] {
   return Children.toArray(children).flatMap((child) => {

@@ -1,3 +1,5 @@
+import type { SegmentOption } from '@ilovecode33/ui-types';
+export type { SegmentOption } from '@ilovecode33/ui-types';
 import styles from './Segmented.module.css';
 import { tabSemantics } from '@ilovecode33/ui-core';
 import {
@@ -12,14 +14,8 @@ import { useDeform } from '../hooks/useDeform';
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
 
 
-/** iOS-style segmented control with a draggable selected pill. */
 
-export interface SegmentOption<T extends string> {
-  value: T;
-  label: ReactNode;
-  icon?: ReactNode;
-  disabled?: boolean;
-}
+/** iOS-style segmented control with a draggable selected pill. */
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 const clampPercent = (value: number) => clamp(value, 0, 100);

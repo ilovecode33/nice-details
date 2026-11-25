@@ -1,3 +1,5 @@
+import type { ActionItem } from '@ilovecode33/ui-types';
+export type { ActionItem } from '@ilovecode33/ui-types';
 import sheetClasses from './Sheet.module.css';
 import styles from './ActionSheet.module.css';
 import { sheetSemantics } from '@ilovecode33/ui-core';
@@ -5,17 +7,12 @@ import { useEffect, useRef, type ReactNode } from 'react';
 import { useEscape } from '../hooks/useEscape';
 
 
+
 /**
  * Modal overlays backed by the `SheetState` contract from
  * `@ilovecode33/ui-core`.
  */
 /* ── ActionSheet / AlertDialog ────────────────────────────────────────────── */
-
-export interface ActionItem {
-  label: string;
-  onSelect: () => void;
-  destructive?: boolean;
-}
 
 export function ActionSheet({
   open,

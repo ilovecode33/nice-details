@@ -1,3 +1,5 @@
+import type { AccentSwitcherLabels } from '@ilovecode33/ui-types';
+export type { AccentSwitcherLabels } from '@ilovecode33/ui-types';
 import styles from './AccentSwitcher.module.css';
 import {
   createContext,
@@ -19,14 +21,6 @@ import { useAccent } from '../hooks/useAccent';
 import { useTheme } from '../hooks/useTheme';
 
 
-export interface AccentSwitcherLabels {
-  group?: string;
-  warmth?: string;
-  serenity?: string;
-  growth?: string;
-  gentle?: string;
-  vitality?: string;
-}
 
 const DEFAULT_ACCENT_LABELS: Required<AccentSwitcherLabels> = {
   group: 'Accent color',

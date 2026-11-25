@@ -97,6 +97,7 @@
       "dependencies": {
         "@ilovecode33/ui-core": "workspace:*",
         "@ilovecode33/ui-tokens": "workspace:*",
+        "@ilovecode33/ui-types": "workspace:*",
         "lucide-react": "^1.80.0",
       },
       "devDependencies": {
@@ -133,6 +134,19 @@
       "devDependencies": {
         "@rslib/core": "^1.0.7",
         "@types/node": "^24.0.0",
+        "typescript": "^5.9.3",
+      },
+    },
+    "packages/ui-types": {
+      "name": "@ilovecode33/ui-types",
+      "version": "0.1.0",
+      "dependencies": {
+        "@ilovecode33/ui-core": "workspace:*",
+        "@ilovecode33/ui-tokens": "workspace:*",
+      },
+      "devDependencies": {
+        "@rslib/core": "^1.0.7",
+        "@types/react": "^19.0.0",
         "typescript": "^5.9.3",
       },
     },
@@ -187,6 +201,8 @@
     "@ilovecode33/ui-landing": ["@ilovecode33/ui-landing@workspace:apps/ui-landing"],
 
     "@ilovecode33/ui-tokens": ["@ilovecode33/ui-tokens@workspace:packages/ui-tokens"],
+
+    "@ilovecode33/ui-types": ["@ilovecode33/ui-types@workspace:packages/ui-types"],
 
     "@lexical/a11y": ["@lexical/a11y@0.53.0", "", { "dependencies": { "@lexical/extension": "0.53.0", "@lexical/utils": "0.53.0", "lexical": "0.53.0" }, "peerDependencies": { "typescript": ">=5.2" }, "optionalPeers": ["typescript"] }, "sha512-Xmi6TDF7mkhxYMO7GNN1G5mgdNRN5mMKcvMk7zIWnteXIuBJ4li5LgYXDvnCfYU/qrkocIBQhlJNqaiXzvtktA=="],
 

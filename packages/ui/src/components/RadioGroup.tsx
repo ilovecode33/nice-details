@@ -1,3 +1,5 @@
+import type { RadioOption } from '@ilovecode33/ui-types';
+export type { RadioOption } from '@ilovecode33/ui-types';
 import styles from './RadioGroup.module.css';
 import {
   checkboxSemantics,
@@ -6,6 +8,7 @@ import {
 } from '@ilovecode33/ui-core';
 import { Deformable } from './Deformable';
 import {
+
   cloneElement,
   isValidElement,
   useId,
@@ -20,11 +23,6 @@ import {
  * contract in `@ilovecode33/ui-core`, so a native renderer can use the same
  * touched / error model.
  */
-
-export interface RadioOption<T extends string = string> {
-  value: T;
-  label: string;
-}
 
 export function RadioGroup<T extends string = string>({
   options,

@@ -1,3 +1,5 @@
+import type { ThemeSwitcherLabels } from '@ilovecode33/ui-types';
+export type { ThemeSwitcherLabels } from '@ilovecode33/ui-types';
 import styles from './ThemeSwitcher.module.css';
 import {
   createContext,
@@ -12,12 +14,6 @@ import { Monitor, Moon, Sun } from 'lucide-react';
 import { useTheme, type Theme } from '../hooks/useTheme';
 
 
-export interface ThemeSwitcherLabels {
-  group?: string;
-  system?: string;
-  light?: string;
-  dark?: string;
-}
 
 const DEFAULT_THEME_LABELS: Required<ThemeSwitcherLabels> = {
   group: 'Appearance',

@@ -1,7 +1,10 @@
+import type { PhotoItem } from '@ilovecode33/ui-types';
+export type { PhotoItem } from '@ilovecode33/ui-types';
 import styles from './Carousel.module.css';
 import { mediaReducer } from '@ilovecode33/ui-core';
 import { useRef, type CSSProperties, type ReactNode } from 'react';
 import { AspectImage } from './AspectImage';
+
 
 
 /**
@@ -10,14 +13,6 @@ import { AspectImage } from './AspectImage';
  */
 
 /* ── PhotoItem ───────────────────────────────────────────────────────────── */
-
-export interface PhotoItem {
-  id: string;
-  src?: string;
-  alt: string;
-  emoji?: ReactNode;
-  style?: CSSProperties;
-}
 
 /* ── Carousel ─────────────────────────────────────────────────────────────── */
 

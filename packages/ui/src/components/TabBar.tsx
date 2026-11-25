@@ -1,19 +1,15 @@
+import type { TabItem } from '@ilovecode33/ui-types';
+export type { TabItem } from '@ilovecode33/ui-types';
 import styles from './TabBar.module.css';
 import { navigationSemantics, tabSemantics } from '@ilovecode33/ui-core';
 import { type HTMLAttributes, type ReactNode } from 'react';
+
 
 
 /**
  * Navigation components. State and semantics come from
  * `@ilovecode33/ui-core`; this file only maps them to markup and tokens.
  */
-
-export interface TabItem<T extends string = string> {
-  value: T;
-  label: ReactNode;
-  icon?: ReactNode;
-  badge?: ReactNode;
-}
 
 export function TabBar<T extends string = string>({
   items,
