@@ -1,6 +1,7 @@
 /** Bottom sheet / centered dialog overlay. */
 import { sheetSemantics } from '@ilovecode33/ui-core';
 import { useEffect, useRef, type CSSProperties, type ReactNode } from 'react';
+import { X } from 'lucide-react';
 import { cn } from './css';
 
 export function Sheet({
@@ -54,7 +55,9 @@ export function Sheet({
             aria-label="Close"
             onClick={onClose}
           >
-            ✕
+            <span className={cn('ui-btn__icon')} aria-hidden="true">
+              <X />
+            </span>
           </button>
         </header>
         <div className={cn('ui-sheet__body')}>{children}</div>
