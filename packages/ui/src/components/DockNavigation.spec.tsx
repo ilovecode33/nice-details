@@ -1,7 +1,7 @@
 import { describe, expect, test } from '@rstest/core';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { createRef } from 'react';
-import { DockNavigation, type DockNavigationHandle } from '../components/DockNavigation';
+import { DockNavigation, type DockNavigationHandle } from './DockNavigation';
 
 describe('DockNavigation', () => {
   const items = [

@@ -1,7 +1,7 @@
 import { describe, expect, test } from '@rstest/core';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { useState } from 'react';
-import { Switch } from '../components/Switch';
+import { Switch } from './Switch';
 
 function SwitchDemo({ initial = false }: { initial?: boolean }) {
   const [checked, setChecked] = useState(initial);

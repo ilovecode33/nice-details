@@ -1,6 +1,6 @@
 import { describe, expect, test } from '@rstest/core';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { Button } from '../components/Button';
+import { Button } from './Button';
 
 describe('Button', () => {
   test('renders its label and fires onClick', () => {

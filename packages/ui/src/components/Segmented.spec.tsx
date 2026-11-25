@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test } from '@rstest/core';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { useState } from 'react';
-import { Segmented } from '../components/Segmented';
+import { Segmented } from './Segmented';
 
 function SegmentedDemo() {
   const [value, setValue] = useState<'day' | 'week' | 'month'>('day');

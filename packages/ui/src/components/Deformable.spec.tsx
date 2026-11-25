@@ -1,6 +1,6 @@
 import { describe, expect, test } from '@rstest/core';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { Deformable } from '../components/Deformable';
+import { Deformable } from './Deformable';
 
 describe('Deformable press bloom', () => {
   test('shares the same press-point highlight with wrapped content', () => {
