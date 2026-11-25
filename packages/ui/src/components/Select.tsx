@@ -163,6 +163,7 @@ export function Select<T extends string = string>({
     <div
       ref={wrapRef}
       className={[styles['ui-select__wrap'], className].filter(Boolean).join(' ')}
+      data-ui="select__wrap"
       style={{ zIndex: state.open ? 50 : undefined }}
     >
       <button
@@ -170,6 +171,7 @@ export function Select<T extends string = string>({
         ref={triggerRef}
         type="button"
         className={[styles['ui-select'], styles['ui-select--trigger'], styles[state.open ? 'is-open' : ''] || ''].filter(Boolean).join(' ')}
+        data-ui="select"
         role={semantics.role}
         aria-haspopup="listbox"
         aria-expanded={semantics.expanded}

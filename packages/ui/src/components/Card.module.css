@@ -26,8 +26,6 @@
 
 .ui-card__body { min-width: 0; }
 
-.ui-card__divider { height: 1px; background: var(--border); margin: var(--space-4) 0 var(--space-2); }
-
 .ui-card--flush-sliders .ui-card__body { margin: calc(-1 * var(--space-2)) calc(-1 * var(--space-1)); }
 
 /* Desktop padding for padded cards */

@@ -5,6 +5,21 @@ All notable changes to `@ilovecode33/ui` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Stable `data-ui` slots for every public styling hook (`data-ui="row"`,
+  `data-ui="stack stack--md"`, `data-ui="console-topbar"`, …). The rules live in
+  `styles.css` as `[data-ui~='...']` selectors, so attribute selectors are never
+  hashed and consumers no longer need a class-name mapper.
+
+### Removed
+
+- **Breaking:** the public `cn()` export and the CSS Module lookup table in
+  `src/styles/index.ts`. Consumers must replace `cn('ui-row')` with
+  `data-ui="row"`; app-local class names stay in `className`.
+
 ## [0.2.0] - 2026-11-25
 
 ### Added

@@ -16,26 +16,8 @@
 
 .ui-input:focus, .ui-select:focus { outline: none; border-color: var(--accent); }
 
-/* ── Inline select (icon + compact Select used for language / accent) ────── */
-.ui-inline-select { display: inline-flex; align-items: center; gap: 6px; color: var(--text-dim); }
-
-.ui-inline-select > span { font-size: 15px; line-height: 1; flex-shrink: 0; }
-
-.ui-inline-select .ui-select {
-  width: auto;
-  min-width: 96px;
-  max-width: 160px;
-  min-height: var(--touch);
-  padding-left: 10px;
-  padding-right: 30px;
-  font-size: var(--text-sm);
-  background-color: var(--bg-elevated);
-}
-
 /* ── Custom Select dropdown ─────────────────────────────────────────────── */
 .ui-select__wrap { position: relative; display: inline-block; width: 100%; }
-
-.ui-inline-select .ui-select__wrap { width: auto; }
 
 .ui-select--trigger {
   display: flex;
@@ -141,4 +123,3 @@
   .ui-select__menu { max-width: 360px; }
 }
 
-.photos-toolbar .ui-select { width: auto; min-width: 180px; max-width: 100%; }

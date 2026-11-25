@@ -13,7 +13,7 @@ import {
   type WallParams,
 } from '@ilovecode33/photo-wall';
 import '@ilovecode33/photo-wall/styles.css';
-import { Button, cn, Segmented, SliderRow, useLocale } from '@ilovecode33/ui';
+import { Button, Segmented, SliderRow, useLocale } from '@ilovecode33/ui';
 
 /** A square stage gives a taller canvas: lights above, framed prints below. */
 const STAGE_ASPECT = 1;
@@ -185,9 +185,7 @@ export function PhotoWallDemo() {
             <button
               key={item.id}
               type="button"
-              className={cn(
-                `pw-demo__handle pw-demo__light ${item.id === selectedLight.id ? 'is-selected' : ''}`,
-              )}
+              className={`pw-demo__handle pw-demo__light ${item.id === selectedLight.id ? 'is-selected' : ''}`}
               style={
                 {
                   left: `${clamp(lightToStageX(item.x), 2, 98)}%`,

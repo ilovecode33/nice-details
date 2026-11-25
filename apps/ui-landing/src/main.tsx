@@ -12,7 +12,6 @@ import {
   Banner,
   Button,
   Card,
-  cn,
   Carousel,
   Checkbox,
   Chip,
@@ -165,7 +164,7 @@ function App() {
       id: 'travel',
       title: t('library.albumTravel'),
       subtitle: `24 ${t('library.photos')}`,
-      leading: <span className={cn('ui-thumb')} style={{ background: TONES[0].color }}>✈</span>,
+      leading: <span data-ui="thumb" style={{ background: TONES[0].color }}>✈</span>,
       trailing: <Badge tone="accent">24</Badge>,
       expandedContent: t('library.detailsBody'),
     },
@@ -173,7 +172,7 @@ function App() {
       id: 'family',
       title: t('library.albumFamily'),
       subtitle: `12 ${t('library.photos')}`,
-      leading: <span className={cn('ui-thumb')} style={{ background: TONES[2].color }}>♡</span>,
+      leading: <span data-ui="thumb" style={{ background: TONES[2].color }}>♡</span>,
       trailing: <Badge tone="success">12</Badge>,
       expandedContent: t('library.detailsBody'),
     },
@@ -181,7 +180,7 @@ function App() {
       id: 'street',
       title: t('library.albumStreet'),
       subtitle: `8 ${t('library.photos')}`,
-      leading: <span className={cn('ui-thumb')} style={{ background: TONES[1].color }}>◫</span>,
+      leading: <span data-ui="thumb" style={{ background: TONES[1].color }}>◫</span>,
       trailing: <Badge>8</Badge>,
       expandedContent: t('library.detailsBody'),
     },
@@ -225,7 +224,7 @@ function App() {
             {t('hero.subtitle')}
           </h1>
           <p className="landing__lead">{t('hero.lead')}</p>
-          <div className={cn('ui-row')}>
+          <div data-ui="row">
             <Button variant="primary" icon={<ArrowRight />} onClick={() => setSheetOpen(true)}>
               {t('hero.ctaDemo')}
             </Button>
@@ -233,7 +232,7 @@ function App() {
               {t('hero.ctaDetails')}
             </Button>
           </div>
-          <div className={cn('ui-row landing__toolbar')}>
+          <div className="landing__toolbar" data-ui="row">
             <Select
               className="landing__locale"
               aria-label={t('language.label')}
@@ -263,36 +262,36 @@ function App() {
         </section>
 
         <Section id="details" title={t('details.title')} subtitle={t('details.subtitle')}>
-          <div className={cn('ui-stack ui-stack--lg')}>
+          <div data-ui="stack stack--lg">
               {/* Button */}
               <Card id="group-button" title={t(group('button').title)} subtitle={t(group('button').subtitle)}>
-                <div className={cn('ui-stack ui-stack--md')}>
+                <div data-ui="stack stack--md">
                   <span id="component-button" className="component-anchor" aria-hidden="true" />
-                  <div className={cn('ui-row')}>
+                  <div data-ui="row">
                     <Button variant="primary" onClick={() => action(t('demo.primary'))}>{t('demo.primary')}</Button>
                     <Button variant="secondary" onClick={() => action(t('demo.secondary'))}>{t('demo.secondary')}</Button>
                     <Button variant="destructive" onClick={() => action(t('demo.destructive'))}>{t('demo.destructive')}</Button>
                     <Button variant="plain" onClick={() => action(t('demo.plain'))}>{t('demo.plain')}</Button>
                   </div>
                   <Divider />
-                  <div className={cn('ui-row')}>
+                  <div data-ui="row">
                     <Button icon={<Plus />} onClick={() => action(t('demo.withIcon'))}>{t('demo.withIcon')}</Button>
                     <Button size="compact" onClick={() => action(t('demo.compact'))}>{t('demo.compact')}</Button>
                     <Button disabled>{t('demo.disabled')}</Button>
                   </div>
                   <Button variant="primary" block onClick={() => action(t('demo.block'))}>{t('demo.block')}</Button>
-                  {buttonAction && <p className={cn('ui-muted')}>{buttonAction}</p>}
+                  {buttonAction && <p data-ui="muted">{buttonAction}</p>}
                 </div>
               </Card>
 
               {/* Card / Layout / Divider */}
               <Card id="group-layout" title={t(group('layout').title)} subtitle={t(group('layout').subtitle)}>
-                <div className={cn('ui-stack ui-stack--md')}>
+                <div data-ui="stack stack--md">
                   <span id="component-card" className="component-anchor" aria-hidden="true" />
                   <span id="component-stack-row" className="component-anchor" aria-hidden="true" />
-                  <div className={cn('ui-stack ui-stack--sm')}>
-                    <span className={cn('ui-muted')}>{t('demo.layout.subtitle')}</span>
-                    <div className={cn('ui-row')}>
+                  <div data-ui="stack stack--sm">
+                    <span data-ui="muted">{t('demo.layout.subtitle')}</span>
+                    <div data-ui="row">
                       <Badge>{t('demo.secondary')}</Badge>
                       <Badge tone="accent">{t('demo.primary')}</Badge>
                     </div>
@@ -304,16 +303,16 @@ function App() {
 
               {/* Display */}
               <Card id="group-display" title={t(group('display').title)} subtitle={t(group('display').subtitle)}>
-                <div className={cn('ui-stack ui-stack--md')}>
+                <div data-ui="stack stack--md">
                   <span id="component-stat" className="component-anchor" aria-hidden="true" />
                   <span id="component-statusstat" className="component-anchor" aria-hidden="true" />
-                  <div className={cn('ui-stat-grid')}>
+                  <div data-ui="stat-grid">
                     <Stat label={t('upload.albums')} value={12} tone="accent" />
                     <StatusStat label={t('upload.success')} value={24} status="success" />
                     <StatusStat label={t('upload.failed')} value={2} status="danger" />
                   </div>
                   <span id="component-badge" className="component-anchor" aria-hidden="true" />
-                  <div className={cn('ui-row')}>
+                  <div data-ui="row">
                     <Badge>{t('settings.all')}</Badge>
                     <Badge tone="success">{t('upload.success')}</Badge>
                     <Badge tone="danger">{t('upload.failed')}</Badge>
@@ -325,7 +324,7 @@ function App() {
 
               {/* Selection */}
               <Card id="group-selection" title={t(group('selection').title)} subtitle={t(group('selection').subtitle)}>
-                <div className={cn('ui-stack ui-stack--lg')}>
+                <div data-ui="stack stack--lg">
                   <span id="component-segmented" className="component-anchor" aria-hidden="true" />
                   <Segmented
                     label={t('settings.filter')}
@@ -358,7 +357,7 @@ function App() {
                       options={TONES.map((item) => ({
                         value: item.value,
                         label: t(item.key),
-                        leading: <span className={cn('ui-color-swatch')} style={{ background: item.color }} />,
+                        leading: <span data-ui="color-swatch" style={{ background: item.color }} />,
                       }))}
                     />
                   </Field>
@@ -377,7 +376,7 @@ function App() {
                     ]}
                   />
                   <span id="component-chip" className="component-anchor" aria-hidden="true" />
-                  <div className={cn('ui-row')}>
+                  <div data-ui="row">
                     {['favorites', 'recent', 'hidden'].map((value) => (
                       <Chip key={value} selected={chip === value} onClick={() => setChip(value)}>
                         {t(value === 'favorites' ? 'library.tagFavorites' : value === 'recent' ? 'library.tagRecent' : 'library.tagHidden')}
@@ -392,7 +391,7 @@ function App() {
               {/* Forms */}
               <Card id="group-forms" title={t(group('forms').title)} subtitle={t(group('forms').subtitle)}>
                 <form
-                  className={cn('ui-stack ui-stack--md')}
+                  data-ui="stack stack--md"
                   onSubmit={(event) => {
                     event.preventDefault();
                     setDraftError(draftName.trim() ? '' : t('create.error'));
@@ -424,7 +423,7 @@ function App() {
                   <FormField label={t('create.notes')} hint={t('create.notesHint')}>
                     <TextArea value={notes} rows={3} onChange={(event) => setNotes(event.target.value)} />
                   </FormField>
-                  <div className={cn('ui-stat-grid')}>
+                  <div data-ui="stat-grid">
                     <FormField label={t('create.date')}>
                       <span id="component-datepicker" className="component-anchor" aria-hidden="true" />
                       <DatePicker value={startDate} onChange={(event) => setStartDate(event.target.value)} />
@@ -440,7 +439,7 @@ function App() {
 
               {/* Navigation */}
               <Card id="group-navigation" title={t(group('navigation').title)} subtitle={t(group('navigation').subtitle)}>
-                <div className={cn('ui-stack ui-stack--md')}>
+                <div data-ui="stack stack--md">
                   <span id="component-navbar" className="component-anchor" aria-hidden="true" />
                   <NavBar
                     title={t('library.navTitle')}
@@ -480,7 +479,7 @@ function App() {
 
               {/* Overlays */}
               <Card id="group-overlays" title={t(group('overlays').title)} subtitle={t(group('overlays').subtitle)}>
-                <div className={cn('ui-row')}>
+                <div data-ui="row">
                   <span id="component-sheet" className="component-anchor" aria-hidden="true" />
                   <Button variant="secondary" onClick={() => setSheetOpen(true)}>{t('demo.openSheet')}</Button>
                   <span id="component-actionsheet" className="component-anchor" aria-hidden="true" />
@@ -494,7 +493,7 @@ function App() {
                     </Button>
                     {popoverOpen && (
                       <Popover open label={t('progress.popover')} onClose={() => setPopoverOpen(false)}>
-                        <p className={cn('ui-muted')}>{t('progress.popoverBody')}</p>
+                        <p data-ui="muted">{t('progress.popoverBody')}</p>
                       </Popover>
                     )}
                   </div>
@@ -503,20 +502,20 @@ function App() {
 
               {/* Feedback */}
               <Card id="group-feedback" title={t(group('feedback').title)} subtitle={t(group('feedback').subtitle)}>
-                <div className={cn('ui-stack ui-stack--md')}>
+                <div data-ui="stack stack--md">
                   <span id="component-banner" className="component-anchor" aria-hidden="true" />
                   {bannerVisible && (
                     <Banner tone="info" message={t('progress.banner')} onDismiss={() => setBannerVisible(false)} />
                   )}
-                  <div className={cn('ui-row')}>
+                  <div data-ui="row">
                     <span id="component-activityindicator" className="component-anchor" aria-hidden="true" />
                     <ActivityIndicator label={t('progress.loading')} />
-                    <span className={cn('ui-muted')}>{t('progress.loading')}</span>
+                    <span data-ui="muted">{t('progress.loading')}</span>
                   </div>
                   <span id="component-progressbar" className="component-anchor" aria-hidden="true" />
                   <ProgressBar value={quality} label={t('progress.loading')} />
                   <span id="component-skeleton" className="component-anchor" aria-hidden="true" />
-                  <div className={cn('ui-stack ui-stack--sm')}>
+                  <div data-ui="stack stack--sm">
                     <Skeleton width="70%" />
                     <Skeleton height="12px" />
                   </div>
@@ -527,14 +526,14 @@ function App() {
 
               {/* Floating */}
               <Card id="group-floating" title={t(group('floating').title)} subtitle={t(group('floating').subtitle)}>
-                <div className={cn('ui-stack ui-stack--md')}>
+                <div data-ui="stack stack--md">
                   <span id="component-glasssurface" className="component-anchor" aria-hidden="true" />
                   <GlassSurface elevation="raised" className="landing__glass-sample" deform>
                     {t('floating.demoBody')}
                   </GlassSurface>
                   <span id="component-floatingbar" className="component-anchor" aria-hidden="true" />
                   <span id="component-deformable" className="component-anchor" aria-hidden="true" />
-                  <div className={cn('ui-row')}>
+                  <div data-ui="row">
                     <Deformable axis="x" className="landing__deform-chip">
                       {t('deform.axisX')}
                     </Deformable>
@@ -556,8 +555,8 @@ function App() {
               </Card>
 
               <Card id="group-media" title={t(group('media').title)} subtitle={t(group('media').subtitle)}>
-                <div className={cn('ui-stack ui-stack--md')}>
-                  <div className={cn('ui-row')}>
+                <div data-ui="stack stack--md">
+                  <div data-ui="row">
                     <span id="component-avatar" className="component-anchor" aria-hidden="true" />
                     <Avatar name="Ada Lovelace" />
                     <Avatar name="Grace Hopper" size="small" />
@@ -583,7 +582,7 @@ function App() {
                     onOpen={setViewerIndex}
                   />
                   {selection.active && (
-                    <p className={cn('ui-muted')}>{t('gallery.selectedCount')}: {selection.selectedIds.length}</p>
+                    <p data-ui="muted">{t('gallery.selectedCount')}: {selection.selectedIds.length}</p>
                   )}
                   <span id="component-photoviewer" className="component-anchor" aria-hidden="true" />
                   <span id="component-carousel" className="component-anchor" aria-hidden="true" />
@@ -592,7 +591,7 @@ function App() {
               </Card>
 
               <Card id="group-photoWall" title={t(group('photoWall').title)} subtitle={t(group('photoWall').subtitle)}>
-                <div className={cn('ui-stack ui-stack--md')}>
+                <div data-ui="stack stack--md">
                   <span id="component-photowall" className="component-anchor" aria-hidden="true" />
                   <span id="component-virtuallight" className="component-anchor" aria-hidden="true" />
                   <PhotoWallDemo />
@@ -619,7 +618,7 @@ function App() {
       />
 
       <Sheet open={sheetOpen} onClose={() => setSheetOpen(false)} title={t('intro.title')}>
-        <div className={cn('ui-stack ui-stack--md')}>
+        <div data-ui="stack stack--md">
           <p>{t('intro.body')}</p>
           <Button variant="primary" block haloPortal onClick={() => setSheetOpen(false)}>{t('intro.gotIt')}</Button>
         </div>

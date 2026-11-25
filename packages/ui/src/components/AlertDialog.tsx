@@ -1,5 +1,4 @@
 import buttonClasses from './Button.module.css';
-import rowClasses from './Row.module.css';
 import sheetClasses from './Sheet.module.css';
 import styles from './AlertDialog.module.css';
 import { sheetSemantics } from '@ilovecode33/ui-core';
@@ -37,7 +36,7 @@ export function AlertDialog({
           <h2>{title}</h2>
         </header>
         <div className={styles['ui-alertdialog__body']}>{message}</div>
-        <div className={[rowClasses['ui-row'], styles['ui-alertdialog__actions']].filter(Boolean).join(' ')}>
+        <div className={styles['ui-alertdialog__actions']} data-ui="row">
           <button type="button" className={[buttonClasses['ui-btn'], buttonClasses['ui-btn--secondary']].filter(Boolean).join(' ')} onClick={onClose}>
             {cancelLabel}
           </button>

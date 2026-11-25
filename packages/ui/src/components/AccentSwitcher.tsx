@@ -1,6 +1,4 @@
 import type { AccentSwitcherLabels } from '@ilovecode33/ui-types';
-import styles from './AccentSwitcher.module.css';
-import selectClasses from './Select.module.css';
 
 import { ACCENTS, ACCENT_PALETTES, type Accent } from '@ilovecode33/ui-tokens';
 import { Select } from './Select';
@@ -23,7 +21,7 @@ export function AccentSwitcher({ labels }: { labels?: AccentSwitcherLabels }) {
   const l = { ...DEFAULT_ACCENT_LABELS, ...labels };
 
   return (
-    <label className={selectClasses['ui-inline-select']} title={l.group}>
+    <label data-ui="inline-select" title={l.group}>
       <span aria-hidden="true">✦</span>
       <Select
         aria-label={l.group}
@@ -34,7 +32,7 @@ export function AccentSwitcher({ labels }: { labels?: AccentSwitcherLabels }) {
           label: l[a],
           leading: (
             <span
-              className={styles['ui-color-swatch']}
+              data-ui="color-swatch"
               style={{ background: ACCENT_PALETTES[a][resolved].accent }}
             />
           ),

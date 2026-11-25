@@ -1,8 +1,0 @@
-.ui-color-swatch {
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  flex-shrink: 0;
-  border: 1px solid var(--border-strong);
-  border-radius: 6px;
-}
