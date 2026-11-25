@@ -1,5 +1,5 @@
 import { describe, expect, test } from '@rstest/core';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { DatePicker } from './DatePicker';
 describe('DatePicker', () => {
   test('renders a date input', () => {

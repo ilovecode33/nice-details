@@ -1,14 +1,6 @@
 import styles from './ProgressBar.module.css';
-import { feedbackReducer, feedbackSemantics } from '@ilovecode33/ui-core';
-import type { FeedbackState, FeedbackTone } from '@ilovecode33/ui-types';
-import { type CSSProperties } from 'react';
-import { Check, Info, X } from 'lucide-react';
 
-
-/**
- * Transient feedback components backed by the `FeedbackState` contract from
- * `@ilovecode33/ui-core`.
- */
+/** Accessible determinate progress bar. */
 export function ProgressBar({
   value,
   max = 100,

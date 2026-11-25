@@ -1,15 +1,10 @@
 import styles from './Toast.module.css';
 import { feedbackReducer, feedbackSemantics } from '@ilovecode33/ui-core';
-import type { FeedbackState, FeedbackTone } from '@ilovecode33/ui-types';
-import { type CSSProperties } from 'react';
-import { Check, Info, X } from 'lucide-react';
+import type { FeedbackTone } from '@ilovecode33/ui-types';
 
+import { X } from 'lucide-react';
 
-/**
- * Transient feedback components backed by the `FeedbackState` contract from
- * `@ilovecode33/ui-core`.
- */
-/* ── Toast ────────────────────────────────────────────────────────────────── */
+/** Dismissible transient status message. */
 
 export function Toast({
   tone = 'info',

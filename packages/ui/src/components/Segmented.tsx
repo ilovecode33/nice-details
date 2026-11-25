@@ -1,18 +1,9 @@
 import type { SegmentOption } from '@ilovecode33/ui-types';
 import styles from './Segmented.module.css';
 import { tabSemantics } from '@ilovecode33/ui-core';
-import {
-  useLayoutEffect,
-  useRef,
-  useState,
-  type CSSProperties,
-  type PointerEvent as ReactPointerEvent,
-  type ReactNode,
-} from 'react';
+import { useLayoutEffect, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react';
 import { useDeform } from '../hooks/useDeform';
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
-
-
 
 /** iOS-style segmented control with a draggable selected pill. */
 

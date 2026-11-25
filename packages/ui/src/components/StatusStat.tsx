@@ -2,8 +2,7 @@ import styles from './StatusStat.module.css';
 import { Check, Minus, X } from 'lucide-react';
 import { type ReactNode } from 'react';
 
-
-/** Compact value display: Stat, StatusStat, EmptyState. */
+/** Status stat with fixed success and danger colors. */
 /**
  * Status colors are fixed (green = success, red = failure) and never follow
  * the decorative mood accent — success must be recognizable in every mood.

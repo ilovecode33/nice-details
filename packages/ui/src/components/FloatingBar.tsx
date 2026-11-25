@@ -2,11 +2,10 @@ import glassSurfaceClasses from './GlassSurface.module.css';
 import styles from './FloatingBar.module.css';
 import { floatingReducer, floatingSemantics } from '@ilovecode33/ui-core';
 import type { FloatingState } from '@ilovecode33/ui-types';
-import { useReducer, type CSSProperties, type HTMLAttributes, type ReactNode } from 'react';
+import { useReducer, type ReactNode } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { PressGlow } from './PressGlow';
 import { useDeform } from '../hooks/useDeform';
-
 
 /**
  * Floating chrome primitives. Material values come from `@ilovecode33/ui-tokens`;
@@ -16,9 +15,6 @@ import { useDeform } from '../hooks/useDeform';
  * host is responsible for reserving room (padding / scroll-padding) so content
  * is never covered.
  */
-
-
-/* ── FloatingBar ──────────────────────────────────────────────────────────── */
 
 export function FloatingBar({
   position = 'bottom',

@@ -3,14 +3,10 @@ import rowClasses from './Row.module.css';
 import sheetClasses from './Sheet.module.css';
 import styles from './AlertDialog.module.css';
 import { sheetSemantics } from '@ilovecode33/ui-core';
-import { useEffect, useRef, type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import { useEscape } from '../hooks/useEscape';
 
-
-/**
- * Modal overlays backed by the `SheetState` contract from
- * `@ilovecode33/ui-core`.
- */
+/** Modal confirmation dialog built on the shared Sheet surface. */
 export function AlertDialog({
   open,
   onClose,

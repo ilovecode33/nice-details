@@ -4,10 +4,7 @@ import { useEffect, useRef } from 'react';
 import { AspectImage } from './AspectImage';
 import type { PhotoItem } from '@ilovecode33/ui-types';
 
-
 /** Fullscreen photo viewer backed by `MediaState` from `@ilovecode33/ui-core`. */
-
-/* ── PhotoViewer ──────────────────────────────────────────────────────────── */
 
 export function PhotoViewer({
   items,
@@ -80,7 +77,7 @@ export function PhotoViewer({
             src={current.src}
             alt={current.alt}
             ratio="3 / 4"
-            style={current.style}
+            style={{ maxWidth: 520, maxHeight: '100%', ...current.style }}
           >
             {current.emoji}
           </AspectImage>

@@ -1,9 +1,7 @@
 import styles from './Stat.module.css';
-import { Check, Minus, X } from 'lucide-react';
 import { type ReactNode } from 'react';
 
-
-/** Compact value display: Stat, StatusStat, EmptyState. */
+/** Compact label and value stat. */
 
 export function Stat({
   label,
@@ -15,7 +13,7 @@ export function Stat({
   tone?: 'accent' | 'success' | 'danger';
 }) {
   return (
-    <div className={'ui-stat'}>
+    <div className={styles['ui-stat']}>
       <strong className={(tone ? [styles['ui-stat__value'], styles[`is-${tone}`]].filter(Boolean).join(' ') : styles['ui-stat__value'])}>
         {value}
       </strong>

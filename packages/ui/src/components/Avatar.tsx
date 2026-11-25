@@ -1,13 +1,6 @@
 import styles from './Avatar.module.css';
-import { mediaReducer } from '@ilovecode33/ui-core';
-import { useRef, type CSSProperties, type ReactNode } from 'react';
-import type { PhotoItem } from '@ilovecode33/ui-types';
 
-
-/**
- * Image primitives, the shared PhotoItem type, and the carousel backed by the
- * `MediaState` contract from `@ilovecode33/ui-core`.
- */
+/** Circular user avatar with an initials fallback. */
 
 export function Avatar({
   name,

@@ -1,5 +1,5 @@
 import { describe, expect, test } from '@rstest/core';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { Row } from './Row';
 describe('Row', () => {
   test('renders its children in a row', () => {

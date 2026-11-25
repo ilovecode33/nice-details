@@ -1,10 +1,5 @@
 import { useEffect, useLayoutEffect, useMemo, useState, type ReactNode } from 'react';
-import {
-  ACCENTS,
-  ACCENT_PALETTES,
-  DEFAULT_ACCENT,
-  type Accent,
-} from '@ilovecode33/ui-tokens';
+import { ACCENT_PALETTES, DEFAULT_ACCENT, type Accent } from '@ilovecode33/ui-tokens';
 import { AccentContext, STORAGE_KEY, readSaved } from '../hooks/useAccent';
 import type { AccentValue } from '@ilovecode33/ui-types';
 import { useTheme } from '../hooks/useTheme';

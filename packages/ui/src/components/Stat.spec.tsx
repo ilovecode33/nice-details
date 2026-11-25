@@ -1,5 +1,5 @@
 import { describe, expect, test } from '@rstest/core';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { Stat } from './Stat';
 describe('Stat', () => {
   test('renders a value and label', () => {

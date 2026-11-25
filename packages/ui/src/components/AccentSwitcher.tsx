@@ -1,26 +1,11 @@
 import type { AccentSwitcherLabels } from '@ilovecode33/ui-types';
 import styles from './AccentSwitcher.module.css';
 import selectClasses from './Select.module.css';
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useState,
-  type ReactNode,
-} from 'react';
-import {
-  ACCENTS,
-  ACCENT_PALETTES,
-  DEFAULT_ACCENT,
-  type Accent,
-} from '@ilovecode33/ui-tokens';
+
+import { ACCENTS, ACCENT_PALETTES, type Accent } from '@ilovecode33/ui-tokens';
 import { Select } from './Select';
 import { useAccent } from '../hooks/useAccent';
 import { useTheme } from '../hooks/useTheme';
-
-
 
 const DEFAULT_ACCENT_LABELS: Required<AccentSwitcherLabels> = {
   group: 'Accent color',

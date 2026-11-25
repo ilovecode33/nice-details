@@ -154,7 +154,6 @@ function App() {
   const [activeGroup, setActiveGroup] = useState(COMPONENT_GROUPS[0].id);
   const dockRef = useRef<DockNavigationHandle>(null);
 
-  const selectedTone = TONES.find((item) => item.value === tone) ?? TONES[0];
   const photoItems: PhotoItem[] = PHOTOS.map((photo) => ({
     id: photo.id,
     alt: t(photo.key),

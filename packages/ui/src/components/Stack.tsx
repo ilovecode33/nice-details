@@ -1,10 +1,8 @@
 import styles from './Stack.module.css';
-import { type HTMLAttributes, type ReactNode } from 'react';
+import { type HTMLAttributes } from 'react';
 
+/** Vertical layout container. */
 
-/** Layout primitives: Card, Stack, Row. */
-
-/* ── Stack / Row ─────────────────────────────────────────────────────────── */
 export function Stack({
   gap = 'md',
   className = '',

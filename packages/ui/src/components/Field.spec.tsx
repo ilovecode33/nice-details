@@ -1,5 +1,5 @@
 import { describe, expect, test } from '@rstest/core';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { Field } from './Field';
 describe('Field', () => {
   test('associates a label, control and hint', () => {

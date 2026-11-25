@@ -1,10 +1,6 @@
 import styles from './SliderRow.module.css';
-import { toggleReducer, toggleSemantics } from '@ilovecode33/ui-core';
-import { type InputHTMLAttributes, type ReactNode } from 'react';
-import { Deformable } from './Deformable';
 
-
-/** Lightweight form controls: SliderRow, Switch, Field, TextInput. */
+/** Labelled range slider row. */
 
 export function SliderRow({
   label,

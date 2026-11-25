@@ -1,10 +1,8 @@
 import styles from './PhotoGrid.module.css';
-import { selectionModeReducer } from '@ilovecode33/ui-core';
-import { useReducer, type CSSProperties, type ReactNode } from 'react';
+
 import { Check } from 'lucide-react';
 import { AspectImage } from './AspectImage';
 import type { PhotoItem } from '@ilovecode33/ui-types';
-
 
 /** Photo grid and its selection-mode state helper. */
 
@@ -52,4 +50,3 @@ export function PhotoGrid({
   );
 }
 
-/* ── SelectionMode helper ─────────────────────────────────────────────────── */

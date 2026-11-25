@@ -1,5 +1,5 @@
 import { describe, expect, test } from '@rstest/core';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { Chip } from './Chip';
 describe('Chip', () => {
   test('exposes selection through aria-pressed', () => {

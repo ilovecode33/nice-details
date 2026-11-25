@@ -1,7 +1,6 @@
 import type { LocaleValue } from '@ilovecode33/ui-types';
 import { createContext, useContext } from 'react';
 
-
 const LocaleContext = createContext<LocaleValue | null>(null);
 
 function readSavedLocale(key: string, fallback: string): string {

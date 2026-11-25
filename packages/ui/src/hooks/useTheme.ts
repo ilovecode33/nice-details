@@ -1,7 +1,6 @@
 import { createContext, useContext } from 'react';
 import type { Theme, ThemeValue } from '@ilovecode33/ui-types';
 
-
 export const DEFAULT_THEME: Theme = 'system';
 
 export const STORAGE_KEY = 'gallery.theme';

@@ -7,7 +7,6 @@
 
 .ui-carousel__slide { flex: 0 0 100%; scroll-snap-align: start; }
 
-.ui-carousel__slide .ui-aspect { aspect-ratio: 16 / 9; }
 
 .ui-carousel__footer { display: flex; align-items: center; justify-content: center; gap: var(--space-3); margin-top: var(--space-3); }
 

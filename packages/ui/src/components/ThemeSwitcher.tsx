@@ -1,19 +1,9 @@
 import type { ThemeSwitcherLabels } from '@ilovecode33/ui-types';
 import styles from './ThemeSwitcher.module.css';
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useState,
-  type ReactNode,
-} from 'react';
+import { type ReactNode } from 'react';
 import { Monitor, Moon, Sun } from 'lucide-react';
 import { useTheme } from '../hooks/useTheme';
 import type { Theme } from '@ilovecode33/ui-types';
-
-
 
 const DEFAULT_THEME_LABELS: Required<ThemeSwitcherLabels> = {
   group: 'Appearance',

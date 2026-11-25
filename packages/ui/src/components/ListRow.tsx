@@ -1,12 +1,9 @@
 import type { ListItem } from '@ilovecode33/ui-types';
 import styles from './ListRow.module.css';
-import { disclosureReducer, disclosureSemantics, listSemantics } from '@ilovecode33/ui-core';
-import { useId, useState, type ReactNode } from 'react';
 
+import { useId } from 'react';
 
-
-/** Disclosure and List components backed by `ui-core` contracts. */
-/* ── List / ListRow ───────────────────────────────────────────────────────── */
+/** Selectable and expandable row inside a List. */
 
 export function ListRow<T extends string = string>({
   item,

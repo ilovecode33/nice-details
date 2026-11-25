@@ -1,27 +1,8 @@
 import type { RadioOption } from '@ilovecode33/ui-types';
 import styles from './RadioGroup.module.css';
-import {
-  checkboxSemantics,
-  fieldSemantics,
-  radioSemantics,
-} from '@ilovecode33/ui-core';
-import { Deformable } from './Deformable';
-import {
+import { radioSemantics } from '@ilovecode33/ui-core';
 
-  cloneElement,
-  isValidElement,
-  useId,
-  type InputHTMLAttributes,
-  type ReactNode,
-  type TextareaHTMLAttributes,
-} from 'react';
-
-
-/**
- * Data-entry components. Validation state follows the `FormFieldState`
- * contract in `@ilovecode33/ui-core`, so a native renderer can use the same
- * touched / error model.
- */
+/** Accessible radio group with semantic options. */
 
 export function RadioGroup<T extends string = string>({
   options,

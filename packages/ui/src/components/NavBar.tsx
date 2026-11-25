@@ -1,12 +1,8 @@
 import styles from './NavBar.module.css';
-import { navigationSemantics, tabSemantics } from '@ilovecode33/ui-core';
-import { type HTMLAttributes, type ReactNode } from 'react';
+import { navigationSemantics } from '@ilovecode33/ui-core';
+import { type ReactNode } from 'react';
 
-
-/**
- * Navigation components. State and semantics come from
- * `@ilovecode33/ui-core`; this file only maps them to markup and tokens.
- */
+/** Top navigation header with a title, subtitle and back action. */
 
 export function NavBar({
   title,

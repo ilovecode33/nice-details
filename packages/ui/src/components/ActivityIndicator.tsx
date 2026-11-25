@@ -1,15 +1,6 @@
 import styles from './ActivityIndicator.module.css';
-import { feedbackReducer, feedbackSemantics } from '@ilovecode33/ui-core';
-import type { FeedbackState, FeedbackTone } from '@ilovecode33/ui-types';
-import { type CSSProperties } from 'react';
-import { Check, Info, X } from 'lucide-react';
 
-
-/**
- * Transient feedback components backed by the `FeedbackState` contract from
- * `@ilovecode33/ui-core`.
- */
-/* ── ActivityIndicator / Skeleton / ProgressBar ──────────────────────────── */
+/** Accessible loading spinner for indeterminate waits. */
 
 export function ActivityIndicator({ label = 'Loading' }: { label?: string }) {
   return (

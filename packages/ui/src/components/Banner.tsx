@@ -1,15 +1,10 @@
 import styles from './Banner.module.css';
-import { feedbackReducer, feedbackSemantics } from '@ilovecode33/ui-core';
+import { feedbackSemantics } from '@ilovecode33/ui-core';
 import type { FeedbackState, FeedbackTone } from '@ilovecode33/ui-types';
-import { type CSSProperties } from 'react';
+
 import { Check, Info, X } from 'lucide-react';
 
-
-/**
- * Transient feedback components backed by the `FeedbackState` contract from
- * `@ilovecode33/ui-core`.
- */
-/* ── Banner ───────────────────────────────────────────────────────────────── */
+/** Inline message banner with a tone and an optional dismiss action. */
 
 export function Banner({
   tone = 'info',

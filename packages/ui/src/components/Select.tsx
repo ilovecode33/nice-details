@@ -1,21 +1,9 @@
-import type { SelectOption, SelectChangeEvent, SelectProps } from '@ilovecode33/ui-types';
+import type { SelectOption, SelectProps } from '@ilovecode33/ui-types';
 import styles from './Select.module.css';
 import { comboboxSemantics, enabledIndexes, optionSemantics, selectionReducer } from '@ilovecode33/ui-core';
 import type { SelectionEvent, SelectionState } from '@ilovecode33/ui-types';
-import {
-  Children,
-  isValidElement,
-  useEffect,
-  useId,
-  useRef,
-  useState,
-  type CSSProperties,
-  type KeyboardEvent as ReactKeyboardEvent,
-  type ReactNode,
-} from 'react';
+import { Children, isValidElement, useEffect, useId, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from 'react';
 import { Deformable } from './Deformable';
-
-
 
 /** Accessible custom dropdown with rich option content. */
 

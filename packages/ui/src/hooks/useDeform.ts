@@ -1,17 +1,9 @@
 import type { DeformOptions, DeformResult } from '@ilovecode33/ui-types';
 import { deformReducer } from '@ilovecode33/ui-core';
-import type { DeformAxis, DeformState } from '@ilovecode33/ui-types';
+import type { DeformState } from '@ilovecode33/ui-types';
 import { MOTION } from '@ilovecode33/ui-tokens';
-import {
-  useEffect,
-  useReducer,
-  useRef,
-  useState,
-  type CSSProperties,
-  type PointerEvent as ReactPointerEvent,
-} from 'react';
+import { useReducer, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react';
 import { usePrefersReducedMotion } from './usePrefersReducedMotion';
-
 
 const num = (value: string) => Number.parseFloat(value);
 const DEFAULT_MAX = num(MOTION.deformShift);

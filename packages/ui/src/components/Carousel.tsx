@@ -1,19 +1,10 @@
 import type { PhotoItem } from '@ilovecode33/ui-types';
 import styles from './Carousel.module.css';
 import { mediaReducer } from '@ilovecode33/ui-core';
-import { useRef, type CSSProperties, type ReactNode } from 'react';
+import { useRef } from 'react';
 import { AspectImage } from './AspectImage';
 
-
-
-/**
- * Image primitives, the shared PhotoItem type, and the carousel backed by the
- * `MediaState` contract from `@ilovecode33/ui-core`.
- */
-
-/* ── PhotoItem ───────────────────────────────────────────────────────────── */
-
-/* ── Carousel ─────────────────────────────────────────────────────────────── */
+/** Snap-aligned horizontal carousel backed by the MediaState contract. */
 
 export function Carousel({
   items,

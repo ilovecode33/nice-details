@@ -1,11 +1,9 @@
 import styles from './Switch.module.css';
 import { toggleReducer, toggleSemantics } from '@ilovecode33/ui-core';
-import { type InputHTMLAttributes, type ReactNode } from 'react';
+
 import { Deformable } from './Deformable';
 
-
-/** Lightweight form controls: SliderRow, Switch, Field, TextInput. */
-/* ── Switch ──────────────────────────────────────────────────────────────── */
+/** Switch with a synced checked state. */
 export function Switch({
   checked,
   onChange,

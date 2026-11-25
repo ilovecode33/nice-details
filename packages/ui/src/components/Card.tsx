@@ -1,12 +1,8 @@
 import type { CardProps } from '@ilovecode33/ui-types';
 import styles from './Card.module.css';
-import { type HTMLAttributes, type ReactNode } from 'react';
 
+/** Container surface with an optional header, subtitle and actions. */
 
-
-/** Layout primitives: Card, Stack, Row. */
-
-/* ── Card ────────────────────────────────────────────────────────────────── */
 export function Card({
   title,
   subtitle,

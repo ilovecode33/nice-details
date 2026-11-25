@@ -1,5 +1,5 @@
 import { describe, expect, test } from '@rstest/core';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { AspectImage } from './AspectImage';
 describe('AspectImage', () => {
   test('renders an image with its alt text', () => {

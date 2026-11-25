@@ -1,6 +1,4 @@
-/* ── List / ListRow ───────────────────────────────────────────────────────── */
-.ui-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
-
+/* ── ListRow ─────────────────────────────────────────────────────────────── */
 .ui-list__item { border-bottom: 1px solid var(--border); }
 
 .ui-list__item:last-child { border-bottom: 0; }

@@ -1,10 +1,8 @@
 import styles from './TextInput.module.css';
-import { toggleReducer, toggleSemantics } from '@ilovecode33/ui-core';
-import { type InputHTMLAttributes, type ReactNode } from 'react';
-import { Deformable } from './Deformable';
 
+import { type InputHTMLAttributes } from 'react';
 
-/** Lightweight form controls: SliderRow, Switch, Field, TextInput. */
+/** Single-line text input with field-state styling. */
 
 export function TextInput({
   className = '',

@@ -1,5 +1,5 @@
 import { describe, expect, test } from '@rstest/core';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import { PressGlow } from './PressGlow';
 describe('PressGlow', () => {
   test('stays hidden from assistive technology', () => {

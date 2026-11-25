@@ -1,14 +1,11 @@
 import type { ButtonProps } from '@ilovecode33/ui-types';
 import styles from './Button.module.css';
 import { createPortal } from 'react-dom';
-import { useId, type ButtonHTMLAttributes, type CSSProperties, type ReactNode } from 'react';
+import { useId, type CSSProperties } from 'react';
 import { useDeform } from '../hooks/useDeform';
-
-
 
 /** The Button, including its clipping-safe portalled halo. */
 
-/* ── Button ──────────────────────────────────────────────────────────────── */
 export function Button({
   variant = 'secondary',
   size = 'default',

@@ -1,5 +1,5 @@
 import { describe, expect, test } from '@rstest/core';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { Sheet } from './Sheet';
 describe('Sheet', () => {
   test('renders a modal dialog when open', () => {

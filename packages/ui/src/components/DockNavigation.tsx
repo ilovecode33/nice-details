@@ -1,17 +1,7 @@
-import type { DockItem, DockNavigationHandle, DockNavigationProps } from '@ilovecode33/ui-types';
+import type { DockNavigationHandle, DockNavigationProps } from '@ilovecode33/ui-types';
 import styles from './DockNavigation.module.css';
-import {
-  forwardRef,
-  useImperativeHandle,
-  useLayoutEffect,
-  useRef,
-  useState,
-  type MouseEvent as ReactMouseEvent,
-  type ReactNode,
-} from 'react';
+import { forwardRef, useImperativeHandle, useLayoutEffect, useRef, useState } from 'react';
 import { FloatingBar } from './FloatingBar';
-
-
 
 /**
  * Reusable floating dock navigation — the collapsed bar sits in the bottom
@@ -19,7 +9,6 @@ import { FloatingBar } from './FloatingBar';
  * centered while collapsed. The morph is measured in pixels so a percentage
  * transform never has to resolve against the animating width.
  */
-
 
 interface Geometry {
   left: number;

@@ -1,8 +1,7 @@
 import styles from './Row.module.css';
-import { type HTMLAttributes, type ReactNode } from 'react';
+import { type HTMLAttributes } from 'react';
 
-
-/** Layout primitives: Card, Stack, Row. */
+/** Horizontal layout container. */
 
 export function Row({ className = '', children, ...rest }: HTMLAttributes<HTMLDivElement>) {
   return (

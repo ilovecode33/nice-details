@@ -4,7 +4,6 @@ import { sheetSemantics } from '@ilovecode33/ui-core';
 import { useEffect, useRef, type CSSProperties, type ReactNode } from 'react';
 import { X } from 'lucide-react';
 
-
 /** Bottom sheet / centered dialog overlay. */
 
 export function Sheet({

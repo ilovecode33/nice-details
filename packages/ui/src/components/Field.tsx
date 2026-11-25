@@ -1,11 +1,8 @@
 import styles from './Field.module.css';
-import { toggleReducer, toggleSemantics } from '@ilovecode33/ui-core';
-import { type InputHTMLAttributes, type ReactNode } from 'react';
-import { Deformable } from './Deformable';
 
+import { type ReactNode } from 'react';
 
-/** Lightweight form controls: SliderRow, Switch, Field, TextInput. */
-/* ── Field / TextInput ──────────────────────────────────────────────────── */
+/** Inline field wrapper for compact form rows. */
 export function Field({
   label,
   hint,

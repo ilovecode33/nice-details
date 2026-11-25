@@ -1,14 +1,13 @@
 import type { UIFoundationProps } from '@ilovecode33/ui-types';
 import styles from './UIFoundation.module.css';
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { DEFAULT_THEME } from '../hooks/useTheme';
-import type { Theme } from '@ilovecode33/ui-types';
-import { DEFAULT_ACCENT, type Accent } from '@ilovecode33/ui-tokens';
+
+import { DEFAULT_ACCENT } from '@ilovecode33/ui-tokens';
 import { LocaleContext, readSavedLocale } from '../hooks/useLocale';
 import type { LocaleValue } from '@ilovecode33/ui-types';
 import { ThemeProvider } from './ThemeProvider';
 import { AccentProvider } from './AccentProvider';
-
 
 /**
  * UIFoundation — the single entry point for theme, accent and locale context.

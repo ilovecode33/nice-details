@@ -1,9 +1,8 @@
 import styles from './EmptyState.module.css';
-import { Check, Minus, X } from 'lucide-react';
+
 import { type ReactNode } from 'react';
 
-
-/** Compact value display: Stat, StatusStat, EmptyState. */
+/** Placeholder shown when a collection has no items. */
 export function EmptyState({
   icon,
   title,

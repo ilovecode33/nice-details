@@ -1,14 +1,11 @@
 import styles from './PressGlow.module.css';
 
-
 /**
  * Dedicated elastic-drag component and hook. Resistance, stretch, squash and
  * rotation come from `@ilovecode33/ui-tokens`; the nonlinear rubber-band state
  * comes from `@ilovecode33/ui-core`. No decorative animation — this is direct
  * manipulation feedback and is disabled under reduced motion.
  */
-
-
 
 /**
  * A liquid-glass style bloom at the press point. Render it inside any element

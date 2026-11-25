@@ -1,13 +1,8 @@
 import styles from './Thumbnail.module.css';
-import { mediaReducer } from '@ilovecode33/ui-core';
-import { useRef, type CSSProperties, type ReactNode } from 'react';
-import type { PhotoItem } from '@ilovecode33/ui-types';
 
+import { type ReactNode } from 'react';
 
-/**
- * Image primitives, the shared PhotoItem type, and the carousel backed by the
- * `MediaState` contract from `@ilovecode33/ui-core`.
- */
+/** Small square image or emoji thumbnail. */
 
 export function Thumbnail({
   src,

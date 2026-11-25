@@ -10,11 +10,6 @@ export type MediaEvent =
   | { type: 'previous' }
   | { type: 'goTo'; index: number };
 
-function clamp(index: number, count: number): number {
-  if (count <= 0) return 0;
-  return Math.min(Math.max(index, 0), count - 1);
-}
-
 export interface SelectionModeState {
   active: boolean;
   selectedIds: readonly string[];

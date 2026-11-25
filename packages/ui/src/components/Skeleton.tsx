@@ -1,14 +1,8 @@
 import styles from './Skeleton.module.css';
-import { feedbackReducer, feedbackSemantics } from '@ilovecode33/ui-core';
-import type { FeedbackState, FeedbackTone } from '@ilovecode33/ui-types';
+
 import { type CSSProperties } from 'react';
-import { Check, Info, X } from 'lucide-react';
 
-
-/**
- * Transient feedback components backed by the `FeedbackState` contract from
- * `@ilovecode33/ui-core`.
- */
+/** Shimmering placeholder block for loading states. */
 export function Skeleton({
   width = '100%',
   height = '16px',

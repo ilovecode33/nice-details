@@ -1,23 +1,11 @@
 import styles from './GlassSurface.module.css';
-import { floatingReducer, floatingSemantics } from '@ilovecode33/ui-core';
-import type { FloatingState } from '@ilovecode33/ui-types';
-import { useReducer, type CSSProperties, type HTMLAttributes, type ReactNode } from 'react';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+
+import { type CSSProperties, type HTMLAttributes } from 'react';
+
 import { PressGlow } from './PressGlow';
 import { useDeform } from '../hooks/useDeform';
 
-
-/**
- * Floating chrome primitives. Material values come from `@ilovecode33/ui-tokens`;
- * collapse state and semantics come from `@ilovecode33/ui-core`.
- *
- * These surfaces float above content instead of occupying layout space. The
- * host is responsible for reserving room (padding / scroll-padding) so content
- * is never covered.
- */
-
-
-/* ── GlassSurface ─────────────────────────────────────────────────────────── */
+/** Glass material surface with optional directional press feedback. */
 
 export function GlassSurface({
   className = '',

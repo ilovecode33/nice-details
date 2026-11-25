@@ -9,6 +9,3 @@
   font-size: 32px; color: var(--accent-ink);
 }
 
-.ui-viewer__stage .ui-aspect { max-width: 520px; max-height: 100%; }
-
-.ui-carousel__slide .ui-aspect { aspect-ratio: 16 / 9; }

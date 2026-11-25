@@ -1,10 +1,8 @@
 import styles from './Disclosure.module.css';
-import { disclosureReducer, disclosureSemantics, listSemantics } from '@ilovecode33/ui-core';
+import { disclosureReducer, disclosureSemantics } from '@ilovecode33/ui-core';
 import { useId, useState, type ReactNode } from 'react';
 
-
-/** Disclosure and List components backed by `ui-core` contracts. */
-/* ── Disclosure ───────────────────────────────────────────────────────────── */
+/** Expandable disclosure backed by the DisclosureState contract. */
 
 export function Disclosure({
   title,

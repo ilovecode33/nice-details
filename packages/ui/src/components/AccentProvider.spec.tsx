@@ -1,5 +1,5 @@
 import { describe, expect, test } from '@rstest/core';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { useAccent } from '../hooks/useAccent';
 import { AccentProvider } from './AccentProvider';
 import { ThemeProvider } from './ThemeProvider';

@@ -1,5 +1,5 @@
 import { describe, expect, test } from '@rstest/core';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { Stack } from './Stack';
 describe('Stack', () => {
   test('renders vertically stacked children', () => {

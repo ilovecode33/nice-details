@@ -1,10 +1,4 @@
-import type {
-  DeformAxis,
-  DeformEvent,
-  DeformState,
-  PortableComponent,
-  Semantics,
-} from '@ilovecode33/ui-types';
+import type { DeformEvent, DeformState, PortableComponent, Semantics } from '@ilovecode33/ui-types';
 
 
 /** Extremely hard rubber-band: f(v) = v·max / (100·max + |v|). Larger coefficient = harder pull. */

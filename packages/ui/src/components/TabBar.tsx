@@ -1,14 +1,8 @@
 import type { TabItem } from '@ilovecode33/ui-types';
 import styles from './TabBar.module.css';
 import { navigationSemantics, tabSemantics } from '@ilovecode33/ui-core';
-import { type HTMLAttributes, type ReactNode } from 'react';
 
-
-
-/**
- * Navigation components. State and semantics come from
- * `@ilovecode33/ui-core`; this file only maps them to markup and tokens.
- */
+/** iOS-style tab bar. */
 
 export function TabBar<T extends string = string>({
   items,

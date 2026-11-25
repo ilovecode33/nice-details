@@ -1,13 +1,8 @@
 import styles from './Popover.module.css';
-import { sheetSemantics } from '@ilovecode33/ui-core';
+
 import { useEffect, useRef, type ReactNode } from 'react';
 
-
-/**
- * Modal overlays backed by the `SheetState` contract from
- * `@ilovecode33/ui-core`.
- */
-/* ── Popover ──────────────────────────────────────────────────────────────── */
+/** Small anchored popover that closes on Escape. */
 
 export function Popover({
   open,
