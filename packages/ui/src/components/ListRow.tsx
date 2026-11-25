@@ -3,7 +3,12 @@ import styles from './ListRow.module.css';
 
 import { useId } from 'react';
 
-/** Selectable and expandable row inside a List. */
+/**
+ * Single row inside a `List`: a button that reports selection and, when the
+ * item has `expandedContent`, toggles a disclosure region linked by `useId`.
+ * Selection and expansion are fully controlled by props; one click fires both
+ * callbacks. Text comes from the `item`; no labels are built in.
+ */
 
 export function ListRow<T extends string = string>({
   item,

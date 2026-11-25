@@ -17,6 +17,7 @@
 /** 1 tile = 1.64 × viewport width. */
 export const TILE_VW = 1.64;
 
+/** Inputs for `solveFrameGeometry`: a frame's column, ratios, viewport and safe band. */
 export interface FrameGeometryInput {
   /** Column width as a percentage of the tile (0-100), from the layout. */
   columnWidthPct: number;
@@ -38,6 +39,7 @@ export interface FrameGeometryInput {
   high: boolean;
 }
 
+/** Solved frame placement: width and top as tile percentages plus the render ratio. */
 export interface FrameGeometry {
   /** Final frame width as a percentage of the tile (CSS --w). */
   widthPct: number;

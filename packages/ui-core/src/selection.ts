@@ -1,9 +1,19 @@
 import type { SelectionOption, SelectionState, SelectionEvent, Semantics, PortableComponent } from '@ilovecode33/ui-types';
 
+/**
+ * Return the indexes of non-disabled options in option order. Keyboard movement
+ * uses this list to skip disabled entries; an empty array means no option can
+ * receive focus.
+ */
 export function enabledIndexes<T extends string>(state: SelectionState<T>): number[] {
   return state.options.flatMap((option, index) => (option.disabled ? [] : [index]));
 }
 
+/**
+ * Build initial select state: closed, with `activeIndex` at `value` when it is
+ * found among the options, otherwise at the first enabled option, or 0 when all
+ * are disabled. The options array is retained by reference.
+ */
 export function createSelectionState<T extends string>(
   options: readonly SelectionOption<T>[],
   value?: T,
@@ -18,6 +28,13 @@ export function createSelectionState<T extends string>(
   };
 }
 
+/**
+ * Select-menu state machine. `open` targets the selected option or the first
+ * enabled one; `move` wraps through enabled indexes only and is a no-op when
+ * none are enabled; `setActive` assigns an index directly; `select` commits a
+ * value and closes but ignores unknown or disabled options. `close` only clears
+ * `open`, leaving the active index intact.
+ */
 export function selectionReducer<T extends string>(
   state: SelectionState<T>,
   event: SelectionEvent<T>,
@@ -54,6 +71,10 @@ export function selectionReducer<T extends string>(
   }
 }
 
+/**
+ * Map select state to `{ role: 'combobox', label, expanded, disabled }`;
+ * `disabled` is true only when every option is disabled.
+ */
 export function comboboxSemantics<T extends string>(
   state: SelectionState<T>,
   label?: string,
@@ -66,6 +87,10 @@ export function comboboxSemantics<T extends string>(
   };
 }
 
+/**
+ * Map an option to `{ role: 'option', label, selected, disabled }`, with
+ * selection determined by comparison to the current `state.value`.
+ */
 export function optionSemantics<T extends string>(
   option: SelectionOption<T>,
   state: SelectionState<T>,
@@ -79,7 +104,10 @@ export function optionSemantics<T extends string>(
   };
 }
 
-/** Semantics for an iOS-style segmented control tab. */
+/**
+ * Map an option to `{ role: 'tab', label, selected, disabled }` for a segmented
+ * control; selection is compared against the supplied `value`.
+ */
 export function tabSemantics<T extends string>(
   option: SelectionOption<T>,
   value: T,
@@ -93,6 +121,7 @@ export function tabSemantics<T extends string>(
   };
 }
 
+/** Portable definition of `Select`: initial state, reducer, and role mapping. */
 export const selectionContract: PortableComponent<
   SelectionState,
   SelectionEvent

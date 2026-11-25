@@ -5,7 +5,11 @@ import type { SelectionEvent, SelectionState } from '@ilovecode33/ui-types';
 import { Children, isValidElement, useEffect, useId, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from 'react';
 import { Deformable } from './Deformable';
 
-/** Accessible custom dropdown with rich option content. */
+/**
+ * Derives the option list from element children: skips non-elements and
+ * children without a `value`, stringifies values, and preserves disabled state.
+ * Used only when the `options` prop is absent.
+ */
 
 function optionsFromChildren(children: ReactNode): SelectOption[] {
   return Children.toArray(children).flatMap((child) => {
@@ -27,8 +31,11 @@ function optionsFromChildren(children: ReactNode): SelectOption[] {
 }
 
 /**
- * Custom dropdown: supports rich options (color swatches, icons) with full
- * touch, keyboard, and ARIA behavior.
+ * Custom listbox-style dropdown supporting rich option content (leading nodes,
+ * icons) with full keyboard and ARIA combobox behavior.
+ * Controlled via `value` or uncontrolled via `defaultValue`; closes on outside
+ * pointerdown or Escape (focus returns to the trigger on select and Escape).
+ * `placeholder` defaults to 'Select...'; labels come from props or children.
  */
 export function Select<T extends string = string>({
   options,
@@ -79,11 +86,13 @@ export function Select<T extends string = string>({
     dispatch({ type: 'open' });
   };
 
+  /** Closes the list and, by default, returns focus to the trigger. */
   const closeList = (focusTrigger = true) => {
     dispatch({ type: 'close' });
     if (focusTrigger) triggerRef.current?.focus();
   };
 
+  /** Selects an enabled option, updating internal state only when uncontrolled. */
   const choose = (option: SelectOption<T>) => {
     if (option.disabled) return;
     dispatch({ type: 'select', value: option.value });

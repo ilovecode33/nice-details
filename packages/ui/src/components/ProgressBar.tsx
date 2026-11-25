@@ -1,6 +1,11 @@
 import styles from './ProgressBar.module.css';
 
-/** Accessible determinate progress bar. */
+/**
+ * Determinate progress bar exposing ARIA value semantics and a visible
+ * percentage. `value` is clamped to 0–`max` for the fill width while the raw
+ * `value` is reported to assistive tech; `max <= 0` renders an empty bar.
+ * `label` is a prop with an English default.
+ */
 export function ProgressBar({
   value,
   max = 100,

@@ -4,7 +4,12 @@ import { listSemantics } from '@ilovecode33/ui-core';
 import { ListRow } from './ListRow';
 import type { ListItem } from '@ilovecode33/ui-types';
 
-/** Accessible list backed by the ListState semantics. */
+/**
+ * Accessible list that maps items to selectable/expandable rows using shared
+ * list semantics. `selectedId` and `expandedIds` are controlled by the caller;
+ * selection and disclosure callbacks fire without internal state. Item text
+ * comes from `items`; `label` is an optional caller-supplied prop.
+ */
 export function List<T extends string = string>({
   items,
   selectedId,

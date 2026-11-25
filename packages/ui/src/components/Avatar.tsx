@@ -1,6 +1,11 @@
 import styles from './Avatar.module.css';
 
-/** Circular user avatar with an initials fallback. */
+/**
+ * Renders a circular avatar with an image or an initials fallback.
+ * Initials take the first letter of up to two space-separated parts of `name`,
+ * uppercased. The wrapper is labelled `role="img"` and images use an empty `alt`
+ * because `name` already provides the accessible label. `size` defaults to "default".
+ */
 
 export function Avatar({
   name,

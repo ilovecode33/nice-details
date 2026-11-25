@@ -1,6 +1,10 @@
 import { type HTMLAttributes } from 'react';
 
-/** Horizontal layout container. */
+/**
+ * Minimal horizontal layout container forwarding native `div` attributes and a
+ * caller-supplied class name. It renders `children` unchanged and provides no
+ * text or labels of its own.
+ */
 
 export function Row({ className = '', children, ...rest }: HTMLAttributes<HTMLDivElement>) {
   return (

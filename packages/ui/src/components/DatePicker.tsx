@@ -2,7 +2,11 @@ import styles from './DatePicker.module.css';
 
 import { type InputHTMLAttributes } from 'react';
 
-/** Native date input with field-state styling. */
+/**
+ * Renders a native date input with field-state styling.
+ * All `InputHTMLAttributes` are forwarded to the underlying `<input type="date">`,
+ * with `className` appended after the component's own class. No labels are built in.
+ */
 
 export function DatePicker({
   className = '',

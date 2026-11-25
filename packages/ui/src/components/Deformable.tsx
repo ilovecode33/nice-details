@@ -5,6 +5,12 @@ import { useEffect, type CSSProperties, type HTMLAttributes } from 'react';
 import { PressGlow } from './PressGlow';
 import { useDeform } from '../hooks/useDeform';
 
+/**
+ * Wraps children in a div with drag-driven deformation and a press glow.
+ * Pointer handling comes from `useDeform` and overrides conflicting props in `rest`;
+ * caller `style` overrides the generated transform. When supplied, `onDragStateChange`
+ * is called in an effect on each deformation state change.
+ */
 export function Deformable({
   children,
   className = '',

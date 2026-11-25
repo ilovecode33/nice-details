@@ -2,7 +2,12 @@ import styles from './Checkbox.module.css';
 import { checkboxSemantics } from '@ilovecode33/ui-core';
 import { Deformable } from './Deformable';
 
-/** Native checkbox with field-state styling. */
+/**
+ * Renders a controlled checkbox with field-state styling and a visible text label.
+ * A button with `role="checkbox"` and synced `aria-checked` toggles `!checked` on click;
+ * the control and its text share a `<label>`. `deform` adds press/drag feedback without
+ * blocking vertical scrolling. The label text comes from `label`.
+ */
 
 export function Checkbox({
   checked,

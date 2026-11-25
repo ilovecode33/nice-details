@@ -12,7 +12,11 @@ const DEFAULT_THEME_LABELS: Required<ThemeSwitcherLabels> = {
   dark: 'Dark',
 };
 
-/** Three-state appearance picker: follow system / light / dark. Labels can be passed in for i18n. */
+/**
+ * Three-option appearance picker (system / light / dark) with `aria-pressed`
+ * synced to the current theme. Labels default to English and can be passed
+ * via `labels` for localization.
+ */
 export function ThemeSwitcher({ labels }: { labels?: ThemeSwitcherLabels }) {
   const { theme, setTheme } = useTheme();
   const l = { ...DEFAULT_THEME_LABELS, ...labels };

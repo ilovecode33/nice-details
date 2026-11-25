@@ -4,8 +4,12 @@ import { sheetSemantics } from '@ilovecode33/ui-core';
 import { useEffect, useRef, type CSSProperties, type ReactNode } from 'react';
 import { X } from 'lucide-react';
 
-/** Bottom sheet / centered dialog overlay. */
-
+/**
+ * Modal sheet rendering a scrim, panel, title, close button, and children.
+ * Controlled by `open`; the scrim, close button, and Escape call `onClose`.
+ * Focus moves to the close button on open and is restored on close.
+ * `title` comes from props; the close button has a fixed English label.
+ */
 export function Sheet({
   open,
   onClose,

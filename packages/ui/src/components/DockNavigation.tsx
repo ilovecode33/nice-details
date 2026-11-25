@@ -4,10 +4,8 @@ import { forwardRef, useImperativeHandle, useLayoutEffect, useRef, useState } fr
 import { FloatingBar } from './FloatingBar';
 
 /**
- * Reusable floating dock navigation — the collapsed bar sits in the bottom
- * trailing corner, expands into a wrapped panel, and keeps the active item
- * centered while collapsed. The morph is measured in pixels so a percentage
- * transform never has to resolve against the animating width.
+ * Pixel geometry captured before a collapse or expand. Using pixel frames
+ * instead of a percentage transform avoids resolving widths mid-morph.
  */
 
 interface Geometry {
@@ -16,6 +14,10 @@ interface Geometry {
   height: number;
 }
 
+/**
+ * Reads a CSS duration custom property from the root element and normalises
+ * seconds to milliseconds. Returns `fallback` on the server or if unparsable.
+ */
 function durationMs(variable: string, fallback: number): number {
   if (typeof window === 'undefined') return fallback;
   const raw = getComputedStyle(document.documentElement).getPropertyValue(variable).trim();
@@ -24,14 +26,20 @@ function durationMs(variable: string, fallback: number): number {
   return raw.endsWith('ms') ? value : value * 1000;
 }
 
+/** Returns the `--morph-dur` duration in milliseconds, defaulting to 260. */
 function morphDurationMs(): number {
   return durationMs('--morph-dur', 260);
 }
 
+/** Returns the `--dock-scroll-dur` duration in milliseconds, defaulting to 240. */
 function dockScrollDurationMs(): number {
   return durationMs('--dock-scroll-dur', 240);
 }
 
+/**
+ * Returns the `--morph-ease` value from the root element, or the standard
+ * material curve when unset or when there is no window.
+ */
 function morphEasing(): string {
   if (typeof window === 'undefined') return 'cubic-bezier(0.4, 0, 0.2, 1)';
   return (
@@ -40,6 +48,10 @@ function morphEasing(): string {
   );
 }
 
+/**
+ * Captures the bar's left edge and width plus the dock's height in pixels as
+ * the starting frame of a morph, so the end frame can be measured against it.
+ */
 function measure(bar: HTMLElement, dock: HTMLElement): Geometry {
   const rect = bar.getBoundingClientRect();
   return {
@@ -49,6 +61,7 @@ function measure(bar: HTMLElement, dock: HTMLElement): Geometry {
   };
 }
 
+/** Reports the `prefers-reduced-motion: reduce` media query; false on the server. */
 function prefersReducedMotion(): boolean {
   return (
     typeof window !== 'undefined' &&
@@ -56,6 +69,13 @@ function prefersReducedMotion(): boolean {
   );
 }
 
+/**
+ * Floating dock that collapses to a compact strip and expands into a wrapped
+ * panel, keeping the active item centred while collapsed. Collapse is controlled
+ * when `collapsed` is passed, otherwise tracked internally; the ref exposes
+ * `toggle`/`setCollapsed`. Item labels come from `items`; `label`, `collapseLabel`
+ * and `expandLabel` are props with English defaults.
+ */
 export const DockNavigation = forwardRef<DockNavigationHandle, DockNavigationProps>(
   function DockNavigation(
     {
@@ -80,6 +100,10 @@ export const DockNavigation = forwardRef<DockNavigationHandle, DockNavigationPro
     const before = useRef<Geometry | null>(null);
     const animations = useRef<{ bar?: Animation; dock?: Animation }>({});
 
+    /**
+     * Snapshots the current bar/dock geometry before a collapse change, updates
+     * internal state only when uncontrolled, then notifies `onCollapsedChange`.
+     */
     const changeCollapsed = (next: boolean) => {
       const dock = dockRef.current;
       const bar = dock?.closest<HTMLElement>('[data-ui="floating-bar"]');

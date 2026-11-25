@@ -14,7 +14,11 @@ const DEFAULT_ACCENT_LABELS: Required<AccentSwitcherLabels> = {
   vitality: 'Vitality',
 };
 
-/** Meaning-based accent picker, rendered with the shared Select component. */
+/**
+ * Renders a Select for choosing an accent by meaning, bound to AccentProvider state.
+ * Each option shows a swatch from the palette of the currently resolved theme.
+ * All visible labels come from `labels`, with English defaults.
+ */
 export function AccentSwitcher({ labels }: { labels?: AccentSwitcherLabels }) {
   const { accent, setAccent } = useAccent();
   const { resolved } = useTheme();

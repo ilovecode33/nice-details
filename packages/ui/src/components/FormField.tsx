@@ -3,7 +3,7 @@ import { fieldSemantics } from '@ilovecode33/ui-core';
 
 import { cloneElement, isValidElement, useId, type ReactNode } from 'react';
 
-/** Accessible label and error wrapper for form controls. */
+/** ARIA props injected into the wrapped control by `FormField`. */
 
 type FieldControlProps = {
   id: string;
@@ -11,6 +11,12 @@ type FieldControlProps = {
   'aria-invalid': boolean | undefined;
 };
 
+/**
+ * Wraps a control with a label, hint and error message, injecting `id`,
+ * `aria-describedby` and `aria-invalid` into a cloned element or a render
+ * callback. An error replaces the hint and is announced via `role="alert"`.
+ * All text is passed in through props; no labels are built in.
+ */
 export function FormField({
   label,
   hint,

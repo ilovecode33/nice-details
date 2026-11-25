@@ -38,6 +38,7 @@ import { DEFAULT_WALL_PARAMS, type WallParams } from './params';
 /** Reference width of the virtual stage (matches the gallery's preview stage). */
 export const VIRTUAL_STAGE_PX = 1920;
 
+/** A virtual light source: tile/stage position, depth, radius, intensity and tint. */
 export interface VirtualLight {
   /** x position in tile-percent. Repeats per tile so the endless strip stays seamless. */
   x: number;
@@ -62,6 +63,7 @@ export const DEFAULT_LIGHT: VirtualLight = {
   intensity: 1,
 };
 
+/** One frame's lighting result: shadow offset/blur/spread/alpha, highlight and diagnostics. */
 export interface FrameLighting {
   /** Shadow cast on the wall, in cqw (CSS multiplies by 1cqw). */
   shadowX: number;
@@ -105,6 +107,7 @@ function legacyGain(
   return clamp(value / reference, 0.1, 4);
 }
 
+/** Inputs for `computeFrameLighting`: frame, solved geometry, light, params, aspect and jitter. */
 export interface FrameLightingInput {
   frame: WallFrame;
   /** The SOLVED geometry (real image ratio), not the procedural fallback. */
@@ -235,6 +238,7 @@ export interface FrameLightingSet {
   highlight: number;
 }
 
+/** `FrameLightingInput` with a list of lights instead of a single one. */
 export type MultiFrameLightingInput = Omit<FrameLightingInput, 'light'> & {
   lights?: VirtualLight[];
 };
@@ -253,6 +257,7 @@ export function computeFrameLightingMulti(
   return { shadows, highlight };
 }
 
+/** Wall-wash parameters for one light, in stage percentages and cqw. */
 export interface WallGlow {
   /** Horizontal position as a percent of the stage width. */
   xPct: number;

@@ -13,6 +13,12 @@ export {
   type Palette,
 } from '@ilovecode33/ui-tokens';
 
+/**
+ * Provides the active accent to descendants via context.
+ * Restores a saved accent on mount (falling back to `defaultAccent`) and persists
+ * changes to localStorage and the `data-accent` attribute. Palette variables are set
+ * on <html> before paint so a restored accent never flashes the default color.
+ */
 export function AccentProvider({
   children,
   defaultAccent = DEFAULT_ACCENT,

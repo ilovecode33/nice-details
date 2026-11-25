@@ -4,7 +4,12 @@ import { Check } from 'lucide-react';
 import { AspectImage } from './AspectImage';
 import type { PhotoItem } from '@ilovecode33/ui-types';
 
-/** Photo grid and its selection-mode state helper. */
+/**
+ * Grid of photo buttons rendered from `items`. In selection mode the buttons
+ * expose `aria-pressed` and call `onToggle`; otherwise they call `onOpen` with
+ * the item's index. `label` and the per-button accessible names use English
+ * defaults built from `item.alt`.
+ */
 
 export function PhotoGrid({
   items,

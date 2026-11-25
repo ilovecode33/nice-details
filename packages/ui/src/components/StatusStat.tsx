@@ -2,10 +2,10 @@ import styles from './StatusStat.module.css';
 import { Check, Minus, X } from 'lucide-react';
 import { type ReactNode } from 'react';
 
-/** Status stat with fixed success and danger colors. */
 /**
- * Status colors are fixed (green = success, red = failure) and never follow
- * the decorative mood accent — success must be recognizable in every mood.
+ * Status stat pairing a value and label with a status icon and color.
+ * Success/danger colors stay fixed rather than following the theme accent.
+ * `label` and `value` are supplied by props; the icon is decorative.
  */
 export function StatusStat({
   label,

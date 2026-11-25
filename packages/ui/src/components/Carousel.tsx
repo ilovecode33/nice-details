@@ -4,7 +4,12 @@ import { mediaReducer } from '@ilovecode33/ui-core';
 import { useRef } from 'react';
 import { AspectImage } from './AspectImage';
 
-/** Snap-aligned horizontal carousel backed by the MediaState contract. */
+/**
+ * Renders a snap-aligned, controlled horizontal carousel of `AspectImage` slides.
+ * `index`/`onIndexChange` drive state; arrow keys, nav buttons, and scrolling update it,
+ * with bounds from `mediaReducer` and smooth scrolling via `scrollTo`. `label` and
+ * `labels` (previous/next) have English defaults; nav buttons disable at the ends.
+ */
 
 export function Carousel({
   items,
@@ -21,10 +26,18 @@ export function Carousel({
 }) {
   const state = { index, count: items.length };
   const trackRef = useRef<HTMLDivElement>(null);
+  /**
+   * Scrolls by `clientWidth` per slide index; assumes every slide fills the viewport
+   * width. Does nothing until the track has mounted.
+   */
   const scrollTo = (nextIndex: number) => {
     const track = trackRef.current;
     if (track) track.scrollTo({ left: nextIndex * track.clientWidth, behavior: 'smooth' });
   };
+  /**
+   * Derives the bounded next index via `mediaReducer`, then reports it to the parent
+   * and scrolls to it. Both paths always use the same derived index.
+   */
   const go = (type: 'next' | 'previous') => {
     const nextIndex = mediaReducer(state, { type }).index;
     onIndexChange(nextIndex);

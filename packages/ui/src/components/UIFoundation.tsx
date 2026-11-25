@@ -10,11 +10,11 @@ import { ThemeProvider } from './ThemeProvider';
 import { AccentProvider } from './AccentProvider';
 
 /**
- * UIFoundation — the single entry point for theme, accent and locale context.
- *
- * The library stays i18n-package-free: the host supplies plain dictionaries.
- * Wrapped content disables text selection by default because it conflicts with
- * the elastic drag feedback; form fields keep normal text selection.
+ * Single entry point composing theme, accent, and locale context providers,
+ * with `defaultTheme`/`defaultAccent` overrides.
+ * Locale is controlled via `locale` or uncontrolled via `defaultLocale`
+ * (default 'en'); dictionaries come from the host and `t` falls back to the key.
+ * Wrapped content disables text selection; form fields keep it.
  */
 export function UIFoundation({
   children,
@@ -44,6 +44,7 @@ export function UIFoundation({
     }
   }, [locale, localeStorageKey, controlledLocale]);
 
+  /** Updates internal locale only when uncontrolled, and notifies the host either way. */
   const setLocale = (next: string) => {
     if (controlledLocale === undefined) setInternalLocale(next);
     onLocaleChange?.(next);

@@ -2,8 +2,11 @@ import type { TabItem } from '@ilovecode33/ui-types';
 import styles from './TabBar.module.css';
 import { navigationSemantics, tabSemantics } from '@ilovecode33/ui-core';
 
-/** iOS-style tab bar. */
-
+/**
+ * iOS-style navigation tab bar rendering a tab per item in a nav landmark.
+ * Controlled via `value`/`onChange`; arrow/Home/End keys move selection.
+ * `label` defaults to 'Sections'; item labels, icons, and badges come from props.
+ */
 export function TabBar<T extends string = string>({
   items,
   value,

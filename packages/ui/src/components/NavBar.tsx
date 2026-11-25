@@ -2,7 +2,12 @@ import styles from './NavBar.module.css';
 import { navigationSemantics } from '@ilovecode33/ui-core';
 import { type ReactNode } from 'react';
 
-/** Top navigation header with a title, subtitle and back action. */
+/**
+ * Top navigation header rendering a title, optional subtitle, optional trailing
+ * actions and a back button shown only when `onBack` is provided. `title` and
+ * `subtitle` are React nodes; the back button's accessible name comes from
+ * `backLabel`, which defaults to English.
+ */
 
 export function NavBar({
   title,

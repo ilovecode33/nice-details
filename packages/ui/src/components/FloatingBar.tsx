@@ -8,12 +8,11 @@ import { PressGlow } from './PressGlow';
 import { useDeform } from '../hooks/useDeform';
 
 /**
- * Floating chrome primitives. Material values come from `@ilovecode33/ui-tokens`;
- * collapse state and semantics come from `@ilovecode33/ui-core`.
- *
- * These surfaces float above content instead of occupying layout space. The
- * host is responsible for reserving room (padding / scroll-padding) so content
- * is never covered.
+ * Floating glass surface hosting top/bottom/leading chrome above content (the
+ * host reserves scroll space). Optional toggle controls collapse: controlled
+ * when `collapsed` is passed, otherwise internal, with `onCollapsedChange`
+ * always notified. Deformation is on by default and reduced-motion aware;
+ * `collapseLabel`/`expandLabel` default to English, `label` is caller-supplied.
  */
 
 export function FloatingBar({

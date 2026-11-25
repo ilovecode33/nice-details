@@ -2,7 +2,10 @@ import styles from './Skeleton.module.css';
 
 import { type CSSProperties } from 'react';
 
-/** Shimmering placeholder block for loading states. */
+/**
+ * Decorative shimmer placeholder for loading states, hidden from assistive
+ * technology. `width` and `height` default to 100% and 16px.
+ */
 export function Skeleton({
   width = '100%',
   height = '16px',

@@ -2,7 +2,11 @@ import styles from './Chip.module.css';
 
 import { type ReactNode } from 'react';
 
-/** Compact selectable chip. */
+/**
+ * Renders a compact chip whose `selected` state is mirrored to `aria-pressed`.
+ * The chip stays controlled by the caller and `onClick` is optional; `label` supplies
+ * an optional accessible name. Visible content comes from `children`.
+ */
 
 export function Chip({
   children,

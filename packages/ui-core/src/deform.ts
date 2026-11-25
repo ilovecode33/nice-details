@@ -1,12 +1,23 @@
 import type { DeformEvent, DeformState, PortableComponent, Semantics } from '@ilovecode33/ui-types';
 
 
-/** Extremely hard rubber-band: f(v) = v·max / (100·max + |v|). Larger coefficient = harder pull. */
+/**
+ * Rubber-band resistance: maps an unresisted offset to
+ * `value * max / (100 * max + |value|)`, preserving the sign. Returns 0 for a
+ * non-positive `max`; the magnitude approaches `max` asymptotically.
+ */
 export function resist(value: number, max: number): number {
   if (max <= 0) return 0;
   return (value * max) / (100 * max + Math.abs(value));
 }
 
+/**
+ * Elastic-drag state machine. `start` activates without moving; `move` resists
+ * the pointer delta with `resist` (default `max` 8px, axis `both`), records the
+ * unresisted `rawX`/`rawY`, and derives per-axis intensity plus overall progress
+ * in [0, 1]. A suppressed axis yields zero delta and intensity for that axis;
+ * `end` resets every field to its resting value.
+ */
 export function deformReducer(state: DeformState, event: DeformEvent): DeformState {
   switch (event.type) {
     case 'start':
@@ -43,10 +54,15 @@ export function deformReducer(state: DeformState, event: DeformEvent): DeformSta
   }
 }
 
+/**
+ * Map a deformable surface to `{ role: 'group', label }`; the deformation itself
+ * adds no ARIA state.
+ */
 export function deformSemantics(label?: string): Semantics {
   return { role: 'group', label };
 }
 
+/** Portable definition of `Deformable`: initial state, reducer, and role mapping. */
 export const deformContract: PortableComponent<DeformState, DeformEvent> = {
   name: 'Deformable',
   swiftUI: 'DragGesture + rubber-band + spring animation',
