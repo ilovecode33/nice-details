@@ -1,0 +1,98 @@
+/* ── Segmented control ───────────────────────────────────────────────────── */
+.ui-segmented {
+  position: relative;
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  background: var(--bg-elevated-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+.ui-segmented__thumb {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  z-index: 0;
+  border: 1px solid var(--seg-thumb-stroke);
+  border-radius: 8px;
+  background: var(--seg-thumb-fill);
+  box-shadow: var(--shadow-sm);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  backdrop-filter: var(--glass-backdrop);
+  isolation: isolate; /* the light layers sit above the pill, below its label */
+  pointer-events: none;
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .ui-segmented__thumb { background: var(--seg-thumb-solid); }
+}
+/* The selected pill keeps a quiet outer halo at rest and lifts to a full
+   glow for as long as it is held — no highlight painted inside the surface. */
+.ui-segmented__sheen {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  z-index: 0;
+  opacity: 0.4;
+  box-shadow:
+    0 0 calc(var(--space-1)) var(--glass-highlight),
+    0 0 calc(var(--space-4)) var(--seg-thumb-halo);
+  transition: opacity var(--glow-dur) var(--glow-ease), box-shadow var(--glow-dur) var(--glow-ease);
+}
+/* Hovering the selected pill lifts it to the same two-layer accent glow as a
+   button, so the interactive target reads clearly in both themes. */
+.ui-segmented__sheen.is-hovered:not(.is-held) {
+  opacity: 0.9;
+  /* Declared locally so the accent halo resolves on the sheen element. */
+  --halo-shadow:
+    0 0 var(--space-2) var(--btn-glow),
+    0 0 var(--space-5) var(--btn-glow-soft);
+  box-shadow: var(--halo-shadow);
+}
+.ui-segmented__sheen.is-held { box-shadow:
+  0 0 calc(var(--space-2)) var(--glass-highlight),
+  0 0 calc(var(--space-6)) var(--seg-thumb-halo);
+}
+.ui-segmented__sheen.is-held { opacity: 1; }
+/* The spotlight follows the finger while held and marks a clicked target —
+   it only fades after the interaction ends, never after a single frame. */
+.ui-segmented__spot {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  z-index: 0;
+  opacity: 0;
+  background: radial-gradient(
+    circle at var(--seg-glow-x, 50%) var(--seg-glow-y, 50%),
+    var(--accent-glow) 0%,
+    transparent 64%
+  );
+  transition: opacity var(--glow-dur) var(--glow-ease);
+}
+.ui-segmented__spot.is-held { opacity: 0.85; }
+@media (prefers-reduced-motion: reduce) {
+  .ui-segmented__sheen,
+  .ui-segmented__spot { display: none; }
+}
+.ui-segmented__item {
+  position: relative;
+  z-index: 1;
+  flex: 1 1 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--touch);
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-dim);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: color var(--dur) var(--ease);
+  white-space: nowrap;
+}
+.ui-segmented__item.is-active {
+  color: var(--seg-thumb-ink);
+}

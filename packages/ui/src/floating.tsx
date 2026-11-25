@@ -15,7 +15,9 @@ import {
 import { useReducer, type CSSProperties, type HTMLAttributes, type ReactNode } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { PressGlow, useDeform } from './motion';
-import { cn } from './css';
+import classes from './styles/floating.module.css';
+import { createCn } from './css';
+const cn = createCn(classes);
 
 /* ── GlassSurface ─────────────────────────────────────────────────────────── */
 

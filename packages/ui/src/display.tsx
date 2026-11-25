@@ -1,7 +1,9 @@
 /** Compact value display: Stat, StatusStat, EmptyState. */
 import { Check, Minus, X } from 'lucide-react';
 import { type ReactNode } from 'react';
-import { cn } from './css';
+import classes from './styles/display.module.css';
+import { createCn } from './css';
+const cn = createCn(classes);
 
 export function Stat({
   label,

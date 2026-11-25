@@ -21,7 +21,9 @@ import {
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from 'react';
-import { cn } from './css';
+import classes from './styles/motion.module.css';
+import { createCn } from './css';
+const cn = createCn(classes);
 
 const num = (value: string) => Number.parseFloat(value);
 const DEFAULT_MAX = num(MOTION.deformShift);

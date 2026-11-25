@@ -1,0 +1,42 @@
+/* ── Stat / Empty ────────────────────────────────────────────────────────── */
+.ui-stat { display: flex; flex-direction: column; gap: 2px; min-width: 64px; }
+.ui-stat__value { font-size: var(--text-xl); font-weight: 650; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.ui-stat__value.is-accent { color: var(--accent); }
+.ui-stat__value.is-success { color: var(--success); }
+.ui-stat__value.is-danger { color: var(--danger); }
+.ui-stat__label { font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-dim); }
+
+/* ── StatusStat (semantic, mood-independent) ─────────────────────────────── */
+.ui-status-stat { display: flex; flex-direction: column; gap: 4px; min-width: 64px; }
+.ui-status-stat__value {
+  display: inline-flex; align-items: center; gap: 6px;
+  align-self: flex-start;
+  padding: 2px 10px 2px 6px;
+  border-radius: var(--radius-pill);
+  font-size: var(--text-xl);
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+.ui-status-stat__icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.14);
+}
+.ui-status-stat__icon svg:global(.lucide) { width: var(--icon-sm); height: var(--icon-sm); }
+.ui-status-stat__value.is-success { color: var(--success); background: var(--success-soft); }
+.ui-status-stat__value.is-success .ui-status-stat__icon { background: var(--success); color: var(--bg); }
+.ui-status-stat__value.is-danger { color: var(--danger); background: var(--danger-soft); }
+.ui-status-stat__value.is-danger .ui-status-stat__icon { background: var(--danger); color: #fff; }
+.ui-status-stat__value.is-neutral { color: var(--text); }
+.ui-status-stat__value.is-neutral .ui-status-stat__icon { background: var(--track); color: var(--text-dim); }
+.ui-status-stat__label { font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-dim); }
+.ui-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-2); padding: var(--space-8) var(--space-4); text-align: center; }
+.ui-empty__icon { opacity: 0.6; }
+.ui-empty__icon svg:global(.lucide) {
+  width: calc(var(--icon-lg) * 1.5);
+  height: calc(var(--icon-lg) * 1.5);
+}
+.ui-empty__title { margin: 0; font-size: var(--text-base); font-weight: 600; }
+.ui-empty__detail { margin: 0; font-size: var(--text-sm); color: var(--text-dim); }

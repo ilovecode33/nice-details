@@ -8,7 +8,9 @@ import {
   type ReactNode,
 } from 'react';
 import { Monitor, Moon, Sun } from 'lucide-react';
-import { cn } from './css';
+import classes from './styles/theme.module.css';
+import { createCn } from './css';
+const cn = createCn(classes);
 
 export type Theme = 'system' | 'light' | 'dark';
 export const DEFAULT_THEME: Theme = 'system';

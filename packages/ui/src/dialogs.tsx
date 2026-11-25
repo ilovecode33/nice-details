@@ -4,7 +4,12 @@
  */
 import { sheetSemantics } from '@ilovecode33/ui-core';
 import { useEffect, useRef, type ReactNode } from 'react';
-import { cn } from './css';
+import buttonClasses from './styles/button.module.css';
+import feedbackClasses from './styles/feedback.module.css';
+import layoutClasses from './styles/layout.module.css';
+import sheetClasses from './styles/sheet.module.css';
+import { createCn } from './css';
+const cn = createCn(buttonClasses, feedbackClasses, layoutClasses, sheetClasses);
 
 /* ── ActionSheet / AlertDialog ────────────────────────────────────────────── */
 

@@ -2,7 +2,9 @@
 import { mediaReducer, mediaSemantics } from '@ilovecode33/ui-core';
 import { useEffect, useRef } from 'react';
 import { AspectImage, type PhotoItem } from './media';
-import { cn } from './css';
+import classes from './styles/media.module.css';
+import { createCn } from './css';
+const cn = createCn(classes);
 
 /* ── PhotoViewer ──────────────────────────────────────────────────────────── */
 

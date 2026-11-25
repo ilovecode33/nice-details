@@ -19,7 +19,9 @@ import {
   type ReactNode,
 } from 'react';
 import { Deformable } from './motion';
-import { cn } from './css';
+import classes from './styles/select.module.css';
+import { createCn } from './css';
+const cn = createCn(classes);
 
 export interface SelectOption<T extends string = string> {
   value: T;

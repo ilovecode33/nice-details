@@ -19,7 +19,9 @@ import {
   DEFAULT_ACCENT,
   type Accent,
 } from './accent';
-import { cn } from './css';
+import classes from './styles/base.module.css';
+import { createCn } from './css';
+const cn = createCn(classes);
 
 import {
   DEFAULT_THEME,

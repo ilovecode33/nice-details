@@ -77,6 +77,7 @@ Every PR adding a component must satisfy all of the following:
 - [ ] **Landing page showcase** — at least one real usage scenario in `apps/ui-landing` under **Component details**, not an isolated button array.
 - [ ] **Accessible** — correct role, aria-label, focus ring, 44pt touch target.
 - [ ] **Design tokens only** — colors, spacing, radii, and motion come from `styles.css`.
+- [ ] **Stylesheet ownership** — component styles live in `src/styles/<group>.module.css` and are imported by the component that uses them via `createCn()`. A rule must not target a class defined in another module; move the rule into the defining module instead. `src/styles/index.ts` only exists to back the public `cn()` used by consuming apps.
 - [ ] **Mobile-first CSS** — phone base rules; no horizontal scrolling at 375px.
 - [ ] **Reduced motion** — animation is disabled when `prefers-reduced-motion: reduce` is set.
 - [ ] **No new runtime dependency** — if one is needed, explain why first. The one exception is `lucide-react`: UI icons were previously raw Unicode characters (e.g. `☀`, `✕`, `⌃`) whose glyphs vary by platform font and cannot be sized or stroked consistently. Lucide gives every icon a uniform stroke and a `ReactNode` API that fits existing `icon` props; tree-shaking keeps only the imported icons. Icon sizes come from `--icon-sm/md/lg` tokens via `svg:global(.lucide)` (CSS Modules hashes plain `.lucide`).

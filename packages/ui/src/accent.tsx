@@ -24,7 +24,9 @@ export {
   type Accent,
   type Palette,
 } from '@ilovecode33/ui-tokens';
-import { cn } from './css';
+import classes from './styles/select.module.css';
+import { createCn } from './css';
+const cn = createCn(classes);
 
 const STORAGE_KEY = 'gallery.accent';
 

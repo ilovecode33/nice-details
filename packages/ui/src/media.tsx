@@ -4,7 +4,9 @@
  */
 import { mediaReducer } from '@ilovecode33/ui-core';
 import { useRef, type CSSProperties, type ReactNode } from 'react';
-import { cn } from './css';
+import classes from './styles/media.module.css';
+import { createCn } from './css';
+const cn = createCn(classes);
 
 /* ── AspectImage / Thumbnail / Avatar ─────────────────────────────────────── */
 

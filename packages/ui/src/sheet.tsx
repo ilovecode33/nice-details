@@ -2,7 +2,10 @@
 import { sheetSemantics } from '@ilovecode33/ui-core';
 import { useEffect, useRef, type CSSProperties, type ReactNode } from 'react';
 import { X } from 'lucide-react';
-import { cn } from './css';
+import buttonClasses from './styles/button.module.css';
+import sheetClasses from './styles/sheet.module.css';
+import { createCn } from './css';
+const cn = createCn(buttonClasses, sheetClasses);
 
 export function Sheet({
   open,

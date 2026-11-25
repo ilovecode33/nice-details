@@ -4,7 +4,9 @@
  */
 import { navigationSemantics, tabSemantics } from '@ilovecode33/ui-core';
 import { type HTMLAttributes, type ReactNode } from 'react';
-import { cn } from './css';
+import classes from './styles/navigation.module.css';
+import { createCn } from './css';
+const cn = createCn(classes);
 
 /* ── Divider / Badge / Chip ───────────────────────────────────────────────── */
 

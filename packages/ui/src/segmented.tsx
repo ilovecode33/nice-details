@@ -9,7 +9,9 @@ import {
   type ReactNode,
 } from 'react';
 import { useDeform, usePrefersReducedMotion } from './motion';
-import { cn } from './css';
+import classes from './styles/segmented.module.css';
+import { createCn } from './css';
+const cn = createCn(classes);
 
 export interface SegmentOption<T extends string> {
   value: T;

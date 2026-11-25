@@ -1,0 +1,58 @@
+/* ── Directional deformation ──────────────────────────────────────────────── */
+.ui-deform {
+  position: relative;
+  touch-action: none;
+}
+
+/* ── Press bloom (liquid-glass highlight) ───────────────────────────────────
+   The vars come from useDeform(), so any surface that applies its style gets
+   the highlight at the exact press point with no extra listeners.
+   z-index:-1 sits above the host's own background (which paints first in its
+   stacking context) but below its content, so labels stay fully readable.
+   ──────────────────────────────────────────────────────────────────────────── */
+.ui-glow {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+}
+.ui-glow::before {
+  content: '';
+  position: absolute;
+  left: var(--glow-x, 50%);
+  top: var(--glow-y, 50%);
+  width: var(--glow-size, 190%);
+  height: var(--glow-size, 190%);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle closest-side,
+    var(--glow-core, var(--glass-highlight)) 0%,
+    var(--glow-color, var(--accent-glow)) 42%,
+    transparent 100%
+  );
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.2);
+  animation: ui-glow-bloom var(--glow-dur) var(--glow-ease) forwards;
+}
+@keyframes ui-glow-bloom {
+  from {
+    opacity: var(--glow-peak, 0.55);
+    transform: translate(-50%, -50%) scale(0.2);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+/* While held, the bloom stays lit at the press point and only plays the
+   fade-out bloom once the pointer is released. */
+.ui-glow.is-held::before {
+  animation: none;
+  opacity: var(--glow-peak, 0.55);
+  transform: translate(-50%, -50%) scale(0.85);
+}
+@media (prefers-reduced-motion: reduce) {
+  .ui-glow { display: none; }
+}

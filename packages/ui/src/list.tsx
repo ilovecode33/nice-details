@@ -1,7 +1,9 @@
 /** Disclosure and List components backed by `ui-core` contracts. */
 import { disclosureReducer, disclosureSemantics, listSemantics } from '@ilovecode33/ui-core';
 import { useId, useState, type ReactNode } from 'react';
-import { cn } from './css';
+import classes from './styles/list.module.css';
+import { createCn } from './css';
+const cn = createCn(classes);
 
 /* ── Disclosure ───────────────────────────────────────────────────────────── */
 

@@ -2,7 +2,10 @@
 import { toggleReducer, toggleSemantics } from '@ilovecode33/ui-core';
 import { type InputHTMLAttributes, type ReactNode } from 'react';
 import { Deformable } from './motion';
-import { cn } from './css';
+import controlsClasses from './styles/controls.module.css';
+import selectClasses from './styles/select.module.css';
+import { createCn } from './css';
+const cn = createCn(controlsClasses, selectClasses);
 
 export function SliderRow({
   label,

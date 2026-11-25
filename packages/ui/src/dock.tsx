@@ -14,7 +14,9 @@ import {
   type MouseEvent as ReactMouseEvent,
   type ReactNode,
 } from 'react';
-import { cn } from './css';
+import classes from './styles/dock.module.css';
+import { createCn } from './css';
+const cn = createCn(classes);
 import { FloatingBar } from './floating';
 
 export interface DockItem {

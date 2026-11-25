@@ -10,7 +10,9 @@ import {
 } from '@ilovecode33/ui-core';
 import { type CSSProperties } from 'react';
 import { Check, Info, X } from 'lucide-react';
-import { cn } from './css';
+import classes from './styles/feedback.module.css';
+import { createCn } from './css';
+const cn = createCn(classes);
 
 /* ── Toast ────────────────────────────────────────────────────────────────── */
 

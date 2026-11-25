@@ -2,7 +2,9 @@
 import { createPortal } from 'react-dom';
 import { useId, type ButtonHTMLAttributes, type CSSProperties, type ReactNode } from 'react';
 import { useDeform } from './motion';
-import { cn } from './css';
+import classes from './styles/button.module.css';
+import { createCn } from './css';
+const cn = createCn(classes);
 
 /* ── Button ──────────────────────────────────────────────────────────────── */
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {

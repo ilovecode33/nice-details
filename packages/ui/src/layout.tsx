@@ -1,6 +1,8 @@
 /** Layout primitives: Card, Stack, Row. */
 import { type HTMLAttributes, type ReactNode } from 'react';
-import { cn } from './css';
+import classes from './styles/layout.module.css';
+import { createCn } from './css';
+const cn = createCn(classes);
 
 /* ── Card ────────────────────────────────────────────────────────────────── */
 export interface CardProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title'> {

@@ -3,7 +3,9 @@ import { selectionModeReducer } from '@ilovecode33/ui-core';
 import { useReducer, type CSSProperties, type ReactNode } from 'react';
 import { Check } from 'lucide-react';
 import { AspectImage, type PhotoItem } from './media';
-import { cn } from './css';
+import classes from './styles/media.module.css';
+import { createCn } from './css';
+const cn = createCn(classes);
 
 export function PhotoGrid({
   items,

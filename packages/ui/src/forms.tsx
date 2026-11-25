@@ -18,7 +18,10 @@ import {
   type ReactNode,
   type TextareaHTMLAttributes,
 } from 'react';
-import { cn } from './css';
+import formsClasses from './styles/forms.module.css';
+import selectClasses from './styles/select.module.css';
+import { createCn } from './css';
+const cn = createCn(formsClasses, selectClasses);
 
 /* ── FormField ─────────────────────────────────────────────────────────────── */
 
