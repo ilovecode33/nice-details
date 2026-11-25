@@ -1,3 +1,7 @@
+/* ── Icons ───────────────────────────────────────────────────────────────── */
+/* Lucide defaults to 24px; size them with tokens so they fit each context. */
+svg:global(.lucide) { width: var(--icon-md); height: var(--icon-md); flex-shrink: 0; }
+
 /* ── Foundation ──────────────────────────────────────────────────────────── */
 .ui-foundation {
   -webkit-user-select: none;
@@ -34,7 +38,8 @@
 }
 .ui-btn:active { transform: scale(0.97); }
 .ui-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
-.ui-btn__icon { display: inline-flex; font-size: 1.1em; }
+.ui-btn__icon { display: inline-flex; }
+.ui-btn__icon svg:global(.lucide) { width: var(--icon-sm); height: var(--icon-sm); }
 .ui-btn--block { width: 100%; }
 .ui-btn--compact { min-height: var(--touch); padding: 0 var(--space-3); font-size: var(--text-sm); }
 
@@ -342,10 +347,9 @@
   display: inline-flex; align-items: center; justify-content: center;
   width: 22px; height: 22px;
   border-radius: 50%;
-  font-size: 13px;
-  font-weight: 700;
   background: rgba(255,255,255,0.14);
 }
+.ui-status-stat__icon svg:global(.lucide) { width: var(--icon-sm); height: var(--icon-sm); }
 .ui-status-stat__value.is-success { color: var(--success); background: var(--success-soft); }
 .ui-status-stat__value.is-success .ui-status-stat__icon { background: var(--success); color: var(--bg); }
 .ui-status-stat__value.is-danger { color: var(--danger); background: var(--danger-soft); }
@@ -354,7 +358,11 @@
 .ui-status-stat__value.is-neutral .ui-status-stat__icon { background: var(--track); color: var(--text-dim); }
 .ui-status-stat__label { font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-dim); }
 .ui-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-2); padding: var(--space-8) var(--space-4); text-align: center; }
-.ui-empty__icon { font-size: 36px; opacity: 0.6; }
+.ui-empty__icon { opacity: 0.6; }
+.ui-empty__icon svg:global(.lucide) {
+  width: calc(var(--icon-lg) * 1.5);
+  height: calc(var(--icon-lg) * 1.5);
+}
 .ui-empty__title { margin: 0; font-size: var(--text-base); font-weight: 600; }
 .ui-empty__detail { margin: 0; font-size: var(--text-sm); color: var(--text-dim); }
 
@@ -634,7 +642,7 @@
   cursor: pointer;
 }
 .ui-tabbar__item.is-active { color: var(--accent); }
-.ui-tabbar__icon { font-size: 20px; line-height: 1; }
+.ui-tabbar__icon svg:global(.lucide) { width: var(--icon-md); height: var(--icon-md); }
 .ui-tabbar__label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
 .ui-tabbar__badge {
   position: absolute; top: 4px; right: 50%; transform: translateX(140%);
@@ -795,8 +803,9 @@
   width: 24px; height: 24px; flex-shrink: 0;
   display: inline-flex; align-items: center; justify-content: center;
   border-radius: 50%; background: var(--accent); color: var(--accent-ink);
-  font-size: var(--text-sm); font-weight: 700;
 }
+.ui-banner__icon svg:global(.lucide) { width: var(--icon-sm); height: var(--icon-sm); }
+.ui-banner__dismiss svg:global(.lucide) { width: var(--icon-md); height: var(--icon-md); }
 .ui-banner.is-success .ui-banner__icon { background: var(--success); color: var(--bg); }
 .ui-banner.is-danger .ui-banner__icon { background: var(--danger); color: #fff; }
 .ui-banner__message { flex: 1 1 auto; font-size: var(--text-sm); }
@@ -884,8 +893,8 @@
   display: inline-flex; align-items: center; justify-content: center;
   width: 24px; height: 24px; border-radius: 50%;
   background: var(--accent); color: var(--accent-ink);
-  font-size: 14px; font-weight: 700;
 }
+.ui-photogrid__check svg:global(.lucide) { width: var(--icon-sm); height: var(--icon-sm); }
 
 .ui-viewer { position: fixed; inset: 0; z-index: 700; display: flex; flex-direction: column; padding-bottom: var(--safe-bottom); background: rgba(0, 0, 0, 0.92); }
 .ui-viewer__scrim { position: absolute; inset: 0; }

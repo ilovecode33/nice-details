@@ -11,6 +11,7 @@ import {
   type FeedbackTone,
 } from '@ilovecode33/ui-core';
 import { useEffect, useRef, type CSSProperties, type ReactNode } from 'react';
+import { Check, Info, X } from 'lucide-react';
 import { cn } from './css';
 
 /* ── Toast ────────────────────────────────────────────────────────────────── */
@@ -59,7 +60,7 @@ export function Toast({
           aria-label={dismissLabel}
           onClick={onDismiss}
         >
-          ✕
+          <X />
         </button>
       )}
     </div>
@@ -88,7 +89,7 @@ export function Banner({
   return (
     <div className={cn(`ui-banner is-${tone}`)} role={a11y.role}>
       <span className={cn('ui-banner__icon')} aria-hidden="true">
-        {tone === 'success' ? '✓' : tone === 'danger' ? '✕' : 'i'}
+        {tone === 'success' ? <Check /> : tone === 'danger' ? <X /> : <Info />}
       </span>
       <span className={cn('ui-banner__message')}>{message}</span>
       {actionLabel && (
@@ -103,7 +104,7 @@ export function Banner({
           aria-label={dismissLabel}
           onClick={onDismiss}
         >
-          ✕
+          <X />
         </button>
       )}
     </div>

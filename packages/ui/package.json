@@ -28,7 +28,8 @@
   },
   "dependencies": {
     "@ilovecode33/ui-core": "workspace:*",
-    "@ilovecode33/ui-tokens": "workspace:*"
+    "@ilovecode33/ui-tokens": "workspace:*",
+    "lucide-react": "^1.80.0"
   },
   "peerDependencies": {
     "react": "^19.0.0",

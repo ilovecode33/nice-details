@@ -137,6 +137,8 @@
   --text-xs: 11px; --text-sm: 12.5px; --text-base: 14px; --text-lg: 17px; --text-xl: 22px;
 
   --touch: 44px; /* HIG: min 44pt */
+  /* Lucide icon sizes, tuned per context (stroke icons scale cleanly). */
+  --icon-sm: 16px; --icon-md: 20px; --icon-lg: 24px;
   /* Portalled buttons sit on document.body above overlay stacks (e.g. Sheet 500). */
   --z-portal: 1000;
   --glass-blur: 20px;

@@ -79,7 +79,7 @@ Every PR adding a component must satisfy all of the following:
 - [ ] **Design tokens only** — colors, spacing, radii, and motion come from `styles.css`.
 - [ ] **Mobile-first CSS** — phone base rules; no horizontal scrolling at 375px.
 - [ ] **Reduced motion** — animation is disabled when `prefers-reduced-motion: reduce` is set.
-- [ ] **No new runtime dependency** — if one is needed, explain why first.
+- [ ] **No new runtime dependency** — if one is needed, explain why first. The one exception is `lucide-react`: UI icons were previously raw Unicode characters (e.g. `☀`, `✕`, `⌃`) whose glyphs vary by platform font and cannot be sized or stroked consistently. Lucide gives every icon a uniform stroke and a `ReactNode` API that fits existing `icon` props; tree-shaking keeps only the imported icons. Icon sizes come from `--icon-sm/md/lg` tokens via `svg:global(.lucide)` (CSS Modules hashes plain `.lucide`).
 - [ ] **No i18n dependency** — all text passed via props with English defaults.
 
 ## 5. Exit criteria (before a release)

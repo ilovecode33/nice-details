@@ -13,6 +13,7 @@ import {
   type FloatingState,
 } from '@ilovecode33/ui-core';
 import { useReducer, type CSSProperties, type HTMLAttributes, type ReactNode } from 'react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import { PressGlow, useDeform } from './motion';
 import { cn } from './css';
 
@@ -111,7 +112,7 @@ export function FloatingBar({
             aria-label={current.collapsed ? expandLabel : collapseLabel}
             onClick={toggle}
           >
-            {current.collapsed ? '⌃' : '⌄'}
+            {current.collapsed ? <ChevronUp /> : <ChevronDown />}
           </button>
         )}
       </div>

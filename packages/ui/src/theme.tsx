@@ -7,6 +7,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
+import { Monitor, Moon, Sun } from 'lucide-react';
 import { cn } from './css';
 
 export type Theme = 'system' | 'light' | 'dark';
@@ -103,10 +104,10 @@ const DEFAULT_THEME_LABELS: Required<ThemeSwitcherLabels> = {
 export function ThemeSwitcher({ labels }: { labels?: ThemeSwitcherLabels }) {
   const { theme, setTheme } = useTheme();
   const l = { ...DEFAULT_THEME_LABELS, ...labels };
-  const options: Array<{ value: Theme; label: string; icon: string }> = [
-    { value: 'system', label: l.system, icon: '◐' },
-    { value: 'light', label: l.light, icon: '☀' },
-    { value: 'dark', label: l.dark, icon: '☾' },
+  const options: Array<{ value: Theme; label: string; icon: ReactNode }> = [
+    { value: 'system', label: l.system, icon: <Monitor /> },
+    { value: 'light', label: l.light, icon: <Sun /> },
+    { value: 'dark', label: l.dark, icon: <Moon /> },
   ];
 
   return (

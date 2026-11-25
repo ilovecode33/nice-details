@@ -55,6 +55,7 @@ import {
   type ListItem,
   type PhotoItem,
 } from '@ilovecode33/ui';
+import { ArrowRight, CircleDot, Clock, LayoutGrid, Plus, Search } from 'lucide-react';
 import '@ilovecode33/ui/styles.css';
 import './app.css';
 import {
@@ -228,7 +229,7 @@ function App() {
           </h1>
           <p className="landing__lead">{t('hero.lead')}</p>
           <div className={cn('ui-row')}>
-            <Button variant="primary" icon="→" onClick={() => setSheetOpen(true)}>
+            <Button variant="primary" icon={<ArrowRight />} onClick={() => setSheetOpen(true)}>
               {t('hero.ctaDemo')}
             </Button>
             <Button variant="secondary" onClick={() => document.getElementById('details')?.scrollIntoView({ behavior: 'smooth' })}>
@@ -278,7 +279,7 @@ function App() {
                   </div>
                   <Divider />
                   <div className={cn('ui-row')}>
-                    <Button icon="＋" onClick={() => action(t('demo.withIcon'))}>{t('demo.withIcon')}</Button>
+                    <Button icon={<Plus />} onClick={() => action(t('demo.withIcon'))}>{t('demo.withIcon')}</Button>
                     <Button size="compact" onClick={() => action(t('demo.compact'))}>{t('demo.compact')}</Button>
                     <Button disabled>{t('demo.disabled')}</Button>
                   </div>
@@ -321,7 +322,7 @@ function App() {
                     <Badge tone="danger">{t('upload.failed')}</Badge>
                   </div>
                   <span id="component-emptystate" className="component-anchor" aria-hidden="true" />
-                  <EmptyState icon="🔍" title={t('search.emptyTitle')} detail={t('search.emptyDetail')} />
+                  <EmptyState icon={<Search />} title={t('search.emptyTitle')} detail={t('search.emptyDetail')} />
                 </div>
               </Card>
 
@@ -458,9 +459,9 @@ function App() {
                     value={libraryTab}
                     onChange={setLibraryTab}
                     items={[
-                      { value: 'albums', label: t('library.tabAlbums'), icon: '▦' },
-                      { value: 'shared', label: t('library.tabShared'), icon: '◉' },
-                      { value: 'archive', label: t('library.tabArchive'), icon: '◷', badge: '3' },
+                      { value: 'albums', label: t('library.tabAlbums'), icon: <LayoutGrid /> },
+                      { value: 'shared', label: t('library.tabShared'), icon: <CircleDot /> },
+                      { value: 'archive', label: t('library.tabArchive'), icon: <Clock />, badge: '3' },
                     ]}
                   />
                   <span id="component-list" className="component-anchor" aria-hidden="true" />

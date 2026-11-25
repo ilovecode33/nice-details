@@ -9,6 +9,7 @@
 
 import { Deformable, useDeform, usePrefersReducedMotion } from './motion';
 import { createPortal } from 'react-dom';
+import { Check, Minus, X } from 'lucide-react';
 import {
   comboboxSemantics,
   createSelectionState,
@@ -836,7 +837,8 @@ export function StatusStat({
   value: ReactNode;
   status: 'success' | 'danger' | 'neutral';
 }) {
-  const icon = status === 'success' ? '✓' : status === 'danger' ? '✕' : '·';
+  const icon =
+    status === 'success' ? <Check /> : status === 'danger' ? <X /> : <Minus />;
   return (
     <div className={cn('ui-status-stat')}>
       <span className={cn(`ui-status-stat__value is-${status}`)}>

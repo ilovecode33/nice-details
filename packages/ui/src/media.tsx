@@ -9,6 +9,7 @@ import {
   selectionModeReducer,
 } from '@ilovecode33/ui-core';
 import { useEffect, useReducer, useRef, type CSSProperties, type ReactNode } from 'react';
+import { Check } from 'lucide-react';
 import { cn } from './css';
 
 /* ── AspectImage / Thumbnail / Avatar ─────────────────────────────────────── */
@@ -120,7 +121,7 @@ export function PhotoGrid({
               </AspectImage>
               {selectionMode && (
                 <span className={cn('ui-photogrid__check')} aria-hidden="true">
-                  {selected ? '✓' : ''}
+                  {selected ? <Check /> : null}
                 </span>
               )}
             </button>
