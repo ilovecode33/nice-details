@@ -1,4 +1,4 @@
-import classes from './DockNavigation.module.css';
+import styles from './DockNavigation.module.css';
 import {
   forwardRef,
   useImperativeHandle,
@@ -8,10 +8,8 @@ import {
   type MouseEvent as ReactMouseEvent,
   type ReactNode,
 } from 'react';
-import { createCn } from '../css';
 import { FloatingBar } from './FloatingBar';
 
-const cn = createCn(classes);
 
 /**
  * Reusable floating dock navigation — the collapsed bar sits in the bottom
@@ -241,17 +239,11 @@ export const DockNavigation = forwardRef<DockNavigationHandle, DockNavigationPro
           key={collapsed ? 'compact' : 'expanded'}
           ref={dockRef}
           data-ui="dock"
-          className={cn(
-            `ui-dock ui-dock--enter ${collapsed ? 'is-collapsed' : ''} ${
-              collapsed && items.length < 3 ? 'is-short' : ''
-            }`,
-          )}
+          className={[styles['ui-dock'], styles['ui-dock--enter'], styles[collapsed ? 'is-collapsed' : ''] || '', styles[collapsed && items.length < 3 ? 'is-short' : ''] || ''].filter(Boolean).join(' ')}
         >
           {items.map((item) => {
             const current = item.id === activeId;
-            const itemClass = cn(
-              `ui-dock__item ${collapsed && current ? 'is-current' : ''}`,
-            );
+            const itemClass = [styles['ui-dock__item'], styles[collapsed && current ? 'is-current' : ''] || ''].filter(Boolean).join(' ');
             const content = (
               <>
                 {item.icon}

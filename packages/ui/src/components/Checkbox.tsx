@@ -1,4 +1,4 @@
-import classes from './Checkbox.module.css';
+import styles from './Checkbox.module.css';
 import {
   checkboxSemantics,
   fieldSemantics,
@@ -13,9 +13,7 @@ import {
   type ReactNode,
   type TextareaHTMLAttributes,
 } from 'react';
-import { createCn } from '../css';
 
-const cn = createCn(classes);
 
 /**
  * Data-entry components. Validation state follows the `FormFieldState`
@@ -37,13 +35,13 @@ export function Checkbox({
   const semantics = checkboxSemantics(checked, label);
   return (
     <Deformable enabled={deform} touchAction="pan-y">
-      <label className={cn('ui-checkbox')}>
+      <label className={styles['ui-checkbox']}>
         <button
           type="button"
           role={semantics.role}
           aria-checked={semantics.checked}
           aria-label={semantics.label}
-          className={cn(`ui-checkbox__box ${checked ? 'is-checked' : ''}`)}
+          className={[styles['ui-checkbox__box'], styles[checked ? 'is-checked' : ''] || ''].filter(Boolean).join(' ')}
           onClick={() => onChange(!checked)}
         >
           {checked && <span aria-hidden="true">✓</span>}

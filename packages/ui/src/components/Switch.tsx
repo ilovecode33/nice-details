@@ -1,10 +1,8 @@
-import classes from './Switch.module.css';
+import styles from './Switch.module.css';
 import { toggleReducer, toggleSemantics } from '@ilovecode33/ui-core';
 import { type InputHTMLAttributes, type ReactNode } from 'react';
 import { Deformable } from './Deformable';
-import { createCn } from '../css';
 
-const cn = createCn(classes);
 
 /** Lightweight form controls: SliderRow, Switch, Field, TextInput. */
 /* ── Switch ──────────────────────────────────────────────────────────────── */
@@ -27,10 +25,10 @@ export function Switch({
         role={semantics.role}
         aria-checked={semantics.checked}
         aria-label={semantics.label}
-        className={cn(`ui-switch ${checked ? 'is-on' : ''}`)}
+        className={[styles['ui-switch'], styles[checked ? 'is-on' : ''] || ''].filter(Boolean).join(' ')}
         onClick={() => onChange(toggleReducer({ checked }, { type: 'toggle' }).checked)}
       >
-        <span className={cn('ui-switch__knob')} />
+        <span className={styles['ui-switch__knob']} />
       </button>
     </Deformable>
   );

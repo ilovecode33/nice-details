@@ -1,9 +1,7 @@
-import classes from './StatusStat.module.css';
+import styles from './StatusStat.module.css';
 import { Check, Minus, X } from 'lucide-react';
 import { type ReactNode } from 'react';
-import { createCn } from '../css';
 
-const cn = createCn(classes);
 
 /** Compact value display: Stat, StatusStat, EmptyState. */
 /**
@@ -22,14 +20,14 @@ export function StatusStat({
   const icon =
     status === 'success' ? <Check /> : status === 'danger' ? <X /> : <Minus />;
   return (
-    <div className={cn('ui-status-stat')}>
-      <span className={cn(`ui-status-stat__value is-${status}`)}>
-        <span className={cn('ui-status-stat__icon')} aria-hidden="true">
+    <div className={styles['ui-status-stat']}>
+      <span className={[styles['ui-status-stat__value'], styles[`is-${status}`]].filter(Boolean).join(' ')}>
+        <span className={styles['ui-status-stat__icon']} aria-hidden="true">
           {icon}
         </span>
         {value}
       </span>
-      <span className={cn('ui-status-stat__label')}>{label}</span>
+      <span className={styles['ui-status-stat__label']}>{label}</span>
     </div>
   );
 }

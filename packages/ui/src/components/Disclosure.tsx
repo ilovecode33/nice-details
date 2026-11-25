@@ -1,9 +1,7 @@
-import classes from './Disclosure.module.css';
+import styles from './Disclosure.module.css';
 import { disclosureReducer, disclosureSemantics, listSemantics } from '@ilovecode33/ui-core';
 import { useId, useState, type ReactNode } from 'react';
-import { createCn } from '../css';
 
-const cn = createCn(classes);
 
 /** Disclosure and List components backed by `ui-core` contracts. */
 /* ── Disclosure ───────────────────────────────────────────────────────────── */
@@ -33,21 +31,21 @@ export function Disclosure({
   };
 
   return (
-    <div className={cn('ui-disclosure')}>
+    <div className={styles['ui-disclosure']}>
       <button
         type="button"
-        className={cn('ui-disclosure__trigger')}
+        className={styles['ui-disclosure__trigger']}
         aria-expanded={semantics.expanded}
         aria-controls={bodyId}
         onClick={toggle}
       >
         <span>{title}</span>
-        <span className={cn(`ui-disclosure__chevron ${current ? 'is-open' : ''}`)} aria-hidden="true">
+        <span className={[styles['ui-disclosure__chevron'], styles[current ? 'is-open' : ''] || ''].filter(Boolean).join(' ')} aria-hidden="true">
           ⌄
         </span>
       </button>
       {current && (
-        <div id={bodyId} className={cn('ui-disclosure__body')}>
+        <div id={bodyId} className={styles['ui-disclosure__body']}>
           {children}
         </div>
       )}

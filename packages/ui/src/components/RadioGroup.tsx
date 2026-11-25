@@ -1,4 +1,4 @@
-import classes from './RadioGroup.module.css';
+import styles from './RadioGroup.module.css';
 import {
   checkboxSemantics,
   fieldSemantics,
@@ -13,9 +13,7 @@ import {
   type ReactNode,
   type TextareaHTMLAttributes,
 } from 'react';
-import { createCn } from '../css';
 
-const cn = createCn(classes);
 
 /**
  * Data-entry components. Validation state follows the `FormFieldState`
@@ -40,7 +38,7 @@ export function RadioGroup<T extends string = string>({
   label: string;
 }) {
   return (
-    <div className={cn('ui-radio')} role="radiogroup" aria-label={label}>
+    <div className={styles['ui-radio']} role="radiogroup" aria-label={label}>
       {options.map((option) => {
         const checked = option.value === value;
         const semantics = radioSemantics(checked, option.label);
@@ -52,7 +50,7 @@ export function RadioGroup<T extends string = string>({
             aria-checked={semantics.checked}
             aria-label={semantics.label}
             tabIndex={checked ? 0 : -1}
-            className={cn(`ui-radio__option ${checked ? 'is-checked' : ''}`)}
+            className={[styles['ui-radio__option'], styles[checked ? 'is-checked' : ''] || ''].filter(Boolean).join(' ')}
             onClick={() => onChange(option.value)}
             onKeyDown={(event) => {
               if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return;
@@ -63,7 +61,7 @@ export function RadioGroup<T extends string = string>({
               if (next) onChange(next.value);
             }}
           >
-            <span className={cn('ui-radio__dot')} aria-hidden="true" />
+            <span className={styles['ui-radio__dot']} aria-hidden="true" />
             <span>{option.label}</span>
           </button>
         );

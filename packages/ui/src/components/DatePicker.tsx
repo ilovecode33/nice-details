@@ -1,4 +1,4 @@
-import classes from './DatePicker.module.css';
+import styles from './DatePicker.module.css';
 import {
   checkboxSemantics,
   fieldSemantics,
@@ -13,9 +13,7 @@ import {
   type ReactNode,
   type TextareaHTMLAttributes,
 } from 'react';
-import { createCn } from '../css';
 
-const cn = createCn(classes);
 
 /**
  * Data-entry components. Validation state follows the `FormFieldState`
@@ -27,5 +25,5 @@ export function DatePicker({
   className = '',
   ...rest
 }: InputHTMLAttributes<HTMLInputElement>) {
-  return <input type="date" className={cn(`ui-input ${className}`)} {...rest} />;
+  return <input type="date" className={[styles['ui-input'], className].filter(Boolean).join(' ')} {...rest} />;
 }

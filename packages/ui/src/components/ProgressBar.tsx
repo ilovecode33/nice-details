@@ -1,4 +1,4 @@
-import classes from './ProgressBar.module.css';
+import styles from './ProgressBar.module.css';
 import {
   feedbackReducer,
   feedbackSemantics,
@@ -7,9 +7,7 @@ import {
 } from '@ilovecode33/ui-core';
 import { type CSSProperties } from 'react';
 import { Check, Info, X } from 'lucide-react';
-import { createCn } from '../css';
 
-const cn = createCn(classes);
 
 /**
  * Transient feedback components backed by the `FeedbackState` contract from
@@ -27,17 +25,17 @@ export function ProgressBar({
   const percent = max > 0 ? Math.min(Math.max((value / max) * 100, 0), 100) : 0;
   return (
     <div
-      className={cn('ui-progressbar')}
+      className={styles['ui-progressbar']}
       role="progressbar"
       aria-label={label}
       aria-valuemin={0}
       aria-valuemax={max}
       aria-valuenow={value}
     >
-      <div className={cn('ui-progressbar__track')}>
-        <div className={cn('ui-progressbar__fill')} style={{ width: `${percent}%` }} />
+      <div className={styles['ui-progressbar__track']}>
+        <div className={styles['ui-progressbar__fill']} style={{ width: `${percent}%` }} />
       </div>
-      <span className={cn('ui-progressbar__value')}>{Math.round(percent)}%</span>
+      <span className={styles['ui-progressbar__value']}>{Math.round(percent)}%</span>
     </div>
   );
 }

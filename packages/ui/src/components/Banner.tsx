@@ -1,4 +1,4 @@
-import classes from './Banner.module.css';
+import styles from './Banner.module.css';
 import {
   feedbackReducer,
   feedbackSemantics,
@@ -7,9 +7,7 @@ import {
 } from '@ilovecode33/ui-core';
 import { type CSSProperties } from 'react';
 import { Check, Info, X } from 'lucide-react';
-import { createCn } from '../css';
 
-const cn = createCn(classes);
 
 /**
  * Transient feedback components backed by the `FeedbackState` contract from
@@ -35,20 +33,20 @@ export function Banner({
   const semantics: FeedbackState = { tone, message, visible: true, actionLabel };
   const a11y = feedbackSemantics(semantics);
   return (
-    <div className={cn(`ui-banner is-${tone}`)} role={a11y.role}>
-      <span className={cn('ui-banner__icon')} aria-hidden="true">
+    <div className={[styles['ui-banner'], styles[`is-${tone}`]].filter(Boolean).join(' ')} role={a11y.role}>
+      <span className={styles['ui-banner__icon']} aria-hidden="true">
         {tone === 'success' ? <Check /> : tone === 'danger' ? <X /> : <Info />}
       </span>
-      <span className={cn('ui-banner__message')}>{message}</span>
+      <span className={styles['ui-banner__message']}>{message}</span>
       {actionLabel && (
-        <button type="button" className={cn('ui-banner__action')} onClick={onAction}>
+        <button type="button" className={styles['ui-banner__action']} onClick={onAction}>
           {actionLabel}
         </button>
       )}
       {onDismiss && (
         <button
           type="button"
-          className={cn('ui-banner__dismiss')}
+          className={styles['ui-banner__dismiss']}
           aria-label={dismissLabel}
           onClick={onDismiss}
         >

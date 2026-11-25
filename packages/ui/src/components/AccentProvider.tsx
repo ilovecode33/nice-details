@@ -14,7 +14,6 @@ import {
   type Accent,
 } from '@ilovecode33/ui-tokens';
 import { Select } from './Select';
-import { createCn } from '../css';
 import { useTheme } from './ThemeProvider';
 
 /** Token definitions are owned by `@ilovecode33/ui-tokens` and re-exported for API stability. */

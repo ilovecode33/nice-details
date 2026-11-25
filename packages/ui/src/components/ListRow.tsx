@@ -1,9 +1,7 @@
-import classes from './ListRow.module.css';
+import styles from './ListRow.module.css';
 import { disclosureReducer, disclosureSemantics, listSemantics } from '@ilovecode33/ui-core';
 import { useId, useState, type ReactNode } from 'react';
-import { createCn } from '../css';
 
-const cn = createCn(classes);
 
 /** Disclosure and List components backed by `ui-core` contracts. */
 /* ── List / ListRow ───────────────────────────────────────────────────────── */
@@ -33,10 +31,10 @@ export function ListRow<T extends string = string>({
   const bodyId = useId();
   const hasDisclosure = Boolean(item.expandedContent);
   return (
-    <li className={cn('ui-list__item')}>
+    <li className={styles['ui-list__item']}>
       <button
         type="button"
-        className={cn(`ui-list__row ${selected ? 'is-selected' : ''}`)}
+        className={[styles['ui-list__row'], styles[selected ? 'is-selected' : ''] || ''].filter(Boolean).join(' ')}
         aria-current={selected ? 'true' : undefined}
         aria-expanded={hasDisclosure ? expanded : undefined}
         aria-controls={hasDisclosure ? bodyId : undefined}
@@ -46,23 +44,23 @@ export function ListRow<T extends string = string>({
         }}
       >
         {item.leading && (
-          <span className={cn('ui-list__leading')} aria-hidden="true">
+          <span className={styles['ui-list__leading']} aria-hidden="true">
             {item.leading}
           </span>
         )}
-        <span className={cn('ui-list__text')}>
-          <span className={cn('ui-list__title')}>{item.title}</span>
-          {item.subtitle && <span className={cn('ui-list__subtitle')}>{item.subtitle}</span>}
+        <span className={styles['ui-list__text']}>
+          <span className={styles['ui-list__title']}>{item.title}</span>
+          {item.subtitle && <span className={styles['ui-list__subtitle']}>{item.subtitle}</span>}
         </span>
-        {item.trailing && <span className={cn('ui-list__trailing')}>{item.trailing}</span>}
+        {item.trailing && <span className={styles['ui-list__trailing']}>{item.trailing}</span>}
         {hasDisclosure && (
-          <span className={cn(`ui-list__chevron ${expanded ? 'is-open' : ''}`)} aria-hidden="true">
+          <span className={[styles['ui-list__chevron'], styles[expanded ? 'is-open' : ''] || ''].filter(Boolean).join(' ')} aria-hidden="true">
             ⌄
           </span>
         )}
       </button>
       {hasDisclosure && expanded && (
-        <div id={bodyId} className={cn('ui-list__expanded')}>
+        <div id={bodyId} className={styles['ui-list__expanded']}>
           {item.expandedContent}
         </div>
       )}

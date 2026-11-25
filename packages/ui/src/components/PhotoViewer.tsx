@@ -1,11 +1,9 @@
-import classes from './PhotoViewer.module.css';
+import styles from './PhotoViewer.module.css';
 import { mediaReducer, mediaSemantics } from '@ilovecode33/ui-core';
 import { useEffect, useRef } from 'react';
-import { createCn } from '../css';
 import { AspectImage } from './AspectImage';
 import type { PhotoItem } from './Carousel';
 
-const cn = createCn(classes);
 
 /** Fullscreen photo viewer backed by `MediaState` from `@ilovecode33/ui-core`. */
 
@@ -49,18 +47,18 @@ export function PhotoViewer({
   }, [index, items.length, onClose, onIndexChange]);
 
   return (
-    <div className={cn('ui-viewer')} role="dialog" aria-modal="true" aria-label={semantics.label}>
-      <div className={cn('ui-viewer__scrim')} onClick={onClose} />
-      <header className={cn('ui-viewer__bar')}>
-        <span className={cn('ui-viewer__count')}>
+    <div className={styles['ui-viewer']} role="dialog" aria-modal="true" aria-label={semantics.label}>
+      <div className={styles['ui-viewer__scrim']} onClick={onClose} />
+      <header className={styles['ui-viewer__bar']}>
+        <span className={styles['ui-viewer__count']}>
           {index + 1} / {items.length}
         </span>
-        <button type="button" className={cn('ui-viewer__close')} aria-label={labels.close} onClick={onClose}>
+        <button type="button" className={styles['ui-viewer__close']} aria-label={labels.close} onClick={onClose}>
           ✕
         </button>
       </header>
       <div
-        className={cn('ui-viewer__stage')}
+        className={styles['ui-viewer__stage']}
         onTouchStart={(event) => {
           const touch = event.touches[0];
           if (touch) touchStart.current = { x: touch.clientX, y: touch.clientY };
@@ -88,10 +86,10 @@ export function PhotoViewer({
           </AspectImage>
         )}
       </div>
-      <div className={cn('ui-viewer__controls')}>
+      <div className={styles['ui-viewer__controls']}>
         <button
           type="button"
-          className={cn('ui-viewer__nav')}
+          className={styles['ui-viewer__nav']}
           aria-label={labels.previous}
           disabled={index === 0}
           onClick={() => go({ type: 'previous' })}
@@ -100,7 +98,7 @@ export function PhotoViewer({
         </button>
         <button
           type="button"
-          className={cn('ui-viewer__nav')}
+          className={styles['ui-viewer__nav']}
           aria-label={labels.next}
           disabled={index === items.length - 1}
           onClick={() => go({ type: 'next' })}

@@ -1,4 +1,4 @@
-import classes from './ThemeSwitcher.module.css';
+import styles from './ThemeSwitcher.module.css';
 import {
   createContext,
   useContext,
@@ -9,10 +9,8 @@ import {
   type ReactNode,
 } from 'react';
 import { Monitor, Moon, Sun } from 'lucide-react';
-import { createCn } from '../css';
 import { useTheme, type Theme } from './ThemeProvider';
 
-const cn = createCn(classes);
 
 export interface ThemeSwitcherLabels {
   group?: string;
@@ -39,18 +37,18 @@ export function ThemeSwitcher({ labels }: { labels?: ThemeSwitcherLabels }) {
   ];
 
   return (
-    <div className={cn('ui-theme')} role="group" aria-label={l.group} title={l.group}>
+    <div className={styles['ui-theme']} role="group" aria-label={l.group} title={l.group}>
       {options.map((o) => (
         <button
           key={o.value}
           type="button"
-          className={cn(`ui-theme__option ${theme === o.value ? 'is-active' : ''}`)}
+          className={[styles['ui-theme__option'], styles[theme === o.value ? 'is-active' : ''] || ''].filter(Boolean).join(' ')}
           aria-pressed={theme === o.value}
           title={o.label}
           onClick={() => setTheme(o.value)}
         >
           <span aria-hidden="true">{o.icon}</span>
-          <span className={cn('ui-sr-only')}>{o.label}</span>
+          <span className={'ui-sr-only'}>{o.label}</span>
         </button>
       ))}
     </div>

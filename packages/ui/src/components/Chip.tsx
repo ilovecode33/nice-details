@@ -1,9 +1,7 @@
-import classes from './Chip.module.css';
+import styles from './Chip.module.css';
 import { navigationSemantics, tabSemantics } from '@ilovecode33/ui-core';
 import { type HTMLAttributes, type ReactNode } from 'react';
-import { createCn } from '../css';
 
-const cn = createCn(classes);
 
 /**
  * Navigation components. State and semantics come from
@@ -24,7 +22,7 @@ export function Chip({
   return (
     <button
       type="button"
-      className={cn(`ui-chip ${selected ? 'is-active' : ''}`)}
+      className={[styles['ui-chip'], styles[selected ? 'is-active' : ''] || ''].filter(Boolean).join(' ')}
       aria-pressed={selected}
       aria-label={label}
       onClick={onClick}

@@ -1,10 +1,8 @@
-import classes from './Carousel.module.css';
+import styles from './Carousel.module.css';
 import { mediaReducer } from '@ilovecode33/ui-core';
 import { useRef, type CSSProperties, type ReactNode } from 'react';
-import { createCn } from '../css';
 import { AspectImage } from './AspectImage';
 
-const cn = createCn(classes);
 
 /**
  * Image primitives, the shared PhotoItem type, and the carousel backed by the
@@ -49,10 +47,10 @@ export function Carousel({
   };
 
   return (
-    <section className={cn('ui-carousel')} aria-roledescription="carousel" aria-label={label}>
+    <section className={'ui-carousel'} aria-roledescription="carousel" aria-label={label}>
       <div
         ref={trackRef}
-        className={cn('ui-carousel__track')}
+        className={styles['ui-carousel__track']}
         tabIndex={0}
         onKeyDown={(event) => {
           if (event.key === 'ArrowRight') { event.preventDefault(); go('next'); }
@@ -64,34 +62,34 @@ export function Carousel({
         }}
       >
         {items.map((item) => (
-          <div className={cn('ui-carousel__slide')} key={item.id}>
+          <div className={styles['ui-carousel__slide']} key={item.id}>
             <AspectImage src={item.src} alt={item.alt} style={item.style}>
               {item.emoji}
             </AspectImage>
           </div>
         ))}
       </div>
-      <div className={cn('ui-carousel__footer')}>
+      <div className={styles['ui-carousel__footer']}>
         <button
           type="button"
-          className={cn('ui-carousel__nav')}
+          className={styles['ui-carousel__nav']}
           aria-label={labels.previous}
           disabled={index === 0}
           onClick={() => go('previous')}
         >
           ‹
         </button>
-        <div className={cn('ui-carousel__dots')} aria-hidden="true">
+        <div className={styles['ui-carousel__dots']} aria-hidden="true">
           {items.map((item, i) => (
             <span
               key={item.id}
-              className={cn(`ui-carousel__dot ${i === state.index ? 'is-active' : ''}`)}
+              className={[styles['ui-carousel__dot'], styles[i === state.index ? 'is-active' : ''] || ''].filter(Boolean).join(' ')}
             />
           ))}
         </div>
         <button
           type="button"
-          className={cn('ui-carousel__nav')}
+          className={styles['ui-carousel__nav']}
           aria-label={labels.next}
           disabled={index === items.length - 1}
           onClick={() => go('next')}

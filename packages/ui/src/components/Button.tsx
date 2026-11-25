@@ -1,10 +1,8 @@
-import classes from './Button.module.css';
+import styles from './Button.module.css';
 import { createPortal } from 'react-dom';
 import { useId, type ButtonHTMLAttributes, type CSSProperties, type ReactNode } from 'react';
 import { useDeform } from './Deformable';
-import { createCn } from '../css';
 
-const cn = createCn(classes);
 
 /** The Button, including its clipping-safe portalled halo. */
 
@@ -42,14 +40,12 @@ export function Button({
   // A unique dashed-ident per button so multiple portalled buttons never bind
   // to the same anchor. useId() contains ':' which is invalid in an ident.
   const anchorName = `--btn-halo-${useId().replace(/[^a-zA-Z0-9-]/g, '')}`;
-  const classes = cn(
-    `ui-btn ui-btn--${variant} ui-btn--${size} ${block ? 'ui-btn--block' : ''} ${haloPortal ? 'ui-btn--portal' : ''} ${className}`,
-  );
+  const classes = [styles['ui-btn'], styles[`ui-btn--${variant}`], styles[`ui-btn--${size}`], styles[block ? 'ui-btn--block' : ''] || '', styles[haloPortal ? 'ui-btn--portal' : ''] || '', className].filter(Boolean).join(' ');
 
   const content = (
     <>
       {icon && (
-        <span className={cn('ui-btn__icon')} aria-hidden="true">
+        <span className={styles['ui-btn__icon']} aria-hidden="true">
           {icon}
         </span>
       )}
@@ -87,7 +83,7 @@ export function Button({
     return (
       <>
         <span
-          className={cn('ui-btn-placeholder')}
+          className={styles['ui-btn-placeholder']}
           style={{ anchorName } as CSSProperties}
           aria-hidden="true"
         />

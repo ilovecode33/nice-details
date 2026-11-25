@@ -1,4 +1,4 @@
-import classes from './SearchBar.module.css';
+import styles from './SearchBar.module.css';
 import {
   checkboxSemantics,
   fieldSemantics,
@@ -13,9 +13,7 @@ import {
   type ReactNode,
   type TextareaHTMLAttributes,
 } from 'react';
-import { createCn } from '../css';
 
-const cn = createCn(classes);
 
 /**
  * Data-entry components. Validation state follows the `FormFieldState`
@@ -39,13 +37,13 @@ export function SearchBar({
   onClear?: () => void;
 }) {
   return (
-    <div className={cn('ui-searchbar')}>
-      <span className={cn('ui-searchbar__icon')} aria-hidden="true">
+    <div className={styles['ui-searchbar']}>
+      <span className={styles['ui-searchbar__icon']} aria-hidden="true">
         ⌕
       </span>
       <input
         type="search"
-        className={cn('ui-searchbar__input')}
+        className={styles['ui-searchbar__input']}
         value={value}
         placeholder={placeholder}
         aria-label={label}
@@ -54,7 +52,7 @@ export function SearchBar({
       {value && (
         <button
           type="button"
-          className={cn('ui-searchbar__clear')}
+          className={styles['ui-searchbar__clear']}
           aria-label={clearLabel}
           onClick={() => {
             onChange('');

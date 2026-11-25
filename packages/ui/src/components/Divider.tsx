@@ -1,9 +1,7 @@
-import classes from './Divider.module.css';
+import styles from './Divider.module.css';
 import { navigationSemantics, tabSemantics } from '@ilovecode33/ui-core';
 import { type HTMLAttributes, type ReactNode } from 'react';
-import { createCn } from '../css';
 
-const cn = createCn(classes);
 
 /**
  * Navigation components. State and semantics come from
@@ -11,5 +9,5 @@ const cn = createCn(classes);
  */
 
 export function Divider({ className = '', ...rest }: HTMLAttributes<HTMLHRElement>) {
-  return <hr className={cn(`ui-divider ${className}`)} {...rest} />;
+  return <hr className={[styles['ui-divider'], className].filter(Boolean).join(' ')} {...rest} />;
 }

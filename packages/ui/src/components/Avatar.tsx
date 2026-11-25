@@ -1,10 +1,8 @@
-import classes from './Avatar.module.css';
+import styles from './Avatar.module.css';
 import { mediaReducer } from '@ilovecode33/ui-core';
 import { useRef, type CSSProperties, type ReactNode } from 'react';
-import { createCn } from '../css';
 import type { PhotoItem } from './Carousel';
 
-const cn = createCn(classes);
 
 /**
  * Image primitives, the shared PhotoItem type, and the carousel backed by the
@@ -27,7 +25,7 @@ export function Avatar({
     .slice(0, 2)
     .toUpperCase();
   return (
-    <span className={cn(`ui-avatar ui-avatar--${size}`)} role="img" aria-label={name}>
+    <span className={[styles['ui-avatar'], styles[`ui-avatar--${size}`]].filter(Boolean).join(' ')} role="img" aria-label={name}>
       {src ? <img src={src} alt="" /> : initials}
     </span>
   );

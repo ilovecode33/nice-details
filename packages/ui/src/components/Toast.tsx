@@ -1,4 +1,4 @@
-import classes from './Toast.module.css';
+import styles from './Toast.module.css';
 import {
   feedbackReducer,
   feedbackSemantics,
@@ -7,9 +7,7 @@ import {
 } from '@ilovecode33/ui-core';
 import { type CSSProperties } from 'react';
 import { Check, Info, X } from 'lucide-react';
-import { createCn } from '../css';
 
-const cn = createCn(classes);
 
 /**
  * Transient feedback components backed by the `FeedbackState` contract from
@@ -43,21 +41,21 @@ export function Toast({
   );
   return (
     <div
-      className={cn(`ui-toast is-${tone}`)}
+      className={[styles['ui-toast'], styles[`is-${tone}`]].filter(Boolean).join(' ')}
       role={semantics.role}
       aria-live={tone === 'danger' ? 'assertive' : 'polite'}
     >
-      <span className={cn('ui-toast__dot')} aria-hidden="true" />
-      <span className={cn('ui-toast__message')}>{message}</span>
+      <span className={styles['ui-toast__dot']} aria-hidden="true" />
+      <span className={styles['ui-toast__message']}>{message}</span>
       {actionLabel && (
-        <button type="button" className={cn('ui-toast__action')} onClick={onAction}>
+        <button type="button" className={styles['ui-toast__action']} onClick={onAction}>
           {actionLabel}
         </button>
       )}
       {onDismiss && (
         <button
           type="button"
-          className={cn('ui-toast__dismiss')}
+          className={styles['ui-toast__dismiss']}
           aria-label={dismissLabel}
           onClick={onDismiss}
         >

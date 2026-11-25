@@ -1,9 +1,7 @@
-import classes from './TabBar.module.css';
+import styles from './TabBar.module.css';
 import { navigationSemantics, tabSemantics } from '@ilovecode33/ui-core';
 import { type HTMLAttributes, type ReactNode } from 'react';
-import { createCn } from '../css';
 
-const cn = createCn(classes);
 
 /**
  * Navigation components. State and semantics come from
@@ -33,10 +31,10 @@ export function TabBar<T extends string = string>({
   const semantics = navigationSemantics({ active: value }, label);
   return (
     <nav
-      className={cn(`ui-tabbar ui-tabbar--${variant}`)}
+      className={[styles['ui-tabbar'], styles[`ui-tabbar--${variant}`]].filter(Boolean).join(' ')}
       aria-label={semantics.label}
     >
-      <div className={cn('ui-tabbar__inner')} role="tablist">
+      <div className={styles['ui-tabbar__inner']} role="tablist">
         {items.map((item) => {
           const tab = tabSemantics({ value: item.value }, value);
           return (
@@ -46,7 +44,7 @@ export function TabBar<T extends string = string>({
               role={tab.role}
               aria-selected={tab.selected}
               tabIndex={tab.selected ? 0 : -1}
-              className={cn(`ui-tabbar__item ${tab.selected ? 'is-active' : ''}`)}
+              className={[styles['ui-tabbar__item'], styles[tab.selected ? 'is-active' : ''] || ''].filter(Boolean).join(' ')}
               onClick={() => onChange(item.value)}
               onKeyDown={(event) => {
                 const index = items.findIndex((candidate) => candidate.value === value);
@@ -62,13 +60,13 @@ export function TabBar<T extends string = string>({
               }}
             >
               {item.icon && (
-                <span className={cn('ui-tabbar__icon')} aria-hidden="true">
+                <span className={styles['ui-tabbar__icon']} aria-hidden="true">
                   {item.icon}
                 </span>
               )}
-              <span className={cn('ui-tabbar__label')}>{item.label}</span>
+              <span className={styles['ui-tabbar__label']}>{item.label}</span>
               {item.badge && (
-                <span className={cn('ui-tabbar__badge')} aria-hidden="true">
+                <span className={styles['ui-tabbar__badge']} aria-hidden="true">
                   {item.badge}
                 </span>
               )}

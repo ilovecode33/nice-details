@@ -1,9 +1,7 @@
-import classes from './Popover.module.css';
+import styles from './Popover.module.css';
 import { sheetSemantics } from '@ilovecode33/ui-core';
 import { useEffect, useRef, type ReactNode } from 'react';
-import { createCn } from '../css';
 
-const cn = createCn(classes);
 
 /**
  * Modal overlays backed by the `SheetState` contract from
@@ -40,7 +38,7 @@ export function Popover({
   }, [open, onClose]);
   if (!open) return null;
   return (
-    <div ref={wrapRef} className={cn('ui-popover')} role="dialog" aria-label={label}>
+    <div ref={wrapRef} className={styles['ui-popover']} role="dialog" aria-label={label}>
       {children}
     </div>
   );

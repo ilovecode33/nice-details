@@ -1,9 +1,8 @@
-import classes from './ActionSheet.module.css';
+import sheetClasses from './Sheet.module.css';
+import styles from './ActionSheet.module.css';
 import { sheetSemantics } from '@ilovecode33/ui-core';
 import { useEffect, useRef, type ReactNode } from 'react';
-import { createCn } from '../css';
 
-const cn = createCn(classes);
 
 /**
  * Modal overlays backed by the `SheetState` contract from
@@ -45,19 +44,19 @@ export function ActionSheet({
   if (!open) return null;
   const semantics = sheetSemantics({ presented: true }, title);
   return (
-    <div className={cn('ui-sheet')} role={semantics.role} aria-modal={semantics.modal} aria-label={semantics.label}>
-      <div className={cn('ui-sheet__scrim')} onClick={onClose} />
-      <div className={cn('ui-sheet__panel')}>
-        <div className={cn('ui-sheet__grabber')} aria-hidden="true" />
-        <header className={cn('ui-sheet__head')}>
+    <div className={sheetClasses['ui-sheet']} role={semantics.role} aria-modal={semantics.modal} aria-label={semantics.label}>
+      <div className={sheetClasses['ui-sheet__scrim']} onClick={onClose} />
+      <div className={sheetClasses['ui-sheet__panel']}>
+        <div className={sheetClasses['ui-sheet__grabber']} aria-hidden="true" />
+        <header className={sheetClasses['ui-sheet__head']}>
           <h2>{title}</h2>
         </header>
-        <div className={cn('ui-actionsheet__list')}>
+        <div className={styles['ui-actionsheet__list']}>
           {actions.map((action) => (
             <button
               key={action.label}
               type="button"
-              className={cn(`ui-actionsheet__action ${action.destructive ? 'is-destructive' : ''}`)}
+              className={[styles['ui-actionsheet__action'], styles[action.destructive ? 'is-destructive' : ''] || ''].filter(Boolean).join(' ')}
               onClick={() => {
                 action.onSelect();
                 onClose();
@@ -66,7 +65,7 @@ export function ActionSheet({
               {action.label}
             </button>
           ))}
-          <button type="button" className={cn('ui-actionsheet__cancel')} onClick={onClose}>
+          <button type="button" className={styles['ui-actionsheet__cancel']} onClick={onClose}>
             {cancelLabel}
           </button>
         </div>

@@ -1,8 +1,6 @@
-import classes from './Stack.module.css';
+import styles from './Stack.module.css';
 import { type HTMLAttributes, type ReactNode } from 'react';
-import { createCn } from '../css';
 
-const cn = createCn(classes);
 
 /** Layout primitives: Card, Stack, Row. */
 
@@ -14,7 +12,7 @@ export function Stack({
   ...rest
 }: HTMLAttributes<HTMLDivElement> & { gap?: 'sm' | 'md' | 'lg' }) {
   return (
-    <div className={cn(`ui-stack ui-stack--${gap} ${className}`)} {...rest}>
+    <div className={[styles['ui-stack'], styles[`ui-stack--${gap}`], className].filter(Boolean).join(' ')} {...rest}>
       {children}
     </div>
   );

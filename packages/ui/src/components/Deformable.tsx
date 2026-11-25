@@ -1,4 +1,4 @@
-import classes from './Deformable.module.css';
+import styles from './Deformable.module.css';
 import {
   deformReducer,
   type DeformAxis,
@@ -15,11 +15,9 @@ import {
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from 'react';
-import { createCn } from '../css';
 import { PressGlow } from './PressGlow';
 import { usePrefersReducedMotion } from './PressGlow';
 
-const cn = createCn(classes);
 
 /**
  * Dedicated elastic-drag component and hook. Resistance, stretch, squash and
@@ -260,7 +258,7 @@ export function Deformable({
   }, [deform.state, onDragStateChange]);
   return (
     <div
-      className={cn(`ui-deform ${className}`)}
+      className={[styles['ui-deform'], className].filter(Boolean).join(' ')}
       style={{ ...deform.style, ...style }}
       {...rest}
       {...deform.handlers}

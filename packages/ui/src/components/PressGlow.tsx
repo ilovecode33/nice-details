@@ -1,4 +1,4 @@
-import classes from './PressGlow.module.css';
+import styles from './PressGlow.module.css';
 import {
   deformReducer,
   type DeformAxis,
@@ -15,10 +15,8 @@ import {
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from 'react';
-import { createCn } from '../css';
 import { useDeform } from './Deformable';
 
-const cn = createCn(classes);
 
 /**
  * Dedicated elastic-drag component and hook. Resistance, stretch, squash and
@@ -59,6 +57,6 @@ const clampPercent = (value: number) => Math.min(100, Math.max(0, value));
 export function PressGlow({ pulse, held = false }: { pulse: number; held?: boolean }) {
   if (pulse === 0) return null;
   return (
-    <span key={pulse} className={cn(`ui-glow ${held ? 'is-held' : ''}`)} aria-hidden="true" />
+    <span key={pulse} className={[styles['ui-glow'], styles[held ? 'is-held' : ''] || ''].filter(Boolean).join(' ')} aria-hidden="true" />
   );
 }

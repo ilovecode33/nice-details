@@ -1,4 +1,4 @@
-import classes from './GlassSurface.module.css';
+import styles from './GlassSurface.module.css';
 import {
   floatingReducer,
   floatingSemantics,
@@ -8,9 +8,7 @@ import { useReducer, type CSSProperties, type HTMLAttributes, type ReactNode } f
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { PressGlow } from './PressGlow';
 import { useDeform } from './Deformable';
-import { createCn } from '../css';
 
-const cn = createCn(classes);
 
 /**
  * Floating chrome primitives. Material values come from `@ilovecode33/ui-tokens`;
@@ -38,7 +36,7 @@ export function GlassSurface({
   const motion = useDeform({ enabled: deform });
   return (
     <div
-      className={cn(`ui-glass ui-glass--${elevation} ${className}`)}
+      className={[styles['ui-glass'], styles[`ui-glass--${elevation}`], className].filter(Boolean).join(' ')}
       style={{ ...motion.style, ...style } as CSSProperties}
       {...rest}
       {...(deform ? motion.handlers : {})}

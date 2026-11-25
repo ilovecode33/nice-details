@@ -1,4 +1,4 @@
-import classes from './Skeleton.module.css';
+import styles from './Skeleton.module.css';
 import {
   feedbackReducer,
   feedbackSemantics,
@@ -7,9 +7,7 @@ import {
 } from '@ilovecode33/ui-core';
 import { type CSSProperties } from 'react';
 import { Check, Info, X } from 'lucide-react';
-import { createCn } from '../css';
 
-const cn = createCn(classes);
 
 /**
  * Transient feedback components backed by the `FeedbackState` contract from
@@ -24,7 +22,7 @@ export function Skeleton({
 }) {
   return (
     <span
-      className={cn('ui-skeleton')}
+      className={styles['ui-skeleton']}
       aria-hidden="true"
       style={{ width, height } as CSSProperties}
     />

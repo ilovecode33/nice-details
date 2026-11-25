@@ -1,12 +1,10 @@
-import classes from './PhotoGrid.module.css';
+import styles from './PhotoGrid.module.css';
 import { selectionModeReducer } from '@ilovecode33/ui-core';
 import { useReducer, type CSSProperties, type ReactNode } from 'react';
 import { Check } from 'lucide-react';
-import { createCn } from '../css';
 import { AspectImage } from './AspectImage';
 import type { PhotoItem } from './Carousel';
 
-const cn = createCn(classes);
 
 /** Photo grid and its selection-mode state helper. */
 
@@ -26,14 +24,14 @@ export function PhotoGrid({
   label?: string;
 }) {
   return (
-    <div className={cn('ui-photogrid')} role="list" aria-label={label}>
+    <div className={styles['ui-photogrid']} role="list" aria-label={label}>
       {items.map((item, index) => {
         const selected = selectedIds.includes(item.id);
         return (
-          <div key={item.id} role="listitem" className={cn('ui-photogrid__cell')}>
+          <div key={item.id} role="listitem" className={styles['ui-photogrid__cell']}>
             <button
               type="button"
-              className={cn(`ui-photogrid__button ${selected ? 'is-selected' : ''}`)}
+              className={[styles['ui-photogrid__button'], styles[selected ? 'is-selected' : ''] || ''].filter(Boolean).join(' ')}
               aria-pressed={selectionMode ? selected : undefined}
               aria-label={`${selectionMode ? (selected ? 'Deselect ' : 'Select ') : 'Open '}${item.alt}`}
               onClick={() => (selectionMode ? onToggle?.(item.id) : onOpen?.(index))}
@@ -42,7 +40,7 @@ export function PhotoGrid({
                 {item.emoji}
               </AspectImage>
               {selectionMode && (
-                <span className={cn('ui-photogrid__check')} aria-hidden="true">
+                <span className={styles['ui-photogrid__check']} aria-hidden="true">
                   {selected ? <Check /> : null}
                 </span>
               )}

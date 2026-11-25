@@ -1,4 +1,4 @@
-import classes from './TextArea.module.css';
+import styles from './TextArea.module.css';
 import {
   checkboxSemantics,
   fieldSemantics,
@@ -13,9 +13,7 @@ import {
   type ReactNode,
   type TextareaHTMLAttributes,
 } from 'react';
-import { createCn } from '../css';
 
-const cn = createCn(classes);
 
 /**
  * Data-entry components. Validation state follows the `FormFieldState`
@@ -28,5 +26,5 @@ export function TextArea({
   className = '',
   ...rest
 }: TextareaHTMLAttributes<HTMLTextAreaElement>) {
-  return <textarea className={cn(`ui-textarea ${className}`)} {...rest} />;
+  return <textarea className={[styles['ui-textarea'], className].filter(Boolean).join(' ')} {...rest} />;
 }

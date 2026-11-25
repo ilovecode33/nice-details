@@ -1,11 +1,9 @@
-import classes from './List.module.css';
+import styles from './List.module.css';
 import { disclosureReducer, disclosureSemantics, listSemantics } from '@ilovecode33/ui-core';
 import { useId, useState, type ReactNode } from 'react';
-import { createCn } from '../css';
 import { ListRow } from './ListRow';
 import type { ListItem } from './ListRow';
 
-const cn = createCn(classes);
 
 /** Disclosure and List components backed by `ui-core` contracts. */
 export function List<T extends string = string>({
@@ -28,7 +26,7 @@ export function List<T extends string = string>({
     label,
   );
   return (
-    <ul className={cn('ui-list')} role={semantics.role} aria-label={semantics.label}>
+    <ul className={styles['ui-list']} role={semantics.role} aria-label={semantics.label}>
       {items.map((item) => (
         <ListRow
           key={item.id}

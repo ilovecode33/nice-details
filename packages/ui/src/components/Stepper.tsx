@@ -1,4 +1,4 @@
-import classes from './Stepper.module.css';
+import styles from './Stepper.module.css';
 import {
   checkboxSemantics,
   fieldSemantics,
@@ -13,9 +13,7 @@ import {
   type ReactNode,
   type TextareaHTMLAttributes,
 } from 'react';
-import { createCn } from '../css';
 
-const cn = createCn(classes);
 
 /**
  * Data-entry components. Validation state follows the `FormFieldState`
@@ -40,22 +38,22 @@ export function Stepper({
 }) {
   const clamp = (n: number) => Math.min(Math.max(n, min), max);
   return (
-    <div className={cn('ui-stepper')} role="group" aria-label={label}>
+    <div className={styles['ui-stepper']} role="group" aria-label={label}>
       <button
         type="button"
-        className={cn('ui-stepper__button')}
+        className={styles['ui-stepper__button']}
         aria-label={`Decrease ${label}`}
         disabled={value <= min}
         onClick={() => onChange(clamp(value - step))}
       >
         −
       </button>
-      <output className={cn('ui-stepper__value')} aria-live="polite">
+      <output className={styles['ui-stepper__value']} aria-live="polite">
         {value}
       </output>
       <button
         type="button"
-        className={cn('ui-stepper__button')}
+        className={styles['ui-stepper__button']}
         aria-label={`Increase ${label}`}
         disabled={value >= max}
         onClick={() => onChange(clamp(value + step))}

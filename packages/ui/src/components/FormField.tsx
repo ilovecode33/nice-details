@@ -1,4 +1,4 @@
-import classes from './FormField.module.css';
+import styles from './FormField.module.css';
 import {
   checkboxSemantics,
   fieldSemantics,
@@ -13,9 +13,7 @@ import {
   type ReactNode,
   type TextareaHTMLAttributes,
 } from 'react';
-import { createCn } from '../css';
 
-const cn = createCn(classes);
 
 /**
  * Data-entry components. Validation state follows the `FormFieldState`
@@ -72,17 +70,17 @@ export function FormField({
   }
 
   return (
-    <div className={cn('ui-formfield')}>
-      <label className={cn('ui-formfield__label')} htmlFor={controlId}>
+    <div className={styles['ui-formfield']}>
+      <label className={styles['ui-formfield__label']} htmlFor={controlId}>
         {label}
       </label>
       {control}
       {error ? (
-        <p id={errorId} className={cn('ui-formfield__error')} role="alert">
+        <p id={errorId} className={styles['ui-formfield__error']} role="alert">
           <span aria-hidden="true">✕</span> {error}
         </p>
       ) : (
-        hint && <p className={cn('ui-formfield__hint')}>{hint}</p>
+        hint && <p className={styles['ui-formfield__hint']}>{hint}</p>
       )}
     </div>
   );

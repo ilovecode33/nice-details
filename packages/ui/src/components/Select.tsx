@@ -1,4 +1,4 @@
-import classes from './Select.module.css';
+import styles from './Select.module.css';
 import {
   comboboxSemantics,
   enabledIndexes,
@@ -19,9 +19,7 @@ import {
   type ReactNode,
 } from 'react';
 import { Deformable } from './Deformable';
-import { createCn } from '../css';
 
-const cn = createCn(classes);
 
 /** Accessible custom dropdown with rich option content. */
 
@@ -216,14 +214,14 @@ export function Select<T extends string = string>({
     >
     <div
       ref={wrapRef}
-      className={cn(`ui-select__wrap ${className}`)}
+      className={[styles['ui-select__wrap'], className].filter(Boolean).join(' ')}
       style={{ zIndex: state.open ? 50 : undefined }}
     >
       <button
         id={id}
         ref={triggerRef}
         type="button"
-        className={cn(`ui-select ui-select--trigger ${state.open ? 'is-open' : ''}`)}
+        className={[styles['ui-select'], styles['ui-select--trigger'], styles[state.open ? 'is-open' : ''] || ''].filter(Boolean).join(' ')}
         role={semantics.role}
         aria-haspopup="listbox"
         aria-expanded={semantics.expanded}
@@ -235,17 +233,17 @@ export function Select<T extends string = string>({
         onClick={() => (state.open ? closeList(false) : openList())}
         onKeyDown={onTriggerKeyDown}
       >
-        <span className={cn('ui-select__value')}>
+        <span className={styles['ui-select__value']}>
           {selected ? (
             <>
               {selected.leading}
               <span>{selected.label}</span>
             </>
           ) : (
-            <span className={cn('ui-select__placeholder')}>{placeholder}</span>
+            <span className={styles['ui-select__placeholder']}>{placeholder}</span>
           )}
         </span>
-        <span className={cn('ui-select__chevron')} aria-hidden="true">
+        <span className={styles['ui-select__chevron']} aria-hidden="true">
           ⌄
         </span>
       </button>
@@ -256,9 +254,9 @@ export function Select<T extends string = string>({
           id={listId}
           role="listbox"
           aria-label={accessibleLabel}
-          className={cn('ui-select__menu')}
+          className={styles['ui-select__menu']}
         >
-          {list.length === 0 && <div className={cn('ui-select__empty')}>No options</div>}
+          {list.length === 0 && <div className={styles['ui-select__empty']}>No options</div>}
           {list.map((option, index) => {
             const optionState = optionSemantics(option, state, option.textValue);
             return (
@@ -272,19 +270,19 @@ export function Select<T extends string = string>({
                 aria-selected={optionState.selected}
                 aria-disabled={optionState.disabled || undefined}
                 aria-label={optionState.label}
-                className={cn(`ui-select__option ${index === state.activeIndex ? 'is-active' : ''}`)}
+                className={[styles['ui-select__option'], styles[index === state.activeIndex ? 'is-active' : ''] || ''].filter(Boolean).join(' ')}
                 onPointerEnter={() => !option.disabled && dispatch({ type: 'setActive', index })}
                 onClick={() => choose(option)}
               >
                 {option.leading && (
-                  <span className={cn('ui-select__leading')} aria-hidden="true">
+                  <span className={styles['ui-select__leading']} aria-hidden="true">
                     {option.leading}
                   </span>
                 )}
-                <span className={cn('ui-select__option-label')}>{option.label}</span>
+                <span className={styles['ui-select__option-label']}>{option.label}</span>
                 {option.trailing ??
                   (optionState.selected ? (
-                    <span className={cn('ui-select__check')} aria-hidden="true">
+                    <span className={styles['ui-select__check']} aria-hidden="true">
                       ✓
                     </span>
                   ) : null)}

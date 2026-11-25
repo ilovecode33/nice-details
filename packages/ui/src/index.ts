@@ -1,2 +1,2 @@
 export * from './components';
-export { cn } from './css';
+export { cn } from './styles';

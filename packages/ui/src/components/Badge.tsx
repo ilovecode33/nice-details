@@ -1,9 +1,7 @@
-import classes from './Badge.module.css';
+import styles from './Badge.module.css';
 import { navigationSemantics, tabSemantics } from '@ilovecode33/ui-core';
 import { type HTMLAttributes, type ReactNode } from 'react';
-import { createCn } from '../css';
 
-const cn = createCn(classes);
 
 /**
  * Navigation components. State and semantics come from
@@ -17,5 +15,5 @@ export function Badge({
   children: ReactNode;
   tone?: 'neutral' | 'accent' | 'success' | 'danger';
 }) {
-  return <span className={cn(`ui-badge is-${tone}`)}>{children}</span>;
+  return <span className={[styles['ui-badge'], styles[`is-${tone}`]].filter(Boolean).join(' ')}>{children}</span>;
 }

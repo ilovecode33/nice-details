@@ -1,4 +1,4 @@
-import classes from './Segmented.module.css';
+import styles from './Segmented.module.css';
 import { tabSemantics } from '@ilovecode33/ui-core';
 import {
   useLayoutEffect,
@@ -8,11 +8,9 @@ import {
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from 'react';
-import { createCn } from '../css';
 import { useDeform } from './Deformable';
 import { usePrefersReducedMotion } from './PressGlow';
 
-const cn = createCn(classes);
 
 /** iOS-style segmented control with a draggable selected pill. */
 
@@ -179,7 +177,7 @@ export function Segmented<T extends string>({
   return (
     <div
       ref={trackRef}
-      className={cn('ui-segmented')}
+      className={styles['ui-segmented']}
       role="tablist"
       aria-label={label}
       onPointerDown={onPointerDown}
@@ -188,15 +186,13 @@ export function Segmented<T extends string>({
       onPointerCancel={onEnd}
     >
       {slots && (
-        <div ref={thumbRef} className={cn('ui-segmented__thumb')} style={thumbStyle}>
+        <div ref={thumbRef} className={styles['ui-segmented__thumb']} style={thumbStyle}>
           <span
-            className={cn(
-              `ui-segmented__sheen ${glow.held ? 'is-held' : ''} ${hovered ? 'is-hovered' : ''}`,
-            )}
+            className={[styles['ui-segmented__sheen'], styles[glow.held ? 'is-held' : ''] || '', styles[hovered ? 'is-hovered' : ''] || ''].filter(Boolean).join(' ')}
             aria-hidden="true"
           />
           <span
-            className={cn(`ui-segmented__spot ${glow.held ? 'is-held' : ''}`)}
+            className={[styles['ui-segmented__spot'], styles[glow.held ? 'is-held' : ''] || ''].filter(Boolean).join(' ')}
             style={
               {
                 '--seg-glow-x': `${glow.x}%`,
@@ -220,7 +216,7 @@ export function Segmented<T extends string>({
             aria-disabled={semantics.disabled || undefined}
             aria-label={semantics.label}
             tabIndex={o.value === value ? 0 : -1}
-            className={cn(`ui-segmented__item ${value === o.value ? 'is-active' : ''}`)}
+            className={[styles['ui-segmented__item'], styles[value === o.value ? 'is-active' : ''] || ''].filter(Boolean).join(' ')}
             onPointerEnter={() => setHoveredIndex(index)}
             onPointerLeave={() => setHoveredIndex(null)}
             onClick={() => {

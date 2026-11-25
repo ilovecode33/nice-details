@@ -1,4 +1,4 @@
-import classes from './ActivityIndicator.module.css';
+import styles from './ActivityIndicator.module.css';
 import {
   feedbackReducer,
   feedbackSemantics,
@@ -7,9 +7,7 @@ import {
 } from '@ilovecode33/ui-core';
 import { type CSSProperties } from 'react';
 import { Check, Info, X } from 'lucide-react';
-import { createCn } from '../css';
 
-const cn = createCn(classes);
 
 /**
  * Transient feedback components backed by the `FeedbackState` contract from
@@ -19,8 +17,8 @@ const cn = createCn(classes);
 
 export function ActivityIndicator({ label = 'Loading' }: { label?: string }) {
   return (
-    <div className={cn('ui-spinner')} role="status" aria-label={label}>
-      <span className={cn('ui-spinner__ring')} aria-hidden="true" />
+    <div className={styles['ui-spinner']} role="status" aria-label={label}>
+      <span className={styles['ui-spinner__ring']} aria-hidden="true" />
     </div>
   );
 }

@@ -1,4 +1,5 @@
-import classes from './FloatingBar.module.css';
+import glassSurfaceClasses from './GlassSurface.module.css';
+import styles from './FloatingBar.module.css';
 import {
   floatingReducer,
   floatingSemantics,
@@ -8,9 +9,7 @@ import { useReducer, type CSSProperties, type HTMLAttributes, type ReactNode } f
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { PressGlow } from './PressGlow';
 import { useDeform } from './Deformable';
-import { createCn } from '../css';
 
-const cn = createCn(classes);
 
 /**
  * Floating chrome primitives. Material values come from `@ilovecode33/ui-tokens`;
@@ -67,25 +66,21 @@ export function FloatingBar({
   return (
     <div
       data-ui="floating-bar"
-      className={cn(
-        `ui-floating ui-floating--${position} ${current.collapsed ? 'is-collapsed' : ''} ${className}`,
-      )}
+      className={[styles['ui-floating'], styles[`ui-floating--${position}`], styles[current.collapsed ? 'is-collapsed' : ''] || '', className].filter(Boolean).join(' ')}
     >
       <div
-        className={cn(
-          `ui-glass ui-floating__surface ${current.collapsed ? 'is-collapsed' : ''}`,
-        )}
+        className={[glassSurfaceClasses['ui-glass'], styles['ui-floating__surface'], styles[current.collapsed ? 'is-collapsed' : ''] || ''].filter(Boolean).join(' ')}
         role={semantics.role}
         aria-label={semantics.label}
         style={motion.style}
         {...(deform ? motion.handlers : {})}
       >
         {deform && <PressGlow pulse={motion.pulse} />}
-        <div className={cn('ui-floating__content')}>{children}</div>
+        <div className={styles['ui-floating__content']}>{children}</div>
         {collapsible && (
           <button
             type="button"
-            className={cn('ui-floating__toggle')}
+            className={styles['ui-floating__toggle']}
             aria-expanded={semantics.expanded}
             aria-label={current.collapsed ? expandLabel : collapseLabel}
             onClick={toggle}

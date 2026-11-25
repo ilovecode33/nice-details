@@ -1,4 +1,4 @@
-import classes from './UIFoundation.module.css';
+import styles from './UIFoundation.module.css';
 import {
   createContext,
   useContext,
@@ -7,13 +7,11 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { createCn } from '../css';
 import { useTheme, type Theme, DEFAULT_THEME } from './ThemeProvider';
 import { useAccent, type Accent, DEFAULT_ACCENT } from './AccentProvider';
 import { ThemeProvider } from './ThemeProvider';
 import { AccentProvider } from './AccentProvider';
 
-const cn = createCn(classes);
 
 /**
  * UIFoundation — the single entry point for theme, accent and locale context.
@@ -113,7 +111,7 @@ export function UIFoundation({
     <ThemeProvider defaultTheme={defaultTheme}>
       <AccentProvider defaultAccent={defaultAccent}>
         <LocaleContext.Provider value={value}>
-          <div className={cn(`ui-foundation ${className}`)}>{children}</div>
+          <div className={[styles['ui-foundation'], className].filter(Boolean).join(' ')}>{children}</div>
         </LocaleContext.Provider>
       </AccentProvider>
     </ThemeProvider>

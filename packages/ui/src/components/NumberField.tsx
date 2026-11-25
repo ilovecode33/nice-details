@@ -1,4 +1,4 @@
-import classes from './NumberField.module.css';
+import styles from './NumberField.module.css';
 import {
   checkboxSemantics,
   fieldSemantics,
@@ -13,9 +13,7 @@ import {
   type ReactNode,
   type TextareaHTMLAttributes,
 } from 'react';
-import { createCn } from '../css';
 
-const cn = createCn(classes);
 
 /**
  * Data-entry components. Validation state follows the `FormFieldState`
@@ -31,7 +29,7 @@ export function NumberField({
     <input
       type="number"
       inputMode="decimal"
-      className={cn(`ui-input ${className}`)}
+      className={[styles['ui-input'], className].filter(Boolean).join(' ')}
       {...rest}
     />
   );

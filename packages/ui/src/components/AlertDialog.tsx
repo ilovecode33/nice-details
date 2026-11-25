@@ -1,9 +1,10 @@
-import classes from './AlertDialog.module.css';
+import buttonClasses from './Button.module.css';
+import rowClasses from './Row.module.css';
+import sheetClasses from './Sheet.module.css';
+import styles from './AlertDialog.module.css';
 import { sheetSemantics } from '@ilovecode33/ui-core';
 import { useEffect, useRef, type ReactNode } from 'react';
-import { createCn } from '../css';
 
-const cn = createCn(classes);
 
 /**
  * Modal overlays backed by the `SheetState` contract from
@@ -43,20 +44,20 @@ export function AlertDialog({
   if (!open) return null;
   const semantics = sheetSemantics({ presented: true }, title);
   return (
-    <div className={cn('ui-sheet')} role={semantics.role} aria-modal={semantics.modal} aria-label={semantics.label}>
-      <div className={cn('ui-sheet__scrim')} onClick={onClose} />
-      <div className={cn('ui-sheet__panel ui-alertdialog__panel')}>
-        <header className={cn('ui-sheet__head')}>
+    <div className={sheetClasses['ui-sheet']} role={semantics.role} aria-modal={semantics.modal} aria-label={semantics.label}>
+      <div className={sheetClasses['ui-sheet__scrim']} onClick={onClose} />
+      <div className={[sheetClasses['ui-sheet__panel'], styles['ui-alertdialog__panel']].filter(Boolean).join(' ')}>
+        <header className={sheetClasses['ui-sheet__head']}>
           <h2>{title}</h2>
         </header>
-        <div className={cn('ui-alertdialog__body')}>{message}</div>
-        <div className={cn('ui-row ui-alertdialog__actions')}>
-          <button type="button" className={cn('ui-btn ui-btn--secondary')} onClick={onClose}>
+        <div className={styles['ui-alertdialog__body']}>{message}</div>
+        <div className={[rowClasses['ui-row'], styles['ui-alertdialog__actions']].filter(Boolean).join(' ')}>
+          <button type="button" className={[buttonClasses['ui-btn'], buttonClasses['ui-btn--secondary']].filter(Boolean).join(' ')} onClick={onClose}>
             {cancelLabel}
           </button>
           <button
             type="button"
-            className={cn(`ui-btn ${destructive ? 'ui-btn--destructive' : 'ui-btn--primary'}`)}
+            className={[buttonClasses['ui-btn'], styles[destructive ? buttonClasses['ui-btn--destructive'] : buttonClasses['ui-btn--primary']] || ''].filter(Boolean).join(' ')}
             onClick={() => {
               onConfirm();
               onClose();

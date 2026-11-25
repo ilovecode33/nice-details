@@ -1,10 +1,9 @@
-import classes from './Sheet.module.css';
+import buttonClasses from './Button.module.css';
+import styles from './Sheet.module.css';
 import { sheetSemantics } from '@ilovecode33/ui-core';
 import { useEffect, useRef, type CSSProperties, type ReactNode } from 'react';
 import { X } from 'lucide-react';
-import { createCn } from '../css';
 
-const cn = createCn(classes);
 
 /** Bottom sheet / centered dialog overlay. */
 
@@ -42,29 +41,29 @@ export function Sheet({
   const semantics = sheetSemantics({ presented: open }, typeof title === 'string' ? title : undefined);
   return (
     <div
-      className={cn('ui-sheet')}
+      className={styles['ui-sheet']}
       role={semantics.role}
       aria-modal={semantics.modal}
       aria-label={semantics.label}
     >
-      <div className={cn('ui-sheet__scrim')} onClick={onClose} />
-      <div className={cn('ui-sheet__panel')} style={style}>
-        <div className={cn('ui-sheet__grabber')} aria-hidden="true" />
-        <header className={cn('ui-sheet__head')}>
+      <div className={styles['ui-sheet__scrim']} onClick={onClose} />
+      <div className={styles['ui-sheet__panel']} style={style}>
+        <div className={styles['ui-sheet__grabber']} aria-hidden="true" />
+        <header className={styles['ui-sheet__head']}>
           <h2>{title}</h2>
           <button
             ref={closeRef}
             type="button"
-            className={cn('ui-btn ui-btn--plain ui-btn--compact')}
+            className={[buttonClasses['ui-btn'], buttonClasses['ui-btn--plain'], buttonClasses['ui-btn--compact']].filter(Boolean).join(' ')}
             aria-label="Close"
             onClick={onClose}
           >
-            <span className={cn('ui-btn__icon')} aria-hidden="true">
+            <span className={buttonClasses['ui-btn__icon']} aria-hidden="true">
               <X />
             </span>
           </button>
         </header>
-        <div className={cn('ui-sheet__body')}>{children}</div>
+        <div className={styles['ui-sheet__body']}>{children}</div>
       </div>
     </div>
   );
