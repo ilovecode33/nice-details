@@ -207,4 +207,34 @@ public enum UITokens {
       tint: Color(red: 0.843, green: 1.000, blue: 0.373, opacity: 0.070)
     )
   }
+
+  /// Composed recipes; kept as raw strings because CSS color-mix()/var()
+  /// expressions have no SwiftUI equivalent.
+  public enum Derived {
+    public static let values: [String: String] = [
+      "--bg-gradient": "radial-gradient(1100px 700px at 12% -12%, var(--accent-tint), transparent 60%), radial-gradient(900px 620px at 92% -4%, var(--accent-tint), transparent 55%)",
+      "--icon-sm": "16px",
+      "--icon-md": "20px",
+      "--icon-lg": "24px",
+      "--z-portal": "1000",
+      "--dock-scroll-dur": "0.24s",
+      "--glow-dur": "0.6s",
+      "--glow-ease": "ease-out",
+      "--glow-size": "190%",
+      "--glow-peak": "0.65",
+      "--glow-specular": "#ffffff",
+      "--seg-thumb-fill": "color-mix(in srgb, var(--accent) 34%, transparent)",
+      "--seg-thumb-solid": "color-mix(in srgb, var(--accent) 55%, var(--bg-elevated))",
+      "--seg-thumb-stroke": "var(--glass-highlight)",
+      "--seg-thumb-ink": "var(--text)",
+      "--seg-thumb-glow": "var(--accent-glow)",
+      "--seg-thumb-halo": "color-mix(in srgb, var(--accent) 45%, var(--glass-highlight))",
+      "--btn-glow": "color-mix(in srgb, var(--accent) 60%, transparent)",
+      "--btn-glow-soft": "color-mix(in srgb, var(--accent) 32%, transparent)",
+      "--btn-danger-stroke": "var(--glass-highlight)",
+      "--btn-danger-glow": "color-mix(in srgb, var(--danger) 60%, transparent)",
+      "--btn-danger-glow-soft": "color-mix(in srgb, var(--danger) 32%, transparent)",
+      "--glass-backdrop": "blur(var(--glass-blur)) saturate(var(--glass-saturate))"
+    ]
+  }
 }

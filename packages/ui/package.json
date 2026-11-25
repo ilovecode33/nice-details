@@ -20,7 +20,7 @@
     "**/*.css"
   ],
   "scripts": {
-    "build": "rslib build && cp src/styles.css dist/styles.css && cat dist/index.css >> dist/styles.css",
+    "build": "rslib build && bun scripts/build-styles.ts",
     "dev": "rslib build --watch",
     "typecheck": "tsc --noEmit",
     "test": "rstest run",

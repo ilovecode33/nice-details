@@ -306,6 +306,89 @@ export const SAFE_AREA = {
   right: 'env(safe-area-inset-right, 0px)',
 } as const;
 
+/* ── Derived recipes ─────────────────────────────────────────────────────────
+   Values composed from the base tokens above. They are real tokens too: every
+   renderer receives them, and the web CSS keeps the var()/color-mix() recipes
+   so a runtime accent override still cascades correctly.
+   ──────────────────────────────────────────────────────────────────────────── */
+
+export const DERIVED = {
+  bgGradient:
+    'radial-gradient(1100px 700px at 12% -12%, var(--accent-tint), transparent 60%), radial-gradient(900px 620px at 92% -4%, var(--accent-tint), transparent 55%)',
+  iconSm: '16px',
+  iconMd: '20px',
+  iconLg: '24px',
+  zPortal: '1000',
+  dockScrollDuration: '0.24s',
+  glowDuration: '0.6s',
+  glowEase: 'ease-out',
+  glowSize: '190%',
+  glowPeak: '0.65',
+  glowSpecular: '#ffffff',
+  segThumbFill: 'color-mix(in srgb, var(--accent) 34%, transparent)',
+  segThumbSolid: 'color-mix(in srgb, var(--accent) 55%, var(--bg-elevated))',
+  segThumbStroke: 'var(--glass-highlight)',
+  segThumbInk: 'var(--text)',
+  segThumbGlow: 'var(--accent-glow)',
+  segThumbHalo: 'color-mix(in srgb, var(--accent) 45%, var(--glass-highlight))',
+  btnGlow: 'color-mix(in srgb, var(--accent) 60%, transparent)',
+  btnGlowSoft: 'color-mix(in srgb, var(--accent) 32%, transparent)',
+  btnDangerStroke: 'var(--glass-highlight)',
+  btnDangerGlow: 'color-mix(in srgb, var(--danger) 60%, transparent)',
+  btnDangerGlowSoft: 'color-mix(in srgb, var(--danger) 32%, transparent)',
+  glassBackdrop: 'blur(var(--glass-blur)) saturate(var(--glass-saturate))',
+} as const;
+
+export const DERIVED_VARS: Record<keyof typeof DERIVED, string> = {
+  bgGradient: '--bg-gradient',
+  iconSm: '--icon-sm',
+  iconMd: '--icon-md',
+  iconLg: '--icon-lg',
+  zPortal: '--z-portal',
+  dockScrollDuration: '--dock-scroll-dur',
+  glowDuration: '--glow-dur',
+  glowEase: '--glow-ease',
+  glowSize: '--glow-size',
+  glowPeak: '--glow-peak',
+  glowSpecular: '--glow-specular',
+  segThumbFill: '--seg-thumb-fill',
+  segThumbSolid: '--seg-thumb-solid',
+  segThumbStroke: '--seg-thumb-stroke',
+  segThumbInk: '--seg-thumb-ink',
+  segThumbGlow: '--seg-thumb-glow',
+  segThumbHalo: '--seg-thumb-halo',
+  btnGlow: '--btn-glow',
+  btnGlowSoft: '--btn-glow-soft',
+  btnDangerStroke: '--btn-danger-stroke',
+  btnDangerGlow: '--btn-danger-glow',
+  btnDangerGlowSoft: '--btn-danger-glow-soft',
+  glassBackdrop: '--glass-backdrop',
+};
+
+/** A white edge vanishes on a near-white light track; use the accent instead. */
+export const DERIVED_LIGHT = {
+  segThumbStroke: 'color-mix(in srgb, var(--accent) 55%, transparent)',
+  btnDangerStroke: 'color-mix(in srgb, var(--danger) 55%, transparent)',
+} as const;
+
+export const DERIVED_LIGHT_VARS: Record<keyof typeof DERIVED_LIGHT, string> = {
+  segThumbStroke: '--seg-thumb-stroke',
+  btnDangerStroke: '--btn-danger-stroke',
+};
+
+function derivedEntries(): Array<[string, string]> {
+  return Object.entries(DERIVED).map(
+    ([key, value]) => [DERIVED_VARS[key as keyof typeof DERIVED], value] as [string, string],
+  );
+}
+
+function derivedLightEntries(): Array<[string, string]> {
+  return Object.entries(DERIVED_LIGHT).map(
+    ([key, value]) =>
+      [DERIVED_LIGHT_VARS[key as keyof typeof DERIVED_LIGHT], value] as [string, string],
+  );
+}
+
 /* ── Generators (dev-time only) ──────────────────────────────────────────── */
 
 function cssBlock(selector: string, entries: Array<[string, string]>): string {
@@ -376,7 +459,14 @@ export function buildCssVariables(): string {
       ['--morph-dur', MOTION.morphDuration],
       ['--morph-ease', MOTION.morphEase],
       ...Object.entries(SAFE_AREA).map(([key, value]) => [`--safe-${key}`, value] as [string, string]),
+      ...derivedEntries(),
     ]),
+    '',
+    cssBlock(":root[data-theme='light']", derivedLightEntries()),
+    '',
+    '@media (prefers-color-scheme: light) {',
+    cssBlock("  :root[data-theme='system']", derivedLightEntries()).replace(/^/gm, '  '),
+    '}',
     '',
   ].join('\n');
 }
@@ -396,6 +486,8 @@ export function buildTokensJson(): string {
       motion: MOTION,
       touch: TOUCH,
       safeArea: SAFE_AREA,
+      derived: DERIVED,
+      derivedLight: DERIVED_LIGHT,
     },
     null,
     2,
@@ -446,6 +538,12 @@ function swiftName(key: string): string {
 
 /** A SwiftUI draft with the same values, intended for a future native renderer. */
 export function buildSwiftTokens(): string {
+  const derivedLines = Object.entries(DERIVED)
+    .map(
+      ([key, value]) =>
+        `      "${DERIVED_VARS[key as keyof typeof DERIVED]}": ${JSON.stringify(value)}`,
+    )
+    .join(',\n');
   const paletteStruct = (accent: Accent, mode: 'light' | 'dark'): string => {
     const p = ACCENT_PALETTES[accent][mode];
     return `    public static let ${accent}${mode === 'light' ? 'Light' : 'Dark'} = Palette(
@@ -554,6 +652,14 @@ ${glassStruct('dark')}
 
   public enum Accent {
 ${paletteLines}
+  }
+
+  /// Composed recipes; kept as raw strings because CSS color-mix()/var()
+  /// expressions have no SwiftUI equivalent.
+  public enum Derived {
+    public static let values: [String: String] = [
+${derivedLines}
+    ]
   }
 }
 `;
