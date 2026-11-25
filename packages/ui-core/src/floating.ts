@@ -1,17 +1,5 @@
-import type { PortableComponent, Semantics } from './types';
-
-/** State of a floating chrome surface (header, dock, footer). */
-export interface FloatingState {
-  collapsed: boolean;
-  hidden: boolean;
-}
-
-export type FloatingEvent =
-  | { type: 'collapse' }
-  | { type: 'expand' }
-  | { type: 'toggleCollapse' }
-  | { type: 'hide' }
-  | { type: 'show' };
+import type { FloatingState, FloatingEvent, Semantics, PortableComponent } from '@ilovecode33/ui-types';
+export type { FloatingState, FloatingEvent } from '@ilovecode33/ui-types';
 
 export function floatingReducer(
   state: FloatingState,

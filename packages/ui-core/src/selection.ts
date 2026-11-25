@@ -1,23 +1,5 @@
-import type { PortableComponent, Semantics } from './types';
-
-export interface SelectionOption<T extends string = string> {
-  value: T;
-  disabled?: boolean;
-}
-
-export interface SelectionState<T extends string = string> {
-  options: readonly SelectionOption<T>[];
-  value?: T;
-  open: boolean;
-  activeIndex: number;
-}
-
-export type SelectionEvent<T extends string = string> =
-  | { type: 'open' }
-  | { type: 'close' }
-  | { type: 'move'; delta: 1 | -1 }
-  | { type: 'setActive'; index: number }
-  | { type: 'select'; value: T };
+import type { SelectionOption, SelectionState, SelectionEvent, Semantics, PortableComponent } from '@ilovecode33/ui-types';
+export type { SelectionOption, SelectionState, SelectionEvent } from '@ilovecode33/ui-types';
 
 export function enabledIndexes<T extends string>(state: SelectionState<T>): number[] {
   return state.options.flatMap((option, index) => (option.disabled ? [] : [index]));

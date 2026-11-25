@@ -1,14 +1,5 @@
-import type { PortableComponent, Semantics } from './types';
-
-export interface MediaState {
-  index: number;
-  count: number;
-}
-
-export type MediaEvent =
-  | { type: 'next' }
-  | { type: 'previous' }
-  | { type: 'goTo'; index: number };
+import type { MediaState, MediaEvent, Semantics, PortableComponent, SelectionModeState, SelectionModeEvent } from '@ilovecode33/ui-types';
+export type { MediaState, MediaEvent, SelectionModeState, SelectionModeEvent } from '@ilovecode33/ui-types';
 
 function clamp(index: number, count: number): number {
   if (count <= 0) return 0;
@@ -29,17 +20,6 @@ export function mediaReducer(state: MediaState, event: MediaEvent): MediaState {
 export function mediaSemantics(state: MediaState, label?: string): Semantics {
   return { role: 'group', label: label ?? `Item ${state.index + 1} of ${state.count}` };
 }
-
-export interface SelectionModeState {
-  active: boolean;
-  selectedIds: readonly string[];
-}
-
-export type SelectionModeEvent =
-  | { type: 'enter' }
-  | { type: 'exit' }
-  | { type: 'toggle'; id: string }
-  | { type: 'clear' };
 
 export function selectionModeReducer(
   state: SelectionModeState,

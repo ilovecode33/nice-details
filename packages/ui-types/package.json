@@ -21,7 +21,6 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@ilovecode33/ui-core": "workspace:*",
     "@ilovecode33/ui-tokens": "workspace:*"
   },
   "devDependencies": {

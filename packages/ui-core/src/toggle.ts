@@ -1,13 +1,5 @@
-import type { PortableComponent, Semantics } from './types';
-
-export interface ToggleState {
-  checked: boolean;
-  disabled?: boolean;
-}
-
-export type ToggleEvent =
-  | { type: 'toggle' }
-  | { type: 'set'; checked: boolean };
+import type { ToggleState, ToggleEvent, Semantics, PortableComponent } from '@ilovecode33/ui-types';
+export type { ToggleState, ToggleEvent } from '@ilovecode33/ui-types';
 
 export function toggleReducer(state: ToggleState, event: ToggleEvent): ToggleState {
   if (state.disabled) return state;

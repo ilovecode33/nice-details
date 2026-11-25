@@ -123,6 +123,9 @@
     "packages/ui-core": {
       "name": "@ilovecode33/ui-core",
       "version": "0.1.0",
+      "dependencies": {
+        "@ilovecode33/ui-types": "workspace:*",
+      },
       "devDependencies": {
         "@rslib/core": "^1.0.7",
         "typescript": "^5.9.3",
@@ -141,7 +144,6 @@
       "name": "@ilovecode33/ui-types",
       "version": "0.1.0",
       "dependencies": {
-        "@ilovecode33/ui-core": "workspace:*",
         "@ilovecode33/ui-tokens": "workspace:*",
       },
       "devDependencies": {

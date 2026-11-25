@@ -1,5 +1,5 @@
 import type { CSSProperties, PointerEvent as ReactPointerEvent } from 'react';
-import type { DeformAxis, DeformState } from '@ilovecode33/ui-core';
+import type { DeformAxis, DeformState } from './core';
 import type { Accent } from '@ilovecode33/ui-tokens';
 
 /** Appearance preference: follow the OS, or force a mode. */

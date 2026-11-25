@@ -23,5 +23,8 @@
   "devDependencies": {
     "@rslib/core": "^1.0.7",
     "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@ilovecode33/ui-types": "workspace:*"
   }
 }

@@ -1,16 +1,5 @@
-import type { PortableComponent, Semantics } from './types';
-
-export interface FieldState<T = string> {
-  value: T;
-  touched: boolean;
-  error?: string;
-}
-
-export type FieldEvent<T = string> =
-  | { type: 'change'; value: T }
-  | { type: 'blur' }
-  | { type: 'error'; message?: string }
-  | { type: 'reset'; value?: T };
+import type { FieldState, FieldEvent, Semantics, PortableComponent } from '@ilovecode33/ui-types';
+export type { FieldState, FieldEvent } from '@ilovecode33/ui-types';
 
 export function fieldReducer<T>(state: FieldState<T>, event: FieldEvent<T>): FieldState<T> {
   switch (event.type) {

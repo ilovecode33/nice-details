@@ -1,41 +1,12 @@
-import type { PortableComponent, Semantics } from './types';
+import type {
+  DeformAxis,
+  DeformEvent,
+  DeformState,
+  PortableComponent,
+  Semantics,
+} from '@ilovecode33/ui-types';
 
-/**
- * Elastic drag feedback. Raw pointer distance is pushed through a rubber-band
- * curve, so the farther the user drags the harder it gets and the surface
- * asymptotically approaches (but never exceeds) the resistance limit.
- *
- * The reducer stays framework-neutral: renderers map the intensities to CSS
- * transforms or SwiftUI effects using their own design tokens.
- */
-
-export type DeformAxis = 'x' | 'y' | 'both';
-
-export interface DeformState {
-  active: boolean;
-  /** Resisted offset in px. */
-  dx: number;
-  dy: number;
-  /** Unresisted pointer delta, kept for hosts that need it. */
-  rawX: number;
-  rawY: number;
-  /** 0 → 1 along each axis. */
-  intensityX: number;
-  intensityY: number;
-  /** 0 → 1 overall. */
-  progress: number;
-}
-
-export type DeformEvent =
-  | { type: 'start' }
-  | {
-      type: 'move';
-      dx: number;
-      dy: number;
-      max?: number;
-      axis?: DeformAxis;
-    }
-  | { type: 'end' };
+export type { DeformAxis, DeformState, DeformEvent } from '@ilovecode33/ui-types';
 
 /** Extremely hard rubber-band: f(v) = v·max / (100·max + |v|). Larger coefficient = harder pull. */
 export function resist(value: number, max: number): number {

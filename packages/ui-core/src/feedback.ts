@@ -1,17 +1,5 @@
-import type { PortableComponent, Semantics } from './types';
-
-export type FeedbackTone = 'info' | 'success' | 'danger';
-
-export interface FeedbackState {
-  tone: FeedbackTone;
-  message: string;
-  visible: boolean;
-  actionLabel?: string;
-}
-
-export type FeedbackEvent =
-  | { type: 'show'; tone: FeedbackTone; message: string; actionLabel?: string }
-  | { type: 'dismiss' };
+import type { FeedbackTone, FeedbackState, FeedbackEvent, Semantics, PortableComponent } from '@ilovecode33/ui-types';
+export type { FeedbackTone, FeedbackState, FeedbackEvent } from '@ilovecode33/ui-types';
 
 export function feedbackReducer(state: FeedbackState, event: FeedbackEvent): FeedbackState {
   switch (event.type) {
