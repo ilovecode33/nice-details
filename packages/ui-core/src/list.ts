@@ -1,15 +1,4 @@
-import type { PortableComponent, Semantics } from './types';
-
-export interface ListState<T extends string = string> {
-  items: readonly T[];
-  selectedId?: T;
-  expandedIds: readonly T[];
-}
-
-export type ListEvent<T extends string = string> =
-  | { type: 'select'; value: T }
-  | { type: 'toggleExpanded'; value: T }
-  | { type: 'clear' };
+import type { ListState, ListEvent, Semantics, PortableComponent } from '@ilovecode33/ui-types';
 
 export function listReducer<T extends string>(
   state: ListState<T>,

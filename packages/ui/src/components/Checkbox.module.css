@@ -1,0 +1,11 @@
+.ui-checkbox { display: inline-flex; align-items: center; gap: var(--space-3); min-height: var(--touch); cursor: pointer; }
+
+.ui-checkbox__box {
+  width: var(--touch); height: var(--touch); flex-shrink: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
+  background: var(--bg-elevated-2); color: var(--accent-ink); font-size: 18px; font-weight: 700;
+  cursor: pointer;
+}
+
+.ui-checkbox__box.is-checked { background: var(--accent); border-color: var(--accent); }

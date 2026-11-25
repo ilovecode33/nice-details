@@ -1,0 +1,15 @@
+/* ── Disclosure ───────────────────────────────────────────────────────────── */
+.ui-disclosure { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+
+.ui-disclosure__trigger {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--space-3);
+  width: 100%; min-height: var(--touch); padding: 0 var(--space-4);
+  border: 0; background: var(--bg-elevated-2); color: var(--text);
+  font-size: var(--text-base); font-weight: 600; text-align: left; cursor: pointer;
+}
+
+.ui-disclosure__chevron { color: var(--text-dim); transition: transform var(--dur) var(--ease); }
+
+.ui-disclosure__chevron.is-open { transform: rotate(180deg); }
+
+.ui-disclosure__body { padding: var(--space-4); color: var(--text-dim); font-size: var(--text-sm); }

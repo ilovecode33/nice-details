@@ -8,6 +8,7 @@ A monorepo where frontend apps and shared libraries coexist. English is the defa
 - **Library builds**: Rslib (based on Rspack, emits ESM + `.d.ts`)
 - **Editor core**: Lexical (Meta's document model, with undo/redo, serialization, rich-text shortcuts)
 - **React component library**: `@ilovecode33/ui`, built with Rslib; showcased in the landing page's **Component details** section
+- **Photo Wall library**: `@ilovecode33/photo-wall`, a seedable frame-layout generator and React renderer consumed by the separate image-gallery project
 - **Landing page i18n**: app-level, with `en` (default), `zh-TW`, and `de`
 
 ## Structure
@@ -24,6 +25,7 @@ packages/
   ui/              # @ilovecode33/ui, React component library
     QUALITY.md     # Entry / exit criteria (HIG, mobile-first, touch-first)
     ROADMAP.md     # Component expansion plan and platform-neutral architecture
+  photo-wall/      # @ilovecode33/photo-wall, procedural Photo Wall generator + renderer
   ui-swift/        # SwiftUI skeleton (Swift package, not an npm workspace)
 AGENTS.md          # Agent rules for this repository
 ```

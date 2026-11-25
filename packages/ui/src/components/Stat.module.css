@@ -1,0 +1,11 @@
+.ui-stat { display: flex; flex-direction: column; gap: 2px; min-width: 64px; }
+
+.ui-stat__value { font-size: var(--text-xl); font-weight: 650; font-variant-numeric: tabular-nums; line-height: 1.1; }
+
+.ui-stat__value.is-accent { color: var(--accent); }
+
+.ui-stat__value.is-success { color: var(--success); }
+
+.ui-stat__value.is-danger { color: var(--danger); }
+
+.ui-stat__label { font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-dim); }

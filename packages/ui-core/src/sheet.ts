@@ -1,10 +1,4 @@
-import type { PortableComponent, Semantics } from './types';
-
-export interface SheetState {
-  presented: boolean;
-}
-
-export type SheetEvent = { type: 'open' } | { type: 'dismiss' };
+import type { SheetState, SheetEvent, Semantics, PortableComponent } from '@ilovecode33/ui-types';
 
 export function sheetReducer(state: SheetState, event: SheetEvent): SheetState {
   switch (event.type) {

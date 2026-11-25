@@ -1,0 +1,5 @@
+/* ── Directional deformation ──────────────────────────────────────────────── */
+.ui-deform {
+  position: relative;
+  touch-action: none;
+}

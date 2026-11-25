@@ -1,0 +1,45 @@
+/* ── Slider ──────────────────────────────────────────────────────────────── */
+.ui-slider { display: block; padding: var(--space-2) 0; cursor: pointer; }
+
+.ui-slider__top { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); margin-bottom: var(--space-2); }
+
+.ui-slider__label { font-size: var(--text-base); color: var(--text); }
+
+.ui-slider__value {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--accent);
+  background: var(--accent-soft);
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.ui-slider input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: var(--touch);            /* full 44pt hit area on touch */
+  background: transparent;
+  margin: 0;
+  cursor: pointer;
+}
+
+.ui-slider input[type='range']::-webkit-slider-runnable-track {
+  height: 6px; border-radius: 3px; background: var(--track);
+}
+
+.ui-slider input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 26px; height: 26px;        /* 26pt thumb, easy to grab */
+  margin-top: -10px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 3px solid var(--bg);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.ui-slider input[type='range']::-moz-range-track { height: 6px; border-radius: 3px; background: var(--track); }
+
+.ui-slider input[type='range']::-moz-range-thumb { width: 22px; height: 22px; border: 3px solid var(--bg); border-radius: 50%; background: var(--accent); }

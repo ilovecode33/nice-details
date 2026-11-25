@@ -1,160 +1,7 @@
-/* ── Design tokens ────────────────────────────────────────────────────────
-   Light is the base; dark is applied via [data-theme='dark'] on <html>.
-   With data-theme='system' (the configured default) we mirror the OS.
-
-   Accent variables below are seeded with the CONFIGURED DEFAULT MOOD
-   (Warmth, see config/defaults.ts). AccentProvider injects the actual palette
-   as inline variables on <html> before paint — there is no stale-colour
-   fallback here; these values simply match the default so first paint is
-   stable.
-   ──────────────────────────────────────────────────────────────────────── */
-
-:root,
-:root[data-theme='light'] {
-  color-scheme: light;
-
-  --bg: #f2f3f7;
-  --bg-elevated: #ffffff;
-  --bg-elevated-2: #f7f8fa;
-  --bg-glass: rgba(255, 255, 255, 0.78);
-  --text: #15171c;
-  --text-dim: #5a6270;
-  --text-faint: #8b93a1;
-  --border: rgba(0, 0, 0, 0.09);
-  --border-strong: rgba(0, 0, 0, 0.16);
-
-  /* default mood: warmth */
-  --accent: #b23a0a;
-  --accent-ink: #ffffff;
-  --accent-soft: rgba(178, 58, 10, 0.12);
-  --accent-glow: rgba(178, 58, 10, 0.4);
-  --accent-tint: rgba(178, 58, 10, 0.08);
-
-  /* Glass material (mirrored from @ilovecode33/ui-tokens) */
-  --glass-fill: rgba(255, 255, 255, 0.52);
-  --glass-stroke: rgba(255, 255, 255, 0.82);
-  --glass-highlight: rgba(255, 255, 255, 0.92);
-  --glass-shadow: 0 8px 32px rgba(15, 23, 42, 0.16);
-
-  /* Semantic status colours — independent of the decorative mood accent. */
-  --danger: #c62828;
-  --danger-soft: rgba(198, 40, 40, 0.1);
-  --success: #1b7f3a;
-  --success-soft: rgba(27, 127, 58, 0.12);
-
-  --track: rgba(0, 0, 0, 0.14);
-  --knob-border: #ffffff;
-  --scrim: rgba(0, 0, 0, 0.4);
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
-  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.14);
-  --bg-gradient:
-    radial-gradient(1100px 700px at 12% -12%, var(--accent-tint), transparent 60%),
-    radial-gradient(900px 620px at 92% -4%, var(--accent-tint), transparent 55%);
-}
-
-:root[data-theme='dark'] {
-  color-scheme: dark;
-
-  --bg: #0a0b0f;
-  --bg-elevated: #12141a;
-  --bg-elevated-2: #191c24;
-  --bg-glass: rgba(18, 20, 26, 0.72);
-  --text: #f2f3f7;
-  --text-dim: #9aa1b0;
-  --text-faint: #666e7e;
-  --border: rgba(255, 255, 255, 0.08);
-  --border-strong: rgba(255, 255, 255, 0.16);
-
-  /* default mood: warmth */
-  --accent: #ff9a76;
-  --accent-ink: #2a0e04;
-  --accent-soft: rgba(255, 154, 118, 0.16);
-  --accent-glow: rgba(255, 154, 118, 0.55);
-  --accent-tint: rgba(255, 154, 118, 0.07);
-
-  /* Glass material */
-  --glass-fill: rgba(24, 26, 34, 0.52);
-  --glass-stroke: rgba(255, 255, 255, 0.14);
-  --glass-highlight: rgba(255, 255, 255, 0.24);
-  --glass-shadow: 0 10px 36px rgba(0, 0, 0, 0.48);
-
-  /* Semantic status colours — independent of the decorative mood accent. */
-  --danger: #ff6b6b;
-  --danger-soft: rgba(255, 107, 107, 0.14);
-  --success: #7ee787;
-  --success-soft: rgba(126, 231, 135, 0.14);
-
-  --track: rgba(255, 255, 255, 0.14);
-  --knob-border: #0a0b0f;
-  --scrim: rgba(0, 0, 0, 0.6);
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.28);
-  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.36);
-  --bg-gradient:
-    radial-gradient(1100px 700px at 12% -12%, var(--accent-tint), transparent 60%),
-    radial-gradient(900px 620px at 92% -4%, var(--accent-tint), transparent 55%);
-}
-
-/* System mode: mirror the OS. Only the base surfaces change here; accent
-   variables stay the default-mood values injected by AccentProvider. */
-@media (prefers-color-scheme: dark) {
-  :root[data-theme='system'] {
-    color-scheme: dark;
-    --bg: #0a0b0f;
-    --bg-elevated: #12141a;
-    --bg-elevated-2: #191c24;
-    --bg-glass: rgba(18, 20, 26, 0.72);
-    --text: #f2f3f7;
-    --text-dim: #9aa1b0;
-    --text-faint: #666e7e;
-    --border: rgba(255, 255, 255, 0.08);
-    --border-strong: rgba(255, 255, 255, 0.16);
-    --danger: #ff6b6b;
-    --danger-soft: rgba(255, 107, 107, 0.14);
-    --success: #7ee787;
-    --success-soft: rgba(126, 231, 135, 0.14);
-    --track: rgba(255, 255, 255, 0.14);
-    --knob-border: #0a0b0f;
-    --scrim: rgba(0, 0, 0, 0.6);
-    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.28);
-    --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.36);
-    --glass-fill: rgba(24, 26, 34, 0.52);
-    --glass-stroke: rgba(255, 255, 255, 0.14);
-    --glass-highlight: rgba(255, 255, 255, 0.24);
-    --glass-shadow: 0 10px 36px rgba(0, 0, 0, 0.48);
-  }
-}
-
-:root {
-  /* ── Spacing scale (4pt grid) ─────────────────────────────────────────── */
-  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
-  --space-5: 20px; --space-6: 24px; --space-8: 32px;
-  --gap: var(--space-4);
-
-  --radius-sm: 10px; --radius: 14px; --radius-lg: 20px; --radius-pill: 999px;
-
-  --font: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
-  --text-xs: 11px; --text-sm: 12.5px; --text-base: 14px; --text-lg: 17px; --text-xl: 22px;
-
-  --touch: 44px; /* HIG: min 44pt */
-  --glass-blur: 20px;
-  --glass-saturate: 180%;
-  --ease: cubic-bezier(0.32, 0.72, 0, 1);
-  --dur: 0.2s;
-  --deform-shift: 18px;
-  --deform-stretch: 10px;
-  --deform-squash: 5px;
-  --deform-scale: 0.96;
-  --spring-dur: 0.22s;
-  --spring-ease: cubic-bezier(0.16, 1.45, 0.3, 1);
-  --morph-dur: 0.26s;
-  --morph-ease: cubic-bezier(0.4, 0, 0.2, 1);
-
-  --safe-top: env(safe-area-inset-top, 0px);
-  --safe-bottom: env(safe-area-inset-bottom, 0px);
-  --safe-left: env(safe-area-inset-left, 0px);
-  --safe-right: env(safe-area-inset-right, 0px);
-}
+/* Design tokens are generated by @ilovecode33/ui-tokens. This import is
+   inlined into dist/styles.css at build time; dev resolves it via the package
+   export. Derived recipes are tokens too — see ui-tokens/src/index.ts. */
+@import '@ilovecode33/ui-tokens/styles.css';
 
 *, *::before, *::after { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
@@ -198,3 +45,85 @@ button, input, select, textarea { font-family: inherit; font-size: inherit; colo
 
 /* Mobile-first component styles. Base = phone; enhance at >=768px. */
 
+
+/* ── Stable data-ui slots ───────────────────────────────────────────────────
+   Public styling hooks. Attribute selectors are never hashed, so consumers
+   can target these slots directly without a class-name mapper.
+   ──────────────────────────────────────────────────────────────────────────── */
+svg.lucide { width: var(--icon-md); height: var(--icon-md); flex-shrink: 0; }
+
+[data-ui~='row'] { display: flex; align-items: center; gap: var(--ui-row-gap, var(--space-3)); flex-wrap: wrap; }
+
+[data-ui~='stack'] { display: flex; flex-direction: column; }
+[data-ui~='stack--sm'] { gap: var(--space-2); }
+[data-ui~='stack--md'] { gap: var(--space-4); }
+[data-ui~='stack--lg'] { gap: var(--space-6); }
+
+[data-ui~='thumb'] {
+  width: 48px; height: 48px; border-radius: var(--radius-sm);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 20px; color: var(--accent-ink);
+}
+
+[data-ui~='muted'] { color: var(--text-dim); font-size: var(--text-sm); }
+
+[data-ui~='stat-grid'] { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: var(--space-4) var(--space-3); }
+
+[data-ui~='color-swatch'] {
+  display: inline-block; width: 20px; height: 20px; flex-shrink: 0;
+  border: 1px solid var(--border-strong); border-radius: 6px;
+}
+
+[data-ui~='card__divider'] { height: 1px; background: var(--border); margin: var(--space-4) 0 var(--space-2); }
+
+[data-ui~='error'] { margin: var(--space-3) 0; padding: var(--space-3); border-radius: var(--radius-sm); background: var(--danger-soft); color: var(--danger); font-size: var(--text-sm); }
+
+[data-ui~='progress-track'] { height: 8px; border-radius: var(--radius-pill); background: var(--track); overflow: hidden; }
+[data-ui~='progress-track'] > div { height: 100%; background: var(--accent); border-radius: inherit; transition: width var(--dur) var(--ease); }
+
+[data-ui~='inline-select'] { display: inline-flex; align-items: center; gap: 6px; color: var(--text-dim); }
+[data-ui~='inline-select'] > span { font-size: 15px; line-height: 1; flex-shrink: 0; }
+[data-ui~='inline-select'] [data-ui~='select'] {
+  width: auto; min-width: 96px; max-width: 160px; min-height: var(--touch);
+  padding-left: 10px; padding-right: 30px; font-size: var(--text-sm);
+  background-color: var(--bg-elevated);
+}
+[data-ui~='inline-select'] [data-ui~='select__wrap'] { width: auto; }
+[data-ui~='photos-toolbar'] [data-ui~='select'] { width: auto; min-width: 180px; max-width: 100%; }
+
+/* Console shell (mobile-first) */
+[data-ui~='console-topbar'] {
+  display: flex; flex-direction: column; gap: var(--space-4); padding: var(--space-4);
+  border: 1px solid var(--border); border-radius: var(--radius-lg);
+  background: var(--bg-glass);
+  backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+}
+[data-ui~='console-topbar__intro'] h1 { margin: 0; font-size: var(--text-xl); font-weight: 650; letter-spacing: -0.02em; }
+[data-ui~='console-topbar__intro'] p { margin: 2px 0 0; font-size: var(--text-sm); color: var(--text-dim); }
+[data-ui~='console-topbar__stats'] { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-3); }
+[data-ui~='console-topbar__status'] { display: flex; }
+[data-ui~='console-topbar__nav'] { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4); }
+[data-ui~='console-topbar__nav'] a { color: var(--text-dim); text-decoration: none; font-size: var(--text-sm); min-height: var(--touch); display: inline-flex; align-items: center; }
+[data-ui~='console-topbar__nav'] a:hover,
+[data-ui~='console-topbar__nav'] a.active { color: var(--accent); }
+[data-ui~='status-pill'] {
+  display: inline-flex; align-items: center; gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border); border-radius: var(--radius-pill);
+  background: var(--bg-elevated); font-size: var(--text-sm);
+}
+[data-ui~='status-pill__dot'] { width: 8px; height: 8px; border-radius: 50%; background: var(--danger); }
+[data-ui~='status-pill'][data-ui~='is-live'] [data-ui~='status-pill__dot'] { background: var(--accent); box-shadow: 0 0 10px var(--accent); }
+[data-ui~='console-summary'] {
+  --ui-row-gap: var(--space-5);
+  padding: var(--space-4);
+  border: 1px solid var(--border); border-radius: var(--radius-lg);
+  background: var(--bg-glass);
+}
+
+@media (min-width: 768px) {
+  [data-ui~='console-topbar'] { flex-direction: row; align-items: center; gap: var(--space-6); padding: var(--space-4) var(--space-5); }
+  [data-ui~='console-topbar__intro'] { flex: 1 1 auto; min-width: 0; }
+  [data-ui~='console-topbar__stats'] { flex: 0 0 auto; display: flex; gap: var(--space-6); }
+  [data-ui~='console-topbar__nav'] { flex: 0 0 auto; }
+}

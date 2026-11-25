@@ -1,0 +1,8 @@
+.ui-chip {
+  min-height: var(--touch); padding: 0 var(--space-4);
+  border: 1px solid var(--border-strong); border-radius: var(--radius-pill);
+  background: var(--bg-elevated-2); color: var(--text-dim);
+  font-size: var(--text-sm); font-weight: 600; cursor: pointer;
+}
+
+.ui-chip.is-active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }

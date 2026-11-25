@@ -1,0 +1,10 @@
+.ui-avatar {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: var(--touch); height: var(--touch); overflow: hidden;
+  border-radius: 50%; background: var(--accent); color: var(--accent-ink);
+  font-size: var(--text-sm); font-weight: 700;
+}
+
+.ui-avatar--small { width: 32px; height: 32px; font-size: var(--text-xs); }
+
+.ui-avatar img { width: 100%; height: 100%; object-fit: cover; }

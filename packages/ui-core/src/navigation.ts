@@ -1,10 +1,4 @@
-import type { PortableComponent, Semantics } from './types';
-
-export interface NavigationState<T extends string = string> {
-  active: T;
-}
-
-export type NavigationEvent<T extends string = string> = { type: 'navigate'; value: T };
+import type { NavigationState, NavigationEvent, Semantics, PortableComponent } from '@ilovecode33/ui-types';
 
 export function navigationReducer<T extends string>(
   state: NavigationState<T>,

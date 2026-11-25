@@ -18,10 +18,15 @@
     "build": "rslib build",
     "dev": "rslib build --watch",
     "typecheck": "tsc --noEmit",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "test": "rstest run"
   },
   "devDependencies": {
     "@rslib/core": "^1.0.7",
+    "@rstest/core": "^0.12.6",
     "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@ilovecode33/ui-types": "workspace:*"
   }
 }

@@ -1,0 +1,31 @@
+.ui-banner {
+  display: flex; align-items: center; gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--accent-soft); color: var(--text);
+}
+
+.ui-banner.is-success { background: var(--success-soft); }
+
+.ui-banner.is-danger { background: var(--danger-soft); }
+
+.ui-banner__icon {
+  width: 24px; height: 24px; flex-shrink: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 50%; background: var(--accent); color: var(--accent-ink);
+}
+
+.ui-banner__icon svg:global(.lucide) { width: var(--icon-sm); height: var(--icon-sm); }
+
+.ui-banner__dismiss svg:global(.lucide) { width: var(--icon-md); height: var(--icon-md); }
+
+.ui-banner.is-success .ui-banner__icon { background: var(--success); color: var(--bg); }
+
+.ui-banner.is-danger .ui-banner__icon { background: var(--danger); color: #fff; }
+
+.ui-banner__message { flex: 1 1 auto; font-size: var(--text-sm); }
+
+.ui-banner__action, .ui-banner__dismiss {
+  min-width: var(--touch); min-height: var(--touch);
+  border: 0; background: transparent; color: var(--text); font-size: var(--text-sm); cursor: pointer;
+}

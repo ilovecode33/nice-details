@@ -1,0 +1,105 @@
+/* ── Button ──────────────────────────────────────────────────────────────── */
+.ui-btn {
+  position: relative;
+  isolation: isolate; /* keep the press bloom above the button's own background */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--touch);       /* HIG: 44pt minimum */
+  padding: 0 var(--space-4);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-base);
+  font-weight: 600;
+  line-height: 1;
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  backdrop-filter: var(--glass-backdrop);
+  cursor: pointer;
+  transition: background var(--dur) var(--ease), transform var(--dur) var(--ease), border-color var(--dur) var(--ease), box-shadow var(--glow-dur) var(--glow-ease);
+  user-select: none;
+  white-space: nowrap;
+}
+
+.ui-btn:active { transform: scale(0.97); }
+
+.ui-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+.ui-btn__icon { display: inline-flex; }
+
+.ui-btn__icon svg:global(.lucide) { width: var(--icon-sm); height: var(--icon-sm); }
+
+.ui-btn--block { width: 100%; }
+
+.ui-btn--compact { min-height: var(--touch); padding: 0 var(--space-3); font-size: var(--text-sm); }
+
+/* One glass recipe for every tinted variant. A variant only chooses its hue,
+   tint strength, edge and label colour; the material and interaction feedback
+   stay identical. The halo appears on hover/active only, never at rest. */
+.ui-btn--primary,
+.ui-btn--secondary,
+.ui-btn--destructive {
+  background: color-mix(in srgb, var(--btn-hue) var(--btn-fill), transparent);
+  color: var(--btn-ink);
+  border-color: var(--btn-edge);
+}
+
+.ui-btn--primary:hover:not(:disabled),
+.ui-btn--primary:active:not(:disabled),
+.ui-btn--secondary:hover:not(:disabled),
+.ui-btn--secondary:active:not(:disabled),
+.ui-btn--destructive:hover:not(:disabled),
+.ui-btn--destructive:active:not(:disabled) {
+  /* Declared here, not in :root, so var() resolves on the button and picks up
+     the destructive hue override. */
+  --halo-shadow:
+    0 0 var(--space-2) var(--halo-near, var(--btn-glow)),
+    0 0 var(--space-5) var(--halo-far, var(--btn-glow-soft));
+  border-color: var(--btn-hue);
+  color: var(--btn-hover-ink);
+  box-shadow: var(--halo-shadow);
+}
+
+.ui-btn--primary {
+  --btn-hue: var(--accent);
+  --btn-fill: 58%; /* stronger so the main action reads first */
+  --btn-ink: var(--text);
+  --btn-hover-ink: var(--text);
+  --btn-edge: var(--seg-thumb-stroke);
+}
+
+.ui-btn--secondary {
+  --btn-hue: var(--accent);
+  --btn-fill: 18%;
+  --btn-ink: var(--text);
+  --btn-hover-ink: var(--accent);
+  --btn-edge: var(--seg-thumb-stroke);
+}
+
+.ui-btn--destructive {
+  --btn-hue: var(--danger);
+  --btn-fill: 18%;
+  --btn-ink: var(--danger);
+  --btn-hover-ink: var(--danger);
+  --btn-edge: var(--btn-danger-stroke);
+  --halo-near: var(--btn-danger-glow);
+  --halo-far: var(--btn-danger-glow-soft);
+}
+
+.ui-btn--plain { background: transparent; color: var(--text-dim); min-width: var(--touch); }
+
+.ui-btn--plain:hover:not(:disabled) { color: var(--text); }
+
+/* A portalled button lives on document.body and must sit above overlay stacks
+   (the Sheet uses z-index 500), otherwise it is visually hidden behind them. */
+.ui-btn--portal { z-index: var(--z-portal); }
+
+/* Transparent layout slot for a portalled button. It occupies the same space
+   the button would and is the anchor the fixed button is tethered to, so
+   button + glow stay one unit and neither is clipped by a scroll ancestor. */
+.ui-btn-placeholder {
+  display: block;
+  width: 100%;
+  min-height: var(--touch);
+  pointer-events: none;
+}

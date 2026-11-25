@@ -1,0 +1,60 @@
+import { useEffect, useLayoutEffect, useMemo, useState, type ReactNode } from 'react';
+import { ACCENT_PALETTES, DEFAULT_ACCENT, type Accent } from '@ilovecode33/ui-tokens';
+import { AccentContext, STORAGE_KEY, readSaved } from '../hooks/useAccent';
+import type { AccentValue } from '@ilovecode33/ui-types';
+import { useTheme } from '../hooks/useTheme';
+
+/** Token definitions are owned by `@ilovecode33/ui-tokens` and re-exported for API stability. */
+export {
+  ACCENTS,
+  ACCENT_PALETTES,
+  DEFAULT_ACCENT,
+  type Accent,
+  type Palette,
+} from '@ilovecode33/ui-tokens';
+
+export function AccentProvider({
+  children,
+  defaultAccent = DEFAULT_ACCENT,
+}: {
+  children: ReactNode;
+  defaultAccent?: Accent;
+}) {
+  const [accent, setAccentState] = useState<Accent>(() =>
+    readSaved(defaultAccent),
+  );
+  const { resolved } = useTheme();
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-accent', accent);
+    try {
+      localStorage.setItem(STORAGE_KEY, accent);
+    } catch {
+      /* ignore */
+    }
+  }, [accent]);
+
+  // Apply the palette as inline variables on <html> before paint so a saved
+  // mood never flashes the default color.
+  useLayoutEffect(() => {
+    const p = ACCENT_PALETTES[accent][resolved];
+    const root = document.documentElement;
+    root.style.setProperty('--accent', p.accent);
+    root.style.setProperty('--accent-ink', p.ink);
+    root.style.setProperty('--accent-soft', p.soft);
+    root.style.setProperty('--accent-glow', p.glow);
+    root.style.setProperty('--accent-tint', p.tint);
+    root.style.setProperty(
+      '--bg-gradient',
+      `radial-gradient(1100px 700px at 12% -12%, ${p.tint}, transparent 60%), radial-gradient(900px 620px at 92% -4%, ${p.tint}, transparent 55%)`,
+    );
+  }, [accent, resolved]);
+
+  const value = useMemo<AccentValue>(
+    () => ({ accent, setAccent: setAccentState }),
+    [accent],
+  );
+  return (
+    <AccentContext.Provider value={value}>{children}</AccentContext.Provider>
+  );
+}

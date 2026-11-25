@@ -1,0 +1,13 @@
+.ui-stepper { display: inline-flex; align-items: center; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); overflow: hidden; }
+
+.ui-stepper__button {
+  min-width: var(--touch); min-height: var(--touch);
+  border: 0; background: var(--bg-elevated-2); color: var(--text); font-size: 20px; cursor: pointer;
+}
+
+.ui-stepper__button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.ui-stepper__value {
+  min-width: 44px; text-align: center;
+  font-variant-numeric: tabular-nums; font-weight: 650; color: var(--accent);
+}

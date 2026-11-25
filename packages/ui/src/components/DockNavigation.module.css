@@ -1,0 +1,78 @@
+/* ── DockNavigation ─────────────────────────────────────────────────────────
+ * Expanded: a wrapped, centered panel. Collapsed: one horizontally scrollable
+ * row with three visible items and the active one highlighted. */
+.ui-dock {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-1);
+  max-width: 100%;
+}
+
+.ui-dock__item {
+  display: inline-flex;
+  min-height: var(--touch);
+  padding: 0 var(--space-3);
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--text-dim);
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color var(--dur) var(--ease);
+}
+
+.ui-dock__item:hover,
+.ui-dock__item:focus-visible {
+  color: var(--accent);
+}
+
+.ui-dock__item.is-current {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.ui-dock.is-collapsed {
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  overflow-x: auto;
+  width: 100%;
+  scrollbar-width: none;
+}
+
+.ui-dock.is-collapsed::-webkit-scrollbar {
+  display: none;
+}
+
+.ui-dock.is-collapsed .ui-dock__item {
+  flex: 0 0 var(--dock-slot, 33.333%);
+}
+
+/* With fewer than three items there is no scroll range to center the active
+   one, so add equal spacers to make the strip scrollable around it. */
+.ui-dock.is-collapsed.is-short::before,
+.ui-dock.is-collapsed.is-short::after {
+  content: '';
+  flex: 0 0 calc((100% - var(--dock-slot, 33.333%)) / 2);
+}
+
+/* The row-count reflow is not tweenable; fade the content in while the bar
+   animates so the reflow does not read as a jump. */
+.ui-dock--enter {
+  animation: ui-dock-enter var(--morph-dur) var(--morph-ease) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ui-dock--enter { animation: none; }
+}
+
+@keyframes ui-dock-enter {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
