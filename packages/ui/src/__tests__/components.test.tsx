@@ -62,7 +62,7 @@ describe('Button', () => {
     expect(screen.getByRole('button', { name: 'Neutral' })).toHaveAttribute('type', 'button');
   });
 
-  test('portals an anchor-positioned halo while hovered, with a unique anchor name', () => {
+  test('portals the whole anchor-positioned button with a layout placeholder', () => {
     const { unmount } = render(
       <>
         <Button haloPortal>Save</Button>
@@ -72,21 +72,23 @@ describe('Button', () => {
     const save = screen.getByRole('button', { name: 'Save' });
     const discard = screen.getByRole('button', { name: 'Discard' });
 
-    const a1 = getComputedStyle(save).getPropertyValue('anchor-name');
-    const a2 = getComputedStyle(discard).getPropertyValue('anchor-name');
-    expect(a1).toMatch(/^--btn-halo-/);
-    expect(a1).not.toBe(a2);
-    expect(document.querySelectorAll('[class*="ui-anchor-halo"]')).toHaveLength(0);
+    // The button itself is portalled to body and fixed to its placeholder.
+    expect(save.parentElement).toBe(document.body);
+    expect(discard.parentElement).toBe(document.body);
+    expect(getComputedStyle(save).position).toBe('fixed');
+    const anchor = getComputedStyle(save).getPropertyValue('position-anchor');
+    expect(anchor).toMatch(/^--btn-halo-/);
+    expect(getComputedStyle(discard).getPropertyValue('position-anchor')).not.toBe(
+      anchor,
+    );
 
-    fireEvent.pointerOver(save);
-    const halos = document.querySelectorAll('[class*="ui-anchor-halo"]');
-    expect(halos).toHaveLength(1);
-    expect(halos[0].parentElement).toBe(document.body);
-    expect(getComputedStyle(halos[0]).getPropertyValue('position-anchor')).toBe(a1);
-    expect(halos[0]).toHaveAttribute('aria-hidden', 'true');
-
-    fireEvent.pointerOut(save);
-    expect(document.querySelectorAll('[class*="ui-anchor-halo"]')).toHaveLength(0);
+    // The placeholder holds the layout slot and carries the anchor name.
+    const placeholders = document.querySelectorAll('[class*="ui-btn-placeholder"]');
+    expect(placeholders).toHaveLength(2);
+    expect(getComputedStyle(placeholders[0]).getPropertyValue('anchor-name')).toBe(
+      anchor,
+    );
+    expect(placeholders[0]).toHaveAttribute('aria-hidden', 'true');
     unmount();
   });
 

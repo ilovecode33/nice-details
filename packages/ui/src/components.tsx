@@ -8,7 +8,7 @@
  */
 
 import { Deformable, useDeform, usePrefersReducedMotion } from './motion';
-import { AnchorHalo } from './anchor-halo';
+import { createPortal } from 'react-dom';
 import {
   comboboxSemantics,
   createSelectionState,
@@ -49,10 +49,10 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   /** Directional press/drag deformation. Disabled automatically under reduced motion. */
   deform?: boolean;
   /**
-   * Render the hover/active glow on document.body with CSS Anchor Positioning
-   * so a scrolling ancestor cannot clip it. The glow stays glued to the button
-   * (including drag transforms) without JS position tracking. The button itself
-   * stays in the DOM. Requires anchor-positioning browser support.
+   * Render the button on document.body with CSS Anchor Positioning so neither
+   * the button nor its glow is clipped by a scrolling ancestor. A transparent
+   * placeholder keeps the layout slot and acts as the anchor. Requires
+   * anchor-positioning browser support.
    */
   haloPortal?: boolean;
 }
@@ -71,53 +71,73 @@ export function Button({
 }: ButtonProps) {
   // Buttons keep vertical page scrolling; horizontal drags still deform them.
   const motion = useDeform({ enabled: deform, touchAction: 'pan-y' });
-  const [hovered, setHovered] = useState(false);
-  const reduced = usePrefersReducedMotion();
-  // A unique dashed-ident per button so multiple portalled halos never bind to
-  // the same anchor. useId() contains ':' which is invalid in an ident.
+  // A unique dashed-ident per button so multiple portalled buttons never bind
+  // to the same anchor. useId() contains ':' which is invalid in an ident.
   const anchorName = `--btn-halo-${useId().replace(/[^a-zA-Z0-9-]/g, '')}`;
-  const buttonStyle = {
-    ...motion.style,
-    ...(haloPortal ? { anchorName } : {}),
-    ...style,
-  } as CSSProperties;
-  const haloVisible = haloPortal && !reduced && (hovered || motion.state.active);
+  const classes = cn(
+    `ui-btn ui-btn--${variant} ui-btn--${size} ${block ? 'ui-btn--block' : ''} ${haloPortal ? 'ui-btn--portal' : ''} ${className}`,
+  );
 
-  return (
+  const content = (
     <>
+      {icon && (
+        <span className={cn('ui-btn__icon')} aria-hidden="true">
+          {icon}
+        </span>
+      )}
+      {children && <span>{children}</span>}
+    </>
+  );
+
+  if (haloPortal && typeof document !== 'undefined') {
+    // The whole button (not just its shadow) lives on document.body, so the
+    // button and its glow always move together — even when dragged past the
+    // scroll container's edge. A transparent placeholder holds the layout slot
+    // and is the anchor the button is tethered to via CSS Anchor Positioning.
+    const button = (
       <button
         type="button"
-        className={cn(
-          `ui-btn ui-btn--${variant} ui-btn--${size} ${block ? 'ui-btn--block' : ''} ${haloPortal ? 'ui-btn--portal' : ''} ${className}`,
-        )}
-        style={buttonStyle}
-        onPointerOver={() => setHovered(true)}
-        onPointerOut={() => setHovered(false)}
+        className={classes}
+        style={
+          {
+            position: 'fixed',
+            positionAnchor: anchorName,
+            top: 'anchor(top)',
+            left: 'anchor(left)',
+            width: 'anchor-size(width)',
+            height: 'anchor-size(height)',
+            ...motion.style,
+            ...style,
+          } as CSSProperties
+        }
         {...rest}
         {...motion.handlers}
       >
-        {icon && (
-          <span className={cn('ui-btn__icon')} aria-hidden="true">
-            {icon}
-          </span>
-        )}
-        {children && <span>{children}</span>}
+        {content}
       </button>
-      {haloPortal && (
-        <AnchorHalo
-          anchorName={anchorName}
-          visible={haloVisible}
-          color={
-            variant === 'destructive' ? 'var(--btn-danger-glow)' : 'var(--btn-glow)'
-          }
-          softColor={
-            variant === 'destructive'
-              ? 'var(--btn-danger-glow-soft)'
-              : 'var(--btn-glow-soft)'
-          }
+    );
+    return (
+      <>
+        <span
+          className={cn('ui-btn-placeholder')}
+          style={{ anchorName } as CSSProperties}
+          aria-hidden="true"
         />
-      )}
-    </>
+        {createPortal(button, document.body)}
+      </>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      className={classes}
+      style={{ ...motion.style, ...style }}
+      {...rest}
+      {...motion.handlers}
+    >
+      {content}
+    </button>
   );
 }
 

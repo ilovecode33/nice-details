@@ -89,20 +89,14 @@
 .ui-btn--plain { background: transparent; color: var(--text-dim); min-width: var(--touch); }
 .ui-btn--plain:hover:not(:disabled) { color: var(--text); }
 
-/* When the glow is anchored on document.body, suppress the in-place shadow so
-   it isn't drawn twice (and clipped). The anchor halo paints it instead. */
-.ui-btn--portal:hover:not(:disabled),
-.ui-btn--portal:active:not(:disabled) { box-shadow: none; }
-/* The portalled glow: a transparent overlay tethered to the button's live
-   geometry via CSS Anchor Positioning. pointer-events:none keeps it inert. */
-.ui-anchor-halo {
-  position: fixed;
-  z-index: 9999;
+/* Transparent layout slot for a portalled button. It occupies the same space
+   the button would and is the anchor the fixed button is tethered to, so
+   button + glow stay one unit and neither is clipped by a scroll ancestor. */
+.ui-btn-placeholder {
+  display: block;
+  width: 100%;
+  min-height: var(--touch);
   pointer-events: none;
-  border-radius: var(--radius-sm);
-  box-shadow:
-    0 0 var(--space-2) var(--halo-near, var(--btn-glow)),
-    0 0 var(--space-5) var(--halo-far, var(--btn-glow-soft));
 }
 
 /* ── Card ────────────────────────────────────────────────────────────────── */

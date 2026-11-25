@@ -6,7 +6,6 @@ export * from './media';
 export * from './floating';
 export * from './dock';
 export * from './motion';
-export * from './anchor-halo';
 export * from './foundation';
 export { cn } from './css';
 export * from './theme';
