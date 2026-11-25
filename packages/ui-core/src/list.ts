@@ -1,5 +1,4 @@
 import type { ListState, ListEvent, Semantics, PortableComponent } from '@ilovecode33/ui-types';
-export type { ListState, ListEvent } from '@ilovecode33/ui-types';
 
 export function listReducer<T extends string>(
   state: ListState<T>,

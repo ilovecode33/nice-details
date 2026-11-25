@@ -1,5 +1,4 @@
 import type { DisclosureState, DisclosureEvent, Semantics, PortableComponent } from '@ilovecode33/ui-types';
-export type { DisclosureState, DisclosureEvent } from '@ilovecode33/ui-types';
 
 export function disclosureReducer(
   state: DisclosureState,

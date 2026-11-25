@@ -1,10 +1,6 @@
 import styles from './ProgressBar.module.css';
-import {
-  feedbackReducer,
-  feedbackSemantics,
-  type FeedbackState,
-  type FeedbackTone,
-} from '@ilovecode33/ui-core';
+import { feedbackReducer, feedbackSemantics } from '@ilovecode33/ui-core';
+import type { FeedbackState, FeedbackTone } from '@ilovecode33/ui-types';
 import { type CSSProperties } from 'react';
 import { Check, Info, X } from 'lucide-react';
 

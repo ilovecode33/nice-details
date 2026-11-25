@@ -1,6 +1,5 @@
 import { createContext, useContext } from 'react';
 import type { Theme, ThemeValue } from '@ilovecode33/ui-types';
-export type { Theme, ThemeValue } from '@ilovecode33/ui-types';
 
 
 export const DEFAULT_THEME: Theme = 'system';

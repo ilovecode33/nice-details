@@ -1,5 +1,6 @@
 import styles from './Deformable.module.css';
-import { type DeformAxis, type DeformState } from '@ilovecode33/ui-core';
+
+import type { DeformAxis, DeformState } from '@ilovecode33/ui-types';
 import { useEffect, type CSSProperties, type HTMLAttributes } from 'react';
 import { PressGlow } from './PressGlow';
 import { useDeform } from '../hooks/useDeform';

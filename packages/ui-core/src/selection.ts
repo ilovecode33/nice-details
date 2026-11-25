@@ -1,5 +1,4 @@
 import type { SelectionOption, SelectionState, SelectionEvent, Semantics, PortableComponent } from '@ilovecode33/ui-types';
-export type { SelectionOption, SelectionState, SelectionEvent } from '@ilovecode33/ui-types';
 
 export function enabledIndexes<T extends string>(state: SelectionState<T>): number[] {
   return state.options.flatMap((option, index) => (option.disabled ? [] : [index]));

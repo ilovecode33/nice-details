@@ -13,6 +13,7 @@
   "dependencies": {
     "@ilovecode33/photo-wall": "workspace:*",
     "@ilovecode33/ui": "workspace:*",
+    "@ilovecode33/ui-types": "workspace:*",
     "lucide-react": "^1.80.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1"

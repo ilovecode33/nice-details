@@ -1,14 +1,7 @@
 import type { SelectOption, SelectChangeEvent, SelectProps } from '@ilovecode33/ui-types';
-export type { SelectOption, SelectChangeEvent, SelectProps } from '@ilovecode33/ui-types';
 import styles from './Select.module.css';
-import {
-  comboboxSemantics,
-  enabledIndexes,
-  optionSemantics,
-  selectionReducer,
-  type SelectionEvent,
-  type SelectionState,
-} from '@ilovecode33/ui-core';
+import { comboboxSemantics, enabledIndexes, optionSemantics, selectionReducer } from '@ilovecode33/ui-core';
+import type { SelectionEvent, SelectionState } from '@ilovecode33/ui-types';
 import {
   Children,
   isValidElement,

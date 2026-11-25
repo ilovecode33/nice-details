@@ -1,5 +1,4 @@
 import type { TabItem } from '@ilovecode33/ui-types';
-export type { TabItem } from '@ilovecode33/ui-types';
 import styles from './TabBar.module.css';
 import { navigationSemantics, tabSemantics } from '@ilovecode33/ui-core';
 import { type HTMLAttributes, type ReactNode } from 'react';

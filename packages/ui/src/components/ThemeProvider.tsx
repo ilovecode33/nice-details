@@ -1,15 +1,8 @@
 import { useEffect, useLayoutEffect, useMemo, useState, type ReactNode } from 'react';
-import {
-  DEFAULT_THEME,
-  STORAGE_KEY,
-  ThemeContext,
-  readSaved,
-  systemPrefersDark,
-  type Theme,
-  type ThemeValue,
-} from '../hooks/useTheme';
+import { DEFAULT_THEME, STORAGE_KEY, ThemeContext, readSaved, systemPrefersDark } from '../hooks/useTheme';
+import type { Theme, ThemeValue } from '@ilovecode33/ui-types';
 
-export { DEFAULT_THEME, type Theme } from '../hooks/useTheme';
+export { DEFAULT_THEME } from '../hooks/useTheme';
 
 export function ThemeProvider({
   children,

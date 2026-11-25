@@ -6,7 +6,6 @@ import type {
   Semantics,
 } from '@ilovecode33/ui-types';
 
-export type { DeformAxis, DeformState, DeformEvent } from '@ilovecode33/ui-types';
 
 /** Extremely hard rubber-band: f(v) = v·max / (100·max + |v|). Larger coefficient = harder pull. */
 export function resist(value: number, max: number): number {

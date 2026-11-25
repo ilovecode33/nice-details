@@ -1,4 +1,3 @@
-export * from './types';
 export * from './toggle';
 export * from './selection';
 export * from './disclosure';
@@ -22,7 +21,7 @@ import { navigationContract } from './navigation';
 import { selectionContract } from './selection';
 import { sheetContract } from './sheet';
 import { toggleContract } from './toggle';
-import type { PortableComponent } from './types';
+import type { PortableComponent } from '@ilovecode33/ui-types';
 
 /** Every portable component contract, keyed by its React name. */
 export const PORTABLE_COMPONENTS: Record<string, PortableComponent<unknown, unknown>> = {

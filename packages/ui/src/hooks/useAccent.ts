@@ -1,5 +1,4 @@
 import type { AccentValue } from '@ilovecode33/ui-types';
-export type { AccentValue } from '@ilovecode33/ui-types';
 import { createContext, useContext } from 'react';
 import { ACCENTS, type Accent } from '@ilovecode33/ui-tokens';
 

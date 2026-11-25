@@ -1,5 +1,4 @@
 import type { ToggleState, ToggleEvent, Semantics, PortableComponent } from '@ilovecode33/ui-types';
-export type { ToggleState, ToggleEvent } from '@ilovecode33/ui-types';
 
 export function toggleReducer(state: ToggleState, event: ToggleEvent): ToggleState {
   if (state.disabled) return state;

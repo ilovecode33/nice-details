@@ -2,7 +2,7 @@ import styles from './PhotoViewer.module.css';
 import { mediaReducer, mediaSemantics } from '@ilovecode33/ui-core';
 import { useEffect, useRef } from 'react';
 import { AspectImage } from './AspectImage';
-import type { PhotoItem } from './Carousel';
+import type { PhotoItem } from '@ilovecode33/ui-types';
 
 
 /** Fullscreen photo viewer backed by `MediaState` from `@ilovecode33/ui-core`. */

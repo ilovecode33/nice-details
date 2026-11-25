@@ -1,5 +1,4 @@
 import type { ButtonProps } from '@ilovecode33/ui-types';
-export type { ButtonProps } from '@ilovecode33/ui-types';
 import styles from './Button.module.css';
 import { createPortal } from 'react-dom';
 import { useId, type ButtonHTMLAttributes, type CSSProperties, type ReactNode } from 'react';

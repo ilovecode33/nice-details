@@ -1,5 +1,4 @@
 import type { LocaleValue } from '@ilovecode33/ui-types';
-export type { LocaleValue } from '@ilovecode33/ui-types';
 import { createContext, useContext } from 'react';
 
 

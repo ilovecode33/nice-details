@@ -1,5 +1,4 @@
 import type { CardProps } from '@ilovecode33/ui-types';
-export type { CardProps } from '@ilovecode33/ui-types';
 import styles from './Card.module.css';
 import { type HTMLAttributes, type ReactNode } from 'react';
 

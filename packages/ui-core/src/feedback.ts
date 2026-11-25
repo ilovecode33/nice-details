@@ -1,5 +1,4 @@
 import type { FeedbackTone, FeedbackState, FeedbackEvent, Semantics, PortableComponent } from '@ilovecode33/ui-types';
-export type { FeedbackTone, FeedbackState, FeedbackEvent } from '@ilovecode33/ui-types';
 
 export function feedbackReducer(state: FeedbackState, event: FeedbackEvent): FeedbackState {
   switch (event.type) {

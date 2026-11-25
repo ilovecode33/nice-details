@@ -1,5 +1,4 @@
 import type { DockItem, DockNavigationHandle, DockNavigationProps } from '@ilovecode33/ui-types';
-export type { DockItem, DockNavigationHandle, DockNavigationProps } from '@ilovecode33/ui-types';
 import styles from './DockNavigation.module.css';
 import {
   forwardRef,

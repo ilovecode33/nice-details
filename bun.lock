@@ -44,6 +44,7 @@
       "dependencies": {
         "@ilovecode33/photo-wall": "workspace:*",
         "@ilovecode33/ui": "workspace:*",
+        "@ilovecode33/ui-types": "workspace:*",
         "lucide-react": "^1.80.0",
         "react": "^19.3.1",
         "react-dom": "^19.3.1",
@@ -128,6 +129,7 @@
       },
       "devDependencies": {
         "@rslib/core": "^1.0.7",
+        "@rstest/core": "^0.12.6",
         "typescript": "^5.9.3",
       },
     },

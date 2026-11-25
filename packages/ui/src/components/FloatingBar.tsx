@@ -1,10 +1,7 @@
 import glassSurfaceClasses from './GlassSurface.module.css';
 import styles from './FloatingBar.module.css';
-import {
-  floatingReducer,
-  floatingSemantics,
-  type FloatingState,
-} from '@ilovecode33/ui-core';
+import { floatingReducer, floatingSemantics } from '@ilovecode33/ui-core';
+import type { FloatingState } from '@ilovecode33/ui-types';
 import { useReducer, type CSSProperties, type HTMLAttributes, type ReactNode } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { PressGlow } from './PressGlow';

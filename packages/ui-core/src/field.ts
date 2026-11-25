@@ -1,5 +1,4 @@
 import type { FieldState, FieldEvent, Semantics, PortableComponent } from '@ilovecode33/ui-types';
-export type { FieldState, FieldEvent } from '@ilovecode33/ui-types';
 
 export function fieldReducer<T>(state: FieldState<T>, event: FieldEvent<T>): FieldState<T> {
   switch (event.type) {

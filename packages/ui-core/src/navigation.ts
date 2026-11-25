@@ -1,5 +1,4 @@
 import type { NavigationState, NavigationEvent, Semantics, PortableComponent } from '@ilovecode33/ui-types';
-export type { NavigationState, NavigationEvent } from '@ilovecode33/ui-types';
 
 export function navigationReducer<T extends string>(
   state: NavigationState<T>,

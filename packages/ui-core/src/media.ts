@@ -1,5 +1,4 @@
 import type { MediaState, MediaEvent, Semantics, PortableComponent, SelectionModeState, SelectionModeEvent } from '@ilovecode33/ui-types';
-export type { MediaState, MediaEvent, SelectionModeState, SelectionModeEvent } from '@ilovecode33/ui-types';
 
 function clamp(index: number, count: number): number {
   if (count <= 0) return 0;

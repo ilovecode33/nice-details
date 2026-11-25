@@ -1,5 +1,4 @@
 import type { FloatingState, FloatingEvent, Semantics, PortableComponent } from '@ilovecode33/ui-types';
-export type { FloatingState, FloatingEvent } from '@ilovecode33/ui-types';
 
 export function floatingReducer(
   state: FloatingState,

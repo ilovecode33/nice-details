@@ -23,7 +23,6 @@ import {
   EmptyState,
   Field,
   DockNavigation,
-  type DockNavigationHandle,
   FormField,
   GlassSurface,
   List,
@@ -52,9 +51,8 @@ import {
   Toast,
   UIFoundation,
   useLocale,
-  type ListItem,
-  type PhotoItem,
 } from '@ilovecode33/ui';
+import type { DockNavigationHandle, ListItem, PhotoItem } from '@ilovecode33/ui-types';
 import { ArrowRight, CircleDot, Clock, LayoutGrid, Plus, Search } from 'lucide-react';
 import '@ilovecode33/ui/styles.css';
 import './app.css';

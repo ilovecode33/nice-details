@@ -1,5 +1,4 @@
 import type { SegmentOption } from '@ilovecode33/ui-types';
-export type { SegmentOption } from '@ilovecode33/ui-types';
 import styles from './Segmented.module.css';
 import { tabSemantics } from '@ilovecode33/ui-core';
 import {

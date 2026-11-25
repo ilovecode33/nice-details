@@ -1,5 +1,4 @@
 import type { AccentSwitcherLabels } from '@ilovecode33/ui-types';
-export type { AccentSwitcherLabels } from '@ilovecode33/ui-types';
 import styles from './AccentSwitcher.module.css';
 import {
   createContext,

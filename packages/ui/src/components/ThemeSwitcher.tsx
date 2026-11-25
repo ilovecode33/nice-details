@@ -1,5 +1,4 @@
 import type { ThemeSwitcherLabels } from '@ilovecode33/ui-types';
-export type { ThemeSwitcherLabels } from '@ilovecode33/ui-types';
 import styles from './ThemeSwitcher.module.css';
 import {
   createContext,
@@ -11,7 +10,8 @@ import {
   type ReactNode,
 } from 'react';
 import { Monitor, Moon, Sun } from 'lucide-react';
-import { useTheme, type Theme } from '../hooks/useTheme';
+import { useTheme } from '../hooks/useTheme';
+import type { Theme } from '@ilovecode33/ui-types';
 
 
 

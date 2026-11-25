@@ -1,5 +1,4 @@
 import type { PhotoItem } from '@ilovecode33/ui-types';
-export type { PhotoItem } from '@ilovecode33/ui-types';
 import styles from './Carousel.module.css';
 import { mediaReducer } from '@ilovecode33/ui-core';
 import { useRef, type CSSProperties, type ReactNode } from 'react';

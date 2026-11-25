@@ -1,7 +1,7 @@
 import styles from './Avatar.module.css';
 import { mediaReducer } from '@ilovecode33/ui-core';
 import { useRef, type CSSProperties, type ReactNode } from 'react';
-import type { PhotoItem } from './Carousel';
+import type { PhotoItem } from '@ilovecode33/ui-types';
 
 
 /**

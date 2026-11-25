@@ -1,5 +1,4 @@
 import type { SheetState, SheetEvent, Semantics, PortableComponent } from '@ilovecode33/ui-types';
-export type { SheetState, SheetEvent } from '@ilovecode33/ui-types';
 
 export function sheetReducer(state: SheetState, event: SheetEvent): SheetState {
   switch (event.type) {

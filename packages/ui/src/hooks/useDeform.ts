@@ -1,10 +1,6 @@
 import type { DeformOptions, DeformResult } from '@ilovecode33/ui-types';
-export type { DeformOptions, DeformResult } from '@ilovecode33/ui-types';
-import {
-  deformReducer,
-  type DeformAxis,
-  type DeformState,
-} from '@ilovecode33/ui-core';
+import { deformReducer } from '@ilovecode33/ui-core';
+import type { DeformAxis, DeformState } from '@ilovecode33/ui-types';
 import { MOTION } from '@ilovecode33/ui-tokens';
 import {
   useEffect,

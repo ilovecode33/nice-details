@@ -1,5 +1,4 @@
 import type { ListItem } from '@ilovecode33/ui-types';
-export type { ListItem } from '@ilovecode33/ui-types';
 import styles from './ListRow.module.css';
 import { disclosureReducer, disclosureSemantics, listSemantics } from '@ilovecode33/ui-core';
 import { useId, useState, type ReactNode } from 'react';

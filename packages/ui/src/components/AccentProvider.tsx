@@ -5,12 +5,8 @@ import {
   DEFAULT_ACCENT,
   type Accent,
 } from '@ilovecode33/ui-tokens';
-import {
-  AccentContext,
-  STORAGE_KEY,
-  readSaved,
-  type AccentValue,
-} from '../hooks/useAccent';
+import { AccentContext, STORAGE_KEY, readSaved } from '../hooks/useAccent';
+import type { AccentValue } from '@ilovecode33/ui-types';
 import { useTheme } from '../hooks/useTheme';
 
 /** Token definitions are owned by `@ilovecode33/ui-tokens` and re-exported for API stability. */

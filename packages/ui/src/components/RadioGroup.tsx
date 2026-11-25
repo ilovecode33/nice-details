@@ -1,5 +1,4 @@
 import type { RadioOption } from '@ilovecode33/ui-types';
-export type { RadioOption } from '@ilovecode33/ui-types';
 import styles from './RadioGroup.module.css';
 import {
   checkboxSemantics,

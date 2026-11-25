@@ -2,7 +2,7 @@ import styles from './List.module.css';
 import { disclosureReducer, disclosureSemantics, listSemantics } from '@ilovecode33/ui-core';
 import { useId, useState, type ReactNode } from 'react';
 import { ListRow } from './ListRow';
-import type { ListItem } from './ListRow';
+import type { ListItem } from '@ilovecode33/ui-types';
 
 
 /** Disclosure and List components backed by `ui-core` contracts. */
