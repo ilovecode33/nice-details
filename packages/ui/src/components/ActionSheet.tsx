@@ -1,4 +1,3 @@
-import type { ActionItem } from '@ilovecode33/ui-types';
 import sheetClasses from './Sheet.module.css';
 import styles from './ActionSheet.module.css';
 import { sheetSemantics } from '@ilovecode33/ui-core';

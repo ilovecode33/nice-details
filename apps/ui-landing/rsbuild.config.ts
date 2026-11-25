@@ -14,6 +14,14 @@ export default defineConfig({
         '../../packages/ui-tokens/src/index.ts',
         import.meta.url,
       ).pathname,
+      '@ilovecode33/photo-wall$': new URL(
+        '../../packages/photo-wall/src/index.ts',
+        import.meta.url,
+      ).pathname,
+      '@ilovecode33/photo-wall/styles.css': new URL(
+        '../../packages/photo-wall/src/photo-wall.module.css',
+        import.meta.url,
+      ).pathname,
     },
   },
   source: {
