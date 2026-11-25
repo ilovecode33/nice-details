@@ -89,6 +89,10 @@
 .ui-btn--plain { background: transparent; color: var(--text-dim); min-width: var(--touch); }
 .ui-btn--plain:hover:not(:disabled) { color: var(--text); }
 
+/* A portalled button lives on document.body and must sit above overlay stacks
+   (the Sheet uses z-index 500), otherwise it is visually hidden behind them. */
+.ui-btn--portal { z-index: var(--z-portal); }
+
 /* Transparent layout slot for a portalled button. It occupies the same space
    the button would and is the anchor the fixed button is tethered to, so
    button + glow stay one unit and neither is clipped by a scroll ancestor. */
