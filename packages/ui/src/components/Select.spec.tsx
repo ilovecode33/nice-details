@@ -122,4 +122,54 @@ describe('Select', () => {
     fireEvent.keyDown(trigger, { key: 'ArrowDown' });
     expect(screen.getByRole('listbox')).toHaveAttribute('data-ui', 'select__menu');
   });
+
+  test('a horizontal drag does not open the list', () => {
+    renderSelect();
+    const trigger = screen.getByRole('combobox', { name: 'Fruit' });
+
+    fireEvent.pointerDown(trigger, { ...pointer, clientX: 100, clientY: 150 });
+    fireEvent.pointerMove(document, { ...pointer, clientX: 260, clientY: 150 });
+    fireEvent.pointerUp(document, { ...pointer, clientX: 260, clientY: 150 });
+
+    expect(screen.queryByRole('listbox')).toBeNull();
+  });
+
+  test('a mostly-horizontal diagonal drag does not open the list', () => {
+    renderSelect();
+    const trigger = screen.getByRole('combobox', { name: 'Fruit' });
+
+    fireEvent.pointerDown(trigger, { ...pointer, clientX: 100, clientY: 200 });
+    fireEvent.pointerMove(document, { ...pointer, clientX: 220, clientY: 160 });
+    fireEvent.pointerUp(document, { ...pointer, clientX: 220, clientY: 160 });
+
+    expect(screen.queryByRole('listbox')).toBeNull();
+  });
+
+  test('a mostly-vertical diagonal drag opens upward', () => {
+    renderSelect();
+    const trigger = screen.getByRole('combobox', { name: 'Fruit' });
+
+    fireEvent.pointerDown(trigger, { ...pointer, clientX: 100, clientY: 200 });
+    fireEvent.pointerMove(document, { ...pointer, clientX: 130, clientY: 120 });
+    fireEvent.pointerUp(document, { ...pointer, clientX: 130, clientY: 120 });
+
+    expect(screen.getByRole('listbox')).toHaveAttribute(
+      'data-ui',
+      'select__menu select__menu--up',
+    );
+  });
+
+  test('a horizontal drag does not flip an already-open downward menu', () => {
+    renderSelect();
+    const trigger = screen.getByRole('combobox', { name: 'Fruit' });
+
+    fireEvent.click(trigger);
+    expect(screen.getByRole('listbox')).toHaveAttribute('data-ui', 'select__menu');
+
+    fireEvent.pointerDown(trigger, { ...pointer, clientX: 100, clientY: 150 });
+    fireEvent.pointerMove(document, { ...pointer, clientX: 260, clientY: 150 });
+    fireEvent.pointerUp(document, { ...pointer, clientX: 260, clientY: 150 });
+
+    expect(screen.getByRole('listbox')).toHaveAttribute('data-ui', 'select__menu');
+  });
 });
