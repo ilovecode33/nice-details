@@ -33,7 +33,7 @@ The Rsbuild config aliases the workspace libraries to their source during develo
 
 ## Build and deployment
 
-`bunx turbo run build --filter=@ilovecode33/ui-landing` emits a static site to `apps/ui-landing/dist`. This is a private internal demo; no Cloudflare Pages workflow is configured for it. `bun run preview` serves the built output locally.
+`bunx turbo run build --filter=@ilovecode33/ui-landing` emits a static site to `apps/ui-landing/dist`. This is a private internal demo: PR previews deploy to Cloudflare Pages, but production deployment is not enabled yet (see [`DEPLOYMENT.md`](DEPLOYMENT.md)). `bun run preview` serves the built output locally.
 
 ## Rules and release process
 
@@ -41,3 +41,7 @@ The Rsbuild config aliases the workspace libraries to their source during develo
 - [Repository README](../../README.md) and [`RELEASING.md`](../../RELEASING.md) — monorepo overview and Changesets workflow.
 - [AI rules index](../../packages/ai-rules/README.md), [component entry criteria](../../packages/ai-rules/component-entry.md), [release exit criteria](../../packages/ai-rules/release-exit.md), [mobile-first](../../packages/ai-rules/mobile-first.md), [user-first](../../packages/ai-rules/user-first.md), [floating surfaces](../../packages/ai-rules/floating-surfaces.md), [photo wall](../../packages/ai-rules/photo-wall.md).
 - [`AGENTS.md`](../../AGENTS.md) — agent entry point for the repository.
+
+## Deployment
+
+PR previews deploy to Cloudflare Pages via [`.github/workflows/preview-ui-landing.yml`](../../.github/workflows/preview-ui-landing.yml), and the preview URL is commented on the PR. Production deployment is not enabled yet. See [`DEPLOYMENT.md`](DEPLOYMENT.md) for details, required secrets, caching, and the remaining manual Cloudflare step.
