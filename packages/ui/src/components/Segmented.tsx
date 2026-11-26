@@ -13,24 +13,30 @@ import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 const clampPercent = (value: number) => clamp(value, 0, 100);
 
-// Drag feel constants. `SNAP_RADIUS` is the px band around a slot centre where
-// the pill starts being pulled toward that slot; `SNAP_FOLLOW` is the most of
-// the remaining distance the pill covers there (so it lags the finger);
-// `RUBBER_BAND_MAX` caps how far the pill may drift past the end slots.
-const SNAP_RADIUS = 36;
-const SNAP_FOLLOW = 0.35;
+// Drag feel constants. `SLOT_RADIUS` is the px band around a slot centre where
+// the breakaway curve applies; `BREAKAWAY_PX` is how far the pointer must move
+// from its seated slot before the pill tracks it 1:1; `MIN_FOLLOW` keeps the
+// pill heavy at the very start of the drag; `MAGNET_STRENGTH` adds a light pull
+// when entering the next slot; `RUBBER_BAND_MAX` caps how far the pill may
+// drift past the end slots.
+const SLOT_RADIUS = 36;
+const BREAKAWAY_PX = 28;
+const MIN_FOLLOW = 0.12;
+const MAGNET_STRENGTH = 0.25;
 const RUBBER_BAND_MAX = 24;
 // Length of the post-release spring window; matches `--spring-dur` (0.22s).
 const SETTLE_MS = 220;
 
 /**
  * Maps a raw pointer delta to a weighted pill offset (pure; all geometry is
- * passed in). Beyond the first/last slot the excess is rubber-banded with
- * `resist` instead of hard-clamped, so the pill feels weighted at the ends.
- * Near the slot centre under the pointer the raw offset is blended toward that
- * slot's offset: at the centre the pill covers only ~35% of the remaining
- * distance, tapering to 1:1 at the snap boundary so there is no jump. The
- * radius is capped at half the slot spacing, keeping a clean hand-off between
+ * passed in). Past the first/last slot the excess is rubber-banded with
+ * `resist` instead of hard-clamped. Inside the slot radius under the pointer
+ * the pill uses a breakaway curve: it is heavy to start while still seated
+ * (as little as `MIN_FOLLOW` of the movement follows the pointer), then ramps
+ * up to a 1:1 follow once the pointer has broken away by `BREAKAWAY_PX`.
+ * Between slots (`distance >= radius`) the pill tracks the pointer smoothly
+ * at 1:1, and a light magnet adds weight again when entering the next slot.
+ * The radius is capped at half the slot spacing for a clean hand-off between
  * neighbouring slots.
  */
 function weightedOffset(
@@ -57,11 +63,18 @@ function weightedOffset(
     slots.length > 1
       ? Math.min(...slots.slice(1).map((slot, index) => slot.left - slots[index].left))
       : Infinity;
-  const radius = Math.min(SNAP_RADIUS, spacing / 2);
+  const radius = Math.min(SLOT_RADIUS, spacing / 2);
+  // Smooth 1:1 tracking once the pointer has left the slot.
   if (distance >= radius) return raw;
   const target = nearest.left - baseLeft;
-  const pull = SNAP_FOLLOW * (1 - distance / radius);
-  return raw + (target - raw) * pull;
+  const delta = raw - target;
+  // Breakaway: heavy while the pill is seated, ramping to 1:1 as the pointer
+  // pulls away. A light magnet (1 at the radius edge, so the hand-off stays
+  // smooth) gives a little extra weight as it enters the next slot.
+  const breakaway = clamp(Math.abs(delta) / BREAKAWAY_PX, MIN_FOLLOW, 1);
+  const magnet = 1 - MAGNET_STRENGTH * (1 - distance / radius);
+  const follow = breakaway * magnet;
+  return target + delta * follow;
 }
 
 /**

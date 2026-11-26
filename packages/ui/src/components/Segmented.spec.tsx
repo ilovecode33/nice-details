@@ -143,6 +143,26 @@ describe('Segmented', () => {
     return track.querySelector('[class*="ui-segmented__thumb"]') as HTMLElement;
   }
 
+  /** Presses the Day pill at x=10 and moves the pointer to `clientX`, still held. */
+  function dragDayTo(clientX: number) {
+    const { track, day } = withGeometry();
+    fireEvent.pointerDown(day, {
+      clientX: 10,
+      clientY: 20,
+      pointerType: 'mouse',
+      button: 0,
+      buttons: 1,
+    });
+    fireEvent.pointerMove(day, {
+      clientX,
+      clientY: 20,
+      pointerType: 'mouse',
+      button: 0,
+      buttons: 1,
+    });
+    return track.querySelector('[class*="ui-segmented__thumb"]') as HTMLElement;
+  }
+
   test('moves the selected pill to the active option with a slide transition', () => {
     render(<SegmentedDemo />);
     const { track, week } = withGeometry();
@@ -194,10 +214,10 @@ describe('Segmented', () => {
       button: 0,
       buttons: 1,
     });
-    // Near the Week centre the pill follows only 35% of the 40px still between
-    // the raw 140px offset and the slot: 140 - 0.35 * 40 = 126px. Selection
-    // still only changes on release.
-    expect(thumb.style.left).toBe('126px');
+    // At the Week centre the breakaway is complete, but the magnet still pulls
+    // 25% of the remaining 40px back toward the slot: 100 + 40 * 0.75 = 130px.
+    // Selection still only changes on release.
+    expect(thumb.style.left).toBe('130px');
     expect(thumb).toHaveAttribute(
       'data-ui',
       'segmented__thumb segmented__thumb--dragging',
@@ -229,6 +249,38 @@ describe('Segmented', () => {
     );
     // useDeform removes its click-suppression guard on the next tick.
     await new Promise((resolve) => setTimeout(resolve, 0));
+  });
+
+  test('barely moves for the first few pixels of a drag', () => {
+    render(<SegmentedDemo />);
+    // x=16 is a 6px raw delta, still 34px from the Day centre (inside the
+    // radius). The MIN_FOLLOW floor plus the magnet leave it almost seated.
+    const left = parseFloat(dragDayTo(16).style.left);
+    expect(left).toBeCloseTo(1.2678571428571428, 6);
+    expect(left).toBeLessThan(2);
+  });
+
+  test('ramps the follow up across the 28px breakaway band', () => {
+    render(<SegmentedDemo />);
+    const at6 = parseFloat(dragDayTo(16).style.left);
+    const at20 = parseFloat(dragDayTo(30).style.left);
+    const at28 = parseFloat(dragDayTo(38).style.left);
+
+    expect(at6).toBeCloseTo(1.2678571428571428, 6);
+    expect(at20).toBeCloseTo(12.698412698412698, 6);
+    expect(at28).toBeCloseTo(23.333333333333332, 6);
+    // The effective follow climbs as the pointer breaks away, instead of
+    // jumping straight to a 1:1 track (or staying pinned at MIN_FOLLOW).
+    expect(at6 / 6).toBeLessThan(at20 / 20);
+    expect(at20 / 20).toBeLessThan(at28 / 28);
+  });
+
+  test('tracks the pointer one-to-one once outside the slot radius', () => {
+    render(<SegmentedDemo />);
+    // At exactly the 36px radius the weighted curve hands off to raw tracking.
+    expect(dragDayTo(86).style.left).toBe('76px');
+    // Midway between Day and Week (50px from either centre) the raw 90px wins.
+    expect(dragDayTo(100).style.left).toBe('90px');
   });
 
   test('keeps the pill highlighted after clicking a non-active slot', () => {
@@ -323,6 +375,16 @@ describe('Segmented', () => {
         button: 0,
         buttons: 1,
       });
+      // A few pixels follow 1:1 under reduced motion; no breakaway is applied.
+      fireEvent.pointerMove(day, {
+        clientX: 16,
+        clientY: 20,
+        pointerType: 'mouse',
+        button: 0,
+        buttons: 1,
+      });
+      expect(thumb.style.left).toBe('6px');
+
       fireEvent.pointerMove(day, {
         clientX: 150,
         clientY: 20,
@@ -330,7 +392,7 @@ describe('Segmented', () => {
         button: 0,
         buttons: 1,
       });
-      // Reduced motion uses a plain clamp: the full 140px, not the damped 126px.
+      // Reduced motion uses a plain clamp: the full 140px, not the damped 130px.
       expect(thumb.style.left).toBe('140px');
       expect(thumb).toHaveAttribute(
         'data-ui',
