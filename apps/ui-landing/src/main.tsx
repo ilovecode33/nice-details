@@ -151,7 +151,9 @@ function App() {
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [dockCollapsed, setDockCollapsed] = useState(false);
   const [activeGroup, setActiveGroup] = useState(COMPONENT_GROUPS[0].id);
+  const [heroInView, setHeroInView] = useState(true);
   const dockRef = useRef<DockNavigationHandle>(null);
+  const heroRef = useRef<HTMLElement>(null);
 
   const photoItems: PhotoItem[] = PHOTOS.map((photo) => ({
     id: photo.id,
@@ -198,6 +200,10 @@ function App() {
         }
       }
       setActiveGroup(current);
+      // Keep the floating footer out of the fullscreen hero; restore it once
+      // the component details are in view.
+      const hero = heroRef.current;
+      if (hero) setHeroInView(hero.getBoundingClientRect().bottom > window.innerHeight * 0.05);
     };
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
@@ -216,16 +222,14 @@ function App() {
   return (
     <>
       <main id="top" className="landing__container">
-        <section className="landing__hero" aria-labelledby="hero-title">
-          <div className="landing__hero-panel">
+        <section className="landing__hero" ref={heroRef} aria-labelledby="hero-title">
+          <div className="landing__ambient" aria-hidden="true" />
+          <div className="landing__hero-inner">
             <p className="landing__eyebrow">{t('hero.eyebrow')}</p>
-            <h1 id="hero-title">
-              {t('hero.title')}
-              <br />
-              {t('hero.subtitle')}
-            </h1>
+            <h1 id="hero-title">{t('hero.title')}</h1>
+            <p className="landing__hero-subtitle">{t('hero.subtitle')}</p>
             <p className="landing__lead">{t('hero.lead')}</p>
-            <div data-ui="row">
+            <div className="landing__actions" data-ui="row">
               <Button variant="primary" icon={<ArrowRight />} onClick={() => setSheetOpen(true)}>
                 {t('hero.ctaDemo')}
               </Button>
@@ -233,7 +237,7 @@ function App() {
                 {t('hero.ctaDetails')}
               </Button>
             </div>
-            <div className="landing__toolbar" data-ui="row">
+            <div className="landing__preferences">
               <Select
                 className="landing__locale"
                 aria-label={t('language.label')}
@@ -603,21 +607,23 @@ function App() {
         </Section>
       </main>
 
-      {/* Footer and navigation are one floating dock. */}
-      <DockNavigation
-        ref={dockRef}
-        label={t('floating.footer')}
-        items={COMPONENT_GROUPS.map((item) => ({
-          id: item.id,
-          label: t(item.title),
-        }))}
-        activeId={activeGroup}
-        onSelect={goToGroup}
-        collapsed={dockCollapsed}
-        onCollapsedChange={setDockCollapsed}
-        collapseLabel={t('floating.hideDemo')}
-        expandLabel={t('floating.openDemo')}
-      />
+      {/* Footer and navigation are one floating dock, hidden over the hero. */}
+      {!heroInView && (
+        <DockNavigation
+          ref={dockRef}
+          label={t('floating.footer')}
+          items={COMPONENT_GROUPS.map((item) => ({
+            id: item.id,
+            label: t(item.title),
+          }))}
+          activeId={activeGroup}
+          onSelect={goToGroup}
+          collapsed={dockCollapsed}
+          onCollapsedChange={setDockCollapsed}
+          collapseLabel={t('floating.hideDemo')}
+          expandLabel={t('floating.openDemo')}
+        />
+      )}
 
       <Sheet open={sheetOpen} onClose={() => setSheetOpen(false)} title={t('intro.title')}>
         <div data-ui="stack stack--md">
