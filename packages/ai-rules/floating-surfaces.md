@@ -1,0 +1,27 @@
+# Floating surfaces and gesture feedback
+
+Scope: Applies to the shared @ilovecode33/ui library.
+
+Chrome (headers, navigation, footers, docks) floats above content instead of
+occupying layout space. The host reserves room with padding or `scroll-padding`
+so nothing is permanently covered.
+
+- [ ] Glass material comes from `--glass-*` tokens: fill, stroke, highlight, shadow, blur, saturation. No hardcoded translucency.
+- [ ] A solid `--bg-elevated` fallback exists when `backdrop-filter` is unsupported.
+- [ ] Floating bars resolve safe-area insets and keep every interactive target at least 44 × 44 pt.
+- [ ] Translucent surfaces keep text contrast in light, dark, and all five accents.
+- [ ] Containers that clip children must not cut off interaction halos: use `overflow: clip` with `overflow-clip-margin` instead of `overflow: hidden` so a hovered child's outer glow can extend past the edge while rounded corners stay intact. For a scroll container (`overflow-y: auto`, which cannot use clip-margin) opt the button into `haloPortal`: the **whole button** (with its own box-shadow) is portalled to `document.body`, so the button and its glow are one unit and can never be separated by a clip boundary. A transparent placeholder holds the layout slot and carries a unique anchor-name; the fixed button is tethered to it with CSS Anchor Positioning (`position-anchor`, `anchor()`, `anchor-size()`), so the browser keeps it in place through scroll and resize with no JS tracking. The portalled button needs `--z-portal` (above overlay stacks such as Sheet's 500), otherwise it is hidden behind them. This requires anchor-positioning support (Chrome/Edge 125+, Safari 27+).
+- [ ] Drag deformation is direct manipulation feedback: rubber-band resistance (harder the farther it is pulled), directional stretch/squash, spring back on release.
+- [ ] Press feedback blooms from the pointer position via `useDeform()`'s `--glow-*` variables and `PressGlow`. It sits behind content, uses only `--glow-*` tokens, never takes focus, and is disabled with deformation or under reduced motion. Passing `held` from `useDeform().state.active` keeps the glow lit for the whole press and fades it on release.
+- [ ] Buttons use the same glass material as the Segmented pill: a semantic-tinted translucent fill with `backdrop-filter` and a theme-adaptive edge. Primary carries a clearly stronger accent tint than secondary so it reads as the main action, while both keep the theme's normal text colour with ≥ 4.5:1 contrast. Destructive uses the danger hue. The halo is interaction feedback only — shown on hover or while held, never at rest — and eases in/out with `--glow-dur`. It uses a pure-hue glow (two blur layers, no white) so it stays visible on both near-white and near-dark tracks. Buttons render no press-point spotlight.
+- [ ] Shared CSS material is composed from tokens, not copied: one glass recipe serves all tinted button variants (each only sets `--btn-hue`/`--btn-fill`/`--btn-edge`/ink), `--glass-backdrop` replaces repeated blur+saturate declarations, and the two-layer halo is declared once per interaction selector so hue overrides resolve on the element. Custom properties that reference another variable must be declared on the element that needs the override — a `:root`-level token would bake in the accent hue.
+- [ ] Segmented selection is one moving pill: deformation and the bloom belong to the selected block, not the track. Pressing the pill starts a free horizontal drag that snaps to the nearest slot and selects it on release; clicking or pressing another slot only slides the pill there — no press bloom or delayed highlight. Highlight is derived from the hovered slot index, so a click that moves the active slot under a stationary pointer lights it immediately. Keyboard changes also slide (no slide under reduced motion).
+- [ ] The selected pill is an accent-tinted glass surface (`--seg-thumb-*` tokens) that keeps the theme's normal text colour — no inverted label — so it stays calm while dragged. Its edge is white in dark themes and accent-coloured in light themes, where a white edge would vanish; a brightened accent halo adds depth. The halo and spotlight persist for the whole press and fade only on release; hover uses the button-style two-layer glow. No one-shot flash or delayed bloom.
+- [ ] Stretch is driven by the dragged axis's own displacement; the perpendicular squash is paired with that pull. No rotation or tilt is added.
+- [ ] A drag beyond the click threshold, or a release outside the control, must not fire the control's click / activation handlers.
+- [ ] Deformation is disabled under `prefers-reduced-motion`; the static layout and state remain correct.
+- [ ] On touch, `touch-action` follows the drag axis (x → `pan-y`, y → `pan-x`, both → `none`) and a non-passive `touchmove` guard keeps the browser from canceling the gesture; page scrolling still works on Buttons.
+- [ ] The state model and semantics live in `@ilovecode33/ui-core`; the React renderer only maps them to styles.
+- [ ] A SwiftUI counterpart is recorded on the contract (material plus spring).
+
+---

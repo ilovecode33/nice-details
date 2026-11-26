@@ -2,7 +2,7 @@
 
 Expansion plan for the shared UI library. This file is for developers and agents.
 Design principles, entry/exit criteria, and agent rules live only in
-[QUALITY.md](../../QUALITY.md) and [AGENTS.md](../../AGENTS.md); every item below
+the [rule documents](../../packages/ai-rules/README.md) and [AGENTS.md](../../AGENTS.md); every item below
 inherits them, so they are not repeated here.
 
 Status labels: `planned` → `in progress` → `done` → `deferred`.
@@ -32,7 +32,10 @@ Goals:
 1. Grow the library by **complete scenarios**, not isolated widgets — every
    phase adds a real-use case to **Component details**.
 2. Keep every addition behind the mobile-first and accessibility gates in
-   QUALITY.md §2–5 and AGENTS.md §1–3.
+   the [mobile-first](../../packages/ai-rules/mobile-first.md),
+   [user-first](../../packages/ai-rules/user-first.md),
+   [component entry](../../packages/ai-rules/component-entry.md) and
+   [release](../../packages/ai-rules/release-exit.md) rules, plus AGENTS.md §1–3.
 3. Separate **semantics from rendering** so the same contracts can drive a
    future SwiftUI implementation without rewriting the design logic.
 
@@ -67,7 +70,7 @@ Every component is defined in `ui-core` by four framework-neutral parts:
 - **State** — a serializable value plus a pure transition (`reduce(state, event) → state`). Examples: `SelectState` (`value`, `open`, `activeIndex`), `SheetState` (`presented`), `FieldState` (`value`, `touched`, `error`).
 - **Events** — a closed set of platform-agnostic inputs: `select`, `move`, `dismiss`, `change`, `submit`. The web maps these to pointer/keyboard events; SwiftUI maps them to taps, gestures, and focus changes.
 - **Semantics** — role and flags (`selected`, `checked`, `expanded`, `disabled`, `label`) that become ARIA attributes on the web and accessibility traits in SwiftUI.
-- **Tokens and text** — token names resolved from `ui-tokens`, and text keys with English defaults supplied by the host app (the library stays i18n-free, per QUALITY.md §4).
+- **Tokens and text** — token names resolved from `ui-tokens`, and text keys with English defaults supplied by the host app (the library stays i18n-free, per the [component entry rules](../../packages/ai-rules/component-entry.md)).
 
 ### Renderer mapping
 
@@ -145,21 +148,22 @@ text to all three locales in `apps/ui-landing/src/i18n.ts` (`en`, `zh-TW`, `de`)
 
 ## 4. Per-component definition of done
 
-In addition to QUALITY.md §4–5, a component is complete only when:
+In addition to the [component entry](../../packages/ai-rules/component-entry.md)
+and [release exit](../../packages/ai-rules/release-exit.md) rules, a component is complete only when:
 
 - [ ] Its state transitions and semantics are implemented in `ui-core` and tested without React.
 - [ ] Its React renderer contains no business rules — only props → contract → markup.
 - [ ] It consumes token names from `@ilovecode33/ui-tokens`; no hardcoded design values.
 - [ ] Its intended SwiftUI counterpart is recorded on the contract type.
 - [ ] It appears in a real-use **Component details** scenario, with text in all three locales.
-- [ ] It passes QUALITY.md §2–3 and the 375px / 1280px checks in QUALITY.md §5.
+- [ ] It passes the [mobile-first](../../packages/ai-rules/mobile-first.md) and [user-first](../../packages/ai-rules/user-first.md) rules and the 375px / 1280px checks in [release exit](../../packages/ai-rules/release-exit.md).
 
 ---
 
 ## 5. Compatibility constraints
 
-Invariants the phases must not break. The rules behind them live in QUALITY.md
-and AGENTS.md and are not repeated here.
+Invariants the phases must not break. The rules behind them live in
+`packages/ai-rules/` and AGENTS.md and are not repeated here.
 
 - Public props of existing `ui` components, `defaultTheme` / `defaultAccent`
   overrides, and the `gallery.theme` / `gallery.accent` storage keys stay unchanged.

@@ -1,32 +1,28 @@
 # @ilovecode33/ai-rules
 
-Workspace that manages the repository's AI-agent rules. It is an **index and
-validator**, not a second rule source: the rules themselves live only in the
-root [`AGENTS.md`](../../AGENTS.md) and [`QUALITY.md`](../../QUALITY.md).
+Project-level AI rules for this repository. This workspace holds the rules as
+plain Markdown documents, split by topic so an agent can open only what it
+needs. [`AGENTS.md`](../../AGENTS.md) remains the agent entry point; it points
+here instead of duplicating rule content.
 
-## Rule sources
+Do not copy these principles into landing pages, demos, product UI, or component
+stories — they are rules for developers and agents, not user-facing copy.
 
-| File | Scope |
+## Rule index
+
+| Rule | Scope |
 |---|---|
-| [`AGENTS.md`](../../AGENTS.md) | Agent workflow, language, design principles, engineering commands, definition of done |
-| [`QUALITY.md`](../../QUALITY.md) | Project-wide quality criteria, component entry/exit checks, release checks, PR checklist |
+| [Design principles](design-principles.md) | HIG principle mapping; applies to all UI work |
+| [Mobile-first](mobile-first.md) | Phone base, 375px, touch sizes, safe areas |
+| [User-first / touch-first](user-first.md) | Feedback, keyboard parity, contrast, reduced motion |
+| [Floating surfaces and gesture feedback](floating-surfaces.md) | Glass material, halos/portals, drag deformation, button and segmented recipes — `@ilovecode33/ui` |
+| [Component entry criteria](component-entry.md) | What must be true before a new component is merged — `@ilovecode33/ui` |
+| [Release exit criteria](release-exit.md) | What must be checked before a release — `@ilovecode33/ui` |
+| [Deprecation and removal](deprecation.md) | When to deprecate or remove a component — `@ilovecode33/ui` |
+| [PR checklist](pr-checklist.md) | Copyable checklist for component PRs |
 
-Do not duplicate principle text here or in product UI; update the two root
-documents instead and keep this index pointing at them.
+## Updating rules
 
-## Consistency check
-
-```bash
-bun run check          # from this package
-bunx turbo run check   # from the repository root
-```
-
-The check verifies that:
-
-- both root rule documents exist and no markdown still references the old
-  package-local quality document path;
-- every UI component has a colocated `.spec.tsx`, that spec contains a
-  `matches its structural snapshot` case, and the matching `.snap` file exists;
-- every UI hook has a colocated `.spec.tsx`.
-
-Run it after adding or moving components, hooks, or rule documents.
+Edit the relevant file in this workspace, then update any reference in
+[`AGENTS.md`](../../AGENTS.md), [`README.md`](../../README.md) or
+[`packages/ui/ROADMAP.md`](../ui/ROADMAP.md). Keep the files in English.
