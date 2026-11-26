@@ -4,7 +4,7 @@ The component gallery is a static site deployed to Cloudflare Pages. **PR previe
 
 ## PR previews
 
-[`.github/workflows/preview-ui-landing.yml`](../../.github/workflows/preview-ui-landing.yml) runs on pull requests targeting `main`. It builds `@ilovecode33/ui-landing` and deploys `apps/ui-landing/dist` to the Cloudflare Pages project `ilovecode33-ui` under the branch `pr-<PR number>`. The workflow comments the preview URL on the PR.
+[`.github/workflows/preview-ui-landing.yml`](../../.github/workflows/preview-ui-landing.yml) runs on pull requests targeting `main`. It creates the `ilovecode33-ui` Pages project if it is absent, builds `@ilovecode33/ui-landing`, and deploys `apps/ui-landing/dist` under the branch `pr-<PR number>`. The workflow comments the preview URL on the PR.
 
 The workflow has a fork guard: pull requests from forks do not get previews, because they cannot access the Cloudflare secrets.
 
@@ -32,7 +32,7 @@ These are the same secrets used by the blog workflows; no new secret is needed.
 
 ## Manual Cloudflare dashboard step
 
-Create the `ilovecode33-ui` Pages project in the Cloudflare dashboard if it is absent, and attach `ui.ilovecode33.fyi` to it as a custom domain when production is activated. No Cloudflare configuration has been changed as part of the preview setup.
+The preview workflow creates the `ilovecode33-ui` Pages project on its first run. The remaining manual step is to attach `ui.ilovecode33.fyi` to that project as a custom domain when production is activated; no production deployment has been performed.
 
 ## Local commands
 

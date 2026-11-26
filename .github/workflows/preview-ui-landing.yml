@@ -34,6 +34,20 @@ jobs:
       - name: Build UI landing
         run: bunx turbo run build --filter=@ilovecode33/ui-landing
 
+      - name: Ensure Pages project exists
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          # Idempotent: Cloudflare returns 409 when the project already exists,
+          # which is fine — only the first preview needs to create it.
+          curl -sS -o /dev/null \
+            -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -X POST \
+            "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/pages/projects" \
+            -d '{"name":"ilovecode33-ui","production_branch":"main"}' || true
+
       - name: Deploy preview
         id: deploy
         uses: cloudflare/wrangler-action@v4
