@@ -10,6 +10,7 @@ exports[`Segmented > matches its structural snapshot 1`] = `
     >
       <div
         class="src-components-Segmented-module__ui-segmented__thumb-UJYqrS"
+        data-ui="segmented__thumb"
         style="transform-origin: 50% 50%; transition: left var(--dur) var(--ease), width var(--dur) var(--ease), transform var(--spring-dur) var(--spring-ease); touch-action: pan-y; --glow-x: 50%; --glow-y: 50%; left: 0px; width: 100px;"
       >
         <span

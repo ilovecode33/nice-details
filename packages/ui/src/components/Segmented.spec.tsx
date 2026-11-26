@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test } from '@rstest/core';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { useState } from 'react';
 import { Segmented } from './Segmented';
 import { expectComponentSnapshot } from '../test-utils/snapshot';
@@ -93,6 +93,76 @@ describe('Segmented', () => {
     return { track, day: tabs[0], week: tabs[1], month: tabs[2] };
   }
 
+  /** Runs a test with `prefers-reduced-motion: reduce` reported as matching. */
+  async function withReducedMotion(run: () => void | Promise<void>) {
+    const original = window.matchMedia;
+    window.matchMedia = ((query: string) =>
+      query === '(prefers-reduced-motion: reduce)'
+        ? ({
+            matches: true,
+            media: query,
+            onchange: null,
+            addEventListener: () => {},
+            removeEventListener: () => {},
+            addListener: () => {},
+            removeListener: () => {},
+            dispatchEvent: () => false,
+          }) as unknown as MediaQueryList
+        : original.call(window, query)) as typeof window.matchMedia;
+    try {
+      await run();
+    } finally {
+      window.matchMedia = original;
+    }
+  }
+
+  /** Drags the pill from the Day slot to the Week slot. */
+  function dragDayToWeek() {
+    const { track, day } = withGeometry();
+    fireEvent.pointerDown(day, {
+      clientX: 10,
+      clientY: 20,
+      pointerType: 'mouse',
+      button: 0,
+      buttons: 1,
+    });
+    fireEvent.pointerMove(day, {
+      clientX: 150,
+      clientY: 20,
+      pointerType: 'mouse',
+      button: 0,
+      buttons: 1,
+    });
+    fireEvent.pointerUp(day, {
+      clientX: 150,
+      clientY: 20,
+      pointerType: 'mouse',
+      button: 0,
+      buttons: 1,
+    });
+    return track.querySelector('[class*="ui-segmented__thumb"]') as HTMLElement;
+  }
+
+  /** Presses the Day pill at x=10 and moves the pointer to `clientX`, still held. */
+  function dragDayTo(clientX: number) {
+    const { track, day } = withGeometry();
+    fireEvent.pointerDown(day, {
+      clientX: 10,
+      clientY: 20,
+      pointerType: 'mouse',
+      button: 0,
+      buttons: 1,
+    });
+    fireEvent.pointerMove(day, {
+      clientX,
+      clientY: 20,
+      pointerType: 'mouse',
+      button: 0,
+      buttons: 1,
+    });
+    return track.querySelector('[class*="ui-segmented__thumb"]') as HTMLElement;
+  }
+
   test('moves the selected pill to the active option with a slide transition', () => {
     render(<SegmentedDemo />);
     const { track, week } = withGeometry();
@@ -144,8 +214,15 @@ describe('Segmented', () => {
       button: 0,
       buttons: 1,
     });
-    // The pill floats at the pointer; selection only changes on release.
-    expect(thumb.style.left).toBe('140px');
+    // At the Week centre the breakaway is complete, but the magnet still pulls
+    // 25% of the remaining 40px back toward the slot: 100 + 40 * 0.75 = 130px.
+    // Selection still only changes on release.
+    expect(thumb.style.left).toBe('130px');
+    expect(thumb).toHaveAttribute(
+      'data-ui',
+      'segmented__thumb segmented__thumb--dragging',
+    );
+    expect(thumb.style.transition).toBe('none');
     expect(day).toHaveAttribute('aria-selected', 'true');
 
     fireEvent.pointerUp(day, {
@@ -157,7 +234,13 @@ describe('Segmented', () => {
     });
     expect(week).toHaveAttribute('aria-selected', 'true');
     expect(thumb.style.left).toBe('100px');
-    expect(thumb.style.transition).toContain('left var(--dur)');
+    // A real drag springs into the slot before the ordinary slide returns.
+    expect(thumb).toHaveAttribute(
+      'data-ui',
+      'segmented__thumb segmented__thumb--settling',
+    );
+    expect(thumb.style.transition).toContain('left var(--spring-dur) var(--spring-ease)');
+    expect(thumb.style.transition).not.toContain('left var(--dur) var(--ease)');
     expect(thumb.querySelector('[class*="ui-segmented__sheen"]')?.className).not.toContain(
       'is-held',
     );
@@ -166,6 +249,38 @@ describe('Segmented', () => {
     );
     // useDeform removes its click-suppression guard on the next tick.
     await new Promise((resolve) => setTimeout(resolve, 0));
+  });
+
+  test('barely moves for the first few pixels of a drag', () => {
+    render(<SegmentedDemo />);
+    // x=16 is a 6px raw delta, still 34px from the Day centre (inside the
+    // radius). The MIN_FOLLOW floor plus the magnet leave it almost seated.
+    const left = parseFloat(dragDayTo(16).style.left);
+    expect(left).toBeCloseTo(1.2678571428571428, 6);
+    expect(left).toBeLessThan(2);
+  });
+
+  test('ramps the follow up across the 28px breakaway band', () => {
+    render(<SegmentedDemo />);
+    const at6 = parseFloat(dragDayTo(16).style.left);
+    const at20 = parseFloat(dragDayTo(30).style.left);
+    const at28 = parseFloat(dragDayTo(38).style.left);
+
+    expect(at6).toBeCloseTo(1.2678571428571428, 6);
+    expect(at20).toBeCloseTo(12.698412698412698, 6);
+    expect(at28).toBeCloseTo(23.333333333333332, 6);
+    // The effective follow climbs as the pointer breaks away, instead of
+    // jumping straight to a 1:1 track (or staying pinned at MIN_FOLLOW).
+    expect(at6 / 6).toBeLessThan(at20 / 20);
+    expect(at20 / 20).toBeLessThan(at28 / 28);
+  });
+
+  test('tracks the pointer one-to-one once outside the slot radius', () => {
+    render(<SegmentedDemo />);
+    // At exactly the 36px radius the weighted curve hands off to raw tracking.
+    expect(dragDayTo(86).style.left).toBe('76px');
+    // Midway between Day and Week (50px from either centre) the raw 90px wins.
+    expect(dragDayTo(100).style.left).toBe('90px');
   });
 
   test('keeps the pill highlighted after clicking a non-active slot', () => {
@@ -198,6 +313,112 @@ describe('Segmented', () => {
     expect(sheen.className).toContain('is-hovered');
     expect(thumb.style.left).toBe('100px');
     expect(thumb.style.transition).toContain('left var(--dur)');
+  });
+
+  test('returns from the spring to the ordinary slide after the settle window', async () => {
+    render(<SegmentedDemo />);
+    const { week } = withGeometry();
+    const thumb = dragDayToWeek();
+
+    expect(thumb).toHaveAttribute(
+      'data-ui',
+      'segmented__thumb segmented__thumb--settling',
+    );
+    expect(thumb.style.transition).toContain('left var(--spring-dur) var(--spring-ease)');
+    expect(thumb.style.left).toBe('100px');
+    expect(week).toHaveAttribute('aria-selected', 'true');
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 250));
+    });
+
+    expect(thumb).toHaveAttribute('data-ui', 'segmented__thumb');
+    expect(thumb.style.transition).toContain('left var(--dur) var(--ease)');
+    expect(thumb.style.transition).not.toContain(
+      'left var(--spring-dur) var(--spring-ease)',
+    );
+    expect(thumb.style.left).toBe('100px');
+  });
+
+  test('still accepts keyboard and click selection after a drag settles', async () => {
+    render(<SegmentedDemo />);
+    const { day, week, month } = withGeometry();
+    const thumb = dragDayToWeek();
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 250));
+    });
+    expect(week).toHaveAttribute('aria-selected', 'true');
+
+    fireEvent.keyDown(week, { key: 'ArrowRight' });
+    expect(month).toHaveAttribute('aria-selected', 'true');
+    expect(month).toHaveAttribute('tabindex', '0');
+    expect(thumb.style.left).toBe('200px');
+    expect(thumb).toHaveAttribute('data-ui', 'segmented__thumb');
+    expect(thumb.style.transition).toContain('left var(--dur) var(--ease)');
+
+    fireEvent.click(day);
+    expect(day).toHaveAttribute('aria-selected', 'true');
+    expect(thumb.style.left).toBe('0px');
+    expect(thumb).toHaveAttribute('data-ui', 'segmented__thumb');
+  });
+
+  test('clamps the drag and skips settling under reduced motion', async () => {
+    await withReducedMotion(async () => {
+      render(<SegmentedDemo />);
+      const { track, day, week } = withGeometry();
+      const thumb = track.querySelector('[class*="ui-segmented__thumb"]') as HTMLElement;
+
+      fireEvent.pointerDown(day, {
+        clientX: 10,
+        clientY: 20,
+        pointerType: 'mouse',
+        button: 0,
+        buttons: 1,
+      });
+      // A few pixels follow 1:1 under reduced motion; no breakaway is applied.
+      fireEvent.pointerMove(day, {
+        clientX: 16,
+        clientY: 20,
+        pointerType: 'mouse',
+        button: 0,
+        buttons: 1,
+      });
+      expect(thumb.style.left).toBe('6px');
+
+      fireEvent.pointerMove(day, {
+        clientX: 150,
+        clientY: 20,
+        pointerType: 'mouse',
+        button: 0,
+        buttons: 1,
+      });
+      // Reduced motion uses a plain clamp: the full 140px, not the damped 130px.
+      expect(thumb.style.left).toBe('140px');
+      expect(thumb).toHaveAttribute(
+        'data-ui',
+        'segmented__thumb segmented__thumb--dragging',
+      );
+      expect(thumb.style.transition).toBe('none');
+      expect(day).toHaveAttribute('aria-selected', 'true');
+
+      fireEvent.pointerUp(day, {
+        clientX: 150,
+        clientY: 20,
+        pointerType: 'mouse',
+        button: 0,
+        buttons: 1,
+      });
+      expect(week).toHaveAttribute('aria-selected', 'true');
+      expect(thumb.style.left).toBe('100px');
+      expect(thumb).toHaveAttribute('data-ui', 'segmented__thumb');
+      expect(thumb.style.transition).toBe('none');
+
+      await act(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 250));
+      });
+      expect(thumb).toHaveAttribute('data-ui', 'segmented__thumb');
+      expect(thumb.style.transition).toBe('none');
+    });
   });
 
   test('matches its structural snapshot', () => {

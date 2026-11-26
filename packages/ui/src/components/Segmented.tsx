@@ -1,7 +1,7 @@
 import type { SegmentOption } from '@ilovecode33/ui-types';
 import styles from './Segmented.module.css';
-import { tabSemantics } from '@ilovecode33/ui-core';
-import { useLayoutEffect, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react';
+import { resist, tabSemantics } from '@ilovecode33/ui-core';
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react';
 import { useDeform } from '../hooks/useDeform';
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
 
@@ -12,6 +12,70 @@ import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 const clampPercent = (value: number) => clamp(value, 0, 100);
+
+// Drag feel constants. `SLOT_RADIUS` is the px band around a slot centre where
+// the breakaway curve applies; `BREAKAWAY_PX` is how far the pointer must move
+// from its seated slot before the pill tracks it 1:1; `MIN_FOLLOW` keeps the
+// pill heavy at the very start of the drag; `MAGNET_STRENGTH` adds a light pull
+// when entering the next slot; `RUBBER_BAND_MAX` caps how far the pill may
+// drift past the end slots.
+const SLOT_RADIUS = 36;
+const BREAKAWAY_PX = 28;
+const MIN_FOLLOW = 0.12;
+const MAGNET_STRENGTH = 0.25;
+const RUBBER_BAND_MAX = 24;
+// Length of the post-release spring window; matches `--spring-dur` (0.22s).
+const SETTLE_MS = 220;
+
+/**
+ * Maps a raw pointer delta to a weighted pill offset (pure; all geometry is
+ * passed in). Past the first/last slot the excess is rubber-banded with
+ * `resist` instead of hard-clamped. Inside the slot radius under the pointer
+ * the pill uses a breakaway curve: it is heavy to start while still seated
+ * (as little as `MIN_FOLLOW` of the movement follows the pointer), then ramps
+ * up to a 1:1 follow once the pointer has broken away by `BREAKAWAY_PX`.
+ * Between slots (`distance >= radius`) the pill tracks the pointer smoothly
+ * at 1:1, and a light magnet adds weight again when entering the next slot.
+ * The radius is capped at half the slot spacing for a clean hand-off between
+ * neighbouring slots.
+ */
+function weightedOffset(
+  raw: number,
+  pointerX: number,
+  baseLeft: number,
+  slots: Array<{ left: number; width: number }>,
+): number {
+  const first = slots[0].left - baseLeft;
+  const last = slots[slots.length - 1].left - baseLeft;
+  if (raw < first) return first + resist(raw - first, RUBBER_BAND_MAX);
+  if (raw > last) return last + resist(raw - last, RUBBER_BAND_MAX);
+
+  let nearest = slots[0];
+  let distance = Infinity;
+  for (const slot of slots) {
+    const delta = Math.abs(slot.left + slot.width / 2 - pointerX);
+    if (delta < distance) {
+      distance = delta;
+      nearest = slot;
+    }
+  }
+  const spacing =
+    slots.length > 1
+      ? Math.min(...slots.slice(1).map((slot, index) => slot.left - slots[index].left))
+      : Infinity;
+  const radius = Math.min(SLOT_RADIUS, spacing / 2);
+  // Smooth 1:1 tracking once the pointer has left the slot.
+  if (distance >= radius) return raw;
+  const target = nearest.left - baseLeft;
+  const delta = raw - target;
+  // Breakaway: heavy while the pill is seated, ramping to 1:1 as the pointer
+  // pulls away. A light magnet (1 at the radius edge, so the hand-off stays
+  // smooth) gives a little extra weight as it enters the next slot.
+  const breakaway = clamp(Math.abs(delta) / BREAKAWAY_PX, MIN_FOLLOW, 1);
+  const magnet = 1 - MAGNET_STRENGTH * (1 - distance / radius);
+  const follow = breakaway * magnet;
+  return target + delta * follow;
+}
 
 /**
  * iOS-style segmented control rendering a measured pill over option buttons.
@@ -40,6 +104,10 @@ export function Segmented<T extends string>({
   // instead of transitioning in from zero on first paint.
   const [slots, setSlots] = useState<Array<{ left: number; width: number }> | null>(null);
   const [dragOffset, setDragOffset] = useState<number | null>(null);
+  // Short spring window after a drag release; the pill uses the spring easing
+  // for this long, then returns to the normal slide transition.
+  const [settling, setSettling] = useState(false);
+  const settleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Track which slot the pointer is over, not a boolean: after a click changes
   // the active slot, the indicator is still over the same spot and the pill
   // should light immediately without waiting for another pointer event.
@@ -95,7 +163,24 @@ export function Segmented<T extends string>({
   const spark = (position = { x: 50, y: 50 }, held = true) =>
     setGlow((current) => ({ ...position, held }));
 
+  /** Cancels a pending spring window so a new interaction starts from rest. */
+  const cancelSettle = () => {
+    if (settleTimer.current !== null) {
+      clearTimeout(settleTimer.current);
+      settleTimer.current = null;
+    }
+    setSettling(false);
+  };
+
+  useEffect(
+    () => () => {
+      if (settleTimer.current !== null) clearTimeout(settleTimer.current);
+    },
+    [],
+  );
+
   const onPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+    cancelSettle();
     const index = pressedIndex(event);
     const option = options[index];
     // Only the selected pill is draggable. Pressing another slot must not
@@ -111,12 +196,16 @@ export function Segmented<T extends string>({
     motion.handlers.onPointerMove(event);
     const minLeft = slots[0].left;
     const maxLeft = slots[slots.length - 1].left;
+    const raw = event.clientX - drag.current.startX;
     setDragOffset(
-      clamp(
-        event.clientX - drag.current.startX,
-        minLeft - drag.current.baseLeft,
-        maxLeft - drag.current.baseLeft,
-      ),
+      reduced
+        ? clamp(raw, minLeft - drag.current.baseLeft, maxLeft - drag.current.baseLeft)
+        : weightedOffset(
+            raw,
+            event.clientX - (trackRef.current?.getBoundingClientRect().left ?? 0),
+            drag.current.baseLeft,
+            slots,
+          ),
     );
     // The spotlight follows the finger inside the pill as it is dragged.
     const position = relativeTo(thumbRef.current, event.clientX, event.clientY);
@@ -149,12 +238,27 @@ export function Segmented<T extends string>({
     drag.current = null;
     setDragOffset(null);
     setGlow((current) => ({ ...current, held: false }));
+    // A tap never moved the pill, so it has nothing to settle.
+    if (reduced || dragOffset === null) return;
+    // After the snap, spring into place for ~`--spring-dur`, then fall back to
+    // the ordinary slide. The timer is cancelled by any new interaction.
+    cancelSettle();
+    setSettling(true);
+    settleTimer.current = setTimeout(() => {
+      settleTimer.current = null;
+      setSettling(false);
+    }, SETTLE_MS);
   };
 
   const dragging = dragOffset !== null;
   // Lit only when the pointer sits on the selected slot. Derived at render, so
   // a click that moves the active slot under a stationary pointer lights at once.
   const hovered = hoveredIndex !== null && hoveredIndex === activeIndex;
+  const dataUi = dragging
+    ? 'segmented__thumb segmented__thumb--dragging'
+    : settling
+      ? 'segmented__thumb segmented__thumb--settling'
+      : 'segmented__thumb';
   const thumbStyle = {
     ...motion.style,
     left: geometry.left + (dragOffset ?? 0),
@@ -162,7 +266,9 @@ export function Segmented<T extends string>({
     transition:
       dragging || motion.state.active || reduced
         ? 'none'
-        : `left var(--dur) var(--ease), width var(--dur) var(--ease), transform var(--spring-dur) var(--spring-ease)`,
+        : settling
+          ? `left var(--spring-dur) var(--spring-ease), width var(--spring-dur) var(--spring-ease), transform var(--spring-dur) var(--spring-ease)`
+          : `left var(--dur) var(--ease), width var(--dur) var(--ease), transform var(--spring-dur) var(--spring-ease)`,
   } as CSSProperties;
 
   return (
@@ -177,7 +283,12 @@ export function Segmented<T extends string>({
       onPointerCancel={onEnd}
     >
       {slots && (
-        <div ref={thumbRef} className={styles['ui-segmented__thumb']} style={thumbStyle}>
+        <div
+          ref={thumbRef}
+          className={styles['ui-segmented__thumb']}
+          data-ui={dataUi}
+          style={thumbStyle}
+        >
           <span
             className={[styles['ui-segmented__sheen'], styles[glow.held ? 'is-held' : ''] || '', styles[hovered ? 'is-hovered' : ''] || ''].filter(Boolean).join(' ')}
             aria-hidden="true"
@@ -226,6 +337,7 @@ export function Segmented<T extends string>({
               if (event.key === 'End') next = options.length - 1;
               if (next === undefined) return;
               event.preventDefault();
+              cancelSettle();
               const option = options[next];
               if (option && !option.disabled) onChange(option.value);
             }}
