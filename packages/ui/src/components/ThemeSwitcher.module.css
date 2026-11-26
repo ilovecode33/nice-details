@@ -20,22 +20,27 @@
 }
 
 /* The visible pill carries the damped drag offset; its transform is composed
-   with useDeform's elastic feedback by the shared drag hook. */
+   with useDeform's elastic feedback by the shared drag hook. Use the solid
+   accent tint so the 44px pill reads clearly against the group surface. */
 .ui-theme__thumb-shift {
   position: absolute;
   inset: 0;
   border-radius: 8px;
   pointer-events: none;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-sm);
+  background: var(--seg-thumb-solid);
+  border: 1px solid var(--seg-thumb-stroke);
+  box-shadow:
+    var(--shadow-sm),
+    0 0 var(--space-2) var(--seg-thumb-halo);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  backdrop-filter: var(--glass-backdrop);
   transition: box-shadow var(--glow-dur) var(--glow-ease);
 }
 
 .ui-theme__thumb-shift.is-hovered {
   box-shadow:
     var(--shadow-sm),
-    0 0 var(--space-2) var(--btn-glow-soft);
+    0 0 var(--space-3) var(--seg-thumb-halo);
 }
 
 .ui-theme__option {
@@ -60,5 +65,5 @@
 }
 
 .ui-theme__option.is-active {
-  color: var(--accent);
+  color: var(--seg-thumb-ink);
 }
