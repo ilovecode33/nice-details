@@ -34,12 +34,10 @@ safety net for accidents, not a substitute for server-side protection.
 
 ## Server-side protection
 
-GitHub branch protection on `main` should be enabled with: require a pull
-request before merging, require status checks to pass (`preview`) with branches
-up to date before merging, and block force pushes and deletions.
+GitHub branch protection on `main` is enabled (the repository is public):
+pull requests are required before merging, the `preview` status check must pass
+and branches must be up to date with `main`, and force pushes and deletion of
+`main` are blocked. Squash merges are used to keep one commit per PR.
 
-At the time of writing this repository is private on a GitHub plan where the
-branch-protection API returns HTTP 403 ("Upgrade to GitHub Pro or make this
-repository public"). Until protection is enabled by a repository admin, the PR
-rule above plus the local hook are the enforced process. Update this section
-when server-side protection becomes available.
+The local `pre-push` hook remains as an early warning; server-side protection
+is the authoritative enforcement.
