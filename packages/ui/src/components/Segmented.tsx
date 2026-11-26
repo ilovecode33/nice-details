@@ -1,6 +1,6 @@
 import type { SegmentOption } from '@ilovecode33/ui-types';
 import styles from './Segmented.module.css';
-import { resist, tabSemantics } from '@ilovecode33/ui-core';
+import { tabSemantics } from '@ilovecode33/ui-core';
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react';
 import { useDeform } from '../hooks/useDeform';
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
@@ -17,21 +17,22 @@ const clampPercent = (value: number) => clamp(value, 0, 100);
 // the breakaway curve applies; `DEAD_ZONE_PX` is how far the pointer may move
 // while the seated pill stays completely still; `BREAKAWAY_PX` is the band over
 // which follow ramps from 0 to 1 after that dead zone; `MAGNET_STRENGTH` adds a
-// light pull when entering the next slot; `RUBBER_BAND_MAX` caps how far the
-// pill may drift past the end slots.
+// light pull when entering the next slot. The ends are hard-clamped rather than
+// rubber-banded: no excess is stored past the first/last slot, so releasing at
+// an end has nothing to spring back from and cannot rebound.
 const SLOT_RADIUS = 36;
 const DEAD_ZONE_PX = 6;
 const BREAKAWAY_PX = 36;
 const MAGNET_STRENGTH = 0.25;
-const RUBBER_BAND_MAX = 24;
 // Length of the post-release settle window; matches `--spring-dur` (0.22s).
 // The curve is always `--ease` (no overshoot), never the spring easing.
 const SETTLE_MS = 220;
 
 /**
  * Maps a raw pointer delta to a weighted pill offset (pure; all geometry is
- * passed in). Past the first/last slot the excess is rubber-banded with
- * `resist` instead of hard-clamped. Inside the slot radius under the pointer
+ * passed in). The raw delta is hard-clamped to the first/last slot offsets —
+ * no rubber band at the ends — so the pill never holds excess that could
+ * animate back as a rebound on release. Inside the slot radius under the pointer
  * the pill uses a dead-zone breakaway: it does not move at all for the first
  * `DEAD_ZONE_PX`, then follow ramps from 0 to 1 over another `BREAKAWAY_PX`
  * before it tracks the pointer 1:1. Between slots (`distance >= radius`) the
@@ -49,8 +50,10 @@ function weightedOffset(
 ): number {
   const first = slots[0].left - baseLeft;
   const last = slots[slots.length - 1].left - baseLeft;
-  if (raw < first) return first + resist(raw - first, RUBBER_BAND_MAX);
-  if (raw > last) return last + resist(raw - last, RUBBER_BAND_MAX);
+  // Hard-clamp at the ends. With no stored excess past the endpoints the pill
+  // stays seated there, and a release at an end has nothing to settle back from.
+  if (raw <= first) return first;
+  if (raw >= last) return last;
 
   let nearest = slots[0];
   let distance = Infinity;
@@ -91,6 +94,8 @@ function weightedOffset(
  * offset minus the deform translate, so the rendered net is the seated slot
  * plus the damped offset. That inner layer also owns the settle animation with
  * `--ease` (no spring overshoot); the outer only slides on selection change.
+ * Drag offsets are hard-clamped at the end slots, so releasing at an endpoint
+ * without changing selection skips the settle and the pill simply stays seated.
  */
 export function Segmented<T extends string>({
   options,
@@ -108,7 +113,9 @@ export function Segmented<T extends string>({
   const trackRef = useRef<HTMLDivElement>(null);
   const thumbRef = useRef<HTMLDivElement>(null);
   const shiftRef = useRef<HTMLDivElement>(null);
-  const drag = useRef<{ startX: number; baseLeft: number } | null>(null);
+  // `atEdge` records whether the latest move ran past an end slot and was
+  // clamped, so release can skip the settle when the pill is already seated.
+  const drag = useRef<{ startX: number; baseLeft: number; atEdge: boolean } | null>(null);
   // Render the pill only once measured, so it mounts at its final size
   // instead of transitioning in from zero on first paint.
   const [slots, setSlots] = useState<Array<{ left: number; width: number }> | null>(null);
@@ -198,7 +205,7 @@ export function Segmented<T extends string>({
     if (!deform || index !== activeIndex || !option || option.disabled) return;
     motion.handlers.onPointerDown(event);
     spark(relativeTo(shiftRef.current, event.clientX, event.clientY), true);
-    drag.current = { startX: event.clientX, baseLeft: geometry.left };
+    drag.current = { startX: event.clientX, baseLeft: geometry.left, atEdge: false };
   };
 
   const onPointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
@@ -207,6 +214,10 @@ export function Segmented<T extends string>({
     const minLeft = slots[0].left;
     const maxLeft = slots[slots.length - 1].left;
     const raw = event.clientX - drag.current.startX;
+    // Mirror the hard clamp at the ends: remember when the pointer ran past a
+    // slot edge so release knows there is no excess to settle back from.
+    drag.current.atEdge =
+      raw <= minLeft - drag.current.baseLeft || raw >= maxLeft - drag.current.baseLeft;
     const nextOffset = reduced
       ? clamp(raw, minLeft - drag.current.baseLeft, maxLeft - drag.current.baseLeft)
       : weightedOffset(
@@ -227,6 +238,7 @@ export function Segmented<T extends string>({
 
   const onEnd = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (!drag.current) return;
+    const { atEdge } = drag.current;
     motion.handlers.onPointerUp(event);
     // Snap to the slot under the released pointer, not the pill's centre —
     // that is where the user's finger actually is.
@@ -245,15 +257,23 @@ export function Segmented<T extends string>({
       }
     });
     const option = options[nearest];
-    if (option && !option.disabled && option.value !== value) onChange(option.value);
+    let selectionChanged = false;
+    if (option && !option.disabled && option.value !== value) {
+      onChange(option.value);
+      selectionChanged = true;
+    }
     // The pill snapped under the pointer; keep it highlighted on release.
     if (event.type === 'pointerup') setHoveredIndex(nearest);
     drag.current = null;
     setDragOffset(null);
     setGlow((current) => ({ ...current, held: false }));
     cancelSettle();
-    // A tap never moved the pill, so it has nothing to settle.
-    if (reduced || dragOffset === null) return;
+    // A tap never moved the pill, so it has nothing to settle. An end-clamped
+    // drag that kept the same selection has no stored excess either: the pill
+    // is already seated at that slot, so skip the settle and stay put rather
+    // than animating back from a drift that no longer exists. A selection
+    // change still settles normally as the pill slides to its new seat.
+    if (reduced || dragOffset === null || (atEdge && !selectionChanged)) return;
     // The inner shift animates from its damped offset to 0 over `--spring-dur`
     // with `--ease` (no overshoot). A new interaction cancels the timer.
     setSettling(true);
@@ -264,7 +284,7 @@ export function Segmented<T extends string>({
   };
 
   const dragging = dragOffset !== null;
-  // `useDeform` translates by `state.dx = resist(rawDeltaX, 18px)`. The inner
+  // `useDeform` translates by `state.dx` (its damped, 18px-capped pointer delta). The inner
   // layer cancels exactly that translate so its own offset is the damped net;
   // the outer `left` stays at the seated slot for the whole drag.
   const shift = dragging ? (dragOffset ?? 0) - (motion.state.dx || 0) : 0;
