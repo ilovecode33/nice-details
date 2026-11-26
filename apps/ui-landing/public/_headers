@@ -2,3 +2,7 @@
 # matched, so every deployment serves fresh markup immediately.
 /static/*
   Cache-Control: public, max-age=31536000, immutable
+
+# Revalidate the worker on every navigation so updates are always picked up.
+/sw.js
+  Cache-Control: no-cache

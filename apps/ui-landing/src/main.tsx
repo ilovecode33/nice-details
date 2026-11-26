@@ -63,7 +63,10 @@ import {
   type TranslationKey,
 } from './i18n';
 import { COMPONENT_GROUPS, group } from './component-groups';
-import { PhotoWallDemo } from './photo-wall-demo';
+import { LazyPhotoWallDemo } from './lazy-photo-wall';
+import { registerServiceWorker } from './register-sw';
+
+registerServiceWorker();
 
 type Tone = 'warm' | 'ocean' | 'forest' | 'violet' | 'citrus';
 type LibraryTab = 'albums' | 'shared' | 'archive';
@@ -600,7 +603,7 @@ function App() {
                 <div data-ui="stack stack--md">
                   <span id="component-photowall" className="component-anchor" aria-hidden="true" />
                   <span id="component-virtuallight" className="component-anchor" aria-hidden="true" />
-                  <PhotoWallDemo />
+                  <LazyPhotoWallDemo />
                 </div>
               </Card>
           </div>
