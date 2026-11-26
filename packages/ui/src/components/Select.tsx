@@ -31,18 +31,27 @@ function optionsFromChildren(children: ReactNode): SelectOption[] {
 }
 
 /**
- * Vertical travel (px) that turns a trigger press into a direction drag. Below
- * it the gesture stays an ordinary click; once crossed, the synthetic click
- * after pointerup is suppressed so the menu just opened (or flipped) is not
- * immediately toggled shut.
+ * Travel (px) that turns a trigger press into a direction drag. The gesture
+ * opens/flips the menu only when vertical dominance is detected first — that
+ * is, |deltaY| >= 8 and |deltaY| > |deltaX| * 1.2 — while a horizontal-dominant
+ * press (|deltaX| > |deltaY| * 1.2 and |deltaX| >= 8) is ignored: it never
+ * opens, never flips, and never arms click suppression. The chosen intent is
+ * sticky for the whole gesture, so a later move in the other direction cannot
+ * change it. Below the threshold the press stays an ordinary click; once
+ * crossed with a vertical intent, the synthetic click after pointerup is
+ * suppressed so the menu just opened (or flipped) is not immediately toggled
+ * shut.
  */
 const DRAG_THRESHOLD = 8;
 
 type DragGesture = {
   pointerId: number;
+  startX: number;
   startY: number;
   direction: 'up' | 'down' | null;
   listOpen: boolean;
+  /** Sticky: once horizontal intent wins, the rest of the gesture is ignored. */
+  horizontal: boolean;
 };
 
 /**
@@ -50,7 +59,8 @@ type DragGesture = {
  * icons) with full keyboard and ARIA combobox behavior.
  * Controlled via `value` or uncontrolled via `defaultValue`; closes on outside
  * pointerdown or Escape (focus returns to the trigger on select and Escape).
- * A vertical trigger drag opens the menu toward the drag; a plain click toggles.
+ * A vertical-dominant trigger drag opens the menu toward the drag; a
+ * horizontal-dominant drag is ignored; a plain click toggles.
  * `placeholder` defaults to 'Select...'; labels come from props or children.
  */
 export function Select<T extends string = string>({
@@ -136,11 +146,13 @@ export function Select<T extends string = string>({
   }, []);
 
   /**
-   * Starts a vertical drag on the trigger. Listeners live on `document` in the
-   * capture phase because Deformable may call setPointerCapture on its wrapper,
-   * making trigger-level move/up events unreliable. Crossing DRAG_THRESHOLD
-   * opens the menu or flips its direction and arms `suppressClickRef`, which the
-   * trigger's onClick consumes once; sub-threshold presses stay ordinary clicks.
+   * Starts a drag on the trigger. Listeners live on `document` in the capture
+   * phase because Deformable may call setPointerCapture on its wrapper, making
+   * trigger-level move/up events unreliable. The first move that shows clear
+   * dominance decides the gesture's intent: vertical opens/flips the menu and
+   * arms `suppressClickRef`, which the trigger's onClick consumes once, while
+   * horizontal ignores the rest of the gesture without arming suppression. The
+   * intent is sticky and sub-threshold presses stay ordinary clicks.
    */
   const onTriggerPointerDown = (event: ReactPointerEvent<HTMLButtonElement>) => {
     // A drag whose click landed elsewhere must not suppress the next real click.
@@ -150,15 +162,40 @@ export function Select<T extends string = string>({
     detachDragListeners();
     dragRef.current = {
       pointerId: event.pointerId,
+      startX: event.clientX,
       startY: event.clientY,
       direction: null,
       listOpen: state.open,
+      horizontal: false,
     };
 
     const onMove = (moveEvent: PointerEvent) => {
       const drag = dragRef.current;
       if (!drag || moveEvent.pointerId !== drag.pointerId) return;
+      // A horizontal intent is sticky: ignore every later move of this gesture.
+      if (drag.horizontal) return;
+
+      const deltaX = moveEvent.clientX - drag.startX;
       const deltaY = moveEvent.clientY - drag.startY;
+
+      if (!drag.direction) {
+        // Decide intent once: the first move with clear dominance wins.
+        if (
+          Math.abs(deltaX) > Math.abs(deltaY) * 1.2 &&
+          Math.abs(deltaX) >= DRAG_THRESHOLD
+        ) {
+          drag.horizontal = true;
+          return;
+        }
+        if (
+          Math.abs(deltaY) < DRAG_THRESHOLD ||
+          Math.abs(deltaY) <= Math.abs(deltaX) * 1.2
+        ) {
+          return;
+        }
+      }
+
+      // Vertical intent (or an already-decided vertical drag): open/flip.
       const next: DragGesture['direction'] =
         deltaY <= -DRAG_THRESHOLD ? 'up' : deltaY >= DRAG_THRESHOLD ? 'down' : null;
       if (!next) return;
