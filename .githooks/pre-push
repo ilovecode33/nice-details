@@ -1,0 +1,11 @@
+#!/bin/sh
+# Refuse direct pushes to main. All changes must land through a pull request.
+# Install with: bun run hooks:install
+while read -r local_ref local_sha remote_ref remote_sha; do
+  if [ "$remote_ref" = "refs/heads/main" ]; then
+    echo "Blocked: direct push to main is not allowed. Open a PR instead." >&2
+    echo "See packages/ai-rules/git-workflow.md" >&2
+    exit 1
+  fi
+done
+exit 0

@@ -20,7 +20,8 @@
     "changeset": "changeset",
     "version:packages": "changeset version",
     "check:changesets": "changeset status --since=origin/main",
-    "clean": "turbo run clean"
+    "clean": "turbo run clean",
+    "hooks:install": "git config core.hooksPath .githooks"
   },
   "devDependencies": {
     "@changesets/cli": "^3.0.3",
