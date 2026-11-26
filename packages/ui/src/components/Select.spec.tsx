@@ -49,6 +49,15 @@ describe('Select', () => {
     button: 0,
   } as const;
 
+  /** Makes hit-testing deterministic; returns a restore function. */
+  const stubElementFromPoint = (element: Element | null) => {
+    const original = document.elementFromPoint;
+    document.elementFromPoint = () => element;
+    return () => {
+      document.elementFromPoint = original;
+    };
+  };
+
   test('opens upward when dragged above the trigger', () => {
     renderSelect();
     const trigger = screen.getByRole('combobox', { name: 'Fruit' });
@@ -171,5 +180,66 @@ describe('Select', () => {
     fireEvent.pointerUp(document, { ...pointer, clientX: 260, clientY: 150 });
 
     expect(screen.getByRole('listbox')).toHaveAttribute('data-ui', 'select__menu');
+  });
+
+  test('dragging from the trigger onto an option selects it and closes', () => {
+    let chosen = '';
+    render(
+      <Select
+        aria-label="Fruit"
+        value=""
+        options={[
+          { value: 'apple', label: 'Apple' },
+          { value: 'banana', label: 'Banana' },
+        ]}
+        onChange={(e) => (chosen = e.target.value)}
+      />,
+    );
+    const trigger = screen.getByRole('combobox', { name: 'Fruit' });
+
+    fireEvent.pointerDown(trigger, { ...pointer, clientY: 100 });
+    fireEvent.pointerMove(document, { ...pointer, clientY: 160 });
+    const banana = screen.getByRole('option', { name: 'Banana' });
+    const restore = stubElementFromPoint(banana);
+    try {
+      fireEvent.pointerMove(document, { ...pointer, clientY: 220 });
+      fireEvent.pointerUp(document, { ...pointer, clientY: 220 });
+    } finally {
+      restore();
+    }
+
+    expect(chosen).toBe('banana');
+    expect(screen.queryByRole('listbox')).toBeNull();
+  });
+
+  test('sliding inside an open menu selects the option under the pointer', () => {
+    let chosen = '';
+    render(
+      <Select
+        aria-label="Fruit"
+        value=""
+        options={[
+          { value: 'apple', label: 'Apple' },
+          { value: 'banana', label: 'Banana' },
+        ]}
+        onChange={(e) => (chosen = e.target.value)}
+      />,
+    );
+    const trigger = screen.getByRole('combobox', { name: 'Fruit' });
+    fireEvent.click(trigger);
+
+    const apple = screen.getByRole('option', { name: 'Apple' });
+    const banana = screen.getByRole('option', { name: 'Banana' });
+    fireEvent.pointerDown(apple, { ...pointer, clientX: 100, clientY: 200 });
+    const restore = stubElementFromPoint(banana);
+    try {
+      fireEvent.pointerMove(document, { ...pointer, clientX: 100, clientY: 260 });
+      fireEvent.pointerUp(document, { ...pointer, clientX: 100, clientY: 260 });
+    } finally {
+      restore();
+    }
+
+    expect(chosen).toBe('banana');
+    expect(screen.queryByRole('listbox')).toBeNull();
   });
 });

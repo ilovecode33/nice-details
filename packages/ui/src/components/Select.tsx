@@ -103,9 +103,30 @@ export function Select<T extends string = string>({
   const listRef = useRef<HTMLDivElement>(null);
   const listId = useId();
 
+  /**
+   * Resolves the option index under a client point. Menu drags use this instead
+   * of pointerenter because Deformable may capture the pointer, which retargets
+   * move events away from the options.
+   */
+  const optionIndexAt = (x: number, y: number): number | null => {
+    const menu = listRef.current;
+    if (!menu || typeof document.elementFromPoint !== 'function') return null;
+    const hit = document.elementFromPoint(x, y)?.closest<HTMLElement>('[data-index]');
+    if (!hit || !menu.contains(hit)) return null;
+    const index = Number(hit.dataset.index);
+    return Number.isInteger(index) ? index : null;
+  };
+
   const dispatch = (event: SelectionEvent<T>) => {
-    const next = selectionReducer(state, event);
-    setInteraction({ open: next.open, activeIndex: next.activeIndex });
+    // Functional update so document-level drag handlers created earlier in the
+    // gesture cannot reset `open` from a stale render.
+    setInteraction((prev) => {
+      const next = selectionReducer(
+        { ...state, open: prev.open, activeIndex: prev.activeIndex },
+        event,
+      );
+      return { open: next.open, activeIndex: next.activeIndex };
+    });
   };
 
   const openList = () => {
@@ -131,6 +152,15 @@ export function Select<T extends string = string>({
   const dragRef = useRef<DragGesture | null>(null);
   const suppressClickRef = useRef(false);
   const detachDragRef = useRef<(() => void) | null>(null);
+  // Press-and-slide inside an open menu: the option under the pointer becomes
+  // active as the finger moves, and releasing applies it and closes the list.
+  const menuDragRef = useRef<{
+    pointerId: number;
+    startX: number;
+    startY: number;
+    moved: boolean;
+  } | null>(null);
+  const detachMenuDragRef = useRef<(() => void) | null>(null);
 
   /** Removes the document-level drag listeners; idempotent, including on unmount. */
   const detachDragListeners = () => {
@@ -138,10 +168,17 @@ export function Select<T extends string = string>({
     detachDragRef.current = null;
   };
 
+  const detachMenuDragListeners = () => {
+    detachMenuDragRef.current?.();
+    detachMenuDragRef.current = null;
+  };
+
   useEffect(() => {
     return () => {
       detachDragRef.current?.();
       detachDragRef.current = null;
+      detachMenuDragRef.current?.();
+      detachMenuDragRef.current = null;
     };
   }, []);
 
@@ -201,20 +238,34 @@ export function Select<T extends string = string>({
       if (!next) return;
       // Any threshold crossing is a drag, even if the direction stays the same.
       suppressClickRef.current = true;
-      if (next === drag.direction) return;
-      drag.direction = next;
-      setDropUp(next === 'up');
+      if (next !== drag.direction) {
+        drag.direction = next;
+        setDropUp(next === 'up');
+      }
       if (!drag.listOpen) {
         drag.listOpen = true;
         openList();
+      }
+      // While the menu is open, track the option under the pointer so the same
+      // press can slide onto a choice and commit it on release.
+      const index = optionIndexAt(moveEvent.clientX, moveEvent.clientY);
+      if (index !== null) {
+        const option = list[index];
+        if (option && !option.disabled) dispatch({ type: 'setActive', index });
       }
     };
 
     /** Ends this gesture; a leftover click flag is cleared by the next pointerdown. */
     const onEnd = (endEvent: PointerEvent) => {
-      if (endEvent.pointerId !== dragRef.current?.pointerId) return;
+      const drag = dragRef.current;
+      if (!drag || endEvent.pointerId !== drag.pointerId) return;
       dragRef.current = null;
       detachDragListeners();
+      // A vertical drag released over an option commits it and closes the menu.
+      if (endEvent.type !== 'pointerup' || !drag.direction) return;
+      const index = optionIndexAt(endEvent.clientX, endEvent.clientY);
+      const option = index !== null ? list[index] : undefined;
+      if (option && !option.disabled) choose(option);
     };
 
     document.addEventListener('pointermove', onMove, true);
@@ -226,6 +277,72 @@ export function Select<T extends string = string>({
       document.removeEventListener('pointercancel', onEnd, true);
     };
   };
+
+  /**
+   * Press-and-slide inside an already-open menu. Moving past the threshold
+   * highlights the option under the pointer; releasing applies it and closes.
+   * A sub-threshold press stays a plain click so taps keep working.
+   */
+  const onMenuPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (event.pointerType === 'mouse' && event.button !== 0) return;
+    const hit = (event.target as HTMLElement).closest<HTMLElement>('[data-index]');
+    if (!hit || !listRef.current?.contains(hit)) return;
+    const startIndex = Number(hit.dataset.index);
+    if (!Number.isInteger(startIndex) || list[startIndex]?.disabled) return;
+
+    detachMenuDragListeners();
+    menuDragRef.current = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      moved: false,
+    };
+
+    const onMove = (moveEvent: PointerEvent) => {
+      const drag = menuDragRef.current;
+      if (!drag || moveEvent.pointerId !== drag.pointerId) return;
+      if (
+        !drag.moved &&
+        (Math.abs(moveEvent.clientX - drag.startX) > DRAG_THRESHOLD ||
+          Math.abs(moveEvent.clientY - drag.startY) > DRAG_THRESHOLD)
+      ) {
+        drag.moved = true;
+      }
+      if (!drag.moved) return;
+      const index = optionIndexAt(moveEvent.clientX, moveEvent.clientY);
+      if (index === null) return;
+      const option = list[index];
+      if (option && !option.disabled) dispatch({ type: 'setActive', index });
+    };
+
+    const onUp = (upEvent: PointerEvent) => {
+      const drag = menuDragRef.current;
+      if (!drag || upEvent.pointerId !== drag.pointerId) return;
+      menuDragRef.current = null;
+      detachMenuDragListeners();
+      if (upEvent.type !== 'pointerup' || !drag.moved) return;
+      const index = optionIndexAt(upEvent.clientX, upEvent.clientY);
+      const option = index !== null ? list[index] : undefined;
+      if (option && !option.disabled) choose(option);
+    };
+
+    document.addEventListener('pointermove', onMove, true);
+    document.addEventListener('pointerup', onUp, true);
+    document.addEventListener('pointercancel', onUp, true);
+    detachMenuDragRef.current = () => {
+      document.removeEventListener('pointermove', onMove, true);
+      document.removeEventListener('pointerup', onUp, true);
+      document.removeEventListener('pointercancel', onUp, true);
+    };
+  };
+
+  // Drop any in-flight menu drag when the list closes or the component unmounts.
+  useEffect(() => {
+    if (state.open) return;
+    detachMenuDragRef.current?.();
+    detachMenuDragRef.current = null;
+    menuDragRef.current = null;
+  }, [state.open]);
 
   useEffect(() => {
     if (!state.open) return;
@@ -353,6 +470,7 @@ export function Select<T extends string = string>({
           aria-label={accessibleLabel}
           className={[styles['ui-select__menu'], dropUp ? styles['ui-select__menu--up'] : ''].filter(Boolean).join(' ')}
           data-ui={dropUp ? 'select__menu select__menu--up' : 'select__menu'}
+          onPointerDown={onMenuPointerDown}
         >
           {list.length === 0 && <div className={styles['ui-select__empty']}>No options</div>}
           {list.map((option, index) => {
