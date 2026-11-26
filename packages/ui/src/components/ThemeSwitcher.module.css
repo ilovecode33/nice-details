@@ -1,15 +1,64 @@
 /* ── Theme switcher ──────────────────────────────────────────────────────── */
-.ui-theme { display: inline-flex; align-items: center; gap: 2px; padding: 3px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg-elevated-2); }
-
-.ui-theme__option {
-  display: inline-flex; align-items: center; justify-content: center;
-  width: var(--touch); height: var(--touch);
-  border: 0; border-radius: 8px;
-  background: transparent; color: var(--text-dim);
-  font-size: 16px; cursor: pointer;
-  transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
+.ui-theme {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-elevated-2);
 }
 
-.ui-theme__option:hover { color: var(--text); }
+/* Static seat: only the measured slot left/width live here. */
+.ui-theme__thumb {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  z-index: 0;
+  pointer-events: none;
+}
 
-.ui-theme__option.is-active { background: var(--bg-elevated); color: var(--accent); box-shadow: var(--shadow-sm); }
+/* The visible pill carries the damped drag offset; its transform is composed
+   with useDeform's elastic feedback by the shared drag hook. */
+.ui-theme__thumb-shift {
+  position: absolute;
+  inset: 0;
+  border-radius: 8px;
+  pointer-events: none;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--glow-dur) var(--glow-ease);
+}
+
+.ui-theme__thumb-shift.is-hovered {
+  box-shadow:
+    var(--shadow-sm),
+    0 0 var(--space-2) var(--btn-glow-soft);
+}
+
+.ui-theme__option {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--touch);
+  height: var(--touch);
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-dim);
+  font-size: 16px;
+  cursor: pointer;
+  transition: color var(--dur) var(--ease);
+}
+
+.ui-theme__option:hover {
+  color: var(--text);
+}
+
+.ui-theme__option.is-active {
+  color: var(--accent);
+}

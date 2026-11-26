@@ -9,9 +9,21 @@ exports[`ThemeSwitcher > matches its structural snapshot 1`] = `
       role="group"
       title="Appearance"
     >
+      <div
+        class="src-components-ThemeSwitcher-module__ui-theme__thumb-mfuQAU"
+        data-ui="theme__thumb"
+        style="transform-origin: 50% 50%; transition: left var(--dur) var(--ease), width var(--dur) var(--ease), transform var(--dur) var(--ease); touch-action: pan-y; --glow-x: 50%; --glow-y: 50%; left: 0px; width: 100px;"
+      >
+        <div
+          class="src-components-ThemeSwitcher-module__ui-theme__thumb-shift-z9SIMy"
+          data-ui="theme__thumb-shift"
+          style="transform: translate3d(0px, 0, 0); transition: none;"
+        />
+      </div>
       <button
         aria-pressed="true"
         class="src-components-ThemeSwitcher-module__ui-theme__option-geKVjG src-components-ThemeSwitcher-module__is-active-I9nKRR"
+        data-index="0"
         title="System"
         type="button"
       >
@@ -61,6 +73,7 @@ exports[`ThemeSwitcher > matches its structural snapshot 1`] = `
       <button
         aria-pressed="false"
         class="src-components-ThemeSwitcher-module__ui-theme__option-geKVjG"
+        data-index="1"
         title="Light"
         type="button"
       >
@@ -120,6 +133,7 @@ exports[`ThemeSwitcher > matches its structural snapshot 1`] = `
       <button
         aria-pressed="false"
         class="src-components-ThemeSwitcher-module__ui-theme__option-geKVjG"
+        data-index="2"
         title="Dark"
         type="button"
       >
