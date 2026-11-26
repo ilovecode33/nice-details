@@ -17,7 +17,14 @@ import './app.css';
 import { DICTIONARIES, LOCALES, LOCALE_NAMES, type Locale } from './i18n';
 import { COMPONENT_GROUPS } from './component-groups';
 import { LazyComponentDetails } from './lazy-component-details';
+import { installScrollPersistence } from './scroll-restore';
 import { registerServiceWorker } from './register-sw';
+
+// The details chunk loads lazily, so the browser cannot restore the position
+// reliably on its own. We restore it manually once the real section is mounted.
+if (typeof window !== 'undefined' && 'scrollRestoration' in window.history) {
+  window.history.scrollRestoration = 'manual';
+}
 
 registerServiceWorker();
 
@@ -52,6 +59,9 @@ function App() {
     onScroll();
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
+
+  // Persist the live scroll position on scroll and pagehide for the next load.
+  useEffect(() => installScrollPersistence(), []);
 
   const goToGroup = (id: string) => {
     setActiveGroup(id);
