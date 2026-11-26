@@ -2,7 +2,7 @@
 
 Expansion plan for the shared UI library. This file is for developers and agents.
 Design principles, entry/exit criteria, and agent rules live only in
-[QUALITY.md](QUALITY.md) and [AGENTS.md](../../AGENTS.md); every item below
+[QUALITY.md](../../QUALITY.md) and [AGENTS.md](../../AGENTS.md); every item below
 inherits them, so they are not repeated here.
 
 Status labels: `planned` → `in progress` → `done` → `deferred`.

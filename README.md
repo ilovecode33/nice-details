@@ -19,15 +19,16 @@ apps/
   blog/            # Blog using the SDK in readonly mode (port 3100)
   ui-landing/      # Component library landing page (port 3200)
 packages/
+  ai-rules/        # @ilovecode33/ai-rules, index + validator for AI rule docs
   editor-core/     # @ilovecode33/editor-core, framework-agnostic editor SDK
   ui-tokens/       # @ilovecode33/ui-tokens, design tokens as data + generators
   ui-core/         # @ilovecode33/ui-core, platform-neutral state contracts
   ui/              # @ilovecode33/ui, React component library
-    QUALITY.md     # Entry / exit criteria (HIG, mobile-first, touch-first)
     ROADMAP.md     # Component expansion plan and platform-neutral architecture
   photo-wall/      # @ilovecode33/photo-wall, procedural Photo Wall generator + renderer
   ui-swift/        # SwiftUI skeleton (Swift package, not an npm workspace)
-AGENTS.md          # Agent rules for this repository
+AGENTS.md          # AI agent rules for this repository
+QUALITY.md         # Project-wide quality and component entry / exit criteria
 ```
 
 Every package name uses the `@ilovecode33/` scope.
@@ -120,7 +121,7 @@ The landing page uses a single floating footer dock as its only navigation; the 
 
 `<option>` children still work for backward compatibility, but `options` is preferred.
 
-Before adding or changing a component, read [`packages/ui/QUALITY.md`](packages/ui/QUALITY.md). For the planned component expansion and the platform-neutral architecture that can back a future SwiftUI renderer, see [`packages/ui/ROADMAP.md`](packages/ui/ROADMAP.md). Agent-specific rules live in [`AGENTS.md`](AGENTS.md).
+Before adding or changing a component, read the project-level [`QUALITY.md`](QUALITY.md). For the planned component expansion and the platform-neutral architecture that can back a future SwiftUI renderer, see [`packages/ui/ROADMAP.md`](packages/ui/ROADMAP.md). AI agent rules live in [`AGENTS.md`](AGENTS.md).
 
 ## Current scope
 

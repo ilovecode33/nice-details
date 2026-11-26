@@ -1,4 +1,9 @@
-# @ilovecode33/ui — Entry and Exit Criteria
+# Quality and entry / exit criteria — @ilovecode33/nice-details
+
+Project-level rules for every package and app in this repository. Sections 1–3
+apply to all UI work; sections 3a–6 and the PR checklist focus on the shared
+`@ilovecode33/ui` component library. AI agents must follow both this file and
+the root [`AGENTS.md`](AGENTS.md).
 
 Design reference: [Apple Human Interface Guidelines — Design Principles](https://developer.apple.com/design/human-interface-guidelines/design-principles)
 

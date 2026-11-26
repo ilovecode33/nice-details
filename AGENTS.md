@@ -5,7 +5,7 @@ You are the maintenance agent for this monorepo. These rules apply to **every** 
 ## 0. Language and documentation (important)
 
 - **The project is English by default.** All documentation (`README.md`, `AGENTS.md`, `QUALITY.md`, code comments where added) must be written in English.
-- Design principles, entry/exit criteria, and agent rules belong **only** in `AGENTS.md` and `packages/ui/QUALITY.md`.
+- Design principles, entry/exit criteria, and agent rules belong **only** in the project-level `AGENTS.md` and `QUALITY.md` at the repository root.
 - **Never** put design-principle text, the HIG link, or slogans such as "mobile-first / touch-first / 44pt" into a landing page, demo, product UI, or component story meant for end users.
   - The landing page shows what components look like and how they are used — nothing about the rules behind them.
   - Principles are for developers and agents to follow, not copy for users.
@@ -48,8 +48,8 @@ Reference: https://developer.apple.com/design/human-interface-guidelines/design-
 
 ## 4. `packages/ui` rules
 
-- Read `packages/ui/QUALITY.md` before adding a component.
-- Export every component and its types from `src/index.ts`.
+- Read the project-level `QUALITY.md` before adding a component.
+- Export every component and hook from `src/index.ts`. Shared types live in `@ilovecode33/ui-types`, grouped by domain; `ui` and `ui-core` do not re-export them.
 - All user-facing text is passed via props **with English defaults**; the library must not depend on any i18n package. Localization is the consuming app's job.
 - Providers support `defaultTheme` / `defaultAccent` overrides; keep the `gallery.theme` / `gallery.accent` storage keys unchanged.
 - Every non-trivial component must appear in the landing page's **Component details** section in at least one real usage scenario — not an isolated button showcase.
@@ -65,6 +65,7 @@ Reference: https://developer.apple.com/design/human-interface-guidelines/design-
   - `bunx turbo run typecheck build`
   - `bunx turbo run dev --filter=@ilovecode33/ui-landing` (3200)
 - `turbo.json` task `outputs` must be accurate, otherwise a cache hit restores nothing.
+- The `@ilovecode33/ai-rules` workspace indexes the root rule documents and runs `bun run check` to verify rule references and component/hook spec + snapshot coverage. Rule content still lives only in `AGENTS.md` and `QUALITY.md`.
 
 ## 6. Definition of done
 
