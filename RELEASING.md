@@ -30,7 +30,8 @@ are in use.
   `package.json` versions, rewrite the `CHANGELOG.md` files and delete the
   consumed `.changeset/*.md` files.
 - `bun run check:changesets` — run `changeset status --since=origin/main`; this
-  must be green before a branch is merged.
+  must be green before a branch is merged. Changesets also considers uncommitted
+  edits, so run it on a clean working tree.
 
 ## Workflow
 
