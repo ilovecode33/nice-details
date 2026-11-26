@@ -4,7 +4,7 @@ import {
   frameHeightVh,
   vhToStageY,
   type FrameGeometryInput,
-} from '../geometry';
+} from './geometry';
 
 const base: FrameGeometryInput = {
   columnWidthPct: 24,

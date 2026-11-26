@@ -13,7 +13,6 @@ export default defineConfig({
     entry: {
       index: './src/index.ts',
     },
-    exclude: ['**/__tests__/**'],
   },
   output: {
     target: 'web',

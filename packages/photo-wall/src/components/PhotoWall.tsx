@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
-import { solveFrameGeometry, type FrameGeometry } from './geometry';
+import { solveFrameGeometry, type FrameGeometry } from '../geometry';
 import {
   computeFrameLightingMulti,
   computeWallGlows,
@@ -8,7 +8,7 @@ import {
   formatWallGlow,
   DEFAULT_LIGHT,
   type VirtualLight,
-} from './light';
+} from '../light';
 import {
   createWallTiles,
   wrapImages,
@@ -16,9 +16,9 @@ import {
   type WallFrame,
   type WallStyle,
   type WallTile,
-} from './tiles';
-import { DEFAULT_WALL_PARAMS, type WallParams } from './params';
-import styles from './photo-wall.module.css';
+} from '../tiles';
+import { DEFAULT_WALL_PARAMS, type WallParams } from '../params';
+import styles from './PhotoWall.module.css';
 
 /** Fallback frames per tile for malformed tile data. */
 const DEFAULT_FRAMES_PER_TILE = 4;

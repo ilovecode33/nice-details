@@ -23,7 +23,7 @@ export default defineConfig({
         import.meta.url,
       ).pathname,
       '@ilovecode33/photo-wall/styles.css': new URL(
-        '../../packages/photo-wall/src/photo-wall.module.css',
+        '../../packages/photo-wall/src/components/PhotoWall.module.css',
         import.meta.url,
       ).pathname,
     },

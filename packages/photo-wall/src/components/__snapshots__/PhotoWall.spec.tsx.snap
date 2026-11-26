@@ -1,0 +1,642 @@
+// Rstest Snapshot v1
+
+exports[`PhotoWall > matches its structural snapshot 1`] = `
+<body>
+  <div>
+    <div
+      class="src-components-PhotoWall-module__scene-tgYL7o"
+      style="--pass-count: 4; --pass-w: 25%; --pan-duration: 180.00s; --pan-play-state: paused;"
+    >
+      <div
+        class="src-components-PhotoWall-module__room-qKAAKQ"
+      >
+        <div
+          class="src-components-PhotoWall-module__camera-r6TpVM"
+        >
+          <div
+            class="src-components-PhotoWall-module__pass-PHwH4I"
+            style="left: calc(0 * var(--pass-w));"
+          >
+            <div
+              class="src-components-PhotoWall-module__frame-tM9O68 src-components-PhotoWall-module__frameGold-cgYdTX"
+              data-wall-frame=""
+              style="--x: 2.64%; --y: 22.5609756097561%; --w: 18.45%; --ratio: 1.5; --z: 32px; --tilt: 0.3deg; --wood: hsl(22.8 36.0% 26.9%); --mat-a: #f8f3e7; --mat-b: #e7dfcd; --rail: calc(clamp(10px, 1.5vw, 26px) * 1.38); --sheen: 1.13; --grain-jitter: 0deg; box-shadow: 0 0.12cqw 0.3cqw rgba(36, 26, 15, 0.16), calc(-3.523 * 1cqw) calc(2.225 * 1cqw) calc(2.824 * 1cqw) calc(0.339 * 1cqw) rgba(38, 27, 16, 0.122), calc(-3.523 * 2.1cqw) calc(2.225 * 2.3cqw) calc(2.824 * 2.1cqw) calc(0.339 * 1.7cqw) rgba(38, 27, 16, 0.051); --light: 0.08000184729146637;"
+            >
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railTop-pebOBJ"
+              />
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railRight-qgBotb"
+              />
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railBottom-DQparE"
+              />
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railLeft-wlKAKh"
+              />
+              <div
+                class="src-components-PhotoWall-module__mat-M6yF7t"
+              >
+                <span
+                  class="src-components-PhotoWall-module__imgSlot-MN34ET src-components-PhotoWall-module__photo-_i0hea"
+                >
+                  <img
+                    alt=""
+                    class="src-components-PhotoWall-module__imgLayer-ytrkoH"
+                    decoding="async"
+                    draggable="false"
+                    src="/photos/one.jpg"
+                  />
+                </span>
+              </div>
+            </div>
+            <div
+              class="src-components-PhotoWall-module__frame-tM9O68 src-components-PhotoWall-module__frameWalnut-p6zUD8"
+              data-wall-frame=""
+              style="--x: 29.1%; --y: 27.08081300813008%; --w: 18.77%; --ratio: 0.6666666666666666; --z: 51px; --tilt: 0.06deg; --wood: hsl(38.5 33.8% 19.2%); --mat-a: #fbf8f0; --mat-b: #efe9dc; --rail: calc(clamp(10px, 1.5vw, 26px) * 1.03); --sheen: 1.04; --grain-jitter: 6deg; box-shadow: 0 0.12cqw 0.3cqw rgba(36, 26, 15, 0.16), calc(-1.754 * 1cqw) calc(7.337 * 1cqw) calc(4.579 * 1cqw) calc(0.549 * 1cqw) rgba(38, 27, 16, 0.100), calc(-1.754 * 2.1cqw) calc(7.337 * 2.3cqw) calc(4.579 * 2.1cqw) calc(0.549 * 1.7cqw) rgba(38, 27, 16, 0.042); --light: 0.0692788990242587;"
+            >
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railTop-pebOBJ"
+              />
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railRight-qgBotb"
+              />
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railBottom-DQparE"
+              />
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railLeft-wlKAKh"
+              />
+              <div
+                class="src-components-PhotoWall-module__mat-M6yF7t"
+              >
+                <span
+                  class="src-components-PhotoWall-module__imgSlot-MN34ET src-components-PhotoWall-module__photo-_i0hea"
+                >
+                  <img
+                    alt=""
+                    class="src-components-PhotoWall-module__imgLayer-ytrkoH"
+                    decoding="async"
+                    draggable="false"
+                    src="/photos/two.jpg"
+                  />
+                </span>
+              </div>
+            </div>
+            <div
+              class="src-components-PhotoWall-module__frame-tM9O68 src-components-PhotoWall-module__frameGold-cgYdTX"
+              data-wall-frame=""
+              style="--x: 55.87%; --y: 22.5609756097561%; --w: 14.45%; --ratio: 1; --z: 78px; --tilt: 0.29deg; --wood: hsl(18.9 28.2% 22.3%); --mat-a: #f1ead9; --mat-b: #e4dac6; --rail: calc(clamp(10px, 1.5vw, 26px) * 0.88); --sheen: 1.07; --grain-jitter: -4deg; box-shadow: 0 0.12cqw 0.3cqw rgba(36, 26, 15, 0.16), calc(3.209 * 1cqw) calc(6.137 * 1cqw) calc(7.292 * 1cqw) calc(0.875 * 1cqw) rgba(38, 27, 16, 0.106), calc(3.209 * 2.1cqw) calc(6.137 * 2.3cqw) calc(7.292 * 2.1cqw) calc(0.875 * 1.7cqw) rgba(38, 27, 16, 0.044); --light: 0.0862780397999643;"
+            >
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railTop-pebOBJ"
+              />
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railRight-qgBotb"
+              />
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railBottom-DQparE"
+              />
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railLeft-wlKAKh"
+              />
+              <div
+                class="src-components-PhotoWall-module__mat-M6yF7t"
+              >
+                <span
+                  class="src-components-PhotoWall-module__imgSlot-MN34ET src-components-PhotoWall-module__photo-_i0hea"
+                >
+                  <img
+                    alt=""
+                    class="src-components-PhotoWall-module__imgLayer-ytrkoH"
+                    decoding="async"
+                    draggable="false"
+                    src="/photos/three.jpg"
+                  />
+                </span>
+              </div>
+            </div>
+            <div
+              class="src-components-PhotoWall-module__frame-tM9O68 src-components-PhotoWall-module__frameCherry-yXJm9l"
+              data-wall-frame=""
+              style="--x: 78.32%; --y: 57.6219512195122%; --w: 19.51219512195122%; --ratio: 1.7777777777777777; --z: 32px; --tilt: -0.02deg; --wood: hsl(27.1 29.3% 22.2%); --mat-a: #f1ead9; --mat-b: #e4dac6; --rail: calc(clamp(10px, 1.5vw, 26px) * 0.93); --sheen: 1.17; --grain-jitter: 3deg; box-shadow: 0 0.12cqw 0.3cqw rgba(36, 26, 15, 0.16), calc(3.518 * 1cqw) calc(3.839 * 1cqw) calc(2.824 * 1cqw) calc(0.339 * 1cqw) rgba(38, 27, 16, 0.105), calc(3.518 * 2.1cqw) calc(3.839 * 2.3cqw) calc(2.824 * 2.1cqw) calc(0.339 * 1.7cqw) rgba(38, 27, 16, 0.044); --light: 0.06887594995138206;"
+            >
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railTop-pebOBJ"
+              />
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railRight-qgBotb"
+              />
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railBottom-DQparE"
+              />
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railLeft-wlKAKh"
+              />
+              <div
+                class="src-components-PhotoWall-module__mat-M6yF7t"
+              >
+                <span
+                  class="src-components-PhotoWall-module__imgSlot-MN34ET src-components-PhotoWall-module__photo-_i0hea"
+                >
+                  <img
+                    alt=""
+                    class="src-components-PhotoWall-module__imgLayer-ytrkoH"
+                    decoding="async"
+                    draggable="false"
+                    src="/photos/four.jpg"
+                  />
+                </span>
+              </div>
+            </div>
+          </div>
+          <div
+            class="src-components-PhotoWall-module__pass-PHwH4I"
+            style="left: calc(1 * var(--pass-w));"
+          >
+            <div
+              class="src-components-PhotoWall-module__frame-tM9O68 src-components-PhotoWall-module__frameGold-cgYdTX"
+              data-wall-frame=""
+              style="--x: 2.88%; --y: 22.5609756097561%; --w: 17.43%; --ratio: 1.5; --z: 10px; --tilt: 0.1deg; --wood: hsl(28.40877017378807 6.991345474496484% 11.889404947170988%); --mat-a: #f1ead9; --mat-b: #e4dac6; --rail: calc(clamp(10px, 1.5vw, 26px) * 1.03); --sheen: 1.19; --grain-jitter: -3deg; box-shadow: 0 0.12cqw 0.3cqw rgba(36, 26, 15, 0.16), calc(-1.068 * 1cqw) calc(0.682 * 1cqw) calc(0.934 * 1cqw) calc(0.112 * 1cqw) rgba(38, 27, 16, 0.115), calc(-1.068 * 2.1cqw) calc(0.682 * 2.3cqw) calc(0.934 * 2.1cqw) calc(0.112 * 1.7cqw) rgba(38, 27, 16, 0.048); --light: 0.06901750516188923;"
+            >
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railTop-pebOBJ"
+              />
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railRight-qgBotb"
+              />
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railBottom-DQparE"
+              />
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railLeft-wlKAKh"
+              />
+              <div
+                class="src-components-PhotoWall-module__mat-M6yF7t"
+              >
+                <span
+                  class="src-components-PhotoWall-module__imgSlot-MN34ET src-components-PhotoWall-module__photo-_i0hea"
+                >
+                  <img
+                    alt=""
+                    class="src-components-PhotoWall-module__imgLayer-ytrkoH"
+                    decoding="async"
+                    draggable="false"
+                    src="/photos/one.jpg"
+                  />
+                </span>
+              </div>
+            </div>
+            <div
+              class="src-components-PhotoWall-module__frame-tM9O68 src-components-PhotoWall-module__frameCherry-yXJm9l"
+              data-wall-frame=""
+              style="--x: 28.31%; --y: 27.587479674796757%; --w: 18.58%; --ratio: 0.6666666666666666; --z: 39px; --tilt: 0.14deg; --wood: hsl(22.1 47.1% 25.4%); --mat-a: #f1ead9; --mat-b: #e4dac6; --rail: calc(clamp(10px, 1.5vw, 26px) * 1.06); --sheen: 1.12; --grain-jitter: 2deg; box-shadow: 0 0.12cqw 0.3cqw rgba(36, 26, 15, 0.16), calc(-1.414 * 1cqw) calc(4.754 * 1cqw) calc(3.457 * 1cqw) calc(0.415 * 1cqw) rgba(38, 27, 16, 0.120), calc(-1.414 * 2.1cqw) calc(4.754 * 2.3cqw) calc(3.457 * 2.1cqw) calc(0.415 * 1.7cqw) rgba(38, 27, 16, 0.050); --light: 0.07927470848117545;"
+            >
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railTop-pebOBJ"
+              />
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railRight-qgBotb"
+              />
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railBottom-DQparE"
+              />
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railLeft-wlKAKh"
+              />
+              <div
+                class="src-components-PhotoWall-module__mat-M6yF7t"
+              >
+                <span
+                  class="src-components-PhotoWall-module__imgSlot-MN34ET src-components-PhotoWall-module__photo-_i0hea"
+                >
+                  <img
+                    alt=""
+                    class="src-components-PhotoWall-module__imgLayer-ytrkoH"
+                    decoding="async"
+                    draggable="false"
+                    src="/photos/two.jpg"
+                  />
+                </span>
+              </div>
+            </div>
+            <div
+              class="src-components-PhotoWall-module__frame-tM9O68 src-components-PhotoWall-module__frameAsh-a5zqI6"
+              data-wall-frame=""
+              style="--x: 54.89%; --y: 22.5609756097561%; --w: 15.6%; --ratio: 1; --z: 44px; --tilt: 0.25deg; --wood: hsl(33.33031522296369 7.952881492674351% 9.02636822592467%); --mat-a: #f8f3e7; --mat-b: #e7dfcd; --rail: calc(clamp(10px, 1.5vw, 26px) * 1.03); --sheen: 1.10; --grain-jitter: -3deg; box-shadow: 0 0.12cqw 0.3cqw rgba(36, 26, 15, 0.16), calc(1.647 * 1cqw) calc(3.446 * 1cqw) calc(3.919 * 1cqw) calc(0.470 * 1cqw) rgba(38, 27, 16, 0.128), calc(1.647 * 2.1cqw) calc(3.446 * 2.3cqw) calc(3.919 * 2.1cqw) calc(0.470 * 1.7cqw) rgba(38, 27, 16, 0.054); --light: 0.09058908561725736;"
+            >
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railTop-pebOBJ"
+              />
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railRight-qgBotb"
+              />
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railBottom-DQparE"
+              />
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railLeft-wlKAKh"
+              />
+              <div
+                class="src-components-PhotoWall-module__mat-M6yF7t"
+              >
+                <span
+                  class="src-components-PhotoWall-module__imgSlot-MN34ET src-components-PhotoWall-module__photo-_i0hea"
+                >
+                  <img
+                    alt=""
+                    class="src-components-PhotoWall-module__imgLayer-ytrkoH"
+                    decoding="async"
+                    draggable="false"
+                    src="/photos/three.jpg"
+                  />
+                </span>
+              </div>
+            </div>
+            <div
+              class="src-components-PhotoWall-module__frame-tM9O68 src-components-PhotoWall-module__frameBlack-QRig7D"
+              data-wall-frame=""
+              style="--x: 78.49%; --y: 57.6219512195122%; --w: 19.51219512195122%; --ratio: 1.7777777777777777; --z: 45px; --tilt: -0.07deg; --wood: hsl(28.2 39.1% 18.2%); --mat-a: #f1ead9; --mat-b: #e4dac6; --rail: calc(clamp(10px, 1.5vw, 26px) * 1.07); --sheen: 1.01; --grain-jitter: 0deg; box-shadow: 0 0.12cqw 0.3cqw rgba(36, 26, 15, 0.16), calc(5.086 * 1cqw) calc(4.189 * 1cqw) calc(4.012 * 1cqw) calc(0.481 * 1cqw) rgba(38, 27, 16, 0.111), calc(5.086 * 2.1cqw) calc(4.189 * 2.3cqw) calc(4.012 * 2.1cqw) calc(0.481 * 1.7cqw) rgba(38, 27, 16, 0.047); --light: 0.07642487658811793;"
+            >
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railTop-pebOBJ"
+              />
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railRight-qgBotb"
+              />
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railBottom-DQparE"
+              />
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railLeft-wlKAKh"
+              />
+              <div
+                class="src-components-PhotoWall-module__mat-M6yF7t"
+              >
+                <span
+                  class="src-components-PhotoWall-module__imgSlot-MN34ET src-components-PhotoWall-module__photo-_i0hea"
+                >
+                  <img
+                    alt=""
+                    class="src-components-PhotoWall-module__imgLayer-ytrkoH"
+                    decoding="async"
+                    draggable="false"
+                    src="/photos/four.jpg"
+                  />
+                </span>
+              </div>
+            </div>
+          </div>
+          <div
+            class="src-components-PhotoWall-module__pass-PHwH4I"
+            style="left: calc(2 * var(--pass-w));"
+          >
+            <div
+              class="src-components-PhotoWall-module__frame-tM9O68 src-components-PhotoWall-module__frameGold-cgYdTX"
+              data-wall-frame=""
+              style="--x: 2.64%; --y: 22.5609756097561%; --w: 18.45%; --ratio: 1.5; --z: 32px; --tilt: 0.3deg; --wood: hsl(22.8 36.0% 26.9%); --mat-a: #f8f3e7; --mat-b: #e7dfcd; --rail: calc(clamp(10px, 1.5vw, 26px) * 1.38); --sheen: 1.13; --grain-jitter: 0deg; box-shadow: 0 0.12cqw 0.3cqw rgba(36, 26, 15, 0.16), calc(-3.523 * 1cqw) calc(2.225 * 1cqw) calc(2.824 * 1cqw) calc(0.339 * 1cqw) rgba(38, 27, 16, 0.122), calc(-3.523 * 2.1cqw) calc(2.225 * 2.3cqw) calc(2.824 * 2.1cqw) calc(0.339 * 1.7cqw) rgba(38, 27, 16, 0.051); --light: 0.08000184729146637;"
+            >
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railTop-pebOBJ"
+              />
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railRight-qgBotb"
+              />
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railBottom-DQparE"
+              />
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railLeft-wlKAKh"
+              />
+              <div
+                class="src-components-PhotoWall-module__mat-M6yF7t"
+              >
+                <span
+                  class="src-components-PhotoWall-module__imgSlot-MN34ET src-components-PhotoWall-module__photo-_i0hea"
+                >
+                  <img
+                    alt=""
+                    class="src-components-PhotoWall-module__imgLayer-ytrkoH"
+                    decoding="async"
+                    draggable="false"
+                    src="/photos/one.jpg"
+                  />
+                </span>
+              </div>
+            </div>
+            <div
+              class="src-components-PhotoWall-module__frame-tM9O68 src-components-PhotoWall-module__frameWalnut-p6zUD8"
+              data-wall-frame=""
+              style="--x: 29.1%; --y: 27.08081300813008%; --w: 18.77%; --ratio: 0.6666666666666666; --z: 51px; --tilt: 0.06deg; --wood: hsl(38.5 33.8% 19.2%); --mat-a: #fbf8f0; --mat-b: #efe9dc; --rail: calc(clamp(10px, 1.5vw, 26px) * 1.03); --sheen: 1.04; --grain-jitter: 6deg; box-shadow: 0 0.12cqw 0.3cqw rgba(36, 26, 15, 0.16), calc(-1.754 * 1cqw) calc(7.337 * 1cqw) calc(4.579 * 1cqw) calc(0.549 * 1cqw) rgba(38, 27, 16, 0.100), calc(-1.754 * 2.1cqw) calc(7.337 * 2.3cqw) calc(4.579 * 2.1cqw) calc(0.549 * 1.7cqw) rgba(38, 27, 16, 0.042); --light: 0.0692788990242587;"
+            >
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railTop-pebOBJ"
+              />
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railRight-qgBotb"
+              />
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railBottom-DQparE"
+              />
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railLeft-wlKAKh"
+              />
+              <div
+                class="src-components-PhotoWall-module__mat-M6yF7t"
+              >
+                <span
+                  class="src-components-PhotoWall-module__imgSlot-MN34ET src-components-PhotoWall-module__photo-_i0hea"
+                >
+                  <img
+                    alt=""
+                    class="src-components-PhotoWall-module__imgLayer-ytrkoH"
+                    decoding="async"
+                    draggable="false"
+                    src="/photos/two.jpg"
+                  />
+                </span>
+              </div>
+            </div>
+            <div
+              class="src-components-PhotoWall-module__frame-tM9O68 src-components-PhotoWall-module__frameGold-cgYdTX"
+              data-wall-frame=""
+              style="--x: 55.87%; --y: 22.5609756097561%; --w: 14.45%; --ratio: 1; --z: 78px; --tilt: 0.29deg; --wood: hsl(18.9 28.2% 22.3%); --mat-a: #f1ead9; --mat-b: #e4dac6; --rail: calc(clamp(10px, 1.5vw, 26px) * 0.88); --sheen: 1.07; --grain-jitter: -4deg; box-shadow: 0 0.12cqw 0.3cqw rgba(36, 26, 15, 0.16), calc(3.209 * 1cqw) calc(6.137 * 1cqw) calc(7.292 * 1cqw) calc(0.875 * 1cqw) rgba(38, 27, 16, 0.106), calc(3.209 * 2.1cqw) calc(6.137 * 2.3cqw) calc(7.292 * 2.1cqw) calc(0.875 * 1.7cqw) rgba(38, 27, 16, 0.044); --light: 0.0862780397999643;"
+            >
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railTop-pebOBJ"
+              />
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railRight-qgBotb"
+              />
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railBottom-DQparE"
+              />
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railLeft-wlKAKh"
+              />
+              <div
+                class="src-components-PhotoWall-module__mat-M6yF7t"
+              >
+                <span
+                  class="src-components-PhotoWall-module__imgSlot-MN34ET src-components-PhotoWall-module__photo-_i0hea"
+                >
+                  <img
+                    alt=""
+                    class="src-components-PhotoWall-module__imgLayer-ytrkoH"
+                    decoding="async"
+                    draggable="false"
+                    src="/photos/three.jpg"
+                  />
+                </span>
+              </div>
+            </div>
+            <div
+              class="src-components-PhotoWall-module__frame-tM9O68 src-components-PhotoWall-module__frameCherry-yXJm9l"
+              data-wall-frame=""
+              style="--x: 78.32%; --y: 57.6219512195122%; --w: 19.51219512195122%; --ratio: 1.7777777777777777; --z: 32px; --tilt: -0.02deg; --wood: hsl(27.1 29.3% 22.2%); --mat-a: #f1ead9; --mat-b: #e4dac6; --rail: calc(clamp(10px, 1.5vw, 26px) * 0.93); --sheen: 1.17; --grain-jitter: 3deg; box-shadow: 0 0.12cqw 0.3cqw rgba(36, 26, 15, 0.16), calc(3.518 * 1cqw) calc(3.839 * 1cqw) calc(2.824 * 1cqw) calc(0.339 * 1cqw) rgba(38, 27, 16, 0.105), calc(3.518 * 2.1cqw) calc(3.839 * 2.3cqw) calc(2.824 * 2.1cqw) calc(0.339 * 1.7cqw) rgba(38, 27, 16, 0.044); --light: 0.06887594995138206;"
+            >
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railTop-pebOBJ"
+              />
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railRight-qgBotb"
+              />
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railBottom-DQparE"
+              />
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railLeft-wlKAKh"
+              />
+              <div
+                class="src-components-PhotoWall-module__mat-M6yF7t"
+              >
+                <span
+                  class="src-components-PhotoWall-module__imgSlot-MN34ET src-components-PhotoWall-module__photo-_i0hea"
+                >
+                  <img
+                    alt=""
+                    class="src-components-PhotoWall-module__imgLayer-ytrkoH"
+                    decoding="async"
+                    draggable="false"
+                    src="/photos/four.jpg"
+                  />
+                </span>
+              </div>
+            </div>
+          </div>
+          <div
+            class="src-components-PhotoWall-module__pass-PHwH4I"
+            style="left: calc(3 * var(--pass-w));"
+          >
+            <div
+              class="src-components-PhotoWall-module__frame-tM9O68 src-components-PhotoWall-module__frameGold-cgYdTX"
+              data-wall-frame=""
+              style="--x: 2.88%; --y: 22.5609756097561%; --w: 17.43%; --ratio: 1.5; --z: 10px; --tilt: 0.1deg; --wood: hsl(28.40877017378807 6.991345474496484% 11.889404947170988%); --mat-a: #f1ead9; --mat-b: #e4dac6; --rail: calc(clamp(10px, 1.5vw, 26px) * 1.03); --sheen: 1.19; --grain-jitter: -3deg; box-shadow: 0 0.12cqw 0.3cqw rgba(36, 26, 15, 0.16), calc(-1.068 * 1cqw) calc(0.682 * 1cqw) calc(0.934 * 1cqw) calc(0.112 * 1cqw) rgba(38, 27, 16, 0.115), calc(-1.068 * 2.1cqw) calc(0.682 * 2.3cqw) calc(0.934 * 2.1cqw) calc(0.112 * 1.7cqw) rgba(38, 27, 16, 0.048); --light: 0.06901750516188923;"
+            >
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railTop-pebOBJ"
+              />
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railRight-qgBotb"
+              />
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railBottom-DQparE"
+              />
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railLeft-wlKAKh"
+              />
+              <div
+                class="src-components-PhotoWall-module__mat-M6yF7t"
+              >
+                <span
+                  class="src-components-PhotoWall-module__imgSlot-MN34ET src-components-PhotoWall-module__photo-_i0hea"
+                >
+                  <img
+                    alt=""
+                    class="src-components-PhotoWall-module__imgLayer-ytrkoH"
+                    decoding="async"
+                    draggable="false"
+                    src="/photos/one.jpg"
+                  />
+                </span>
+              </div>
+            </div>
+            <div
+              class="src-components-PhotoWall-module__frame-tM9O68 src-components-PhotoWall-module__frameCherry-yXJm9l"
+              data-wall-frame=""
+              style="--x: 28.31%; --y: 27.587479674796757%; --w: 18.58%; --ratio: 0.6666666666666666; --z: 39px; --tilt: 0.14deg; --wood: hsl(22.1 47.1% 25.4%); --mat-a: #f1ead9; --mat-b: #e4dac6; --rail: calc(clamp(10px, 1.5vw, 26px) * 1.06); --sheen: 1.12; --grain-jitter: 2deg; box-shadow: 0 0.12cqw 0.3cqw rgba(36, 26, 15, 0.16), calc(-1.414 * 1cqw) calc(4.754 * 1cqw) calc(3.457 * 1cqw) calc(0.415 * 1cqw) rgba(38, 27, 16, 0.120), calc(-1.414 * 2.1cqw) calc(4.754 * 2.3cqw) calc(3.457 * 2.1cqw) calc(0.415 * 1.7cqw) rgba(38, 27, 16, 0.050); --light: 0.07927470848117545;"
+            >
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railTop-pebOBJ"
+              />
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railRight-qgBotb"
+              />
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railBottom-DQparE"
+              />
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railLeft-wlKAKh"
+              />
+              <div
+                class="src-components-PhotoWall-module__mat-M6yF7t"
+              >
+                <span
+                  class="src-components-PhotoWall-module__imgSlot-MN34ET src-components-PhotoWall-module__photo-_i0hea"
+                >
+                  <img
+                    alt=""
+                    class="src-components-PhotoWall-module__imgLayer-ytrkoH"
+                    decoding="async"
+                    draggable="false"
+                    src="/photos/two.jpg"
+                  />
+                </span>
+              </div>
+            </div>
+            <div
+              class="src-components-PhotoWall-module__frame-tM9O68 src-components-PhotoWall-module__frameAsh-a5zqI6"
+              data-wall-frame=""
+              style="--x: 54.89%; --y: 22.5609756097561%; --w: 15.6%; --ratio: 1; --z: 44px; --tilt: 0.25deg; --wood: hsl(33.33031522296369 7.952881492674351% 9.02636822592467%); --mat-a: #f8f3e7; --mat-b: #e7dfcd; --rail: calc(clamp(10px, 1.5vw, 26px) * 1.03); --sheen: 1.10; --grain-jitter: -3deg; box-shadow: 0 0.12cqw 0.3cqw rgba(36, 26, 15, 0.16), calc(1.647 * 1cqw) calc(3.446 * 1cqw) calc(3.919 * 1cqw) calc(0.470 * 1cqw) rgba(38, 27, 16, 0.128), calc(1.647 * 2.1cqw) calc(3.446 * 2.3cqw) calc(3.919 * 2.1cqw) calc(0.470 * 1.7cqw) rgba(38, 27, 16, 0.054); --light: 0.09058908561725736;"
+            >
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railTop-pebOBJ"
+              />
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railRight-qgBotb"
+              />
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railBottom-DQparE"
+              />
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railLeft-wlKAKh"
+              />
+              <div
+                class="src-components-PhotoWall-module__mat-M6yF7t"
+              >
+                <span
+                  class="src-components-PhotoWall-module__imgSlot-MN34ET src-components-PhotoWall-module__photo-_i0hea"
+                >
+                  <img
+                    alt=""
+                    class="src-components-PhotoWall-module__imgLayer-ytrkoH"
+                    decoding="async"
+                    draggable="false"
+                    src="/photos/three.jpg"
+                  />
+                </span>
+              </div>
+            </div>
+            <div
+              class="src-components-PhotoWall-module__frame-tM9O68 src-components-PhotoWall-module__frameBlack-QRig7D"
+              data-wall-frame=""
+              style="--x: 78.49%; --y: 57.6219512195122%; --w: 19.51219512195122%; --ratio: 1.7777777777777777; --z: 45px; --tilt: -0.07deg; --wood: hsl(28.2 39.1% 18.2%); --mat-a: #f1ead9; --mat-b: #e4dac6; --rail: calc(clamp(10px, 1.5vw, 26px) * 1.07); --sheen: 1.01; --grain-jitter: 0deg; box-shadow: 0 0.12cqw 0.3cqw rgba(36, 26, 15, 0.16), calc(5.086 * 1cqw) calc(4.189 * 1cqw) calc(4.012 * 1cqw) calc(0.481 * 1cqw) rgba(38, 27, 16, 0.111), calc(5.086 * 2.1cqw) calc(4.189 * 2.3cqw) calc(4.012 * 2.1cqw) calc(0.481 * 1.7cqw) rgba(38, 27, 16, 0.047); --light: 0.07642487658811793;"
+            >
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railTop-pebOBJ"
+              />
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railRight-qgBotb"
+              />
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railBottom-DQparE"
+              />
+              <span
+                aria-hidden="true"
+                class="src-components-PhotoWall-module__rail-ISSbGu src-components-PhotoWall-module__railLeft-wlKAKh"
+              />
+              <div
+                class="src-components-PhotoWall-module__mat-M6yF7t"
+              >
+                <span
+                  class="src-components-PhotoWall-module__imgSlot-MN34ET src-components-PhotoWall-module__photo-_i0hea"
+                >
+                  <img
+                    alt=""
+                    class="src-components-PhotoWall-module__imgLayer-ytrkoH"
+                    decoding="async"
+                    draggable="false"
+                    src="/photos/four.jpg"
+                  />
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          aria-hidden="true"
+          class="src-components-PhotoWall-module__light-mvVxlX"
+          style="background-image: radial-gradient(115.2cqw 115.2cqw at 50.00% -10.00%, rgba(255, 250, 236, 0.420), transparent 72%), radial-gradient(96% 64% at 50% 0%, rgba(255, 255, 255, 0.1), transparent 70%), radial-gradient(62% 62% at 88% 98%, rgba(84, 66, 43, 0.15), transparent 72%);"
+        />
+        <div
+          aria-hidden="true"
+          class="src-components-PhotoWall-module__vignette-w7VLyV"
+        />
+      </div>
+    </div>
+  </div>
+</body>
+`;

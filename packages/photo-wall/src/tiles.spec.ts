@@ -4,8 +4,8 @@ import {
   createWallTiles,
   wrapImages,
   type WallTile,
-} from '../tiles';
-import { DEFAULT_WALL_PARAMS } from '../params';
+} from './tiles';
+import { DEFAULT_WALL_PARAMS } from './params';
 
 describe('createSeededRandom', () => {
   it('reproduces the same sequence for the same seed', () => {

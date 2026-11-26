@@ -8,10 +8,10 @@ import {
   type FrameLightingInput,
   type MultiFrameLightingInput,
   type VirtualLight,
-} from '../light';
-import { DEFAULT_WALL_PARAMS } from '../params';
-import type { FrameGeometry } from '../geometry';
-import type { WallFrame } from '../tiles';
+} from './light';
+import { DEFAULT_WALL_PARAMS } from './params';
+import type { FrameGeometry } from './geometry';
+import type { WallFrame } from './tiles';
 
 const frame = (over: Partial<WallFrame> = {}): WallFrame => ({
   x: 25,

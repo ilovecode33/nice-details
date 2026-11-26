@@ -10,7 +10,7 @@
       "@ilovecode33/ui-tokens": ["../../packages/ui-tokens/src/index.ts"],
       "@ilovecode33/ui-types": ["../../packages/ui-types/src/index.ts"],
       "@ilovecode33/photo-wall": ["../../packages/photo-wall/src/index.ts"],
-      "@ilovecode33/photo-wall/styles.css": ["../../packages/photo-wall/src/photo-wall.module.css"]
+      "@ilovecode33/photo-wall/styles.css": ["../../packages/photo-wall/src/components/PhotoWall.module.css"]
     }
   },
   "include": ["src", "rsbuild.config.ts"]

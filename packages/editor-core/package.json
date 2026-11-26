@@ -18,7 +18,8 @@
     "build": "rslib build",
     "dev": "rslib build --watch",
     "typecheck": "tsc --noEmit",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "test": "rstest run"
   },
   "dependencies": {
     "@lexical/history": "^0.53.0",
@@ -29,6 +30,8 @@
   },
   "devDependencies": {
     "@rslib/core": "^1.0.7",
+    "@rstest/core": "^0.12.6",
+    "happy-dom": "^21.0.4",
     "typescript": "^5.9.3"
   }
 }
