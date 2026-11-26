@@ -109,9 +109,11 @@ export function Switch({
   const dragging = dragRaw !== null;
   const clampedRaw = Math.min(Math.max(dragRaw ?? 0, -base), KNOB_TRAVEL - base);
   const knobTranslate = base + clampedRaw;
-  // iOS-style liquid knob: stretch towards the pull while dragging, anchored on
-  // the trailing edge so the leading edge follows the finger.
-  const stretch = dragging ? Math.min(0.18, Math.abs(clampedRaw) / 60) : 0;
+  // iOS-style liquid knob: stretch only while crossing the middle of the track.
+  // A bell curve is 0 at both seats and peaks at the halfway point, so the knob
+  // is a circle when it reaches either end.
+  const travel = dragging ? Math.min(1, Math.abs(clampedRaw) / KNOB_TRAVEL) : 0;
+  const stretch = Math.sin(Math.PI * travel) * 0.18;
   // Preview the destination side while dragging so the track colour follows the
   // knob; the committed `aria-checked` only changes on release.
   const previewOn = dragging ? knobTranslate > KNOB_TRAVEL / 2 : checked;

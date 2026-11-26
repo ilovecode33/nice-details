@@ -47,11 +47,12 @@ describe('Switch', () => {
     const control = screen.getByRole('switch', { name: 'Wifi' });
 
     fireEvent.pointerDown(control, { ...pointer, clientX: 10 });
+    // Halfway across the track the knob is at its widest.
+    move(20);
+    expect(getKnob(control).style.transform).toBe('translateX(10px) scaleX(1.18)');
+    // It rounds back to a circle as it reaches the opposite seat.
     move(30);
-    // The knob follows the finger; the committed state waits for release.
-    expect(getKnob(control).style.transform).toContain('translateX(20px)');
-    // The knob stretches towards the pull while held.
-    expect(getKnob(control).style.transform).toContain('scaleX(1.18)');
+    expect(getKnob(control).style.transform).toBe('translateX(20px) scaleX(1)');
     expect(control).toHaveAttribute('aria-checked', 'false');
 
     release(30);
