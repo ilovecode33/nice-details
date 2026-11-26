@@ -24,6 +24,7 @@ stories — they are rules for developers and agents, not user-facing copy.
 | [PR checklist](pr-checklist.md) | Copyable checklist for component PRs |
 | [Photo wall](photo-wall.md) | File layout, tests, and public API rules — `@ilovecode33/photo-wall` |
 | [Editor core](editor-core.md) | Framework-agnostic Lexical SDK rules — `@ilovecode33/editor-core` |
+| [Git workflow](git-workflow.md) | Never push directly to `main`; branch, PR, checks, changesets |
 
 ## Updating rules
 
