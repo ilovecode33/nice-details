@@ -20,10 +20,11 @@
     box-shadow var(--dur) var(--ease);
 }
 
-/* The on track uses the same semi-transparent accent glass as the Segmented
-   pill: a tinted fill, an accent edge and a quiet halo over a blurred surface. */
+/* The on track uses the same accent glass as the pill: the solid accent mix
+   (accent over the elevated surface) so it does not composite against the
+   near-black page and turn darker than the slider. */
 .ui-switch.is-on::before {
-  background: var(--seg-thumb-fill);
+  background: var(--seg-thumb-solid);
   border-color: var(--seg-thumb-stroke);
   box-shadow:
     var(--shadow-sm),
