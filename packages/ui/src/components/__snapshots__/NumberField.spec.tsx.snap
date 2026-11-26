@@ -1,0 +1,14 @@
+// Rstest Snapshot v1
+
+exports[`NumberField > matches its structural snapshot 1`] = `
+<body>
+  <div>
+    <input
+      aria-label="Count"
+      class="src-components-NumberField-module__ui-input-ogKsFw"
+      inputmode="decimal"
+      type="number"
+    />
+  </div>
+</body>
+`;

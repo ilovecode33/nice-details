@@ -1,0 +1,15 @@
+// Rstest Snapshot v1
+
+exports[`UIFoundation > matches its structural snapshot 1`] = `
+<body>
+  <div>
+    <div
+      class="src-components-UIFoundation-module__ui-foundation-PPch2H"
+    >
+      <span>
+        App
+      </span>
+    </div>
+  </div>
+</body>
+`;

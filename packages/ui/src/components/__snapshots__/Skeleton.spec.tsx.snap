@@ -1,0 +1,13 @@
+// Rstest Snapshot v1
+
+exports[`Skeleton > matches its structural snapshot 1`] = `
+<body>
+  <div>
+    <span
+      aria-hidden="true"
+      class="src-components-Skeleton-module__ui-skeleton-_7zSg8"
+      style="width: 100%; height: 16px;"
+    />
+  </div>
+</body>
+`;

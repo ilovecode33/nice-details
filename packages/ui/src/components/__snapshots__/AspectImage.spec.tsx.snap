@@ -1,0 +1,19 @@
+// Rstest Snapshot v1
+
+exports[`AspectImage > matches its structural snapshot 1`] = `
+<body>
+  <div>
+    <div
+      class="src-components-AspectImage-module__ui-aspect-SONLEt"
+      style="aspect-ratio: 4 / 3;"
+    >
+      <img
+        alt="Mountains"
+        class="src-components-AspectImage-module__ui-aspect__img-A8K0Gl"
+        loading="lazy"
+        src="/photo.jpg"
+      />
+    </div>
+  </div>
+</body>
+`;

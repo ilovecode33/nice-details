@@ -1,3 +1,30 @@
+:root {
+  /* App-level rainbow tokens: one continuous 45deg spectrum for the hero,
+     with no repeating stops or seams between colors. */
+  --landing-rainbow-red: #e5342b;
+  --landing-rainbow-orange: #ff8a1f;
+  --landing-rainbow-yellow: #ffd426;
+  --landing-rainbow-green: #35c759;
+  --landing-rainbow-cyan: #23b5d3;
+  --landing-rainbow-blue: #3b6fe0;
+  --landing-rainbow-violet: #9348d8;
+  --landing-rainbow: linear-gradient(
+    45deg,
+    var(--landing-rainbow-red) 0%,
+    var(--landing-rainbow-orange) 16%,
+    var(--landing-rainbow-yellow) 32%,
+    var(--landing-rainbow-green) 50%,
+    var(--landing-rainbow-cyan) 66%,
+    var(--landing-rainbow-blue) 82%,
+    var(--landing-rainbow-violet) 100%
+  );
+}
+
+html,
+body {
+  overflow-x: clip; /* full-bleed hero must not create a sideways scroll */
+}
+
 .landing__container {
   width: 100%;
   max-width: 860px;
@@ -37,7 +64,7 @@
 .landing__locale { width: 104px; }
 
 main.landing__container {
-  padding-top: 24px;
+  padding-top: 0;
   padding-bottom: 180px; /* room for the floating navigation dock */
 }
 
@@ -46,7 +73,40 @@ main.landing__container {
 }
 
 .landing__hero {
-  padding: 24px 0 56px;
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  align-items: center;
+  width: 100vw;
+  min-height: 100vh;
+  min-height: 100svh;
+  margin-inline: calc(50% - 50vw);
+  padding: calc(var(--safe-top) + var(--space-6)) 20px calc(var(--safe-bottom) + var(--touch) * 2);
+  overflow: hidden;
+  color: var(--text);
+}
+
+.landing__hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: var(--landing-rainbow);
+}
+
+.landing__hero-panel {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: var(--space-5);
+  border: 1px solid var(--glass-stroke);
+  border-radius: var(--radius-lg);
+  background: var(--bg-glass);
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
 }
 
 .landing__deform-chip {
@@ -240,7 +300,17 @@ main.landing__container {
   }
 
   .landing__hero {
-    padding: 56px 0 72px;
+    padding-top: calc(var(--safe-top) + var(--space-8));
+    padding-bottom: calc(var(--safe-bottom) + var(--touch) * 2);
+  }
+
+  .landing__hero-panel {
+    max-width: 720px;
+    padding: var(--space-8);
+  }
+
+  .landing__hero h1 {
+    font-size: clamp(40px, 5vw, 60px);
   }
 
   .landing__section {

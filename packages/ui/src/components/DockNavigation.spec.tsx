@@ -1,6 +1,7 @@
 import { describe, expect, test } from '@rstest/core';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { createRef } from 'react';
+import { expectComponentSnapshot } from '../test-utils/snapshot';
 import { DockNavigation } from './DockNavigation';
 import type { DockNavigationHandle } from '@ilovecode33/ui-types';
 
@@ -69,6 +70,19 @@ describe('DockNavigation', () => {
     expect(screen.getByRole('button', { name: 'Expand' })).toHaveAttribute(
       'aria-expanded',
       'false',
+    );
+  });
+
+  test('matches its structural snapshot', () => {
+    expectComponentSnapshot(
+      <DockNavigation
+        label="Site navigation"
+        items={[
+          { id: 'posts', label: 'Posts', href: '/' },
+          { id: 'about', label: 'About', href: '/about' },
+        ]}
+        activeId="posts"
+      />,
     );
   });
 });

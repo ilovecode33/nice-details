@@ -1,0 +1,51 @@
+// Rstest Snapshot v1
+
+exports[`List > matches its structural snapshot 1`] = `
+<body>
+  <div>
+    <ul
+      aria-label="Albums"
+      class="src-components-List-module__ui-list-Bo9R7A"
+      role="list"
+    >
+      <li
+        class="src-components-ListRow-module__ui-list__item-qLYqJ9"
+      >
+        <button
+          aria-current="true"
+          class="src-components-ListRow-module__ui-list__row-y0auCq src-components-ListRow-module__is-selected-yZjyeE"
+          type="button"
+        >
+          <span
+            class="src-components-ListRow-module__ui-list__text-hjKZOY"
+          >
+            <span
+              class="src-components-ListRow-module__ui-list__title-UCzmxl"
+            >
+              First
+            </span>
+          </span>
+        </button>
+      </li>
+      <li
+        class="src-components-ListRow-module__ui-list__item-qLYqJ9"
+      >
+        <button
+          class="src-components-ListRow-module__ui-list__row-y0auCq"
+          type="button"
+        >
+          <span
+            class="src-components-ListRow-module__ui-list__text-hjKZOY"
+          >
+            <span
+              class="src-components-ListRow-module__ui-list__title-UCzmxl"
+            >
+              Second
+            </span>
+          </span>
+        </button>
+      </li>
+    </ul>
+  </div>
+</body>
+`;

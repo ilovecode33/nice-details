@@ -1,0 +1,49 @@
+// Rstest Snapshot v1
+
+exports[`ActionSheet > matches its structural snapshot 1`] = `
+<body>
+  <div>
+    <div
+      aria-label="Share"
+      aria-modal="true"
+      class="src-components-Sheet-module__ui-sheet-ur49n5"
+      role="dialog"
+    >
+      <div
+        class="src-components-Sheet-module__ui-sheet__scrim-aDXdg5"
+      />
+      <div
+        class="src-components-Sheet-module__ui-sheet__panel-cerEa6"
+      >
+        <div
+          aria-hidden="true"
+          class="src-components-Sheet-module__ui-sheet__grabber-YpZDkf"
+        />
+        <header
+          class="src-components-Sheet-module__ui-sheet__head-hFqo8h"
+        >
+          <h2>
+            Share
+          </h2>
+        </header>
+        <div
+          class="src-components-ActionSheet-module__ui-actionsheet__list-vhMpk3"
+        >
+          <button
+            class="src-components-ActionSheet-module__ui-actionsheet__action-qs9Bo8"
+            type="button"
+          >
+            Copy link
+          </button>
+          <button
+            class="src-components-ActionSheet-module__ui-actionsheet__cancel-EwqRN3"
+            type="button"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+`;

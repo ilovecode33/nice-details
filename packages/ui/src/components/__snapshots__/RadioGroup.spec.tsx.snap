@@ -1,0 +1,46 @@
+// Rstest Snapshot v1
+
+exports[`RadioGroup > matches its structural snapshot 1`] = `
+<body>
+  <div>
+    <div
+      aria-label="Range"
+      class="src-components-RadioGroup-module__ui-radio-KREzQz"
+      role="radiogroup"
+    >
+      <button
+        aria-checked="true"
+        aria-label="Day"
+        class="src-components-RadioGroup-module__ui-radio__option-nU6heD src-components-RadioGroup-module__is-checked-RUKpGX"
+        role="radio"
+        tabindex="0"
+        type="button"
+      >
+        <span
+          aria-hidden="true"
+          class="src-components-RadioGroup-module__ui-radio__dot-meJKiv"
+        />
+        <span>
+          Day
+        </span>
+      </button>
+      <button
+        aria-checked="false"
+        aria-label="Week"
+        class="src-components-RadioGroup-module__ui-radio__option-nU6heD"
+        role="radio"
+        tabindex="-1"
+        type="button"
+      >
+        <span
+          aria-hidden="true"
+          class="src-components-RadioGroup-module__ui-radio__dot-meJKiv"
+        />
+        <span>
+          Week
+        </span>
+      </button>
+    </div>
+  </div>
+</body>
+`;

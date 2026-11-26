@@ -1,0 +1,50 @@
+// Rstest Snapshot v1
+
+exports[`Segmented > matches its structural snapshot 1`] = `
+<body>
+  <div>
+    <div
+      aria-label="Range"
+      class="src-components-Segmented-module__ui-segmented-IiTMW9"
+      role="tablist"
+    >
+      <div
+        class="src-components-Segmented-module__ui-segmented__thumb-UJYqrS"
+        style="transform-origin: 50% 50%; transition: left var(--dur) var(--ease), width var(--dur) var(--ease), transform var(--spring-dur) var(--spring-ease); touch-action: pan-y; --glow-x: 50%; --glow-y: 50%; left: 0px; width: 100px;"
+      >
+        <span
+          aria-hidden="true"
+          class="src-components-Segmented-module__ui-segmented__sheen-YeqaLt"
+        />
+        <span
+          aria-hidden="true"
+          class="src-components-Segmented-module__ui-segmented__spot-_BD2GS"
+          style="--seg-glow-x: 50%; --seg-glow-y: 50%;"
+        />
+      </div>
+      <button
+        aria-selected="true"
+        class="src-components-Segmented-module__ui-segmented__item-Ictabm src-components-Segmented-module__is-active-rC94S4"
+        data-active="true"
+        data-index="0"
+        role="tab"
+        tabindex="0"
+        type="button"
+      >
+        Day
+      </button>
+      <button
+        aria-selected="false"
+        class="src-components-Segmented-module__ui-segmented__item-Ictabm"
+        data-active="false"
+        data-index="1"
+        role="tab"
+        tabindex="-1"
+        type="button"
+      >
+        Week
+      </button>
+    </div>
+  </div>
+</body>
+`;

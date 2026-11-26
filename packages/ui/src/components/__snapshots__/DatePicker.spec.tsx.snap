@@ -1,0 +1,13 @@
+// Rstest Snapshot v1
+
+exports[`DatePicker > matches its structural snapshot 1`] = `
+<body>
+  <div>
+    <input
+      aria-label="Start date"
+      class="src-components-DatePicker-module__ui-input-_qBt2j"
+      type="date"
+    />
+  </div>
+</body>
+`;

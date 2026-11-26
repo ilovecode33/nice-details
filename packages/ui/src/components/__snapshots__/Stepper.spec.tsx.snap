@@ -1,0 +1,34 @@
+// Rstest Snapshot v1
+
+exports[`Stepper > matches its structural snapshot 1`] = `
+<body>
+  <div>
+    <div
+      aria-label="Quantity"
+      class="src-components-Stepper-module__ui-stepper-w0GpxR"
+      role="group"
+    >
+      <button
+        aria-label="Decrease Quantity"
+        class="src-components-Stepper-module__ui-stepper__button-YbG_Fs"
+        type="button"
+      >
+        −
+      </button>
+      <output
+        aria-live="polite"
+        class="src-components-Stepper-module__ui-stepper__value-Uz_ob2"
+      >
+        3
+      </output>
+      <button
+        aria-label="Increase Quantity"
+        class="src-components-Stepper-module__ui-stepper__button-YbG_Fs"
+        type="button"
+      >
+        ＋
+      </button>
+    </div>
+  </div>
+</body>
+`;

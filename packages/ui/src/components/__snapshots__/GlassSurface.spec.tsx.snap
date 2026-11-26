@@ -1,0 +1,16 @@
+// Rstest Snapshot v1
+
+exports[`GlassSurface > matches its structural snapshot 1`] = `
+<body>
+  <div>
+    <div
+      class="src-components-GlassSurface-module__ui-glass-wYvLwL"
+      style="transform-origin: 50% 50%; transition: transform var(--spring-dur) var(--spring-ease), box-shadow var(--glow-dur) var(--glow-ease); touch-action: none; --glow-x: 50%; --glow-y: 50%;"
+    >
+      <span>
+        Glass
+      </span>
+    </div>
+  </div>
+</body>
+`;

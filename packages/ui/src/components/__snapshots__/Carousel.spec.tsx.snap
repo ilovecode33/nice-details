@@ -1,0 +1,77 @@
+// Rstest Snapshot v1
+
+exports[`Carousel > matches its structural snapshot 1`] = `
+<body>
+  <div>
+    <section
+      aria-label="Carousel"
+      aria-roledescription="carousel"
+      class="ui-carousel"
+    >
+      <div
+        class="src-components-Carousel-module__ui-carousel__track-N0Z5X9"
+        tabindex="0"
+      >
+        <div
+          class="src-components-Carousel-module__ui-carousel__slide-uhDdCV"
+        >
+          <div
+            class="src-components-AspectImage-module__ui-aspect-SONLEt"
+            style="aspect-ratio: 4 / 3;"
+          >
+            <div
+              aria-label="A"
+              class="src-components-AspectImage-module__ui-aspect__placeholder-QtHfvr"
+              role="img"
+            />
+          </div>
+        </div>
+        <div
+          class="src-components-Carousel-module__ui-carousel__slide-uhDdCV"
+        >
+          <div
+            class="src-components-AspectImage-module__ui-aspect-SONLEt"
+            style="aspect-ratio: 4 / 3;"
+          >
+            <div
+              aria-label="B"
+              class="src-components-AspectImage-module__ui-aspect__placeholder-QtHfvr"
+              role="img"
+            />
+          </div>
+        </div>
+      </div>
+      <div
+        class="src-components-Carousel-module__ui-carousel__footer-RjBFff"
+      >
+        <button
+          aria-label="Previous slide"
+          class="src-components-Carousel-module__ui-carousel__nav-zZ8med"
+          disabled=""
+          type="button"
+        >
+          ‹
+        </button>
+        <div
+          aria-hidden="true"
+          class="src-components-Carousel-module__ui-carousel__dots-HDJhjc"
+        >
+          <span
+            class="src-components-Carousel-module__ui-carousel__dot-zSih8X src-components-Carousel-module__is-active-OqOVIw"
+          />
+          <span
+            class="src-components-Carousel-module__ui-carousel__dot-zSih8X"
+          />
+        </div>
+        <button
+          aria-label="Next slide"
+          class="src-components-Carousel-module__ui-carousel__nav-zZ8med"
+          type="button"
+        >
+          ›
+        </button>
+      </div>
+    </section>
+  </div>
+</body>
+`;

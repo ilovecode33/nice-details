@@ -216,48 +216,50 @@ function App() {
   return (
     <>
       <main id="top" className="landing__container">
-        <section className="landing__hero">
-          <p className="landing__eyebrow">{t('hero.eyebrow')}</p>
-          <h1>
-            {t('hero.title')}
-            <br />
-            {t('hero.subtitle')}
-          </h1>
-          <p className="landing__lead">{t('hero.lead')}</p>
-          <div data-ui="row">
-            <Button variant="primary" icon={<ArrowRight />} onClick={() => setSheetOpen(true)}>
-              {t('hero.ctaDemo')}
-            </Button>
-            <Button variant="secondary" onClick={() => document.getElementById('details')?.scrollIntoView({ behavior: 'smooth' })}>
-              {t('hero.ctaDetails')}
-            </Button>
-          </div>
-          <div className="landing__toolbar" data-ui="row">
-            <Select
-              className="landing__locale"
-              aria-label={t('language.label')}
-              value={locale}
-              onChange={(event) => setLocale(event.target.value as Locale)}
-              options={LOCALES.map((value) => ({ value, label: LOCALE_NAMES[value] }))}
-            />
-            <ThemeSwitcher
-              labels={{
-                group: t('theme.group'),
-                system: t('theme.system'),
-                light: t('theme.light'),
-                dark: t('theme.dark'),
-              }}
-            />
-            <AccentSwitcher
-              labels={{
-                group: t('accent.group'),
-                warmth: t('accent.warmth'),
-                serenity: t('accent.serenity'),
-                growth: t('accent.growth'),
-                gentle: t('accent.gentle'),
-                vitality: t('accent.vitality'),
-              }}
-            />
+        <section className="landing__hero" aria-labelledby="hero-title">
+          <div className="landing__hero-panel">
+            <p className="landing__eyebrow">{t('hero.eyebrow')}</p>
+            <h1 id="hero-title">
+              {t('hero.title')}
+              <br />
+              {t('hero.subtitle')}
+            </h1>
+            <p className="landing__lead">{t('hero.lead')}</p>
+            <div data-ui="row">
+              <Button variant="primary" icon={<ArrowRight />} onClick={() => setSheetOpen(true)}>
+                {t('hero.ctaDemo')}
+              </Button>
+              <Button variant="secondary" onClick={() => document.getElementById('details')?.scrollIntoView({ behavior: 'smooth' })}>
+                {t('hero.ctaDetails')}
+              </Button>
+            </div>
+            <div className="landing__toolbar" data-ui="row">
+              <Select
+                className="landing__locale"
+                aria-label={t('language.label')}
+                value={locale}
+                onChange={(event) => setLocale(event.target.value as Locale)}
+                options={LOCALES.map((value) => ({ value, label: LOCALE_NAMES[value] }))}
+              />
+              <ThemeSwitcher
+                labels={{
+                  group: t('theme.group'),
+                  system: t('theme.system'),
+                  light: t('theme.light'),
+                  dark: t('theme.dark'),
+                }}
+              />
+              <AccentSwitcher
+                labels={{
+                  group: t('accent.group'),
+                  warmth: t('accent.warmth'),
+                  serenity: t('accent.serenity'),
+                  growth: t('accent.growth'),
+                  gentle: t('accent.gentle'),
+                  vitality: t('accent.vitality'),
+                }}
+              />
+            </div>
           </div>
         </section>
 

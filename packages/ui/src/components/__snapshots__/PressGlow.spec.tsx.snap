@@ -1,0 +1,12 @@
+// Rstest Snapshot v1
+
+exports[`PressGlow > matches its structural snapshot 1`] = `
+<body>
+  <div>
+    <span
+      aria-hidden="true"
+      class="src-components-PressGlow-module__ui-glow-geGfr3"
+    />
+  </div>
+</body>
+`;

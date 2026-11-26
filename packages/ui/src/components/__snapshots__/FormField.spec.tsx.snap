@@ -1,0 +1,37 @@
+// Rstest Snapshot v1
+
+exports[`FormField > matches its structural snapshot 1`] = `
+<body>
+  <div>
+    <div
+      class="src-components-FormField-module__ui-formfield-pxSHMt"
+    >
+      <label
+        class="src-components-FormField-module__ui-formfield__label-sCeEJX"
+        for="ID"
+      >
+        Email
+      </label>
+      <input
+        aria-describedby="ID-error"
+        aria-invalid="true"
+        aria-label="Email"
+        id="ID"
+      />
+      <p
+        class="src-components-FormField-module__ui-formfield__error-PKfzUh"
+        id="ID-error"
+        role="alert"
+      >
+        <span
+          aria-hidden="true"
+        >
+          ✕
+        </span>
+         
+        Required
+      </p>
+    </div>
+  </div>
+</body>
+`;

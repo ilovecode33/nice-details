@@ -1,0 +1,22 @@
+// Rstest Snapshot v1
+
+exports[`Stat > matches its structural snapshot 1`] = `
+<body>
+  <div>
+    <div
+      class="src-components-Stat-module__ui-stat-PtHgv1"
+    >
+      <strong
+        class="src-components-Stat-module__ui-stat__value-AkVXXA"
+      >
+        12
+      </strong>
+      <span
+        class="src-components-Stat-module__ui-stat__label-tY9wWk"
+      >
+        Photos
+      </span>
+    </div>
+  </div>
+</body>
+`;

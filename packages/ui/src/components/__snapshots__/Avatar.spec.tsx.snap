@@ -1,0 +1,15 @@
+// Rstest Snapshot v1
+
+exports[`Avatar > matches its structural snapshot 1`] = `
+<body>
+  <div>
+    <span
+      aria-label="Ada Lovelace"
+      class="src-components-Avatar-module__ui-avatar-pBRjc2"
+      role="img"
+    >
+      AL
+    </span>
+  </div>
+</body>
+`;

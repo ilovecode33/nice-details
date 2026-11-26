@@ -1,0 +1,24 @@
+// Rstest Snapshot v1
+
+exports[`Switch > matches its structural snapshot 1`] = `
+<body>
+  <div>
+    <div
+      class="src-components-Deformable-module__ui-deform-D5oYi7"
+      style="transform-origin: 50% 50%; transition: transform var(--spring-dur) var(--spring-ease), box-shadow var(--glow-dur) var(--glow-ease); touch-action: pan-y; --glow-x: 50%; --glow-y: 50%;"
+    >
+      <button
+        aria-checked="false"
+        aria-label="Wifi"
+        class="src-components-Switch-module__ui-switch-m3FC0V"
+        role="switch"
+        type="button"
+      >
+        <span
+          class="src-components-Switch-module__ui-switch__knob-oATcJ9"
+        />
+      </button>
+    </div>
+  </div>
+</body>
+`;

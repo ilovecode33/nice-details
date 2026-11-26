@@ -1,0 +1,11 @@
+// Rstest Snapshot v1
+
+exports[`AccentProvider > matches its structural snapshot 1`] = `
+<body>
+  <div>
+    <span>
+      warmth
+    </span>
+  </div>
+</body>
+`;

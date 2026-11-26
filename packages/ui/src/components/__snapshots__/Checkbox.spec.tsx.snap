@@ -1,0 +1,33 @@
+// Rstest Snapshot v1
+
+exports[`Checkbox > matches its structural snapshot 1`] = `
+<body>
+  <div>
+    <div
+      class="src-components-Deformable-module__ui-deform-D5oYi7"
+      style="transform-origin: 50% 50%; transition: transform var(--spring-dur) var(--spring-ease), box-shadow var(--glow-dur) var(--glow-ease); touch-action: pan-y; --glow-x: 50%; --glow-y: 50%;"
+    >
+      <label
+        class="src-components-Checkbox-module__ui-checkbox-yJ96Fe"
+      >
+        <button
+          aria-checked="true"
+          aria-label="Private"
+          class="src-components-Checkbox-module__ui-checkbox__box-bPa7fZ src-components-Checkbox-module__is-checked-YW8_RX"
+          role="checkbox"
+          type="button"
+        >
+          <span
+            aria-hidden="true"
+          >
+            ✓
+          </span>
+        </button>
+        <span>
+          Private
+        </span>
+      </label>
+    </div>
+  </div>
+</body>
+`;

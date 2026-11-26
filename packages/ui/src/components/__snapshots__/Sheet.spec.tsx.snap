@@ -1,0 +1,71 @@
+// Rstest Snapshot v1
+
+exports[`Sheet > matches its structural snapshot 1`] = `
+<body>
+  <div>
+    <div
+      aria-label="Details"
+      aria-modal="true"
+      class="src-components-Sheet-module__ui-sheet-ur49n5"
+      role="dialog"
+    >
+      <div
+        class="src-components-Sheet-module__ui-sheet__scrim-aDXdg5"
+      />
+      <div
+        class="src-components-Sheet-module__ui-sheet__panel-cerEa6"
+      >
+        <div
+          aria-hidden="true"
+          class="src-components-Sheet-module__ui-sheet__grabber-YpZDkf"
+        />
+        <header
+          class="src-components-Sheet-module__ui-sheet__head-hFqo8h"
+        >
+          <h2>
+            Details
+          </h2>
+          <button
+            aria-label="Close"
+            class="src-components-Button-module__ui-btn-CdTAk9 src-components-Button-module__ui-btn--plain-GcWbPh src-components-Button-module__ui-btn--compact-cJ27ER"
+            type="button"
+          >
+            <span
+              aria-hidden="true"
+              class="src-components-Button-module__ui-btn__icon-Rk3hj5"
+            >
+              <svg
+                aria-hidden="true"
+                class="lucide lucide-x"
+                fill="none"
+                height="24"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M18 6 6 18"
+                />
+                <path
+                  d="m6 6 12 12"
+                />
+              </svg>
+            </span>
+          </button>
+        </header>
+        <div
+          class="src-components-Sheet-module__ui-sheet__body-nWnFAl"
+        >
+          <p>
+            Body
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+`;

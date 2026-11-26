@@ -1,0 +1,17 @@
+// Rstest Snapshot v1
+
+exports[`Popover > matches its structural snapshot 1`] = `
+<body>
+  <div>
+    <div
+      aria-label="Info"
+      class="src-components-Popover-module__ui-popover-deJgkw"
+      role="dialog"
+    >
+      <p>
+        Body
+      </p>
+    </div>
+  </div>
+</body>
+`;

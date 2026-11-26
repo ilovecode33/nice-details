@@ -1,0 +1,19 @@
+// Rstest Snapshot v1
+
+exports[`Stack > matches its structural snapshot 1`] = `
+<body>
+  <div>
+    <div
+      class=""
+      data-ui="stack stack--lg"
+    >
+      <span>
+        One
+      </span>
+      <span>
+        Two
+      </span>
+    </div>
+  </div>
+</body>
+`;

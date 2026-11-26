@@ -1,0 +1,12 @@
+// Rstest Snapshot v1
+
+exports[`TextInput > matches its structural snapshot 1`] = `
+<body>
+  <div>
+    <input
+      aria-label="Name"
+      class="src-components-TextInput-module__ui-input-VwSgrT"
+    />
+  </div>
+</body>
+`;

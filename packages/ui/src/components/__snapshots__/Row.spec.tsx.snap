@@ -1,0 +1,16 @@
+// Rstest Snapshot v1
+
+exports[`Row > matches its structural snapshot 1`] = `
+<body>
+  <div>
+    <div
+      class=""
+      data-ui="row"
+    >
+      <span>
+        Item
+      </span>
+    </div>
+  </div>
+</body>
+`;

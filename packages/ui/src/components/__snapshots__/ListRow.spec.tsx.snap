@@ -1,0 +1,28 @@
+// Rstest Snapshot v1
+
+exports[`ListRow > matches its structural snapshot 1`] = `
+<body>
+  <div>
+    <ul>
+      <li
+        class="src-components-ListRow-module__ui-list__item-qLYqJ9"
+      >
+        <button
+          class="src-components-ListRow-module__ui-list__row-y0auCq"
+          type="button"
+        >
+          <span
+            class="src-components-ListRow-module__ui-list__text-hjKZOY"
+          >
+            <span
+              class="src-components-ListRow-module__ui-list__title-UCzmxl"
+            >
+              First
+            </span>
+          </span>
+        </button>
+      </li>
+    </ul>
+  </div>
+</body>
+`;

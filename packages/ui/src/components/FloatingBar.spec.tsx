@@ -1,5 +1,6 @@
 import { describe, expect, test } from '@rstest/core';
 import { fireEvent, render, screen } from '@testing-library/react';
+import { expectComponentSnapshot } from '../test-utils/snapshot';
 import { FloatingBar } from './FloatingBar';
 
 describe('FloatingBar', () => {
@@ -78,6 +79,16 @@ describe('FloatingBar', () => {
     expect(screen.getByRole('button', { name: 'Expand' })).toHaveAttribute(
       'aria-expanded',
       'false',
+    );
+  });
+
+  const snapNoop = () => {};
+
+  test('matches its structural snapshot', () => {
+    expectComponentSnapshot(
+      <FloatingBar label="Site navigation" collapsible collapsed={false} onCollapsedChange={snapNoop}>
+        <a href="/">Posts</a>
+      </FloatingBar>,
     );
   });
 });

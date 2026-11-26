@@ -1,0 +1,49 @@
+// Rstest Snapshot v1
+
+exports[`Toast > matches its structural snapshot 1`] = `
+<body>
+  <div>
+    <div
+      aria-live="polite"
+      class="src-components-Toast-module__ui-toast-BDfC_G"
+      role="status"
+    >
+      <span
+        aria-hidden="true"
+        class="src-components-Toast-module__ui-toast__dot-ffLST8"
+      />
+      <span
+        class="src-components-Toast-module__ui-toast__message-agOnaJ"
+      >
+        Saved
+      </span>
+      <button
+        aria-label="Dismiss"
+        class="src-components-Toast-module__ui-toast__dismiss-H1eOOV"
+        type="button"
+      >
+        <svg
+          aria-hidden="true"
+          class="lucide lucide-x"
+          fill="none"
+          height="24"
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          viewBox="0 0 24 24"
+          width="24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M18 6 6 18"
+          />
+          <path
+            d="m6 6 12 12"
+          />
+        </svg>
+      </button>
+    </div>
+  </div>
+</body>
+`;

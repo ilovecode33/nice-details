@@ -1,0 +1,32 @@
+// Rstest Snapshot v1
+
+exports[`SearchBar > matches its structural snapshot 1`] = `
+<body>
+  <div>
+    <div
+      class="src-components-SearchBar-module__ui-searchbar-_v9azG"
+    >
+      <span
+        aria-hidden="true"
+        class="src-components-SearchBar-module__ui-searchbar__icon-yIHtxE"
+      >
+        ⌕
+      </span>
+      <input
+        aria-label="Search"
+        class="src-components-SearchBar-module__ui-searchbar__input-V1XbbP"
+        placeholder="Search..."
+        type="search"
+        value="cat"
+      />
+      <button
+        aria-label="Clear search"
+        class="src-components-SearchBar-module__ui-searchbar__clear-_1kznP"
+        type="button"
+      >
+        ✕
+      </button>
+    </div>
+  </div>
+</body>
+`;

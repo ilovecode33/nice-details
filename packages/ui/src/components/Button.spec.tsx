@@ -1,5 +1,6 @@
 import { describe, expect, test } from '@rstest/core';
 import { fireEvent, render, screen } from '@testing-library/react';
+import { expectComponentSnapshot } from '../test-utils/snapshot';
 import { Button } from './Button';
 
 describe('Button', () => {
@@ -79,5 +80,13 @@ describe('Button', () => {
     const button = screen.getByRole('button', { name: 'Quiet' });
     fireEvent.pointerDown(button, { clientX: 10, clientY: 10, pointerType: 'mouse', button: 0 });
     expect(button.querySelector('[class*="ui-glow"]')).toBeNull();
+  });
+
+  test('matches its structural snapshot', () => {
+    expectComponentSnapshot(
+      <Button variant="primary" size="compact" haloPortal>
+        Save
+      </Button>,
+    );
   });
 });

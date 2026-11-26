@@ -1,0 +1,56 @@
+// Rstest Snapshot v1
+
+exports[`PhotoGrid > matches its structural snapshot 1`] = `
+<body>
+  <div>
+    <div
+      aria-label="Photos"
+      class="src-components-PhotoGrid-module__ui-photogrid-Odp9N3"
+      role="list"
+    >
+      <div
+        class="src-components-PhotoGrid-module__ui-photogrid__cell-OwYWtA"
+        role="listitem"
+      >
+        <button
+          aria-label="Open First"
+          class="src-components-PhotoGrid-module__ui-photogrid__button-mN8ZR_"
+          type="button"
+        >
+          <div
+            class="src-components-AspectImage-module__ui-aspect-SONLEt"
+            style="aspect-ratio: 4 / 3;"
+          >
+            <div
+              aria-label="First"
+              class="src-components-AspectImage-module__ui-aspect__placeholder-QtHfvr"
+              role="img"
+            />
+          </div>
+        </button>
+      </div>
+      <div
+        class="src-components-PhotoGrid-module__ui-photogrid__cell-OwYWtA"
+        role="listitem"
+      >
+        <button
+          aria-label="Open Second"
+          class="src-components-PhotoGrid-module__ui-photogrid__button-mN8ZR_"
+          type="button"
+        >
+          <div
+            class="src-components-AspectImage-module__ui-aspect-SONLEt"
+            style="aspect-ratio: 4 / 3;"
+          >
+            <div
+              aria-label="Second"
+              class="src-components-AspectImage-module__ui-aspect__placeholder-QtHfvr"
+              role="img"
+            />
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+</body>
+`;

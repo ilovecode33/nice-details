@@ -1,0 +1,18 @@
+// Rstest Snapshot v1
+
+exports[`ActivityIndicator > matches its structural snapshot 1`] = `
+<body>
+  <div>
+    <div
+      aria-label="Loading photos"
+      class="src-components-ActivityIndicator-module__ui-spinner-y15RiD"
+      role="status"
+    >
+      <span
+        aria-hidden="true"
+        class="src-components-ActivityIndicator-module__ui-spinner__ring-_IbqeI"
+      />
+    </div>
+  </div>
+</body>
+`;

@@ -1,0 +1,38 @@
+// Rstest Snapshot v1
+
+exports[`Card > matches its structural snapshot 1`] = `
+<body>
+  <div>
+    <section
+      class="src-components-Card-module__ui-card-dkvhAw src-components-Card-module__ui-card--padded-VF4FaN"
+      data-ui="card"
+    >
+      <header
+        class="src-components-Card-module__ui-card__head-DKtA24"
+      >
+        <div
+          class="src-components-Card-module__ui-card__titles-T7zsKD"
+        >
+          <h2
+            class="src-components-Card-module__ui-card__title-F4zelf"
+          >
+            Album
+          </h2>
+          <p
+            class="src-components-Card-module__ui-card__subtitle-NiSvM8"
+          >
+            12 photos
+          </p>
+        </div>
+      </header>
+      <div
+        class="src-components-Card-module__ui-card__body-l71oFm"
+      >
+        <p>
+          Content
+        </p>
+      </div>
+    </section>
+  </div>
+</body>
+`;

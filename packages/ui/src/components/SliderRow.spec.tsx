@@ -1,6 +1,10 @@
 import { describe, expect, test } from '@rstest/core';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { SliderRow } from './SliderRow';
+import { expectComponentSnapshot } from '../test-utils/snapshot';
+
+const snapNoop = () => {};
+
 describe('SliderRow', () => {
   test('formats the value and reports changes', () => {
     let next = -1;
@@ -8,5 +12,11 @@ describe('SliderRow', () => {
     expect(screen.getByText('5%')).toBeInTheDocument();
     fireEvent.change(screen.getByRole('slider', { name: 'Volume' }), { target: { value: '7' } });
     expect(next).toBe(7);
+  });
+
+  test('matches its structural snapshot', () => {
+    expectComponentSnapshot(
+      <SliderRow label="Volume" min={0} max={10} step={1} value={5} fmt={(v) => `${v}%`} onChange={snapNoop} />,
+    );
   });
 });

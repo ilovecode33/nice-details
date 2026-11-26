@@ -1,0 +1,70 @@
+// Rstest Snapshot v1
+
+exports[`PhotoViewer > matches its structural snapshot 1`] = `
+<body>
+  <div>
+    <div
+      aria-label="Photo viewer"
+      aria-modal="true"
+      class="src-components-PhotoViewer-module__ui-viewer-y6MkR3"
+      role="dialog"
+    >
+      <div
+        class="src-components-PhotoViewer-module__ui-viewer__scrim-Z_VoyG"
+      />
+      <header
+        class="src-components-PhotoViewer-module__ui-viewer__bar-YwXNZS"
+      >
+        <span
+          class="src-components-PhotoViewer-module__ui-viewer__count-qMm2fd"
+        >
+          1
+           / 
+          1
+        </span>
+        <button
+          aria-label="Close"
+          class="src-components-PhotoViewer-module__ui-viewer__close-JTfGFb"
+          type="button"
+        >
+          ✕
+        </button>
+      </header>
+      <div
+        class="src-components-PhotoViewer-module__ui-viewer__stage-tf0KPo"
+      >
+        <div
+          class="src-components-AspectImage-module__ui-aspect-SONLEt"
+          style="aspect-ratio: 3 / 4; max-width: 520px; max-height: 100%;"
+        >
+          <div
+            aria-label="One"
+            class="src-components-AspectImage-module__ui-aspect__placeholder-QtHfvr"
+            role="img"
+          />
+        </div>
+      </div>
+      <div
+        class="src-components-PhotoViewer-module__ui-viewer__controls-jpFJFh"
+      >
+        <button
+          aria-label="Previous photo"
+          class="src-components-PhotoViewer-module__ui-viewer__nav-LUamKk"
+          disabled=""
+          type="button"
+        >
+          ‹
+        </button>
+        <button
+          aria-label="Next photo"
+          class="src-components-PhotoViewer-module__ui-viewer__nav-LUamKk"
+          disabled=""
+          type="button"
+        >
+          ›
+        </button>
+      </div>
+    </div>
+  </div>
+</body>
+`;

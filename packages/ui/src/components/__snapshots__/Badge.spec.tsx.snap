@@ -1,0 +1,13 @@
+// Rstest Snapshot v1
+
+exports[`Badge > matches its structural snapshot 1`] = `
+<body>
+  <div>
+    <span
+      class="src-components-Badge-module__ui-badge-z1ggYj src-components-Badge-module__is-success-SrcQE4"
+    >
+      Live
+    </span>
+  </div>
+</body>
+`;

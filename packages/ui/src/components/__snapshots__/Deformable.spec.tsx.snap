@@ -1,0 +1,16 @@
+// Rstest Snapshot v1
+
+exports[`Deformable press bloom > matches its structural snapshot 1`] = `
+<body>
+  <div>
+    <div
+      class="src-components-Deformable-module__ui-deform-D5oYi7"
+      style="transform-origin: 50% 50%; transition: transform var(--spring-dur) var(--spring-ease), box-shadow var(--glow-dur) var(--glow-ease); touch-action: none; --glow-x: 50%; --glow-y: 50%;"
+    >
+      <span>
+        Content
+      </span>
+    </div>
+  </div>
+</body>
+`;

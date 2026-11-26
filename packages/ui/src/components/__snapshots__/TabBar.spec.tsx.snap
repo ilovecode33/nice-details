@@ -1,0 +1,44 @@
+// Rstest Snapshot v1
+
+exports[`TabBar > matches its structural snapshot 1`] = `
+<body>
+  <div>
+    <nav
+      aria-label="Sections"
+      class="src-components-TabBar-module__ui-tabbar-chZQpG src-components-TabBar-module__ui-tabbar--fixed-KzmHuf"
+    >
+      <div
+        class="src-components-TabBar-module__ui-tabbar__inner-ocA3Ow"
+        role="tablist"
+      >
+        <button
+          aria-selected="true"
+          class="src-components-TabBar-module__ui-tabbar__item-KS10G8 src-components-TabBar-module__is-active-sqEyqU"
+          role="tab"
+          tabindex="0"
+          type="button"
+        >
+          <span
+            class="src-components-TabBar-module__ui-tabbar__label-RjjHeK"
+          >
+            First
+          </span>
+        </button>
+        <button
+          aria-selected="false"
+          class="src-components-TabBar-module__ui-tabbar__item-KS10G8"
+          role="tab"
+          tabindex="-1"
+          type="button"
+        >
+          <span
+            class="src-components-TabBar-module__ui-tabbar__label-RjjHeK"
+          >
+            Second
+          </span>
+        </button>
+      </div>
+    </nav>
+  </div>
+</body>
+`;

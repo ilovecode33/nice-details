@@ -1,0 +1,68 @@
+// Rstest Snapshot v1
+
+exports[`DockNavigation > matches its structural snapshot 1`] = `
+<body>
+  <div>
+    <div
+      class="src-components-FloatingBar-module__ui-floating-IV7ZX8 src-components-FloatingBar-module__ui-floating--bottom-Gj1jkC"
+      data-ui="floating-bar"
+    >
+      <div
+        aria-label="Site navigation"
+        class="src-components-GlassSurface-module__ui-glass-wYvLwL src-components-FloatingBar-module__ui-floating__surface-FtW5z_"
+        role="toolbar"
+        style="transform-origin: 50% 50%; transition: transform var(--spring-dur) var(--spring-ease), box-shadow var(--glow-dur) var(--glow-ease); touch-action: none; --glow-x: 50%; --glow-y: 50%;"
+      >
+        <div
+          class="src-components-FloatingBar-module__ui-floating__content-KmfxlO"
+        >
+          <div
+            class="src-components-DockNavigation-module__ui-dock-yEALSM src-components-DockNavigation-module__ui-dock--enter-TwMRCa"
+            data-ui="dock"
+          >
+            <a
+              aria-current="page"
+              class="src-components-DockNavigation-module__ui-dock__item-ImyT1s"
+              data-active="true"
+              href="/"
+            >
+              Posts
+            </a>
+            <a
+              class="src-components-DockNavigation-module__ui-dock__item-ImyT1s"
+              data-active="false"
+              href="/about"
+            >
+              About
+            </a>
+          </div>
+        </div>
+        <button
+          aria-expanded="true"
+          aria-label="Collapse"
+          class="src-components-FloatingBar-module__ui-floating__toggle-LCd7tv"
+          type="button"
+        >
+          <svg
+            aria-hidden="true"
+            class="lucide lucide-chevron-down"
+            fill="none"
+            height="24"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="m6 9 6 6 6-6"
+            />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</body>
+`;

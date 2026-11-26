@@ -2,6 +2,13 @@ import { afterEach, beforeEach, describe, expect, test } from '@rstest/core';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { useState } from 'react';
 import { Segmented } from './Segmented';
+import { expectComponentSnapshot } from '../test-utils/snapshot';
+
+const snapNoop = () => {};
+const snapSegments = [
+  { value: 'day', label: 'Day' },
+  { value: 'week', label: 'Week' },
+];
 
 function SegmentedDemo() {
   const [value, setValue] = useState<'day' | 'week' | 'month'>('day');
@@ -191,5 +198,11 @@ describe('Segmented', () => {
     expect(sheen.className).toContain('is-hovered');
     expect(thumb.style.left).toBe('100px');
     expect(thumb.style.transition).toContain('left var(--dur)');
+  });
+
+  test('matches its structural snapshot', () => {
+    expectComponentSnapshot(
+      <Segmented label="Range" value="day" onChange={snapNoop} options={snapSegments} />,
+    );
   });
 });

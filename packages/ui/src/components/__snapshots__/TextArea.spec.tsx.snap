@@ -1,0 +1,12 @@
+// Rstest Snapshot v1
+
+exports[`TextArea > matches its structural snapshot 1`] = `
+<body>
+  <div>
+    <textarea
+      aria-label="Notes"
+      class="src-components-TextArea-module__ui-textarea-bqzhGV"
+    />
+  </div>
+</body>
+`;

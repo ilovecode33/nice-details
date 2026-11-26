@@ -1,0 +1,25 @@
+// Rstest Snapshot v1
+
+exports[`Field > matches its structural snapshot 1`] = `
+<body>
+  <div>
+    <label
+      class="src-components-Field-module__ui-field-X8rwFR"
+    >
+      <span
+        class="src-components-Field-module__ui-field__label-upm_zP"
+      >
+        Title
+      </span>
+      <input
+        aria-label="Title"
+      />
+      <span
+        class="src-components-Field-module__ui-field__hint-l6dj_A"
+      >
+        Shown in the gallery
+      </span>
+    </label>
+  </div>
+</body>
+`;

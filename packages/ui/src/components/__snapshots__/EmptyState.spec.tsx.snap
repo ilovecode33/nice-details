@@ -1,0 +1,22 @@
+// Rstest Snapshot v1
+
+exports[`EmptyState > matches its structural snapshot 1`] = `
+<body>
+  <div>
+    <div
+      class="src-components-EmptyState-module__ui-empty-NGFiW5"
+    >
+      <p
+        class="src-components-EmptyState-module__ui-empty__title-g4aYiF"
+      >
+        No photos
+      </p>
+      <p
+        class="src-components-EmptyState-module__ui-empty__detail-H6t__X"
+      >
+        Try another album
+      </p>
+    </div>
+  </div>
+</body>
+`;

@@ -1,0 +1,17 @@
+// Rstest Snapshot v1
+
+exports[`Thumbnail > matches its structural snapshot 1`] = `
+<body>
+  <div>
+    <span
+      class="src-components-Thumbnail-module__ui-thumbnail-UU8Rv0"
+    >
+      <span
+        aria-hidden="true"
+      >
+        ★
+      </span>
+    </span>
+  </div>
+</body>
+`;

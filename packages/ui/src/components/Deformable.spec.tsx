@@ -1,5 +1,6 @@
 import { describe, expect, test } from '@rstest/core';
 import { fireEvent, render, screen } from '@testing-library/react';
+import { expectComponentSnapshot } from '../test-utils/snapshot';
 import { Deformable } from './Deformable';
 
 describe('Deformable press bloom', () => {
@@ -16,5 +17,13 @@ describe('Deformable press bloom', () => {
     fireEvent.pointerDown(surface, { clientX: 20, clientY: 10, pointerType: 'mouse', button: 0 });
     expect(surface.querySelector('span[aria-hidden="true"]')).not.toBeNull();
     expect(screen.getByText('Content')).toBeInTheDocument();
+  });
+
+  test('matches its structural snapshot', () => {
+    expectComponentSnapshot(
+      <Deformable>
+        <span>Content</span>
+      </Deformable>,
+    );
   });
 });

@@ -1,0 +1,42 @@
+// Rstest Snapshot v1
+
+exports[`NavBar > matches its structural snapshot 1`] = `
+<body>
+  <div>
+    <header
+      aria-label="Album"
+      class="src-components-NavBar-module__ui-navbar-A9WHuK"
+      role="navigation"
+    >
+      <div
+        class="src-components-NavBar-module__ui-navbar__row-CC8Sgp"
+      >
+        <button
+          class="src-components-NavBar-module__ui-navbar__back-k6b_S1"
+          type="button"
+        >
+          <span
+            aria-hidden="true"
+          >
+            ‹
+          </span>
+          <span
+            class="ui-sr-only"
+          >
+            Back
+          </span>
+        </button>
+        <div
+          class="src-components-NavBar-module__ui-navbar__titles-cXw11P"
+        >
+          <h2
+            class="src-components-NavBar-module__ui-navbar__title-UjtJ_w"
+          >
+            Album
+          </h2>
+        </div>
+      </div>
+    </header>
+  </div>
+</body>
+`;

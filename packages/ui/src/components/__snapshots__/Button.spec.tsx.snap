@@ -1,0 +1,22 @@
+// Rstest Snapshot v1
+
+exports[`Button > matches its structural snapshot 1`] = `
+<body>
+  <div>
+    <span
+      aria-hidden="true"
+      class="src-components-Button-module__ui-btn-placeholder-pskvQ7"
+      style="anchor-name: --btn-halo-ID;"
+    />
+  </div>
+  <button
+    class="src-components-Button-module__ui-btn-CdTAk9 src-components-Button-module__ui-btn--primary-vO8TOs src-components-Button-module__ui-btn--compact-cJ27ER src-components-Button-module__ui-btn--portal-XtTzGg"
+    style="position: fixed; position-anchor: --btn-halo-ID; transform-origin: 50% 50%; transition: transform var(--spring-dur) var(--spring-ease), box-shadow var(--glow-dur) var(--glow-ease); touch-action: pan-y; --glow-x: 50%; --glow-y: 50%;"
+    type="button"
+  >
+    <span>
+      Save
+    </span>
+  </button>
+</body>
+`;

@@ -1,0 +1,59 @@
+// Rstest Snapshot v1
+
+exports[`AccentSwitcher > matches its structural snapshot 1`] = `
+<body>
+  <div>
+    <div
+      class="src-components-UIFoundation-module__ui-foundation-PPch2H"
+    >
+      <label
+        data-ui="inline-select"
+        title="Accent color"
+      >
+        <span
+          aria-hidden="true"
+        >
+          ✦
+        </span>
+        <div
+          class="src-components-Deformable-module__ui-deform-D5oYi7"
+          style="transform-origin: 50% 50%; transition: transform var(--spring-dur) var(--spring-ease), box-shadow var(--glow-dur) var(--glow-ease); touch-action: pan-y; --glow-x: 50%; --glow-y: 50%;"
+        >
+          <div
+            class="src-components-Select-module__ui-select__wrap-FzgyiS"
+            data-ui="select__wrap"
+          >
+            <button
+              aria-expanded="false"
+              aria-haspopup="listbox"
+              aria-label="Accent color"
+              class="src-components-Select-module__ui-select-lcUrcM src-components-Select-module__ui-select--trigger-G3S7D9"
+              data-ui="select"
+              role="combobox"
+              type="button"
+            >
+              <span
+                class="src-components-Select-module__ui-select__value-ySNiga"
+              >
+                <span
+                  data-ui="color-swatch"
+                  style="background: #b23a0a;"
+                />
+                <span>
+                  Warmth
+                </span>
+              </span>
+              <span
+                aria-hidden="true"
+                class="src-components-Select-module__ui-select__chevron-FRTkC3"
+              >
+                ⌄
+              </span>
+            </button>
+          </div>
+        </div>
+      </label>
+    </div>
+  </div>
+</body>
+`;

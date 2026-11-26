@@ -5,6 +5,16 @@ All notable changes to `@ilovecode33/ui` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- Component snapshots now live in each component's own `<Component>.spec.tsx`
+  instead of one central suite. Rstest writes one
+  `__snapshots__/<Component>.spec.tsx.snap` per component via the shared
+  `src/test-utils/snapshot.ts` helper; every component keeps exactly one
+  structural snapshot.
+
 ## [0.3.0] - 2026-11-26
 
 ### Changed

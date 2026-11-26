@@ -1,0 +1,11 @@
+// Rstest Snapshot v1
+
+exports[`Divider > matches its structural snapshot 1`] = `
+<body>
+  <div>
+    <hr
+      class="src-components-Divider-module__ui-divider-Qwo715"
+    />
+  </div>
+</body>
+`;

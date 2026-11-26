@@ -1,0 +1,11 @@
+// Rstest Snapshot v1
+
+exports[`ThemeProvider > matches its structural snapshot 1`] = `
+<body>
+  <div>
+    <span>
+      dark
+    </span>
+  </div>
+</body>
+`;

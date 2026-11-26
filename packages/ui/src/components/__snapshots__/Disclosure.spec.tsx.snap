@@ -1,0 +1,28 @@
+// Rstest Snapshot v1
+
+exports[`Disclosure > matches its structural snapshot 1`] = `
+<body>
+  <div>
+    <div
+      class="src-components-Disclosure-module__ui-disclosure-u9LYV5"
+    >
+      <button
+        aria-controls="ID"
+        aria-expanded="false"
+        class="src-components-Disclosure-module__ui-disclosure__trigger-gXT5Nh"
+        type="button"
+      >
+        <span>
+          Details
+        </span>
+        <span
+          aria-hidden="true"
+          class="src-components-Disclosure-module__ui-disclosure__chevron-MTINhz"
+        >
+          ⌄
+        </span>
+      </button>
+    </div>
+  </div>
+</body>
+`;

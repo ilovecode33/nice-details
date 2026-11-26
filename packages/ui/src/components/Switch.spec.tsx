@@ -1,7 +1,10 @@
 import { describe, expect, test } from '@rstest/core';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { useState } from 'react';
+import { expectComponentSnapshot } from '../test-utils/snapshot';
 import { Switch } from './Switch';
+
+const snapNoop = () => {};
 
 function SwitchDemo({ initial = false }: { initial?: boolean }) {
   const [checked, setChecked] = useState(initial);
@@ -22,5 +25,9 @@ describe('Switch', () => {
     fireEvent.click(control);
     expect(control).toHaveAttribute('aria-checked', 'false');
     expect(control.className).not.toContain('is-on');
+  });
+
+  test('matches its structural snapshot', () => {
+    expectComponentSnapshot(<Switch label="Wifi" checked={false} onChange={snapNoop} />);
   });
 });

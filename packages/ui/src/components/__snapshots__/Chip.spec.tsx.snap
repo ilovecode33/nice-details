@@ -1,0 +1,15 @@
+// Rstest Snapshot v1
+
+exports[`Chip > matches its structural snapshot 1`] = `
+<body>
+  <div>
+    <button
+      aria-pressed="true"
+      class="src-components-Chip-module__ui-chip-CXy7Mh src-components-Chip-module__is-active-KdlsoB"
+      type="button"
+    >
+      Favorites
+    </button>
+  </div>
+</body>
+`;

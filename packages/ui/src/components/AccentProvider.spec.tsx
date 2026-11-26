@@ -1,8 +1,15 @@
 import { describe, expect, test } from '@rstest/core';
 import { render, screen } from '@testing-library/react';
 import { useAccent } from '../hooks/useAccent';
+import { expectComponentSnapshot } from '../test-utils/snapshot';
 import { AccentProvider } from './AccentProvider';
 import { ThemeProvider } from './ThemeProvider';
+
+function SnapshotAccentProbe() {
+  const { accent } = useAccent();
+  return <span>{accent}</span>;
+}
+
 describe('AccentProvider', () => {
   test('exposes the default accent to consumers', () => {
     let seen = '';
@@ -14,5 +21,15 @@ describe('AccentProvider', () => {
     render(<ThemeProvider><AccentProvider><Probe /></AccentProvider></ThemeProvider>);
     expect(seen).toBeTruthy();
     expect(screen.getByText(seen)).toBeInTheDocument();
+  });
+
+  test('matches its structural snapshot', () => {
+    expectComponentSnapshot(
+      <ThemeProvider>
+        <AccentProvider>
+          <SnapshotAccentProbe />
+        </AccentProvider>
+      </ThemeProvider>,
+    );
   });
 });
