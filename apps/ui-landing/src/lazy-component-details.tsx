@@ -1,5 +1,11 @@
-import { lazy, Suspense, useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import type { ComponentDetailsProps } from './component-details';
+import {
+  initialDetailsHeight,
+  initialScrollY,
+  restoreScrollPosition,
+  saveDetailsHeight,
+} from './scroll-restore';
 
 /**
  * The component-detail demos pull in most of the UI library, so they stay out
@@ -14,16 +20,27 @@ const ComponentDetails = lazy(() =>
 
 /**
  * Reserves the section's space and keeps the `details` anchor available to the
- * hero CTA before the real module has loaded. Hidden from assistive technology
- * because it conveys no information of its own.
+ * hero CTA before the real module has loaded. The cached height from the last
+ * render keeps a reload from collapsing the page while the chunk downloads.
+ * Hidden from assistive technology because it conveys no information of its own.
  */
 function ComponentDetailsPlaceholder() {
-  return <div id="details" aria-hidden="true" style={{ minHeight: '60vh' }} />;
+  return (
+    <div
+      id="details"
+      aria-hidden="true"
+      style={{ minHeight: initialDetailsHeight ? `${initialDetailsHeight}px` : '60vh' }}
+    />
+  );
 }
 
 export function LazyComponentDetails(props: ComponentDetailsProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const [shouldLoad, setShouldLoad] = useState(false);
+  const observerRef = useRef<ResizeObserver | null>(null);
+  const restoredRef = useRef(false);
+  // A deep saved position means the observer would never fire on reload, so
+  // load the chunk immediately. A fresh visit keeps the hero-first behavior.
+  const [shouldLoad, setShouldLoad] = useState(() => initialScrollY > 0);
 
   // Warm the browser cache during idle time so scrolling into the details
   // section, or a later navigation, can use the already-downloaded chunk.
@@ -68,11 +85,39 @@ export function LazyComponentDetails(props: ComponentDetailsProps) {
     return () => observer.disconnect();
   }, [shouldLoad]);
 
+  // Called by ComponentDetails after it mounts: cache the real height (and
+  // keep it fresh on layout changes), then restore the saved position once.
+  const handleReady = useCallback(() => {
+    if (typeof window === 'undefined') return;
+
+    const measure = () => {
+      const section = document.getElementById('details');
+      if (section) saveDetailsHeight(section.getBoundingClientRect().height);
+    };
+
+    measure();
+
+    const section = document.getElementById('details');
+    if (section && typeof ResizeObserver !== 'undefined') {
+      observerRef.current?.disconnect();
+      const observer = new ResizeObserver(measure);
+      observer.observe(section);
+      observerRef.current = observer;
+    }
+
+    if (!restoredRef.current) {
+      restoredRef.current = true;
+      if (initialScrollY > 0) restoreScrollPosition(initialScrollY);
+    }
+  }, []);
+
+  useEffect(() => () => observerRef.current?.disconnect(), []);
+
   return (
     <div ref={ref}>
       {shouldLoad ? (
         <Suspense fallback={<ComponentDetailsPlaceholder />}>
-          <ComponentDetails {...props} />
+          <ComponentDetails {...props} onReady={handleReady} />
         </Suspense>
       ) : (
         <ComponentDetailsPlaceholder />

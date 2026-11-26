@@ -1,4 +1,4 @@
-import { useReducer, useState, type ReactNode, type RefObject } from 'react';
+import { useEffect, useReducer, useState, type ReactNode, type RefObject } from 'react';
 import { listReducer, selectionModeReducer } from '@ilovecode33/ui-core';
 import {
   ActionSheet,
@@ -105,10 +105,16 @@ export type ComponentDetailsProps = {
   /** The floating dock lives in App; the floating card toggles it directly. */
   dockRef: RefObject<DockNavigationHandle | null>;
   dockCollapsed: boolean;
+  /** Notifies the wrapper that the real section has mounted and laid out. */
+  onReady?: () => void;
 };
 
-export function ComponentDetails({ onOpenIntro, dockRef, dockCollapsed }: ComponentDetailsProps) {
+export function ComponentDetails({ onOpenIntro, dockRef, dockCollapsed, onReady }: ComponentDetailsProps) {
   const { t } = useLocale();
+
+  useEffect(() => {
+    onReady?.();
+  }, [onReady]);
 
   const [buttonAction, setButtonAction] = useState('');
   const [filter, setFilter] = useState<'all' | 'active' | 'archived'>('all');
