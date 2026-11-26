@@ -1,5 +1,7 @@
 # @ilovecode33/ai-rules
 
+Private, unpublished workspace that indexes the project's AI rules as topic-based Markdown documents.
+
 Project-level AI rules for this repository. This workspace holds the rules as
 plain Markdown documents, split by topic so an agent can open only what it
 needs. [`AGENTS.md`](../../AGENTS.md) remains the agent entry point; it points
@@ -28,3 +30,8 @@ stories — they are rules for developers and agents, not user-facing copy.
 Edit the relevant file in this workspace, then update any reference in
 [`AGENTS.md`](../../AGENTS.md), [`README.md`](../../README.md) or
 [`packages/ui/ROADMAP.md`](../ui/ROADMAP.md). Keep the files in English.
+
+## Links
+
+- [CHANGELOG.md](CHANGELOG.md) — release history
+- [Repository README](../../README.md) and [RELEASING.md](../../RELEASING.md)

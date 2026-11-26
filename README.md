@@ -1,147 +1,81 @@
 # @ilovecode33/nice-details
 
-A monorepo where frontend apps and shared libraries coexist. English is the default language for documentation.
+A Bun/Turborepo monorepo pairing three frontend apps with shared, publishable UI and editor libraries.
 
-- **Workspace manager**: Bun workspaces (no Node/pnpm in this environment; Turborepo 2.11 supports Bun as a stable package manager)
-- **Task runner**: Turborepo (caching + affected runs)
-- **App builds**: Rsbuild (the official layer on top of Rspack, with dev server and HMR)
-- **Library builds**: Rslib (based on Rspack, emits ESM + `.d.ts`)
-- **Editor core**: Lexical (Meta's document model, with undo/redo, serialization, rich-text shortcuts)
-- **React component library**: `@ilovecode33/ui`, built with Rslib; showcased in the landing page's **Component details** section
-- **Photo Wall library**: `@ilovecode33/photo-wall`, a seedable frame-layout generator and React renderer consumed by the separate image-gallery project
-- **Landing page i18n**: app-level, with `en` (default), `zh-TW`, and `de`
+Documentation is English by default. Design and agent rules live in [`AGENTS.md`](AGENTS.md) and the [`packages/ai-rules/`](packages/ai-rules/README.md) workspace; they are linked below, not repeated here.
 
 ## Structure
 
 ```
 apps/
-  editor/          # WYSIWYG editor demo (port 3000)
-  blog/            # Blog using the SDK in readonly mode (port 3100)
-  ui-landing/      # Component library landing page (port 3200)
+  blog/          # @ilovecode33/blog — React Router blog using the UI and editor SDKs in read-only mode (port 3100)
+  editor/        # @ilovecode33/editor-app — minimal WYSIWYG demo built on editor-core (port 3000)
+  ui-landing/    # @ilovecode33/ui-landing — internal component gallery for @ilovecode33/ui (port 3200)
 packages/
-  ai-rules/        # @ilovecode33/ai-rules, project AI rules as split Markdown files
-  editor-core/     # @ilovecode33/editor-core, framework-agnostic editor SDK
-  ui-tokens/       # @ilovecode33/ui-tokens, design tokens as data + generators
-  ui-core/         # @ilovecode33/ui-core, platform-neutral state contracts
-  ui/              # @ilovecode33/ui, React component library
-    ROADMAP.md     # Component expansion plan and platform-neutral architecture
-  photo-wall/      # @ilovecode33/photo-wall, procedural Photo Wall generator + renderer
-  ui-swift/        # SwiftUI skeleton (Swift package, not an npm workspace)
-AGENTS.md          # AI agent entry point for this repository
+  ai-rules/      # @ilovecode33/ai-rules — private, unpublished workspace indexing AI rules as topic-based Markdown
+  editor-core/   # @ilovecode33/editor-core — framework-agnostic Lexical SDK with a small typed controller
+  photo-wall/    # @ilovecode33/photo-wall — seedable, procedural framed-photo layout generator and renderer
+  ui/            # @ilovecode33/ui — React component and hook library, renderer over tokens and contracts
+  ui-core/       # @ilovecode33/ui-core — framework-neutral reducers and portable component contracts
+  ui-tokens/     # @ilovecode33/ui-tokens — single source of truth for token values, with CSS/JSON/Swift generators
+  ui-types/      # @ilovecode33/ui-types — shared, framework-portable TypeScript types grouped by domain
+  ui-swift/      # SwiftUI skeleton mirroring the UI contracts — a Swift package, NOT an npm workspace
 ```
 
-Every package name uses the `@ilovecode33/` scope.
+Every npm package uses the `@ilovecode33/` scope. Apps build with Rsbuild (Rspack + HMR); libraries build with Rslib (ESM + `.d.ts`). App `tsconfig.json` files map paths to library `src`, so editing a library shows hot updates without a separate build.
 
 ## Common commands
 
 ```bash
 bun install
-bun run dev                                            # start all apps
-bunx turbo run dev --filter=@ilovecode33/editor-app     # editor (3000)
-bunx turbo run dev --filter=@ilovecode33/blog           # blog (3100)
-bunx turbo run dev --filter=@ilovecode33/ui-landing     # component landing page (3200)
-bun run build                                          # topological build, cached in .turbo
-bun run typecheck
+bun run dev                                            # all apps
+bunx turbo run dev --filter=@ilovecode33/editor-app     # editor — port 3000
+bunx turbo run dev --filter=@ilovecode33/blog           # blog — port 3100
+bunx turbo run dev --filter=@ilovecode33/ui-landing     # component gallery — port 3200
+bunx turbo run typecheck build                          # typecheck + topological build, cached in .turbo
+bunx turbo run test                                     # all packages that define a test task
+bun run changeset                                      # author a changeset interactively
+bun run check:changesets                               # changeset status since origin/main
+bun run version:packages                               # consume changesets, bump versions, rewrite changelogs
 ```
 
-Versioning and changelogs are managed with Changesets; see [`RELEASING.md`](RELEASING.md) for the workflow.
+`bun run typecheck`, `bun run build`, `bun run test` and `bun run clean` are top-level Turbo aliases; see [`turbo.json`](turbo.json) for task wiring. Versioning and changelogs are managed with Changesets, as described in [`RELEASING.md`](RELEASING.md).
 
-App `tsconfig.json` files map paths directly to `editor-core/src` and `ui/src`, so editing a library shows hot updates without a separate build. Each library can still be built on its own to produce a publishable `dist/`.
+## Workspaces, versions and READMEs
 
-## Editor SDK
+All ten npm workspaces have a README, as does the Swift package. Versions below are the current ones.
 
-```ts
-import { createEditor } from '@ilovecode33/editor-core';
+| Workspace | Version | README |
+|---|---|---|
+| [`@ilovecode33/blog`](apps/blog/README.md) | 0.1.1 | App |
+| [`@ilovecode33/editor-app`](apps/editor/README.md) | 0.1.1 | App |
+| [`@ilovecode33/ui-landing`](apps/ui-landing/README.md) | 0.1.1 | App |
+| [`@ilovecode33/ai-rules`](packages/ai-rules/README.md) | 0.1.1 | Rule index |
+| [`@ilovecode33/editor-core`](packages/editor-core/README.md) | 0.1.1 | SDK |
+| [`@ilovecode33/photo-wall`](packages/photo-wall/README.md) | 0.2.0 | Library |
+| [`@ilovecode33/ui`](packages/ui/README.md) | 0.3.1 | Library |
+| [`@ilovecode33/ui-core`](packages/ui-core/README.md) | 0.3.1 | Library |
+| [`@ilovecode33/ui-tokens`](packages/ui-tokens/README.md) | 0.3.1 | Library |
+| [`@ilovecode33/ui-types`](packages/ui-types/README.md) | 0.3.1 | Library |
+| `UISwift` (`packages/ui-swift`) | — | [README](packages/ui-swift/README.md) |
 
-// Editable
-const editor = createEditor({
-  element,
-  onChange: ({ html, text }) => console.log(html, text),
-  onStateChange: ({ bold, italic, heading }) =>
-    console.log(bold, italic, heading),
-});
+The four `ui*` packages are a Changesets `fixed` group and always upgrade together; internal dependents receive at least a patch bump automatically.
 
-editor.bold();
-editor.italic();
-editor.setHeading(1); // 1 | 2 | 3; pressing the same level again returns to <p>
+## Where to find what
 
-// Readonly (blog)
-const readonly = createEditor({
-  element,
-  readonly: true,
-  initialHTML: '<h1>Hallo world!</h1>',
-});
-
-readonly.isReadonly(); // true
-```
-
-In readonly mode no input listeners are attached and `bold()` / `italic()` / `setHeading()` are no-ops. `setHTML()` remains available so the host can load article content.
-
-## Component library
-
-```tsx
-import {
-  AccentProvider, Button, ThemeProvider, ThemeSwitcher, AccentSwitcher,
-} from '@ilovecode33/ui';
-import '@ilovecode33/ui/styles.css';
-
-<ThemeProvider>
-  <AccentProvider>
-    <ThemeSwitcher />
-    <AccentSwitcher />
-    <Button variant="primary">Get started</Button>
-  </AccentProvider>
-</ThemeProvider>
-```
-
-The library includes Button, Card, Stack/Row, Segmented, SliderRow, Switch, Field, Select, TextInput, Stat, StatusStat, EmptyState, Sheet, NavBar, TabBar, List/ListRow, Disclosure, Divider, Badge, Chip, FormField, Checkbox, RadioGroup, TextArea, Stepper, NumberField, SearchBar, DatePicker, Toast, Banner, ActivityIndicator, Skeleton, ProgressBar, ActionSheet, AlertDialog, Popover, AspectImage, PhotoGrid, PhotoViewer, Avatar, Thumbnail, Carousel, plus Theme/Accent providers and switchers. All text is passed via props with English defaults; the library does not depend on any i18n package.
-
-The landing page **Component details** section now shows these in real scenarios: upload overview, settings, album library, create-album form, upload progress, photo gallery, empty search, and delete confirmation.
-
-Design values live in `@ilovecode33/ui-tokens` (CSS, JSON, and Swift generators); state models and reducers live in `@ilovecode33/ui-core`. The React package is a thin renderer over both. `packages/ui-swift` is a SwiftUI skeleton that mirrors the same contracts — build it with `swift build --package-path packages/ui-swift`. Regenerate tokens with `bun run generate` in `packages/ui-tokens`.
-
-The design language uses translucent glass tokens (`--glass-*`) for chrome that floats above content: `GlassSurface` and `FloatingBar` reserve space in the host instead of occupying layout, while `DockNavigation` builds a collapsible, scrollable navigation dock on top of `FloatingBar`. `Deformable` and `useDeform` add directional drag deformation with a spring back, built into `Button` and floating surfaces. All motion and material values are tokens, and deformation is disabled under `prefers-reduced-motion`. `UIFoundation` is the single provider for theme, accent and locale. The host supplies plain dictionaries (the library has no i18n dependency); `useLocale()` exposes `locale`, `setLocale` and `t()`. Wrapped content disables text selection by default so it does not fight the elastic drag feedback — inputs, textareas and editable regions keep normal selection.
-
-All component styles are CSS Modules. `cn()` maps class names to the generated local names, and the package build merges the global design tokens with the module output into a single `dist/styles.css`. Consumers can keep importing `@ilovecode33/ui/styles.css`.
-
-The landing page uses a single floating footer dock as its only navigation; the component index and section links all live there instead of a separate header or sidebar.
-
-`Select` is a custom dropdown (not a native `<select>`). Options accept `leading` / `trailing` React nodes — for example a color swatch next to each option — and it supports keyboard navigation, ARIA, and click-outside. Its `onChange` receives `{ target: { value } }` rather than a native `ChangeEvent<HTMLSelectElement>`.
-
-```tsx
-<Select
-  value={tone}
-  onChange={(event) => setTone(event.target.value)}
-  options={TONES.map((item) => ({
-    value: item.value,
-    label: item.label,
-    leading: <span className="ui-color-swatch" style={{ background: item.color }} />,
-  }))}
-/>
-```
-
-`<option>` children still work for backward compatibility, but `options` is preferred.
-
-Before adding or changing a component, read the project rules in [`packages/ai-rules/`](packages/ai-rules/README.md), starting with [`component-entry.md`](packages/ai-rules/component-entry.md). For the planned component expansion and the platform-neutral architecture that can back a future SwiftUI renderer, see [`packages/ui/ROADMAP.md`](packages/ui/ROADMAP.md). The AI agent entry point is [`AGENTS.md`](AGENTS.md).
-
-## Current scope
-
-- ✅ Headings H1–H3, bold, italic
-- ✅ Toolbar active state sync
-- ✅ HTML / plain-text output
-- ✅ Readonly display mode
-- ✅ Undo / redo and JSON / HTML serialization (provided by Lexical)
-- ❌ Multi-user collaboration (would require Lexical + Yjs)
+| Need | Go to |
+|---|---|
+| Agent entry point, repo rules, definition of done | [`AGENTS.md`](AGENTS.md) |
+| Rule index and scope table | [`packages/ai-rules/README.md`](packages/ai-rules/README.md) |
+| Design principles, mobile-first, touch-first | [`design-principles.md`](packages/ai-rules/design-principles.md), [`mobile-first.md`](packages/ai-rules/mobile-first.md), [`user-first.md`](packages/ai-rules/user-first.md) |
+| Component entry / release exit / PR checklist | [`component-entry.md`](packages/ai-rules/component-entry.md), [`release-exit.md`](packages/ai-rules/release-exit.md), [`pr-checklist.md`](packages/ai-rules/pr-checklist.md) |
+| Floating surfaces, photo wall, editor core rules | [`floating-surfaces.md`](packages/ai-rules/floating-surfaces.md), [`photo-wall.md`](packages/ai-rules/photo-wall.md), [`editor-core.md`](packages/ai-rules/editor-core.md) |
+| Deprecation policy | [`deprecation.md`](packages/ai-rules/deprecation.md) |
+| Component gallery and real usage scenarios | [`apps/ui-landing/README.md`](apps/ui-landing/README.md) — the **Component details** section, port 3200 |
+| Component roadmap and platform-neutral architecture | [`packages/ui/ROADMAP.md`](packages/ui/ROADMAP.md) |
+| Release workflow and changeset commands | [`RELEASING.md`](RELEASING.md), [`.changeset/config.json`](.changeset/config.json) |
+| Release history | Each workspace's `CHANGELOG.md`, e.g. [`packages/ui/CHANGELOG.md`](packages/ui/CHANGELOG.md) |
 
 ## Blog deployment
 
-The blog is deployed to Cloudflare Pages by `.github/workflows/deploy-blog.yml`
-on pushes to `main`; pull requests get a preview deployment from
-`.github/workflows/preview-blog.yml`. The client-side router uses
-`apps/blog/public/_redirects` for direct visits to `/about`.
-
-Caching is declared with Cloudflare Pages' native `apps/blog/public/_headers`
-file: only hashed `/static/*` assets get a one-year immutable cache. HTML is
-intentionally not matched, so it keeps Pages' `max-age=0, must-revalidate` and
-every deployment refreshes immediately. No extra API token or zone-level
-configuration is required.
+The blog is deployed to Cloudflare Pages by [`.github/workflows/deploy-blog.yml`](.github/workflows/deploy-blog.yml) on pushes to `main`; pull requests get a preview deployment from [`.github/workflows/preview-blog.yml`](.github/workflows/preview-blog.yml). Client-side routing for direct visits to `/about` uses [`apps/blog/public/_redirects`](apps/blog/public/_redirects). Caching is declared in [`apps/blog/public/_headers`](apps/blog/public/_headers): only hashed `/static/*` assets get a one-year immutable cache. HTML is intentionally not matched, so it keeps Pages' `max-age=0, must-revalidate` and every deployment refreshes immediately — no extra API token or zone-level configuration is required.
