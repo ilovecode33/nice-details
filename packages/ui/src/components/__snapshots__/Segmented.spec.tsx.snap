@@ -11,17 +11,23 @@ exports[`Segmented > matches its structural snapshot 1`] = `
       <div
         class="src-components-Segmented-module__ui-segmented__thumb-UJYqrS"
         data-ui="segmented__thumb"
-        style="transform-origin: 50% 50%; transition: left var(--dur) var(--ease), width var(--dur) var(--ease), transform var(--spring-dur) var(--spring-ease); touch-action: pan-y; --glow-x: 50%; --glow-y: 50%; left: 0px; width: 100px;"
+        style="transform-origin: 50% 50%; transition: left var(--dur) var(--ease), width var(--dur) var(--ease), transform var(--dur) var(--ease); touch-action: pan-y; --glow-x: 50%; --glow-y: 50%; left: 0px; width: 100px;"
       >
-        <span
-          aria-hidden="true"
-          class="src-components-Segmented-module__ui-segmented__sheen-YeqaLt"
-        />
-        <span
-          aria-hidden="true"
-          class="src-components-Segmented-module__ui-segmented__spot-_BD2GS"
-          style="--seg-glow-x: 50%; --seg-glow-y: 50%;"
-        />
+        <div
+          class="src-components-Segmented-module__ui-segmented__thumb-shift-PsSREN"
+          data-ui="segmented__thumb-shift"
+          style="transform: translate3d(0px, 0, 0); transition: none;"
+        >
+          <span
+            aria-hidden="true"
+            class="src-components-Segmented-module__ui-segmented__sheen-YeqaLt"
+          />
+          <span
+            aria-hidden="true"
+            class="src-components-Segmented-module__ui-segmented__spot-_BD2GS"
+            style="--seg-glow-x: 50%; --seg-glow-y: 50%;"
+          />
+        </div>
       </div>
       <button
         aria-selected="true"

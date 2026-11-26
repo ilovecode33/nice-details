@@ -14,18 +14,30 @@
   top: 3px;
   bottom: 3px;
   z-index: 0;
+  isolation: isolate; /* the light layers sit above the pill, below its label */
+  pointer-events: none;
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .ui-segmented__thumb-shift { background: var(--seg-thumb-solid); }
+}
+
+/* Single, persistent layer for the damped drag offset. It is positioned so the
+   sheen and spotlight anchor to it and travel with its transform; the outer
+   thumb keeps its slot `left` and `useDeform` transform untouched. The entire
+   visible pill lives here so the surface and its glow move together on drag. */
+.ui-segmented__thumb-shift {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
   border: 1px solid var(--seg-thumb-stroke);
   border-radius: 8px;
   background: var(--seg-thumb-fill);
   box-shadow: var(--shadow-sm);
   -webkit-backdrop-filter: var(--glass-backdrop);
   backdrop-filter: var(--glass-backdrop);
-  isolation: isolate; /* the light layers sit above the pill, below its label */
-  pointer-events: none;
-}
-
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .ui-segmented__thumb { background: var(--seg-thumb-solid); }
+  isolation: isolate;
 }
 
 /* The selected pill keeps a quiet outer halo at rest and lifts to a full
