@@ -127,6 +127,14 @@ export const DockNavigation = forwardRef<DockNavigationHandle, DockNavigationPro
       const dock = dockRef.current;
       const from = before.current;
       before.current = null;
+
+      // Finish any in-flight morph first: its release restores the inline width
+      // lock, so the probe clone below measures an unlocked bar.
+      animations.current.bar?.cancel();
+      animations.current.dock?.cancel();
+      animations.current.bar = undefined;
+      animations.current.dock = undefined;
+
       if (!dock || !from || prefersReducedMotion()) return;
 
       const bar = dock.closest<HTMLElement>('[data-ui="floating-bar"]');
@@ -139,23 +147,54 @@ export const DockNavigation = forwardRef<DockNavigationHandle, DockNavigationPro
       probe.style.transition = 'none';
       document.body.append(probe);
       const target = probe.getBoundingClientRect();
-      const targetHeight =
-        probe.querySelector<HTMLElement>('[data-ui="dock"]')?.getBoundingClientRect()
-          .height ?? from.height;
+      const probeDock = probe.querySelector<HTMLElement>('[data-ui="dock"]');
+      const targetHeight = probeDock?.getBoundingClientRect().height ?? from.height;
+      const targetWidth = probeDock?.getBoundingClientRect().width;
       probe.remove();
+
+      const surface = bar.querySelector<HTMLElement>('[class*="ui-floating__surface"]');
+      const previous = {
+        width: dock.style.width,
+        maxWidth: dock.style.maxWidth,
+        flex: dock.style.flex,
+        overflow: dock.style.overflow,
+        surfaceOverflow: surface?.style.overflow ?? '',
+      };
+      let released = false;
+      const release = () => {
+        if (released) return;
+        released = true;
+        dock.style.width = previous.width;
+        dock.style.maxWidth = previous.maxWidth;
+        dock.style.flex = previous.flex;
+        dock.style.overflow = previous.overflow;
+        if (surface) surface.style.overflow = previous.surfaceOverflow;
+      };
+
+      // Lock the dock to the target layout width for the whole morph. Otherwise
+      // its wrapped rows follow the animating bar width and the height cascades
+      // (e.g. 3 rows → 2 → 1) instead of staying at the final row count. The
+      // surface clips the early overflow as the bar widens.
+      if (targetWidth) {
+        dock.style.width = `${targetWidth}px`;
+        dock.style.maxWidth = 'none';
+        dock.style.flex = '0 0 auto';
+        if (surface) surface.style.overflow = 'hidden';
+      }
 
       const duration = morphDurationMs();
       const easing = morphEasing();
-      animations.current.bar?.cancel();
-      animations.current.dock?.cancel();
 
-      animations.current.bar = bar.animate(
+      const barAnimation = bar.animate(
         [
           { left: `${from.left}px`, width: `${from.width}px`, transform: 'none' },
           { left: `${target.left}px`, width: `${target.width}px`, transform: 'none' },
         ],
         { duration, easing },
       );
+      animations.current.bar = barAnimation;
+      barAnimation.onfinish = release;
+      barAnimation.oncancel = release;
 
       if (Math.abs(targetHeight - from.height) >= 1) {
         const heightAnimation = dock.animate(
@@ -164,9 +203,6 @@ export const DockNavigation = forwardRef<DockNavigationHandle, DockNavigationPro
         );
         dock.style.overflow = 'hidden';
         animations.current.dock = heightAnimation;
-        const release = () => {
-          dock.style.overflow = '';
-        };
         heightAnimation.onfinish = release;
         heightAnimation.oncancel = release;
       }

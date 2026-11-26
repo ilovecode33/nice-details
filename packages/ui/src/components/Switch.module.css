@@ -13,10 +13,25 @@
   content: ''; position: absolute; left: 0; right: 0; top: 6px; height: 32px;
   border-radius: var(--radius-pill);
   background: var(--track);
-  transition: background var(--dur) var(--ease);
+  border: 1px solid transparent;
+  transition:
+    background var(--dur) var(--ease),
+    border-color var(--dur) var(--ease),
+    box-shadow var(--dur) var(--ease);
 }
 
-.ui-switch.is-on::before { background: var(--accent); }
+/* The on track uses the same accent glass as the pill: the solid accent mix
+   (accent over the elevated surface) so it does not composite against the
+   near-black page and turn darker than the slider. */
+.ui-switch.is-on::before {
+  background: var(--seg-thumb-solid);
+  border-color: var(--seg-thumb-stroke);
+  box-shadow:
+    var(--shadow-sm),
+    0 0 calc(var(--space-2)) var(--seg-thumb-halo);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  backdrop-filter: var(--glass-backdrop);
+}
 
 .ui-switch__knob {
   position: absolute; top: 8px; left: 2px;
