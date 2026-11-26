@@ -30,19 +30,43 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // HTML is network-first: markup changes on every deploy, so a cached copy must
-  // never become permanently stale. Offline falls back to the cached shell.
+  // HTML is stale-while-revalidate: markup is served from the local cache first so
+  // opens are instant and work offline, then refreshed in the background. A deploy
+  // may show the previous HTML once; the next open gets the new one.
   if (request.mode === 'navigate') {
+    const cacheNetworkResponse = (response) => {
+      if (!response.ok) return undefined;
+      const isRoot = new URL(request.url).pathname === '/';
+      return caches.open(CACHE).then((cache) =>
+        cache.put(request, response.clone()).then(() => {
+          // Keep the shell fallback fresh for the next offline navigation.
+          if (isRoot) return cache.put('/', response.clone());
+          return undefined;
+        }),
+      );
+    };
+
+    const revalidate = () => fetch(request).then(cacheNetworkResponse).catch(() => undefined);
+
     event.respondWith(
-      fetch(request)
-        .then((response) => {
-          if (response.ok) {
-            const copy = response.clone();
-            caches.open(CACHE).then((cache) => cache.put('/', copy));
+      caches.match(request).then((cached) => {
+        if (cached) {
+          event.waitUntil(revalidate());
+          return cached;
+        }
+        return caches.match('/').then((shell) => {
+          if (shell) {
+            event.waitUntil(revalidate());
+            return shell;
           }
-          return response;
-        })
-        .catch(() => caches.match(request).then((cached) => cached || caches.match('/'))),
+          return fetch(request)
+            .then((response) => {
+              event.waitUntil(cacheNetworkResponse(response));
+              return response;
+            })
+            .catch(() => caches.match('/'));
+        });
+      }),
     );
     return;
   }

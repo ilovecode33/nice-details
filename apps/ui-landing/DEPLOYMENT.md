@@ -28,7 +28,7 @@ These are the same secrets used by the blog workflows; no new secret is needed.
 
 ## Caching
 
-[`public/_headers`](public/_headers) sets a one-year immutable cache for hashed `/static/*` assets. HTML is intentionally left unmatched, so every deployment serves fresh markup immediately.
+[`public/_headers`](public/_headers) sets a one-year immutable cache for hashed `/static/*` assets. HTML is intentionally left unmatched by those headers; the service worker ([`public/sw.js`](public/sw.js)) handles it with local-first stale-while-revalidate: navigations are served from the cache immediately and the network copy replaces it in the background. Because of this, a deploy may show the previous HTML on the next open; the following open picks up the new markup. Hashed assets remain cache-first and immutable, so only the HTML incurs this one-open delay.
 
 ## Manual Cloudflare dashboard step
 
