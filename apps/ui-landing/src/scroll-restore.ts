@@ -32,6 +32,15 @@ function writeNumber(key: string, value: number): void {
 }
 
 /**
+ * Drop the early-restore spacer once the real details section provides the
+ * document height. Safe to call repeatedly and when no spacer was injected.
+ */
+export function removeScrollSpacer(): void {
+  if (typeof document === 'undefined') return;
+  document.getElementById('restore-scroll-spacer')?.remove();
+}
+
+/**
  * Values from the previous page load, captured at module evaluation time so
  * that in-page scrolling cannot overwrite the target before restoration.
  */
@@ -100,6 +109,7 @@ export function restoreScrollPosition(y: number): void {
 
   const apply = () => {
     window.scrollTo(0, y);
+    removeScrollSpacer();
     window.dispatchEvent(new Event('scroll'));
   };
 

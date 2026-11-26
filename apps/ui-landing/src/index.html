@@ -14,6 +14,24 @@
       } catch (e) {
         document.documentElement.setAttribute('data-theme', 'system');
       }
+
+      // Restore the saved scroll before React paints the hero, so a deep
+      // reload never flashes the top while the lazy details chunk loads.
+      try {
+        var savedY = Number(sessionStorage.getItem('ui-landing.scrollY')) || 0;
+        if (savedY > 0) {
+          var savedHeight = Number(sessionStorage.getItem('ui-landing.detailsHeight')) || 0;
+          var height = Math.max(savedHeight, savedY + window.innerHeight, window.innerHeight);
+          var spacer = document.createElement('style');
+          spacer.id = 'restore-scroll-spacer';
+          spacer.textContent = 'html { min-height: ' + height + 'px }';
+          document.head.appendChild(spacer);
+          window.scrollTo(0, savedY);
+          document.addEventListener('DOMContentLoaded', function () {
+            window.scrollTo(0, savedY);
+          }, { once: true });
+        }
+      } catch (e) {}
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="description" content="@ilovecode33/ui component library gallery" />
