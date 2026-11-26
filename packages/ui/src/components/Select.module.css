@@ -74,6 +74,12 @@
   box-shadow: var(--shadow-md);
 }
 
+/* Drop-up: anchor above the trigger; the base menu supplies the surface tokens. */
+.ui-select__menu--up {
+  top: auto;
+  bottom: calc(100% + 4px);
+}
+
 .ui-select__option {
   display: flex;
   align-items: center;
