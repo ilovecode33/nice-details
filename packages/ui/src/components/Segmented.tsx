@@ -14,30 +14,32 @@ const clamp = (value: number, min: number, max: number) => Math.min(max, Math.ma
 const clampPercent = (value: number) => clamp(value, 0, 100);
 
 // Drag feel constants. `SLOT_RADIUS` is the px band around a slot centre where
-// the breakaway curve applies; `BREAKAWAY_PX` is how far the pointer must move
-// from its seated slot before the pill tracks it 1:1; `MIN_FOLLOW` keeps the
-// pill heavy at the very start of the drag; `MAGNET_STRENGTH` adds a light pull
-// when entering the next slot; `RUBBER_BAND_MAX` caps how far the pill may
-// drift past the end slots.
+// the breakaway curve applies; `DEAD_ZONE_PX` is how far the pointer may move
+// while the seated pill stays completely still; `BREAKAWAY_PX` is the band over
+// which follow ramps from 0 to 1 after that dead zone; `MAGNET_STRENGTH` adds a
+// light pull when entering the next slot; `RUBBER_BAND_MAX` caps how far the
+// pill may drift past the end slots.
 const SLOT_RADIUS = 36;
-const BREAKAWAY_PX = 28;
-const MIN_FOLLOW = 0.12;
+const DEAD_ZONE_PX = 6;
+const BREAKAWAY_PX = 36;
 const MAGNET_STRENGTH = 0.25;
 const RUBBER_BAND_MAX = 24;
-// Length of the post-release spring window; matches `--spring-dur` (0.22s).
+// Length of the post-release settle window; matches `--spring-dur` (0.22s).
+// The curve is always `--ease` (no overshoot), never the spring easing.
 const SETTLE_MS = 220;
 
 /**
  * Maps a raw pointer delta to a weighted pill offset (pure; all geometry is
  * passed in). Past the first/last slot the excess is rubber-banded with
  * `resist` instead of hard-clamped. Inside the slot radius under the pointer
- * the pill uses a breakaway curve: it is heavy to start while still seated
- * (as little as `MIN_FOLLOW` of the movement follows the pointer), then ramps
- * up to a 1:1 follow once the pointer has broken away by `BREAKAWAY_PX`.
- * Between slots (`distance >= radius`) the pill tracks the pointer smoothly
- * at 1:1, and a light magnet adds weight again when entering the next slot.
- * The radius is capped at half the slot spacing for a clean hand-off between
- * neighbouring slots.
+ * the pill uses a dead-zone breakaway: it does not move at all for the first
+ * `DEAD_ZONE_PX`, then follow ramps from 0 to 1 over another `BREAKAWAY_PX`
+ * before it tracks the pointer 1:1. Between slots (`distance >= radius`) the
+ * pill tracks the pointer smoothly at 1:1, and a light magnet adds weight
+ * again when entering the next slot. The radius is capped at half the slot
+ * spacing for a clean hand-off between neighbouring slots. The result drives
+ * the inner shift layer; the outer thumb keeps its slot `left` and `useDeform`
+ * transform, so the rendered net is the seat plus this damped offset.
  */
 function weightedOffset(
   raw: number,
@@ -68,10 +70,11 @@ function weightedOffset(
   if (distance >= radius) return raw;
   const target = nearest.left - baseLeft;
   const delta = raw - target;
-  // Breakaway: heavy while the pill is seated, ramping to 1:1 as the pointer
-  // pulls away. A light magnet (1 at the radius edge, so the hand-off stays
-  // smooth) gives a little extra weight as it enters the next slot.
-  const breakaway = clamp(Math.abs(delta) / BREAKAWAY_PX, MIN_FOLLOW, 1);
+  // Dead-zone breakaway: zero follow until the pointer clears the dead zone,
+  // then a linear ramp to 1:1 over the remaining band. A light magnet (1 at
+  // the radius edge, so the hand-off stays smooth) gives a little extra weight
+  // as it enters the next slot.
+  const breakaway = clamp((Math.abs(delta) - DEAD_ZONE_PX) / BREAKAWAY_PX, 0, 1);
   const magnet = 1 - MAGNET_STRENGTH * (1 - distance / radius);
   const follow = breakaway * magnet;
   return target + delta * follow;
@@ -82,7 +85,12 @@ function weightedOffset(
  * Controlled through `value`/`onChange`; slot geometry is measured in a layout
  * effect so the pill mounts at its final size and snaps on drag release.
  * Only the selected pill is draggable; arrow/Home/End keys change selection.
- * Option labels and the optional `label` are supplied by props.
+ * Option labels and the optional `label` are supplied by props. The outer pill
+ * keeps `useDeform`'s transform for scale/glow/elastic feedback and never moves
+ * its `left` during a drag: a single inner shift layer carries the damped
+ * offset minus the deform translate, so the rendered net is the seated slot
+ * plus the damped offset. That inner layer also owns the settle animation with
+ * `--ease` (no spring overshoot); the outer only slides on selection change.
  */
 export function Segmented<T extends string>({
   options,
@@ -99,13 +107,14 @@ export function Segmented<T extends string>({
 }) {
   const trackRef = useRef<HTMLDivElement>(null);
   const thumbRef = useRef<HTMLDivElement>(null);
+  const shiftRef = useRef<HTMLDivElement>(null);
   const drag = useRef<{ startX: number; baseLeft: number } | null>(null);
   // Render the pill only once measured, so it mounts at its final size
   // instead of transitioning in from zero on first paint.
   const [slots, setSlots] = useState<Array<{ left: number; width: number }> | null>(null);
   const [dragOffset, setDragOffset] = useState<number | null>(null);
-  // Short spring window after a drag release; the pill uses the spring easing
-  // for this long, then returns to the normal slide transition.
+  // Short settle window after a drag release; the inner shift layer animates
+  // back to 0 with `--spring-dur` and the ordinary `--ease` for this long.
   const [settling, setSettling] = useState(false);
   const settleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Track which slot the pointer is over, not a boolean: after a click changes
@@ -163,7 +172,7 @@ export function Segmented<T extends string>({
   const spark = (position = { x: 50, y: 50 }, held = true) =>
     setGlow((current) => ({ ...position, held }));
 
-  /** Cancels a pending spring window so a new interaction starts from rest. */
+  /** Cancels a pending settle window so a new interaction starts from rest. */
   const cancelSettle = () => {
     if (settleTimer.current !== null) {
       clearTimeout(settleTimer.current);
@@ -175,6 +184,7 @@ export function Segmented<T extends string>({
   useEffect(
     () => () => {
       if (settleTimer.current !== null) clearTimeout(settleTimer.current);
+      drag.current = null;
     },
     [],
   );
@@ -187,7 +197,7 @@ export function Segmented<T extends string>({
     // light up the pill; its native click simply slides the pill there.
     if (!deform || index !== activeIndex || !option || option.disabled) return;
     motion.handlers.onPointerDown(event);
-    spark(relativeTo(event.target as HTMLElement, event.clientX, event.clientY), true);
+    spark(relativeTo(shiftRef.current, event.clientX, event.clientY), true);
     drag.current = { startX: event.clientX, baseLeft: geometry.left };
   };
 
@@ -197,18 +207,21 @@ export function Segmented<T extends string>({
     const minLeft = slots[0].left;
     const maxLeft = slots[slots.length - 1].left;
     const raw = event.clientX - drag.current.startX;
-    setDragOffset(
-      reduced
-        ? clamp(raw, minLeft - drag.current.baseLeft, maxLeft - drag.current.baseLeft)
-        : weightedOffset(
-            raw,
-            event.clientX - (trackRef.current?.getBoundingClientRect().left ?? 0),
-            drag.current.baseLeft,
-            slots,
-          ),
-    );
-    // The spotlight follows the finger inside the pill as it is dragged.
-    const position = relativeTo(thumbRef.current, event.clientX, event.clientY);
+    const nextOffset = reduced
+      ? clamp(raw, minLeft - drag.current.baseLeft, maxLeft - drag.current.baseLeft)
+      : weightedOffset(
+          raw,
+          event.clientX - (trackRef.current?.getBoundingClientRect().left ?? 0),
+          drag.current.baseLeft,
+          slots,
+        );
+    setDragOffset(nextOffset);
+    // The spot lives on the inner shift layer, which will move by `nextShift`
+    // on the upcoming render. Measure against the stable outer thumb and
+    // subtract that pending shift first; measuring the inner rect now would
+    // use its old position and paint the glow ahead of the finger.
+    const nextShift = nextOffset - (motion.state.dx || 0);
+    const position = relativeTo(thumbRef.current, event.clientX - nextShift, event.clientY);
     setGlow((current) => ({ ...current, ...position }));
   };
 
@@ -238,11 +251,11 @@ export function Segmented<T extends string>({
     drag.current = null;
     setDragOffset(null);
     setGlow((current) => ({ ...current, held: false }));
+    cancelSettle();
     // A tap never moved the pill, so it has nothing to settle.
     if (reduced || dragOffset === null) return;
-    // After the snap, spring into place for ~`--spring-dur`, then fall back to
-    // the ordinary slide. The timer is cancelled by any new interaction.
-    cancelSettle();
+    // The inner shift animates from its damped offset to 0 over `--spring-dur`
+    // with `--ease` (no overshoot). A new interaction cancels the timer.
     setSettling(true);
     settleTimer.current = setTimeout(() => {
       settleTimer.current = null;
@@ -251,6 +264,10 @@ export function Segmented<T extends string>({
   };
 
   const dragging = dragOffset !== null;
+  // `useDeform` translates by `state.dx = resist(rawDeltaX, 18px)`. The inner
+  // layer cancels exactly that translate so its own offset is the damped net;
+  // the outer `left` stays at the seated slot for the whole drag.
+  const shift = dragging ? (dragOffset ?? 0) - (motion.state.dx || 0) : 0;
   // Lit only when the pointer sits on the selected slot. Derived at render, so
   // a click that moves the active slot under a stationary pointer lights at once.
   const hovered = hoveredIndex !== null && hoveredIndex === activeIndex;
@@ -261,14 +278,17 @@ export function Segmented<T extends string>({
       : 'segmented__thumb';
   const thumbStyle = {
     ...motion.style,
-    left: geometry.left + (dragOffset ?? 0),
+    left: geometry.left,
     width: geometry.width,
     transition:
-      dragging || motion.state.active || reduced
+      motion.state.active || reduced
         ? 'none'
-        : settling
-          ? `left var(--spring-dur) var(--spring-ease), width var(--spring-dur) var(--spring-ease), transform var(--spring-dur) var(--spring-ease)`
-          : `left var(--dur) var(--ease), width var(--dur) var(--ease), transform var(--spring-dur) var(--spring-ease)`,
+        : `left var(--dur) var(--ease), width var(--dur) var(--ease), transform var(--dur) var(--ease)`,
+  } as CSSProperties;
+  const shiftStyle = {
+    transform: `translate3d(${shift}px, 0, 0)`,
+    transition:
+      settling && !reduced ? 'transform var(--spring-dur) var(--ease)' : 'none',
   } as CSSProperties;
 
   return (
@@ -289,20 +309,27 @@ export function Segmented<T extends string>({
           data-ui={dataUi}
           style={thumbStyle}
         >
-          <span
-            className={[styles['ui-segmented__sheen'], styles[glow.held ? 'is-held' : ''] || '', styles[hovered ? 'is-hovered' : ''] || ''].filter(Boolean).join(' ')}
-            aria-hidden="true"
-          />
-          <span
-            className={[styles['ui-segmented__spot'], styles[glow.held ? 'is-held' : ''] || ''].filter(Boolean).join(' ')}
-            style={
-              {
-                '--seg-glow-x': `${glow.x}%`,
-                '--seg-glow-y': `${glow.y}%`,
-              } as CSSProperties
-            }
-            aria-hidden="true"
-          />
+          <div
+            ref={shiftRef}
+            className={styles['ui-segmented__thumb-shift']}
+            data-ui="segmented__thumb-shift"
+            style={shiftStyle}
+          >
+            <span
+              className={[styles['ui-segmented__sheen'], styles[glow.held ? 'is-held' : ''] || '', styles[hovered ? 'is-hovered' : ''] || ''].filter(Boolean).join(' ')}
+              aria-hidden="true"
+            />
+            <span
+              className={[styles['ui-segmented__spot'], styles[glow.held ? 'is-held' : ''] || ''].filter(Boolean).join(' ')}
+              style={
+                {
+                  '--seg-glow-x': `${glow.x}%`,
+                  '--seg-glow-y': `${glow.y}%`,
+                } as CSSProperties
+              }
+              aria-hidden="true"
+            />
+          </div>
         </div>
       )}
       {options.map((o, index) => {
