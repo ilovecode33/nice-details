@@ -182,6 +182,42 @@ describe('Select', () => {
     expect(screen.getByRole('listbox')).toHaveAttribute('data-ui', 'select__menu');
   });
 
+  test('a vertical drag does not flip an already-open downward menu', () => {
+    renderSelect();
+    const trigger = screen.getByRole('combobox', { name: 'Fruit' });
+
+    fireEvent.click(trigger);
+    expect(screen.getByRole('listbox')).toHaveAttribute('data-ui', 'select__menu');
+
+    fireEvent.pointerDown(trigger, { ...pointer, clientY: 200 });
+    fireEvent.pointerMove(document, { ...pointer, clientY: 120 });
+    fireEvent.pointerUp(document, { ...pointer, clientY: 120 });
+
+    const menu = screen.getByRole('listbox');
+    expect(menu).toHaveAttribute('data-ui', 'select__menu');
+    expect(menu.getAttribute('data-ui')).not.toContain('--up');
+  });
+
+  test('a vertical drag does not flip an already-open upward menu', () => {
+    renderSelect();
+    const trigger = screen.getByRole('combobox', { name: 'Fruit' });
+
+    fireEvent.keyDown(trigger, { key: 'ArrowUp' });
+    expect(screen.getByRole('listbox')).toHaveAttribute(
+      'data-ui',
+      'select__menu select__menu--up',
+    );
+
+    fireEvent.pointerDown(trigger, { ...pointer, clientY: 100 });
+    fireEvent.pointerMove(document, { ...pointer, clientY: 180 });
+    fireEvent.pointerUp(document, { ...pointer, clientY: 180 });
+
+    expect(screen.getByRole('listbox')).toHaveAttribute(
+      'data-ui',
+      'select__menu select__menu--up',
+    );
+  });
+
   test('dragging from the trigger onto an option selects it and closes', () => {
     let chosen = '';
     render(

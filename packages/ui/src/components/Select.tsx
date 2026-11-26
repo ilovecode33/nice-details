@@ -238,12 +238,13 @@ export function Select<T extends string = string>({
       if (!next) return;
       // Any threshold crossing is a drag, even if the direction stays the same.
       suppressClickRef.current = true;
-      if (next !== drag.direction) {
-        drag.direction = next;
-        setDropUp(next === 'up');
-      }
+      if (next !== drag.direction) drag.direction = next;
+      // Only the gesture that opens the menu picks its side. Once open — by this
+      // gesture or an earlier click/keyboard/drag — the drop side is locked, so a
+      // later opposite drag cannot flip an already-open list.
       if (!drag.listOpen) {
         drag.listOpen = true;
+        setDropUp(next === 'up');
         openList();
       }
       // While the menu is open, track the option under the pointer so the same
