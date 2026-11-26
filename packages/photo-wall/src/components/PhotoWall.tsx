@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
-import { solveFrameGeometry, type FrameGeometry } from '../geometry';
+import { solveFrameGeometry } from '../geometry';
+import { frameVars } from '../frame-vars';
 import {
   computeFrameLightingMulti,
   computeWallGlows,
@@ -13,12 +14,11 @@ import {
   createWallTiles,
   wrapImages,
   type FrameKind,
-  type WallFrame,
-  type WallStyle,
   type WallTile,
 } from '../tiles';
 import { DEFAULT_WALL_PARAMS, type WallParams } from '../params';
 import styles from './PhotoWall.module.css';
+import { WallImageSlot } from './WallImageSlot';
 
 /** Fallback frames per tile for malformed tile data. */
 const DEFAULT_FRAMES_PER_TILE = 4;
@@ -60,90 +60,6 @@ export interface PhotoWallProps {
   /** Several lights; each contributes its own shadow layer. Overrides `light`. */
   lights?: VirtualLight[];
   className?: string;
-}
-
-/**
- * Map a solved frame, its generated style and lighting result to the CSS
- * custom properties (--x, --y, --w, --ratio, --z, --tilt, --wood, --mat-a,
- * --mat-b, --rail, --sheen, --grain-jitter, --light) plus `boxShadow`.
- */
-function frameVars(
-  frame: WallFrame,
-  style: WallStyle,
-  geo: FrameGeometry,
-  shadow: string,
-  highlight: number,
-): CSSProperties {
-  return {
-    '--x': `${frame.x}%`,
-    '--y': `${geo.yPct}%`,
-    '--w': `${geo.widthPct}%`,
-    '--ratio': String(geo.ratio),
-    '--z': `${frame.z}px`,
-    '--tilt': `${frame.tilt ?? 0}deg`,
-    '--wood': style.wood,
-    '--mat-a': style.matTop,
-    '--mat-b': style.matBottom,
-    '--rail': `calc(clamp(10px, 1.5vw, 26px) * ${style.railScale.toFixed(2)})`,
-    '--sheen': style.sheen.toFixed(2),
-    '--grain-jitter': `${style.grainJitter}deg`,
-    boxShadow: shadow,
-    '--light': String(highlight),
-  } as CSSProperties;
-}
-
-/**
- * Crossfading image slot for a frame. Keeping the previous bitmap painted
- * until the new one decodes means a photo rotation never flashes empty.
- */
-function WallImageSlot({ src, className }: { src: string; className: string }) {
-  const [displayed, setDisplayed] = useState(src);
-  const [pending, setPending] = useState<string | null>(null);
-  const fadeTimer = useRef<number | undefined>(undefined);
-
-  useEffect(() => {
-    if (src === displayed) return;
-    const preload = new Image();
-    let cancelled = false;
-    preload.onload = () => {
-      if (cancelled) return;
-      setPending(src);
-      fadeTimer.current = window.setTimeout(() => {
-        if (cancelled) return;
-        setDisplayed(src);
-        setPending(null);
-      }, 360);
-    };
-    preload.onerror = () => {
-      if (!cancelled) setDisplayed(src);
-    };
-    preload.src = src;
-    return () => {
-      cancelled = true;
-      if (fadeTimer.current !== undefined) window.clearTimeout(fadeTimer.current);
-    };
-  }, [src, displayed]);
-
-  return (
-    <span className={`${styles.imgSlot} ${className}`}>
-      <img
-        className={styles.imgLayer}
-        src={displayed || undefined}
-        alt=""
-        draggable="false"
-        decoding="async"
-      />
-      {pending && pending !== displayed ? (
-        <img
-          className={`${styles.imgLayer} ${styles.incoming}`}
-          src={pending}
-          alt=""
-          draggable="false"
-          decoding="async"
-        />
-      ) : null}
-    </span>
-  );
 }
 
 /**

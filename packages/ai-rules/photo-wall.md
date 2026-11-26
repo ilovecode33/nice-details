@@ -7,17 +7,21 @@ algorithms behind it. It is React-specific but contains no app-specific logic.
 
 ## File granularity and colocation
 
-- The component lives in `src/components/PhotoWall.tsx`, next to its
-  `PhotoWall.module.css` and `PhotoWall.spec.tsx`; all three are named after the
-  component.
+- Every React component is its own file under `src/components/`, with a
+  same-named CSS Module, spec and snapshot. `PhotoWall.tsx` and
+  `WallImageSlot.tsx` each have their own `.module.css` and `.spec.tsx`;
+  subcomponents must not live inside another component's file.
+- Pure mapping helpers live in single-purpose modules at `src/` with a
+  colocated spec, for example `frame-vars.ts` and `frame-vars.spec.ts`.
 - Layout math is split into single-purpose algorithm modules at `src/`:
   `geometry.ts`, `light.ts`, `tiles.ts`, and `params.ts`. Each module's behavior
   has a colocated `<module>.spec.ts` (for example `geometry.spec.ts`,
   `light.spec.ts`, `tiles.spec.ts`). Add a new algorithm as its own module with
   its own colocated spec, not as a branch inside an existing one.
-- The component's structural snapshot lives at
-  `src/components/__snapshots__/PhotoWall.spec.tsx.snap` and is produced by the
-  shared helper in `src/test-utils/snapshot.ts` (`expectComponentSnapshot`).
+- Each component's structural snapshot lives at
+  `src/components/__snapshots__/<Component>.spec.tsx.snap` (for example
+  `PhotoWall.spec.tsx.snap` and `WallImageSlot.spec.tsx.snap`) and is produced by
+  the shared helper in `src/test-utils/snapshot.ts` (`expectComponentSnapshot`).
   Never hand-edit a `.snap` file; regenerate deliberately.
 - Shared test helpers belong in `src/test-utils/`.
 
@@ -40,8 +44,9 @@ algorithms behind it. It is React-specific but contains no app-specific logic.
 
 ## Public API and type ownership
 
-- `src/index.ts` is the only public entry: it exports the `PhotoWall` component
-  and the `params`, `tiles`, `geometry`, and `light` modules.
+- `src/index.ts` is the only public entry: it exports the `PhotoWall` and
+  `WallImageSlot` components and the `params`, `tiles`, `geometry`, and `light`
+  modules.
 - Types are defined and owned locally in this package. Do not move them to
   `@ilovecode33/ui-types`; that rule applies only to `ui` and `ui-core`.
 - Styles are a separate public subpath, `@ilovecode33/photo-wall/styles.css`

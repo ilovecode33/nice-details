@@ -42,11 +42,11 @@ exports[`PhotoWall > matches its structural snapshot 1`] = `
                 class="src-components-PhotoWall-module__mat-M6yF7t"
               >
                 <span
-                  class="src-components-PhotoWall-module__imgSlot-MN34ET src-components-PhotoWall-module__photo-_i0hea"
+                  class="src-components-WallImageSlot-module__imgSlot-AA7PgG src-components-PhotoWall-module__photo-_i0hea"
                 >
                   <img
                     alt=""
-                    class="src-components-PhotoWall-module__imgLayer-ytrkoH"
+                    class="src-components-WallImageSlot-module__imgLayer-IrfVnf"
                     decoding="async"
                     draggable="false"
                     src="/photos/one.jpg"
@@ -79,11 +79,11 @@ exports[`PhotoWall > matches its structural snapshot 1`] = `
                 class="src-components-PhotoWall-module__mat-M6yF7t"
               >
                 <span
-                  class="src-components-PhotoWall-module__imgSlot-MN34ET src-components-PhotoWall-module__photo-_i0hea"
+                  class="src-components-WallImageSlot-module__imgSlot-AA7PgG src-components-PhotoWall-module__photo-_i0hea"
                 >
                   <img
                     alt=""
-                    class="src-components-PhotoWall-module__imgLayer-ytrkoH"
+                    class="src-components-WallImageSlot-module__imgLayer-IrfVnf"
                     decoding="async"
                     draggable="false"
                     src="/photos/two.jpg"
@@ -116,11 +116,11 @@ exports[`PhotoWall > matches its structural snapshot 1`] = `
                 class="src-components-PhotoWall-module__mat-M6yF7t"
               >
                 <span
-                  class="src-components-PhotoWall-module__imgSlot-MN34ET src-components-PhotoWall-module__photo-_i0hea"
+                  class="src-components-WallImageSlot-module__imgSlot-AA7PgG src-components-PhotoWall-module__photo-_i0hea"
                 >
                   <img
                     alt=""
-                    class="src-components-PhotoWall-module__imgLayer-ytrkoH"
+                    class="src-components-WallImageSlot-module__imgLayer-IrfVnf"
                     decoding="async"
                     draggable="false"
                     src="/photos/three.jpg"
@@ -153,11 +153,11 @@ exports[`PhotoWall > matches its structural snapshot 1`] = `
                 class="src-components-PhotoWall-module__mat-M6yF7t"
               >
                 <span
-                  class="src-components-PhotoWall-module__imgSlot-MN34ET src-components-PhotoWall-module__photo-_i0hea"
+                  class="src-components-WallImageSlot-module__imgSlot-AA7PgG src-components-PhotoWall-module__photo-_i0hea"
                 >
                   <img
                     alt=""
-                    class="src-components-PhotoWall-module__imgLayer-ytrkoH"
+                    class="src-components-WallImageSlot-module__imgLayer-IrfVnf"
                     decoding="async"
                     draggable="false"
                     src="/photos/four.jpg"
@@ -195,11 +195,11 @@ exports[`PhotoWall > matches its structural snapshot 1`] = `
                 class="src-components-PhotoWall-module__mat-M6yF7t"
               >
                 <span
-                  class="src-components-PhotoWall-module__imgSlot-MN34ET src-components-PhotoWall-module__photo-_i0hea"
+                  class="src-components-WallImageSlot-module__imgSlot-AA7PgG src-components-PhotoWall-module__photo-_i0hea"
                 >
                   <img
                     alt=""
-                    class="src-components-PhotoWall-module__imgLayer-ytrkoH"
+                    class="src-components-WallImageSlot-module__imgLayer-IrfVnf"
                     decoding="async"
                     draggable="false"
                     src="/photos/one.jpg"
@@ -232,11 +232,11 @@ exports[`PhotoWall > matches its structural snapshot 1`] = `
                 class="src-components-PhotoWall-module__mat-M6yF7t"
               >
                 <span
-                  class="src-components-PhotoWall-module__imgSlot-MN34ET src-components-PhotoWall-module__photo-_i0hea"
+                  class="src-components-WallImageSlot-module__imgSlot-AA7PgG src-components-PhotoWall-module__photo-_i0hea"
                 >
                   <img
                     alt=""
-                    class="src-components-PhotoWall-module__imgLayer-ytrkoH"
+                    class="src-components-WallImageSlot-module__imgLayer-IrfVnf"
                     decoding="async"
                     draggable="false"
                     src="/photos/two.jpg"
@@ -269,11 +269,11 @@ exports[`PhotoWall > matches its structural snapshot 1`] = `
                 class="src-components-PhotoWall-module__mat-M6yF7t"
               >
                 <span
-                  class="src-components-PhotoWall-module__imgSlot-MN34ET src-components-PhotoWall-module__photo-_i0hea"
+                  class="src-components-WallImageSlot-module__imgSlot-AA7PgG src-components-PhotoWall-module__photo-_i0hea"
                 >
                   <img
                     alt=""
-                    class="src-components-PhotoWall-module__imgLayer-ytrkoH"
+                    class="src-components-WallImageSlot-module__imgLayer-IrfVnf"
                     decoding="async"
                     draggable="false"
                     src="/photos/three.jpg"
@@ -306,11 +306,11 @@ exports[`PhotoWall > matches its structural snapshot 1`] = `
                 class="src-components-PhotoWall-module__mat-M6yF7t"
               >
                 <span
-                  class="src-components-PhotoWall-module__imgSlot-MN34ET src-components-PhotoWall-module__photo-_i0hea"
+                  class="src-components-WallImageSlot-module__imgSlot-AA7PgG src-components-PhotoWall-module__photo-_i0hea"
                 >
                   <img
                     alt=""
-                    class="src-components-PhotoWall-module__imgLayer-ytrkoH"
+                    class="src-components-WallImageSlot-module__imgLayer-IrfVnf"
                     decoding="async"
                     draggable="false"
                     src="/photos/four.jpg"
@@ -348,11 +348,11 @@ exports[`PhotoWall > matches its structural snapshot 1`] = `
                 class="src-components-PhotoWall-module__mat-M6yF7t"
               >
                 <span
-                  class="src-components-PhotoWall-module__imgSlot-MN34ET src-components-PhotoWall-module__photo-_i0hea"
+                  class="src-components-WallImageSlot-module__imgSlot-AA7PgG src-components-PhotoWall-module__photo-_i0hea"
                 >
                   <img
                     alt=""
-                    class="src-components-PhotoWall-module__imgLayer-ytrkoH"
+                    class="src-components-WallImageSlot-module__imgLayer-IrfVnf"
                     decoding="async"
                     draggable="false"
                     src="/photos/one.jpg"
@@ -385,11 +385,11 @@ exports[`PhotoWall > matches its structural snapshot 1`] = `
                 class="src-components-PhotoWall-module__mat-M6yF7t"
               >
                 <span
-                  class="src-components-PhotoWall-module__imgSlot-MN34ET src-components-PhotoWall-module__photo-_i0hea"
+                  class="src-components-WallImageSlot-module__imgSlot-AA7PgG src-components-PhotoWall-module__photo-_i0hea"
                 >
                   <img
                     alt=""
-                    class="src-components-PhotoWall-module__imgLayer-ytrkoH"
+                    class="src-components-WallImageSlot-module__imgLayer-IrfVnf"
                     decoding="async"
                     draggable="false"
                     src="/photos/two.jpg"
@@ -422,11 +422,11 @@ exports[`PhotoWall > matches its structural snapshot 1`] = `
                 class="src-components-PhotoWall-module__mat-M6yF7t"
               >
                 <span
-                  class="src-components-PhotoWall-module__imgSlot-MN34ET src-components-PhotoWall-module__photo-_i0hea"
+                  class="src-components-WallImageSlot-module__imgSlot-AA7PgG src-components-PhotoWall-module__photo-_i0hea"
                 >
                   <img
                     alt=""
-                    class="src-components-PhotoWall-module__imgLayer-ytrkoH"
+                    class="src-components-WallImageSlot-module__imgLayer-IrfVnf"
                     decoding="async"
                     draggable="false"
                     src="/photos/three.jpg"
@@ -459,11 +459,11 @@ exports[`PhotoWall > matches its structural snapshot 1`] = `
                 class="src-components-PhotoWall-module__mat-M6yF7t"
               >
                 <span
-                  class="src-components-PhotoWall-module__imgSlot-MN34ET src-components-PhotoWall-module__photo-_i0hea"
+                  class="src-components-WallImageSlot-module__imgSlot-AA7PgG src-components-PhotoWall-module__photo-_i0hea"
                 >
                   <img
                     alt=""
-                    class="src-components-PhotoWall-module__imgLayer-ytrkoH"
+                    class="src-components-WallImageSlot-module__imgLayer-IrfVnf"
                     decoding="async"
                     draggable="false"
                     src="/photos/four.jpg"
@@ -501,11 +501,11 @@ exports[`PhotoWall > matches its structural snapshot 1`] = `
                 class="src-components-PhotoWall-module__mat-M6yF7t"
               >
                 <span
-                  class="src-components-PhotoWall-module__imgSlot-MN34ET src-components-PhotoWall-module__photo-_i0hea"
+                  class="src-components-WallImageSlot-module__imgSlot-AA7PgG src-components-PhotoWall-module__photo-_i0hea"
                 >
                   <img
                     alt=""
-                    class="src-components-PhotoWall-module__imgLayer-ytrkoH"
+                    class="src-components-WallImageSlot-module__imgLayer-IrfVnf"
                     decoding="async"
                     draggable="false"
                     src="/photos/one.jpg"
@@ -538,11 +538,11 @@ exports[`PhotoWall > matches its structural snapshot 1`] = `
                 class="src-components-PhotoWall-module__mat-M6yF7t"
               >
                 <span
-                  class="src-components-PhotoWall-module__imgSlot-MN34ET src-components-PhotoWall-module__photo-_i0hea"
+                  class="src-components-WallImageSlot-module__imgSlot-AA7PgG src-components-PhotoWall-module__photo-_i0hea"
                 >
                   <img
                     alt=""
-                    class="src-components-PhotoWall-module__imgLayer-ytrkoH"
+                    class="src-components-WallImageSlot-module__imgLayer-IrfVnf"
                     decoding="async"
                     draggable="false"
                     src="/photos/two.jpg"
@@ -575,11 +575,11 @@ exports[`PhotoWall > matches its structural snapshot 1`] = `
                 class="src-components-PhotoWall-module__mat-M6yF7t"
               >
                 <span
-                  class="src-components-PhotoWall-module__imgSlot-MN34ET src-components-PhotoWall-module__photo-_i0hea"
+                  class="src-components-WallImageSlot-module__imgSlot-AA7PgG src-components-PhotoWall-module__photo-_i0hea"
                 >
                   <img
                     alt=""
-                    class="src-components-PhotoWall-module__imgLayer-ytrkoH"
+                    class="src-components-WallImageSlot-module__imgLayer-IrfVnf"
                     decoding="async"
                     draggable="false"
                     src="/photos/three.jpg"
@@ -612,11 +612,11 @@ exports[`PhotoWall > matches its structural snapshot 1`] = `
                 class="src-components-PhotoWall-module__mat-M6yF7t"
               >
                 <span
-                  class="src-components-PhotoWall-module__imgSlot-MN34ET src-components-PhotoWall-module__photo-_i0hea"
+                  class="src-components-WallImageSlot-module__imgSlot-AA7PgG src-components-PhotoWall-module__photo-_i0hea"
                 >
                   <img
                     alt=""
-                    class="src-components-PhotoWall-module__imgLayer-ytrkoH"
+                    class="src-components-WallImageSlot-module__imgLayer-IrfVnf"
                     decoding="async"
                     draggable="false"
                     src="/photos/four.jpg"

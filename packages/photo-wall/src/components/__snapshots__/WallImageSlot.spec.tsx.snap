@@ -1,0 +1,19 @@
+// Rstest Snapshot v1
+
+exports[`WallImageSlot > matches its structural snapshot 1`] = `
+<body>
+  <div>
+    <span
+      class="src-components-WallImageSlot-module__imgSlot-AA7PgG photo"
+    >
+      <img
+        alt=""
+        class="src-components-WallImageSlot-module__imgLayer-IrfVnf"
+        decoding="async"
+        draggable="false"
+        src="/photos/one.jpg"
+      />
+    </span>
+  </div>
+</body>
+`;
