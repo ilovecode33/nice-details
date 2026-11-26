@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.1
+
+### Patch Changes
+
+- Colocate structural snapshots with each component spec and document every component, hook and portable contract.
+- @ilovecode33/ui-core@0.3.1
+  - @ilovecode33/ui-tokens@0.3.1
+  - @ilovecode33/ui-types@0.3.1
+
 All notable changes to `@ilovecode33/ui` are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),

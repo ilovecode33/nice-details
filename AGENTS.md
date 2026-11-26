@@ -65,6 +65,7 @@ Reference: https://developer.apple.com/design/human-interface-guidelines/design-
   - `bunx turbo run typecheck build`
   - `bunx turbo run dev --filter=@ilovecode33/ui-landing` (3200)
 - `turbo.json` task `outputs` must be accurate, otherwise a cache hit restores nothing.
+- Versioning and changelogs are managed with Changesets; follow [`RELEASING.md`](RELEASING.md) for authoring changesets, checking status before merge and releasing.
 - The `@ilovecode33/ai-rules` workspace holds the project rules as plain Markdown documents, one topic per file, with an index in `packages/ai-rules/README.md`. Rule content lives only in `AGENTS.md` and that workspace.
 
 ## 6. Definition of done

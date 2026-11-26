@@ -1,0 +1,22 @@
+{
+  "$schema": "https://unpkg.com/@changesets/config@4.0.1/schema.json",
+  "changelog": "@changesets/cli/changelog",
+  "commit": false,
+  "fixed": [
+    [
+      "@ilovecode33/ui",
+      "@ilovecode33/ui-core",
+      "@ilovecode33/ui-tokens",
+      "@ilovecode33/ui-types"
+    ]
+  ],
+  "linked": [],
+  "access": "restricted",
+  "baseBranch": "main",
+  "updateInternalDependencies": "patch",
+  "ignore": [],
+  "privatePackages": {
+    "version": true,
+    "tag": false
+  }
+}

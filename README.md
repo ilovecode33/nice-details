@@ -44,6 +44,8 @@ bun run build                                          # topological build, cach
 bun run typecheck
 ```
 
+Versioning and changelogs are managed with Changesets; see [`RELEASING.md`](RELEASING.md) for the workflow.
+
 App `tsconfig.json` files map paths directly to `editor-core/src` and `ui/src`, so editing a library shows hot updates without a separate build. Each library can still be built on its own to produce a publishable `dist/`.
 
 ## Editor SDK

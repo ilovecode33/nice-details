@@ -17,9 +17,13 @@
     "build": "turbo run build",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
+    "changeset": "changeset",
+    "version:packages": "changeset version",
+    "check:changesets": "changeset status --since=origin/main",
     "clean": "turbo run clean"
   },
   "devDependencies": {
+    "@changesets/cli": "^3.0.3",
     "turbo": "^2.11.13",
     "typescript": "^5.9.3"
   }
