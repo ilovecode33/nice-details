@@ -390,19 +390,62 @@ describe('Segmented', () => {
 
     move(week, 250);
     // Seated at Week (left 100px), a 140px raw delta runs past the last slot's
-    // relative edge (200 - 100 = 100px), so the end rubber band applies:
-    // damped = 100 + resist(40, 24) = 100.393443. The outer keeps its seat and
-    // the inner carries damped - deform, with no trace of the first drag.
+    // relative edge (200 - 100 = 100px), so the offset hard-clamps to 100. The
+    // outer keeps its seat and the inner carries 100 - deform, with no trace of
+    // the first drag.
     expect(thumb.style.left).toBe('100px');
     expect(translateX(thumb)).toBeCloseTo(DEFORM_DX_140, 5);
-    expect(translateX(shift)).toBeCloseTo(99.094473551, 5);
-    expect(netPosition(track)).toBeCloseTo(200.393442623, 5);
+    expect(translateX(shift)).toBeCloseTo(100 - DEFORM_DX_140, 5);
+    expect(netPosition(track)).toBeCloseTo(200, 5);
 
     release(week, 250);
+    // The pointer lands on Month, so selection changes and the pill settles
+    // into its new seat even though the drag itself was clamped at the end.
     expect(month).toHaveAttribute('aria-selected', 'true');
     expect(thumb.style.left).toBe('200px');
+    expect(thumb).toHaveAttribute('data-ui', 'segmented__thumb segmented__thumb--settling');
+    expect(shift.style.transition).toContain('transform var(--spring-dur) var(--ease)');
     expect(translateX(shift)).toBe(0);
     await new Promise((resolve) => setTimeout(resolve, 0));
+  });
+
+  test('does not rebound when an end-clamped drag keeps the last slot selected', async () => {
+    render(<SegmentedDemo />);
+    const { month, track } = withGeometry();
+    fireEvent.click(month);
+    expect(month).toHaveAttribute('aria-selected', 'true');
+
+    const thumb = getThumb(track);
+    const shift = getShift(thumb);
+    expect(thumb.style.left).toBe('200px');
+
+    press(month, 210);
+    // Seated at Month (left 200px), its own relative edge is 200 - 200 = 0, so
+    // a positive raw delta hard-clamps to 0 and the inner layer only cancels
+    // the outer deform translate.
+    move(month, 350);
+    expect(thumb.style.left).toBe('200px');
+    expect(translateX(thumb)).toBeCloseTo(DEFORM_DX_140, 5);
+    expect(translateX(shift)).toBeCloseTo(-DEFORM_DX_140, 5);
+    expect(netPosition(track)).toBeCloseTo(200, 5);
+    expect(thumb).toHaveAttribute('data-ui', 'segmented__thumb segmented__thumb--dragging');
+
+    release(month, 350);
+    // The pointer is still over Month, so selection does not change and the
+    // clamped end has no stored excess: the settle is skipped entirely.
+    expect(month).toHaveAttribute('aria-selected', 'true');
+    expect(thumb.style.left).toBe('200px');
+    expect(thumb).toHaveAttribute('data-ui', 'segmented__thumb');
+    expect(shift.style.transition).toBe('none');
+    expect(shift.style.transition).not.toContain('--spring-dur');
+    expect(translateX(shift)).toBe(0);
+    expect(netPosition(track)).toBeCloseTo(200, 5);
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 250));
+    });
+    expect(thumb).toHaveAttribute('data-ui', 'segmented__thumb');
+    expect(shift.style.transition).toBe('none');
   });
 
   test('still accepts keyboard and click selection after a drag settles', async () => {
