@@ -10,8 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - WebRTC host/guest session with non-trickle ICE gathering and a data channel.
+- One-scan `startRelayPairing` flow over a signaling relay, with `buildPairUrl`
+  and `parsePairingCode` helpers.
 - QR/paste signal codec with optional gzip compression and a generated pairing
-  password.
+  password for manual pairing.
 - `QrCode` inline SVG renderer and `QrScanner` camera scanner using `getUserMedia`
   and `jsqr`.
 - IndexedDB-backed host identity, password, and remembered peer storage through

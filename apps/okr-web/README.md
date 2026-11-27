@@ -51,27 +51,34 @@ builds in bundleless mode.
   available only in development.
 - Light, dark, and system appearance with selectable accent color.
 - IndexedDB persistence through `@ilovecode33/persistence`.
-- Device pairing and two-way sync over WebRTC with a QR code, using
-  `@ilovecode33/local-sync`.
+- Device pairing with **one QR scan** and two-way sync over WebRTC, using
+  `@ilovecode33/local-sync` and the Cloudflare signaling relay.
 
 ## Device sync
 
 Open **Sync** in the toolbar to pair two devices on the same network.
 
-1. On the host, choose **Host** and scan the offer QR with the other device.
-2. On the guest, choose **Join**, scan the offer, then show the answer QR.
-3. On the host, scan the answer QR or paste the answer code and press
-   **Connect**.
+1. On the host, choose **Host**. A QR code and pairing link appear.
+2. On the guest, scan the QR **once** (or open the copied link).
+3. The guest connects automatically; the host does not scan anything.
+4. Both panels show **Connected. Changes sync both ways.**
 
-Both codes can also be copied and pasted when a camera is unavailable.
+The QR link is `https://<app>/#sync=<room>`. Opening it with the system camera
+loads the app and joins automatically; the in-app **Join → Scan** flow and the
+paste field are fallbacks. The signaling relay only exchanges WebRTC
+offer/answer data. OKR state always travels over the peer-to-peer data channel.
+The relay URL defaults to `https://ilovecode33-okr-sync.2y6ddt55g7.workers.dev`
+and can be overridden with `PUBLIC_SYNC_RELAY_URL`.
 
 The host state is sent when the connection opens; afterwards, local edits on
 either device are sent to the peer. Pairing identities and passwords are stored
 in the `local-sync` IndexedDB database, so the next session is recognized as a
-known device. A fresh QR exchange is still required each session because WebRTC
-ICE/SDP values change. Camera scanning needs HTTPS or localhost. WebRTC data is
-encrypted with DTLS, and anyone who can scan the QR can attempt to pair, so
-treat it as a credential.
+known device. A fresh pairing link is still required each session because
+WebRTC ICE/SDP values change. The app adds Cloudflare's public STUN server as a
+fallback for server-reflexive candidates; the data channel stays peer-to-peer.
+Camera scanning needs HTTPS or localhost. WebRTC data is encrypted with DTLS,
+and anyone who can scan the QR or read the link can attempt to pair, so treat
+both as credentials.
 
 ## Data
 

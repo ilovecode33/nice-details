@@ -22,6 +22,7 @@ import {
   type ObjectiveSort,
   type OKRState,
 } from '@ilovecode33/okr-shared';
+import { parsePairingCode } from '@ilovecode33/local-sync';
 import { AlertTriangle, Plus, RefreshCw, RotateCcw, Target } from 'lucide-react';
 import { ObjectiveCard } from './components/ObjectiveCard';
 import { ObjectiveEditor } from './components/ObjectiveEditor';
@@ -54,6 +55,7 @@ export function App({ storage }: AppProps = {}) {
   const [editing, setEditing] = useState<Objective | null | undefined>(undefined);
   const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
   const [syncOpen, setSyncOpen] = useState(false);
+  const [syncRoom, setSyncRoom] = useState('');
   const [loadError, setLoadError] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
@@ -63,6 +65,19 @@ export function App({ storage }: AppProps = {}) {
   useEffect(() => {
     document.title = t('app.title');
   }, [locale]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const room = parsePairingCode(window.location.href);
+    if (!room) return;
+    setSyncRoom(room);
+    setSyncOpen(true);
+    window.history.replaceState(
+      null,
+      '',
+      `${window.location.pathname}${window.location.search}`,
+    );
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -402,9 +417,15 @@ export function App({ storage }: AppProps = {}) {
 
       {state && (
         <SyncPanel
+          key={syncRoom || 'sync-manual'}
           open={syncOpen}
-          onClose={() => setSyncOpen(false)}
+          onClose={() => {
+            setSyncOpen(false);
+            setSyncRoom('');
+          }}
           state={state}
+          initialMode={syncRoom ? 'join' : 'host'}
+          initialRoom={syncRoom}
           onRemoteState={(next) => {
             setState(next);
             setPeriod(ALL_PERIODS);

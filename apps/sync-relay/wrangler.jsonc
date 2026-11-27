@@ -1,0 +1,23 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "ilovecode33-okr-sync",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-11-27",
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "PAIR_ROOM",
+        "class_name": "PairRoom"
+      }
+    ]
+  },
+  "exports": {
+    "PairRoom": {
+      "type": "durable-object",
+      "storage": "sqlite"
+    }
+  },
+  "observability": {
+    "enabled": true
+  }
+}

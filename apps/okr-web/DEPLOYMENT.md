@@ -38,6 +38,19 @@ The Pages project already exists in the Cloudflare account:
 
 No GitHub-to-Cloudflare Git integration is required: the workflow deploys with Direct Upload through `wrangler pages deploy` and the existing API token. The "Ensure Pages project exists" step is idempotent, so it can recreate the project if it is ever deleted.
 
+## Signaling relay
+
+The app uses a separate Cloudflare Worker for one-scan pairing:
+
+- Worker: `ilovecode33-okr-sync`
+- URL: `https://ilovecode33-okr-sync.2y6ddt55g7.workers.dev`
+- Source: `apps/sync-relay`
+- Deploy: [`.github/workflows/deploy-sync-relay.yml`](../../.github/workflows/deploy-sync-relay.yml) on pushes to `main`
+
+The Worker has a `PairRoom` Durable Object that relays WebRTC offer/answer messages. OKR data stays peer-to-peer after signaling. The Worker's origin allowlist accepts the Pages preview/production domains and `localhost`.
+
+Preview deployments use the same relay; they do not deploy their own copy. If a PR changes the relay protocol, merge/deploy the relay before testing that PR's preview.
+
 ## Local commands
 
 From the repository root:

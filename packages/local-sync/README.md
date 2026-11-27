@@ -3,21 +3,27 @@
 Pure-web local pairing over WebRTC with QR codes. It provides:
 
 - a WebRTC data-channel session for devices on the same network;
-- QR generation for the offer/answer signal plus a generated pairing password;
+- one-scan pairing through an optional signaling relay (`startRelayPairing`);
+- manual QR/paste signaling for fully serverless pairing;
 - a camera QR scanner component for mobile devices;
 - remembered pairings in IndexedDB, backed by `@ilovecode33/persistence`.
 
 ## What “local” means
 
 - The intended case is two devices on the same LAN using WebRTC host
-  candidates. No STUN or TURN server is configured by default.
-- Browsers **cannot** read the Wi-Fi SSID or password. The QR contains the
-  WebRTC SDP/ICE information and a pairing password, not Wi-Fi credentials.
+  candidates. No STUN or TURN server is configured by default; pass
+  `iceServers` (for example a STUN server) when needed. The OKR web app adds
+  Cloudflare's public STUN server as a fallback.
+- Browsers **cannot** read the Wi-Fi SSID or password. The QR contains either a
+  room id (relay mode) or the WebRTC SDP/ICE data (manual mode), never Wi-Fi
+  credentials.
 - Modern browsers may hide local IPs behind mDNS candidates. Some networks may
   still require STUN; pass `iceServers` when needed.
-- WebRTC connections are ephemeral. A fresh session still needs one signaling
-  exchange (QR or pasted code). Remembered pairings skip the password/trust
-  setup, not the signaling itself.
+- WebRTC connections are ephemeral. Relay mode needs one QR scan per session;
+  manual mode needs the answer to travel back by a second scan or a pasted code.
+  Remembered pairings skip the password/trust setup, not the signaling itself.
+- The relay only exchanges offer/answer messages. OKR state always travels over
+  the encrypted peer-to-peer data channel.
 
 ## Install
 
@@ -28,18 +34,52 @@ bun add @ilovecode33/local-sync
 React 19 is a peer dependency. The camera scanner needs HTTPS or localhost and
 the user's camera permission.
 
-## Pairing flow
+## One-scan pairing (relay)
 
-### Host
+`startRelayPairing` connects both peers to a signaling room, sends the offer and
+answer automatically, then closes the relay socket once WebRTC connects. The
+room id is random and embedded in the host QR; the relay never sees OKR data.
 
 ```tsx
-import {
-  QrCode,
-  createLocalSync,
-  decodeSignal,
-  encodeSignal,
-} from '@ilovecode33/local-sync';
+// Host, once the panel opens:
+const host = createLocalSync({ role: 'host', label: 'Desktop' });
+const hostPairing = await startRelayPairing({
+  relayUrl: 'https://ilovecode33-okr-sync.2y6ddt55g7.workers.dev',
+  role: 'host',
+  session: host,
+});
 
+// Render <QrCode value={hostPairing.pairUrl} label="Scan once to pair" />.
+```
+
+```tsx
+// Guest, after scanning the link or reading #sync=<room> from the URL:
+const guest = createLocalSync({ role: 'guest', label: 'Phone' });
+const room = parsePairingCode(window.location.href);
+if (room) {
+  await startRelayPairing({
+    relayUrl: 'https://ilovecode33-okr-sync.2y6ddt55g7.workers.dev',
+    role: 'guest',
+    session: guest,
+    room,
+  });
+}
+```
+
+The guest can also join by pasting the link. The host does not scan anything and
+does not need a camera.
+
+The pairing link looks like `https://app.example/#sync=<room>`. Opening it with
+the system camera loads the app and lets it join automatically; pasting it into
+the in-app join field also works.
+
+## Manual pairing (no relay)
+
+The original two-way QR flow remains available. It is useful when no relay is
+deployed and both devices can scan or paste a code.
+
+```tsx
+// Host
 const host = createLocalSync({ role: 'host', label: 'Desktop' });
 const offer = await host.createOffer();
 const offerCode = await encodeSignal(offer);
@@ -54,17 +94,8 @@ host.onStateChange((state) => console.log(state));
 host.send('hello from the host');
 ```
 
-### Guest
-
 ```tsx
-import {
-  QrCode,
-  QrScanner,
-  createLocalSync,
-  decodeSignal,
-  encodeSignal,
-} from '@ilovecode33/local-sync';
-
+// Guest
 const guest = createLocalSync({ role: 'guest', label: 'Phone' });
 
 <QrScanner
@@ -78,9 +109,6 @@ const guest = createLocalSync({ role: 'guest', label: 'Phone' });
 
 guest.onMessage((message) => console.log(message));
 ```
-
-The host can scan the answer with the same `QrScanner`, or paste `answerCode`
-into a textarea. That fallback is useful when the host has no camera.
 
 ## Remembered pairings
 
@@ -131,7 +159,10 @@ English labels are defaults; pass localized strings from the app.
 | Export | Description |
 | --- | --- |
 | `createLocalSync(options)` / `LocalSync` | Host or guest WebRTC session. |
-| `encodeSignal(signal)` / `decodeSignal(code)` | Compressed (when supported) QR/paste codec. |
+| `startRelayPairing(options)` | One-scan pairing through a signaling relay. |
+| `buildPairUrl(appUrl, room)` / `parsePairingCode(value)` | Pairing link helpers. |
+| `relaySocketUrl(relayUrl, room, role)` | WebSocket endpoint helper. |
+| `encodeSignal(signal)` / `decodeSignal(code)` | Manual QR/paste signal codec. |
 | `isPeerSignal(value)` | Validates a decoded signal. |
 | `QrCode` | Inline SVG QR generator. |
 | `QrScanner` | Camera QR scanner component. |
@@ -144,10 +175,12 @@ ICE gathering (with a 4-second fallback) before returning the signal.
 ## Security
 
 - The pairing password is generated with `crypto.getRandomValues` and included
-  in the offer QR.
-- WebRTC data channels are already encrypted with DTLS.
-- Anyone who can scan the QR can attempt to pair. Treat the QR as a pairing
-  credential and do not share it publicly.
+  in the offer. In relay mode the offer, including the password and ICE
+  candidates, passes through the signaling Worker; the relay does not receive
+  OKR state.
+- WebRTC data channels are encrypted with DTLS.
+- Anyone who can scan the QR or read the pairing link can attempt to pair. Treat
+  both as a credential and do not share them publicly.
 - The password is reused for remembered pairings; use `forgetPeer` to remove a
   trusted device.
 

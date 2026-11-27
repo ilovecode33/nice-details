@@ -10,6 +10,18 @@ export type {
 export type { LocalSyncErrorCode } from './errors';
 export { LocalSyncError } from './errors';
 export { encodeSignal, decodeSignal, isPeerSignal } from './signal';
+export {
+  buildPairUrl,
+  parsePairingCode,
+  relaySocketUrl,
+  startRelayPairing,
+} from './relay';
+export type {
+  RelayPairing,
+  RelayPairingOptions,
+  RelayPairingStatus,
+  RelayRole,
+} from './relay';
 export { createLocalSync, LocalSync } from './webrtc';
 export {
   LOCAL_SYNC_DATABASE,
