@@ -76,6 +76,7 @@ export function SyncPanel({
   const [peers, setPeers] = useState<LocalSyncPeer[]>([]);
   const [showScanner, setShowScanner] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [retryKey, setRetryKey] = useState(0);
   const sessionRef = useRef<LocalSyncSession | null>(null);
   const pairingRef = useRef<RelayPairing | null>(null);
   const stateRef = useRef(state);
@@ -118,9 +119,10 @@ export function SyncPanel({
   useEffect(() => {
     if (!open) return;
     let cancelled = false;
+    const autoRoom = retryKey === 0 ? initialRoom : '';
     setRelayStatus('idle');
     setPairUrl('');
-    setJoinInput(initialRoom);
+    setJoinInput(autoRoom);
     setError('');
     setKnown(false);
     setPeers([]);
@@ -202,8 +204,8 @@ export function SyncPanel({
 
     if (mode === 'host') {
       void start();
-    } else if (initialRoom) {
-      const room = parsePairingCode(initialRoom);
+    } else if (autoRoom) {
+      const room = parsePairingCode(autoRoom);
       if (room) {
         void start(room);
       } else {
@@ -222,7 +224,7 @@ export function SyncPanel({
       if (sessionRef.current === session) sessionRef.current = null;
       connectedRef.current = false;
     };
-  }, [open, mode, createSession, startPairing, relayUrl]);
+  }, [open, mode, createSession, startPairing, relayUrl, retryKey]);
 
   useEffect(() => {
     if (!connectedRef.current) return;
@@ -307,10 +309,7 @@ export function SyncPanel({
               ? t('sync.failed')
               : '';
   const isConnected = relayStatus === 'connected';
-  const canJoin =
-    mode === 'join' &&
-    !isConnected &&
-    (relayStatus === 'idle' || relayStatus === 'failed');
+  const canJoin = mode === 'join' && !isConnected && relayStatus === 'idle';
 
   return (
     <Sheet
@@ -344,7 +343,7 @@ export function SyncPanel({
           </p>
         )}
 
-        {mode === 'host' && !isConnected && pairUrl && (
+        {mode === 'host' && !isConnected && relayStatus !== 'failed' && pairUrl && (
           <div className={styles.qr}>
             <QrCode
               value={pairUrl}
@@ -434,6 +433,15 @@ export function SyncPanel({
           relayStatus !== 'failed' && (
             <p className={styles.hint}>{t('sync.joinHint')}</p>
           )}
+
+        {relayStatus === 'failed' && (
+          <Button
+            variant="secondary"
+            onClick={() => setRetryKey((value) => value + 1)}
+          >
+            {t('sync.retry')}
+          </Button>
+        )}
 
         {isConnected && (
           <div className={styles.row}>
