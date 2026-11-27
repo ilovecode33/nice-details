@@ -47,6 +47,8 @@ The app uses a separate Cloudflare Worker for one-scan pairing:
 - Source: `apps/sync-relay`
 - Deploy: [`.github/workflows/deploy-sync-relay.yml`](../../.github/workflows/deploy-sync-relay.yml) on pushes to `main`
 
+The shared `CLOUDFLARE_API_TOKEN` needs Workers Scripts:Edit and Durable Objects:Edit for relay deploys, in addition to the Pages permissions.
+
 The Worker has a `PairRoom` Durable Object that relays WebRTC offer/answer messages. OKR data stays peer-to-peer after signaling. The Worker's origin allowlist accepts the Pages preview/production domains and `localhost`.
 
 Preview deployments use the same relay; they do not deploy their own copy. If a PR changes the relay protocol, merge/deploy the relay before testing that PR's preview.

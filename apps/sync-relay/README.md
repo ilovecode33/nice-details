@@ -29,7 +29,7 @@ bunx turbo run build --filter=@ilovecode33/sync-relay  # dry-run bundle in dist/
 cd apps/sync-relay && bunx wrangler deploy
 ```
 
-The GitHub Actions workflow [`.github/workflows/deploy-sync-relay.yml`](../../.github/workflows/deploy-sync-relay.yml) deploys on pushes to `main` using the shared `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` secrets.
+The GitHub Actions workflow [`.github/workflows/deploy-sync-relay.yml`](../../.github/workflows/deploy-sync-relay.yml) deploys on pushes to `main` using the shared `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` secrets. The token needs **Workers Scripts:Edit** and **Durable Objects:Edit** in addition to the Pages permissions used by the other workflows.
 
 Production Worker: `https://ilovecode33-okr-sync.2y6ddt55g7.workers.dev`
 
