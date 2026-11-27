@@ -44,7 +44,7 @@ are in use.
    [`.github/workflows/release.yml`](.github/workflows/release.yml), which uses
    `changesets/action` to open or update the `chore: version packages` PR,
    validates the bumped workspace with typecheck/build/test, reports the
-   required `preview` check, and squash-merges it back to `main`. No manual
+   required preview checks, and squash-merges it back to `main`. No manual
    `bun run version:packages` is needed.
    If the automation cannot merge (for example a failing check), the version PR
    stays open for manual review; merging it by hand is always safe.

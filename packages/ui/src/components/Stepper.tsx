@@ -3,7 +3,8 @@ import styles from './Stepper.module.css';
 /**
  * Numeric stepper with decrement/increment buttons and a polite live output.
  * Controlled via `value`/`onChange`; steps are clamped to `min`/`max` (0-99 by
- * default) and buttons disable at the bounds. `label` is supplied by props.
+ * default) and buttons disable at the bounds. `label`, `decreaseLabel` and
+ * `increaseLabel` are supplied by props and default to English.
  */
 export function Stepper({
   value,
@@ -12,6 +13,8 @@ export function Stepper({
   max = 99,
   step = 1,
   label,
+  decreaseLabel = 'Decrease',
+  increaseLabel = 'Increase',
 }: {
   value: number;
   onChange: (value: number) => void;
@@ -19,6 +22,8 @@ export function Stepper({
   max?: number;
   step?: number;
   label: string;
+  decreaseLabel?: string;
+  increaseLabel?: string;
 }) {
   const clamp = (n: number) => Math.min(Math.max(n, min), max);
   return (
@@ -26,7 +31,7 @@ export function Stepper({
       <button
         type="button"
         className={styles['ui-stepper__button']}
-        aria-label={`Decrease ${label}`}
+        aria-label={`${decreaseLabel} ${label}`}
         disabled={value <= min}
         onClick={() => onChange(clamp(value - step))}
       >
@@ -38,7 +43,7 @@ export function Stepper({
       <button
         type="button"
         className={styles['ui-stepper__button']}
-        aria-label={`Increase ${label}`}
+        aria-label={`${increaseLabel} ${label}`}
         disabled={value >= max}
         onClick={() => onChange(clamp(value + step))}
       >

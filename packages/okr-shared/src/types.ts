@@ -18,14 +18,18 @@ export interface Objective {
   id: string;
   title: string;
   note: string;
-  /** Human-readable period label, for example "2026 Q4". */
+  /** Derived label for the start/end range, for example "Oct 1 – Dec 31, 2026". */
   period: string;
+  /** First day of the objective, as YYYY-MM-DD. */
+  startDate: string;
+  /** Last day of the objective, as YYYY-MM-DD. */
+  endDate: string;
   keyResults: KeyResult[];
   createdAt: string;
   updatedAt: string;
 }
 
-/** The complete persisted state of the OKR app. */
+/** State persisted by the app. */
 export interface OKRState {
   version: 1;
   objectives: Objective[];
@@ -34,5 +38,15 @@ export interface OKRState {
 /** Supported objective orderings. */
 export type ObjectiveSort = 'updated' | 'progress' | 'title';
 
-/** localStorage key under which the app persists its state. */
+/** Storage shape that may predate startDate/endDate. */
+export type StoredObjective = Omit<Objective, 'startDate' | 'endDate'> &
+  Partial<Pick<Objective, 'startDate' | 'endDate'>>;
+
+/** Persisted state that may still need date normalization. */
+export interface StoredOKRState {
+  version: 1;
+  objectives: StoredObjective[];
+}
+
+/** localStorage key used by the legacy adapter. */
 export const STORAGE_KEY = 'okr-web.state.v1';

@@ -7,6 +7,7 @@ import {
   type KeyResult,
 } from '@ilovecode33/okr-shared';
 import { Trash2 } from 'lucide-react';
+import { useOkrI18n } from '../i18n';
 import styles from './KeyResultRow.module.css';
 
 export function KeyResultRow({
@@ -18,6 +19,7 @@ export function KeyResultRow({
   onUpdate: (value: number) => void;
   onDelete: () => void;
 }) {
+  const { t, intlLocale } = useOkrI18n();
   const [draft, setDraft] = useState(() => String(kr.current));
   useEffect(() => setDraft(String(kr.current)), [kr.current]);
 
@@ -35,13 +37,16 @@ export function KeyResultRow({
       <div className={styles.head}>
         <span className={styles.title}>{kr.title}</span>
         <span className={styles.numbers}>
-          {formatValue(kr.unit, kr.current)} of {formatValue(kr.unit, kr.target)}
+          {t('kr.valueOf', {
+            current: formatValue(kr.unit, kr.current, intlLocale),
+            target: formatValue(kr.unit, kr.target, intlLocale),
+          })}
         </span>
       </div>
       <div
         data-ui="progress-track"
         role="progressbar"
-        aria-label={`${kr.title} progress`}
+        aria-label={t('kr.progress', { title: kr.title })}
         aria-valuemin={0}
         aria-valuemax={100}
         aria-valuenow={percent}
@@ -56,27 +61,29 @@ export function KeyResultRow({
             min={0}
             max={100}
             step={5}
-            label={`${kr.title} percent`}
+            label={t('kr.percentLabel', { title: kr.title })}
+            decreaseLabel={t('common.decrease')}
+            increaseLabel={t('common.increase')}
           />
         ) : (
           <NumberField
             className={styles.input}
             value={draft}
             onChange={(event) => setDraft(event.target.value)}
-            aria-label={`Current value for ${kr.title}`}
+            aria-label={t('kr.currentValueLabel', { title: kr.title })}
           />
         )}
         <Button size="compact" onClick={save} disabled={!valid}>
-          Save
+          {t('common.save')}
         </Button>
         <Button
           size="compact"
           variant="plain"
           onClick={onDelete}
-          aria-label={`Delete key result ${kr.title}`}
+          aria-label={t('kr.deleteLabel', { title: kr.title })}
           icon={<Trash2 />}
         >
-          Delete
+          {t('common.delete')}
         </Button>
       </div>
     </li>

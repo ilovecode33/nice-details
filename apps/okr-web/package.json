@@ -12,6 +12,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
+    "@ilovecode33/local-sync": "workspace:*",
     "@ilovecode33/okr-shared": "workspace:*",
     "@ilovecode33/persistence": "workspace:*",
     "@ilovecode33/ui": "workspace:*",

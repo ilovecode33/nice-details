@@ -2,6 +2,7 @@ import { openPersistence, type Persistence } from '@ilovecode33/persistence';
 import {
   createSampleState,
   loadState,
+  normalizeState,
   STORAGE_KEY,
   type OKRState,
 } from '@ilovecode33/okr-shared';
@@ -51,7 +52,7 @@ export async function openOkrStorage(
   return {
     async load() {
       const saved = await kv.get(OKR_KEY);
-      if (saved) return saved;
+      if (saved) return normalizeState(saved);
 
       const migrated = migrateLegacyState();
       if (migrated) {

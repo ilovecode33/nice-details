@@ -57,9 +57,10 @@ jobs:
         run: bunx turbo run typecheck build test
 
       # The version PR is opened by GITHUB_TOKEN, which does not trigger the
-      # Cloudflare preview workflows. Report the same required check from this
-      # workflow after the validation above so branch protection can merge it.
-      - name: Report the required preview check
+      # Cloudflare preview workflows. Report every required preview check from
+      # this workflow after the validation above so branch protection can merge
+      # it.
+      - name: Report the required preview checks
         if: steps.changesets.outputs.pullRequestNumber != ''
         uses: actions/github-script@v8
         env:
@@ -72,19 +73,21 @@ jobs:
               repo,
               pull_number: Number(process.env.PR_NUMBER),
             });
-            await github.rest.checks.create({
-              owner,
-              repo,
-              name: 'preview',
-              head_sha: pull.data.head.sha,
-              status: 'completed',
-              conclusion: 'success',
-              output: {
-                title: 'Version packages validated',
-                summary:
-                  'The version bump passed typecheck, build and tests on the version branch. A Cloudflare preview is not applicable to a version-only change.',
-              },
-            });
+            for (const name of ['preview', 'preview-ui', 'preview-okr-web']) {
+              await github.rest.checks.create({
+                owner,
+                repo,
+                name,
+                head_sha: pull.data.head.sha,
+                status: 'completed',
+                conclusion: 'success',
+                output: {
+                  title: 'Version packages validated',
+                  summary:
+                    'The version bump passed typecheck, build and tests on the version branch. A Cloudflare preview is not applicable to a version-only change.',
+                },
+              });
+            }
 
       - name: Merge the version PR
         if: steps.changesets.outputs.pullRequestNumber != ''

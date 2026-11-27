@@ -8,6 +8,10 @@ export default defineConfig({
   setupFiles: ['./rstest.setup.ts'],
   resolve: {
     alias: {
+      '@ilovecode33/local-sync$': new URL(
+        '../../packages/local-sync/src/index.ts',
+        import.meta.url,
+      ).pathname,
       '@ilovecode33/okr-shared$': new URL(
         '../../packages/okr-shared/src/index.ts',
         import.meta.url,

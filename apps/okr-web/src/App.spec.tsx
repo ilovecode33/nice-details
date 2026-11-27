@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react';
 import { createSampleState } from '@ilovecode33/okr-shared';
 import { UIFoundation } from '@ilovecode33/ui';
 import { App } from './App';
+import { DICTIONARIES } from './i18n';
 import type { OkrStorage } from './storage';
 
 function createTestStorage(): OkrStorage {
@@ -17,7 +18,7 @@ function createTestStorage(): OkrStorage {
 describe('App', () => {
   test('renders the dashboard with the sample objectives', async () => {
     render(
-      <UIFoundation>
+      <UIFoundation dictionaries={DICTIONARIES}>
         <App storage={createTestStorage()} />
       </UIFoundation>,
     );
@@ -29,8 +30,10 @@ describe('App', () => {
       await screen.findByText('Build a consistent running habit'),
     ).toBeTruthy();
     expect(screen.getByRole('button', { name: 'New objective' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Sync' })).toBeTruthy();
+    // Sample-data reset is a development-only convenience.
     expect(
-      screen.getByRole('button', { name: 'Reset sample data' }),
-    ).toBeTruthy();
+      screen.queryByRole('button', { name: 'Reset sample data' }),
+    ).toBeNull();
   });
 });

@@ -8,14 +8,19 @@ import {
   TextArea,
   TextInput,
 } from '@ilovecode33/ui';
-import { newId, type KRUnit, type KeyResult, type Objective } from '@ilovecode33/okr-shared';
+import {
+  addMonths,
+  formatPeriodLabel,
+  newId,
+  todayIso,
+  type KeyResult,
+  type KRUnit,
+  type Objective,
+} from '@ilovecode33/okr-shared';
+import { useOkrI18n } from '../i18n';
 import styles from './ObjectiveEditor.module.css';
 
-const UNIT_OPTIONS: Array<{ value: KRUnit; label: string }> = [
-  { value: 'percent', label: 'Percent' },
-  { value: 'number', label: 'Number' },
-  { value: 'currency', label: 'Currency' },
-];
+const LENGTH_VALUES = [1, 2, 3, 6, 12] as const;
 
 interface DraftKR {
   id: string;
@@ -31,7 +36,8 @@ interface Draft {
   id: string;
   title: string;
   note: string;
-  period: string;
+  startDate: string;
+  endDate: string;
   createdAt: string;
   keyResults: DraftKR[];
 }
@@ -50,11 +56,13 @@ function blankKr(): DraftKR {
 
 function toDraft(objective: Objective | null): Draft {
   if (!objective) {
+    const startDate = todayIso();
     return {
       id: newId(),
       title: '',
       note: '',
-      period: '2026 Q4',
+      startDate,
+      endDate: addMonths(startDate, 2),
       createdAt: new Date().toISOString(),
       keyResults: [blankKr()],
     };
@@ -63,7 +71,8 @@ function toDraft(objective: Objective | null): Draft {
     id: objective.id,
     title: objective.title,
     note: objective.note,
-    period: objective.period,
+    startDate: objective.startDate,
+    endDate: objective.endDate,
     createdAt: objective.createdAt,
     keyResults: objective.keyResults.length
       ? objective.keyResults.map((kr) => ({
@@ -84,6 +93,12 @@ function numeric(value: string, fallback: number): number {
   return value.trim() !== '' && Number.isFinite(parsed) ? parsed : fallback;
 }
 
+/** Returns the quick-length option matching the current dates, if any. */
+function matchedLength(startDate: string, endDate: string): number | undefined {
+  if (!startDate || !endDate) return undefined;
+  return LENGTH_VALUES.find((months) => addMonths(startDate, months) === endDate);
+}
+
 export function ObjectiveEditor({
   objective,
   onSave,
@@ -93,8 +108,28 @@ export function ObjectiveEditor({
   onSave: (objective: Objective) => void;
   onClose: () => void;
 }) {
+  const { t } = useOkrI18n();
   const [draft, setDraft] = useState<Draft>(() => toDraft(objective));
   const [error, setError] = useState('');
+
+  const unitOptions: Array<{ value: KRUnit; label: string }> = [
+    { value: 'percent', label: t('editor.unit.percent') },
+    { value: 'number', label: t('editor.unit.number') },
+    { value: 'currency', label: t('editor.unit.currency') },
+  ];
+  const lengthOptions: Array<{ value: string; label: string }> = [
+    { value: 'custom', label: t('editor.length.custom') },
+    ...LENGTH_VALUES.map((months) => ({
+      value: String(months),
+      label: t(
+        months === 1 ? 'editor.length.month' : 'editor.length.months',
+        { count: months },
+      ),
+    })),
+  ];
+
+  const quickLength = matchedLength(draft.startDate, draft.endDate);
+  const quickLengthValue = quickLength ? String(quickLength) : 'custom';
 
   function patchKr(id: string, patch: Partial<DraftKR>) {
     setDraft((prev) => ({
@@ -106,7 +141,15 @@ export function ObjectiveEditor({
   function save() {
     const title = draft.title.trim();
     if (!title) {
-      setError('Add a title for this objective.');
+      setError(t('editor.error.title'));
+      return;
+    }
+    if (!draft.startDate || !draft.endDate) {
+      setError(t('editor.error.dates'));
+      return;
+    }
+    if (draft.endDate < draft.startDate) {
+      setError(t('editor.error.order'));
       return;
     }
     const keyResults: KeyResult[] = draft.keyResults
@@ -124,7 +167,9 @@ export function ObjectiveEditor({
       id: draft.id,
       title,
       note: draft.note.trim(),
-      period: draft.period.trim() || '2026 Q4',
+      period: formatPeriodLabel(draft.startDate, draft.endDate),
+      startDate: draft.startDate,
+      endDate: draft.endDate,
       keyResults,
       createdAt: draft.createdAt,
       updatedAt: new Date().toISOString(),
@@ -132,10 +177,17 @@ export function ObjectiveEditor({
   }
 
   return (
-    <Sheet open onClose={onClose} title={objective ? 'Edit objective' : 'New objective'}>
+    <Sheet
+      open
+      onClose={onClose}
+      title={
+        objective ? t('editor.title.edit') : t('editor.title.new')
+      }
+      closeLabel={t('common.close')}
+    >
       <div className={styles.fields}>
         <label className={styles.field}>
-          <span className={styles.fieldLabel}>Title</span>
+          <span className={styles.fieldLabel}>{t('editor.title')}</span>
           <TextInput
             className={styles.input}
             value={draft.title}
@@ -143,7 +195,7 @@ export function ObjectiveEditor({
               setDraft((prev) => ({ ...prev, title: event.target.value }));
               if (error) setError('');
             }}
-            placeholder="What do you want to achieve?"
+            placeholder={t('editor.titlePlaceholder')}
           />
         </label>
         {error && (
@@ -152,41 +204,85 @@ export function ObjectiveEditor({
           </p>
         )}
         <label className={styles.field}>
-          <span className={styles.fieldLabel}>Note</span>
+          <span className={styles.fieldLabel}>{t('editor.note')}</span>
           <TextArea
             className={styles.input}
             value={draft.note}
             onChange={(event) => setDraft((prev) => ({ ...prev, note: event.target.value }))}
-            placeholder="Optional context for future you"
+            placeholder={t('editor.notePlaceholder')}
             rows={3}
           />
         </label>
         <label className={styles.field}>
-          <span className={styles.fieldLabel}>Period</span>
+          <span className={styles.fieldLabel}>{t('editor.startDate')}</span>
           <TextInput
             className={styles.input}
-            value={draft.period}
-            onChange={(event) => setDraft((prev) => ({ ...prev, period: event.target.value }))}
-            placeholder="2026 Q4"
+            type="date"
+            value={draft.startDate}
+            onChange={(event) => {
+              const startDate = event.target.value;
+              setDraft((prev) => {
+                const keepLength = matchedLength(prev.startDate, prev.endDate);
+                return {
+                  ...prev,
+                  startDate,
+                  endDate: keepLength ? addMonths(startDate, keepLength) : prev.endDate,
+                };
+              });
+              if (error) setError('');
+            }}
+          />
+        </label>
+        <label className={styles.field}>
+          <span className={styles.fieldLabel}>{t('editor.endDate')}</span>
+          <TextInput
+            className={styles.input}
+            type="date"
+            value={draft.endDate}
+            onChange={(event) => {
+              setDraft((prev) => ({ ...prev, endDate: event.target.value }));
+              if (error) setError('');
+            }}
+          />
+        </label>
+        <label className={styles.field}>
+          <span className={styles.fieldLabel}>{t('editor.quickLength')}</span>
+          <Select
+            aria-label={t('editor.quickLengthAria')}
+            value={quickLengthValue}
+            options={lengthOptions}
+            onChange={(event) => {
+              const value = event.target.value;
+              if (value === 'custom') return;
+              const months = Number(value);
+              if (!Number.isFinite(months)) return;
+              setDraft((prev) => ({
+                ...prev,
+                endDate: addMonths(prev.startDate, months),
+              }));
+              if (error) setError('');
+            }}
           />
         </label>
 
         <div>
-          <p className={styles.section}>Key results</p>
+          <p className={styles.section}>{t('editor.keyResults')}</p>
           <ul className={styles.krList}>
             {draft.keyResults.map((kr, index) => (
               <li className={styles.kr} key={kr.id}>
                 <label className={styles.field}>
-                  <span className={styles.fieldLabel}>Key result {index + 1}</span>
+                  <span className={styles.fieldLabel}>
+                    {t('editor.keyResult', { index: index + 1 })}
+                  </span>
                   <TextInput
                     className={styles.input}
                     value={kr.title}
                     onChange={(event) => patchKr(kr.id, { title: event.target.value })}
-                    placeholder="What will change?"
+                    placeholder={t('editor.keyResultPlaceholder')}
                   />
                 </label>
                 <label className={styles.field}>
-                  <span className={styles.fieldLabel}>Start</span>
+                  <span className={styles.fieldLabel}>{t('editor.start')}</span>
                   <NumberField
                     className={styles.input}
                     value={kr.start}
@@ -194,7 +290,7 @@ export function ObjectiveEditor({
                   />
                 </label>
                 <label className={styles.field}>
-                  <span className={styles.fieldLabel}>Target</span>
+                  <span className={styles.fieldLabel}>{t('editor.target')}</span>
                   <NumberField
                     className={styles.input}
                     value={kr.target}
@@ -202,7 +298,7 @@ export function ObjectiveEditor({
                   />
                 </label>
                 <label className={styles.field}>
-                  <span className={styles.fieldLabel}>Current</span>
+                  <span className={styles.fieldLabel}>{t('editor.current')}</span>
                   <NumberField
                     className={styles.input}
                     value={kr.current}
@@ -210,23 +306,25 @@ export function ObjectiveEditor({
                   />
                 </label>
                 <label className={styles.field}>
-                  <span className={styles.fieldLabel}>Unit</span>
+                  <span className={styles.fieldLabel}>{t('editor.unit')}</span>
                   <Select<KRUnit>
-                    aria-label={`Unit for key result ${index + 1}`}
+                    aria-label={t('editor.unitAria', { index: index + 1 })}
                     value={kr.unit}
-                    options={UNIT_OPTIONS}
+                    options={unitOptions}
                     onChange={(event) => patchKr(kr.id, { unit: event.target.value })}
                   />
                 </label>
                 <div className={styles.field}>
-                  <span className={styles.fieldLabel}>Weight</span>
+                  <span className={styles.fieldLabel}>{t('editor.weight')}</span>
                   <Stepper
                     value={kr.weight}
                     onChange={(weight) => patchKr(kr.id, { weight })}
                     min={1}
                     max={10}
                     step={1}
-                    label={`Weight for key result ${index + 1}`}
+                    label={t('editor.weightAria', { index: index + 1 })}
+                    decreaseLabel={t('common.decrease')}
+                    increaseLabel={t('common.increase')}
                   />
                 </div>
                 <Button
@@ -238,9 +336,11 @@ export function ObjectiveEditor({
                       keyResults: prev.keyResults.filter((item) => item.id !== kr.id),
                     }))
                   }
-                  aria-label={`Remove key result ${index + 1}`}
+                  aria-label={t('editor.removeKeyResultAria', {
+                    index: index + 1,
+                  })}
                 >
-                  Remove
+                  {t('common.remove')}
                 </Button>
               </li>
             ))}
@@ -249,16 +349,16 @@ export function ObjectiveEditor({
             size="compact"
             onClick={() => setDraft((prev) => ({ ...prev, keyResults: [...prev.keyResults, blankKr()] }))}
           >
-            Add key result
+            {t('editor.addKeyResult')}
           </Button>
         </div>
 
         <div className={styles.actions}>
           <Button variant="secondary" onClick={onClose}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button variant="primary" onClick={save}>
-            Save objective
+            {t('editor.saveObjective')}
           </Button>
         </div>
       </div>

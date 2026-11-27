@@ -14,6 +14,7 @@ import {
 import {
   collectPeriods,
   createSampleState,
+  formatPeriodLabel,
   keyResultProgress,
   overallProgress,
   sortObjectives,
@@ -21,20 +22,16 @@ import {
   type ObjectiveSort,
   type OKRState,
 } from '@ilovecode33/okr-shared';
-import { AlertTriangle, Plus, RotateCcw, Target } from 'lucide-react';
+import { AlertTriangle, Plus, RefreshCw, RotateCcw, Target } from 'lucide-react';
 import { ObjectiveCard } from './components/ObjectiveCard';
 import { ObjectiveEditor } from './components/ObjectiveEditor';
+import { SyncPanel } from './components/SyncPanel';
+import { LOCALES, LOCALE_NAMES, useOkrI18n } from './i18n';
 import { getOkrStorage, type OkrStorage } from './storage';
 import styles from './App.module.css';
 
 const ALL_PERIODS = 'all';
 const EMPTY_OBJECTIVES: Objective[] = [];
-
-const SORT_OPTIONS: Array<{ value: ObjectiveSort; label: string }> = [
-  { value: 'updated', label: 'Recently updated' },
-  { value: 'progress', label: 'Progress' },
-  { value: 'title', label: 'Title' },
-];
 
 interface Confirmation {
   title: string;
@@ -49,17 +46,23 @@ export interface AppProps {
 }
 
 export function App({ storage }: AppProps = {}) {
+  const { locale, setLocale, intlLocale, t } = useOkrI18n();
   const [state, setState] = useState<OKRState | null>(null);
   const [period, setPeriod] = useState(ALL_PERIODS);
   const [sort, setSort] = useState<ObjectiveSort>('updated');
   // undefined = closed, null = create a new objective, otherwise the one to edit.
   const [editing, setEditing] = useState<Objective | null | undefined>(undefined);
   const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
+  const [syncOpen, setSyncOpen] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
   const storageRef = useRef<OkrStorage | null>(storage ?? null);
   const loadedRef = useRef(false);
+
+  useEffect(() => {
+    document.title = t('app.title');
+  }, [locale]);
 
   useEffect(() => {
     let cancelled = false;
@@ -119,8 +122,25 @@ export function App({ storage }: AppProps = {}) {
     0,
   );
   const periodOptions = [
-    { value: ALL_PERIODS, label: 'All periods' },
-    ...periods.map((value) => ({ value, label: value })),
+    { value: ALL_PERIODS, label: t('toolbar.allPeriods') },
+    ...periods.map((value) => {
+      const objective = objectives.find((item) => item.period === value);
+      return {
+        value,
+        label: objective
+          ? formatPeriodLabel(
+              objective.startDate,
+              objective.endDate,
+              intlLocale,
+            )
+          : value,
+      };
+    }),
+  ];
+  const sortOptions: Array<{ value: ObjectiveSort; label: string }> = [
+    { value: 'updated', label: t('sort.updated') },
+    { value: 'progress', label: t('sort.progress') },
+    { value: 'title', label: t('sort.title') },
   ];
 
   function patchObjective(id: string, patch: (objective: Objective) => Objective) {
@@ -155,9 +175,9 @@ export function App({ storage }: AppProps = {}) {
 
   function askToDeleteObjective(objective: Objective) {
     setConfirmation({
-      title: 'Delete objective?',
-      message: `“${objective.title}” and its key results will be removed.`,
-      confirmLabel: 'Delete',
+      title: t('confirm.deleteObjective.title'),
+      message: t('confirm.deleteObjective.message', { title: objective.title }),
+      confirmLabel: t('common.delete'),
       onConfirm: () =>
         setState((prev) =>
           prev
@@ -175,9 +195,11 @@ export function App({ storage }: AppProps = {}) {
   function askToDeleteKr(objective: Objective, krId: string) {
     const kr = objective.keyResults.find((item) => item.id === krId);
     setConfirmation({
-      title: 'Delete key result?',
-      message: `“${kr?.title ?? 'This key result'}” will be removed from this objective.`,
-      confirmLabel: 'Delete',
+      title: t('confirm.deleteKeyResult.title'),
+      message: t('confirm.deleteKeyResult.message', {
+        title: kr?.title ?? t('kr.thisKeyResult'),
+      }),
+      confirmLabel: t('common.delete'),
       onConfirm: () =>
         patchObjective(objective.id, (current) => ({
           ...current,
@@ -188,9 +210,9 @@ export function App({ storage }: AppProps = {}) {
 
   function askToReset() {
     setConfirmation({
-      title: 'Reset sample data?',
-      message: 'Your current objectives will be replaced with the sample set.',
-      confirmLabel: 'Reset',
+      title: t('confirm.reset.title'),
+      message: t('confirm.reset.message'),
+      confirmLabel: t('common.reset'),
       onConfirm: () => {
         setSaveError(null);
         setState(createSampleState());
@@ -208,12 +230,38 @@ export function App({ storage }: AppProps = {}) {
     <main className={styles.shell}>
       <header className={styles.header}>
         <div className={styles.headerIntro}>
-          <h1>My OKRs</h1>
-          <p>Keep a few goals in view and record progress as you go.</p>
+          <h1>{t('app.title')}</h1>
+          <p>{t('app.subtitle')}</p>
         </div>
         <div className={styles.headerControls}>
-          <ThemeSwitcher />
-          <AccentSwitcher />
+          <Select
+            className={styles.locale}
+            aria-label={t('app.language')}
+            value={locale}
+            options={LOCALES.map((value) => ({
+              value,
+              label: LOCALE_NAMES[value],
+            }))}
+            onChange={(event) => setLocale(event.target.value)}
+          />
+          <ThemeSwitcher
+            labels={{
+              group: t('theme.group'),
+              system: t('theme.system'),
+              light: t('theme.light'),
+              dark: t('theme.dark'),
+            }}
+          />
+          <AccentSwitcher
+            labels={{
+              group: t('accent.group'),
+              warmth: t('accent.warmth'),
+              serenity: t('accent.serenity'),
+              growth: t('accent.growth'),
+              gentle: t('accent.gentle'),
+              vitality: t('accent.vitality'),
+            }}
+          />
         </div>
       </header>
 
@@ -224,15 +272,15 @@ export function App({ storage }: AppProps = {}) {
               <>
                 <EmptyState
                   icon={<AlertTriangle />}
-                  title="Couldn't open your OKR database"
+                  title={t('loadError.title')}
                   detail={loadError}
                 />
                 <Button variant="primary" onClick={retryLoad}>
-                  Try again
+                  {t('loadError.retry')}
                 </Button>
               </>
             ) : (
-              <ActivityIndicator label="Loading your objectives" />
+              <ActivityIndicator label={t('loading')} />
             )}
           </div>
         </Card>
@@ -240,40 +288,49 @@ export function App({ storage }: AppProps = {}) {
         <>
           {saveError && (
             <p className={styles.storageError} role="alert">
-              Changes are not being saved: {saveError}
+              {t('saveError', { error: saveError })}
             </p>
           )}
 
-          <section className={styles.summary} aria-label="Summary">
-            <Stat label="Objectives" value={objectives.length} tone="accent" />
+          <section className={styles.summary} aria-label={t('summary.aria')}>
+            <Stat
+              label={t('summary.objectives')}
+              value={objectives.length}
+              tone="accent"
+            />
             <div className={styles.summaryProgress}>
               <span className={styles.summaryValue}>{progress}%</span>
-              <span className={styles.summaryLabel}>Overall progress</span>
-              <ProgressBar value={progress} label="Overall progress" />
+              <span className={styles.summaryLabel}>
+                {t('summary.overallProgress')}
+              </span>
+              <ProgressBar
+                value={progress}
+                label={t('summary.overallProgress')}
+              />
             </div>
             <Stat
-              label="Completed key results"
+              label={t('summary.completedKeyResults')}
               value={completedKrs}
               tone="success"
             />
           </section>
 
-          <section className={styles.toolbar} aria-label="Objective filters">
+          <section className={styles.toolbar} aria-label={t('toolbar.aria')}>
             <label className={styles.field}>
-              <span className={styles.fieldLabel}>Period</span>
+              <span className={styles.fieldLabel}>{t('toolbar.period')}</span>
               <Select
-                aria-label="Filter by period"
+                aria-label={t('toolbar.filterAria')}
                 value={period}
                 options={periodOptions}
                 onChange={(event) => setPeriod(event.target.value)}
               />
             </label>
             <label className={styles.field}>
-              <span className={styles.fieldLabel}>Sort by</span>
+              <span className={styles.fieldLabel}>{t('toolbar.sort')}</span>
               <Select<ObjectiveSort>
-                aria-label="Sort objectives"
+                aria-label={t('toolbar.sortAria')}
                 value={sort}
-                options={SORT_OPTIONS}
+                options={sortOptions}
                 onChange={(event) => setSort(event.target.value)}
               />
             </label>
@@ -282,10 +339,19 @@ export function App({ storage }: AppProps = {}) {
               onClick={() => setEditing(null)}
               icon={<Plus />}
             >
-              New objective
+              {t('toolbar.newObjective')}
             </Button>
-            <Button variant="plain" onClick={askToReset} icon={<RotateCcw />}>
-              Reset sample data
+            {import.meta.env.DEV && (
+              <Button variant="plain" onClick={askToReset} icon={<RotateCcw />}>
+                {t('toolbar.reset')}
+              </Button>
+            )}
+            <Button
+              variant="plain"
+              onClick={() => setSyncOpen(true)}
+              icon={<RefreshCw />}
+            >
+              {t('sync.open')}
             </Button>
           </section>
 
@@ -296,22 +362,22 @@ export function App({ storage }: AppProps = {}) {
                   icon={<Target />}
                   title={
                     objectives.length
-                      ? 'No objectives in this period'
-                      : 'No objectives yet'
+                      ? t('empty.noPeriod')
+                      : t('empty.noObjectives')
                   }
-                  detail="Create one to start tracking your progress."
+                  detail={t('empty.detail')}
                 />
                 <Button
                   variant="primary"
                   onClick={() => setEditing(null)}
                   icon={<Plus />}
                 >
-                  New objective
+                  {t('toolbar.newObjective')}
                 </Button>
               </div>
             </Card>
           ) : (
-            <section className={styles.list} aria-label="Objectives">
+            <section className={styles.list} aria-label={t('list.aria')}>
               {visible.map((objective) => (
                 <ObjectiveCard
                   key={objective.id}
@@ -334,6 +400,18 @@ export function App({ storage }: AppProps = {}) {
         </>
       )}
 
+      {state && (
+        <SyncPanel
+          open={syncOpen}
+          onClose={() => setSyncOpen(false)}
+          state={state}
+          onRemoteState={(next) => {
+            setState(next);
+            setPeriod(ALL_PERIODS);
+          }}
+        />
+      )}
+
       {state && editing !== undefined && (
         <ObjectiveEditor
           key={editing?.id ?? 'new'}
@@ -350,7 +428,7 @@ export function App({ storage }: AppProps = {}) {
           title={confirmation.title}
           message={confirmation.message}
           confirmLabel={confirmation.confirmLabel}
-          cancelLabel="Cancel"
+          cancelLabel={t('common.cancel')}
           destructive
           onConfirm={confirmation.onConfirm}
         />

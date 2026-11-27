@@ -19,10 +19,12 @@
     "build": "rslib build",
     "dev": "rslib build --watch --no-dts --no-clean",
     "typecheck": "tsc --noEmit",
+    "test": "rstest run",
     "clean": "rm -rf dist"
   },
   "devDependencies": {
     "@rslib/core": "^1.1.0",
+    "@rstest/core": "^0.12.6",
     "typescript": "^7.0.2"
   }
 }

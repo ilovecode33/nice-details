@@ -1,6 +1,13 @@
+import { normalizeState } from './normalize';
 import { createSampleState } from './sample';
 import { STORAGE_KEY } from './types';
-import type { KeyResult, KRUnit, Objective, OKRState } from './types';
+import type {
+  KeyResult,
+  KRUnit,
+  OKRState,
+  StoredObjective,
+  StoredOKRState,
+} from './types';
 
 const UNITS: readonly KRUnit[] = ['percent', 'number', 'currency'];
 
@@ -22,13 +29,15 @@ function isKeyResult(value: unknown): value is KeyResult {
   );
 }
 
-function isObjective(value: unknown): value is Objective {
+function isObjective(value: unknown): value is StoredObjective {
   if (!isRecord(value)) return false;
   return (
     typeof value.id === 'string' &&
     typeof value.title === 'string' &&
     typeof value.note === 'string' &&
     typeof value.period === 'string' &&
+    (value.startDate === undefined || typeof value.startDate === 'string') &&
+    (value.endDate === undefined || typeof value.endDate === 'string') &&
     typeof value.createdAt === 'string' &&
     typeof value.updatedAt === 'string' &&
     Array.isArray(value.keyResults) &&
@@ -36,7 +45,7 @@ function isObjective(value: unknown): value is Objective {
   );
 }
 
-function isOKRState(value: unknown): value is OKRState {
+function isOKRState(value: unknown): value is StoredOKRState {
   return (
     isRecord(value) &&
     value.version === 1 &&
@@ -45,7 +54,10 @@ function isOKRState(value: unknown): value is OKRState {
   );
 }
 
-/** Loads and validates persisted state, falling back to sample data on any problem. */
+/**
+ * Loads and validates persisted state, normalizes legacy period data, and
+ * falls back to sample data on any problem.
+ */
 export function loadState(storage?: Storage): OKRState {
   try {
     const store = storage ?? globalThis.localStorage;
@@ -53,14 +65,14 @@ export function loadState(storage?: Storage): OKRState {
     const raw = store.getItem(STORAGE_KEY);
     if (!raw) return createSampleState();
     const parsed: unknown = JSON.parse(raw);
-    return isOKRState(parsed) ? parsed : createSampleState();
+    return isOKRState(parsed) ? normalizeState(parsed) : createSampleState();
   } catch {
     return createSampleState();
   }
 }
 
 /** Persists state to localStorage; silently ignores unavailable or failing storage. */
-export function saveState(state: OKRState, storage?: Storage): void {
+export function saveState(state: StoredOKRState, storage?: Storage): void {
   try {
     const store = storage ?? globalThis.localStorage;
     if (!store) return;

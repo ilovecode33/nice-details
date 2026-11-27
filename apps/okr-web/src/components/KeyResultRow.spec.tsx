@@ -1,6 +1,8 @@
 import { describe, expect, rs, test } from '@rstest/core';
 import { fireEvent, render, screen } from '@testing-library/react';
 import type { KeyResult } from '@ilovecode33/okr-shared';
+import { UIFoundation } from '@ilovecode33/ui';
+import { DICTIONARIES } from '../i18n';
 import { KeyResultRow } from './KeyResultRow';
 
 const percentKr: KeyResult = {
@@ -13,10 +15,21 @@ const percentKr: KeyResult = {
   weight: 5,
 };
 
+function renderRow(
+  onUpdate: (value: number) => void = () => {},
+  onDelete: () => void = () => {},
+) {
+  return render(
+    <UIFoundation dictionaries={DICTIONARIES}>
+      <KeyResultRow kr={percentKr} onUpdate={onUpdate} onDelete={onDelete} />
+    </UIFoundation>,
+  );
+}
+
 describe('KeyResultRow', () => {
   test('renders the current value and commits an update', () => {
     const onUpdate = rs.fn();
-    render(<KeyResultRow kr={percentKr} onUpdate={onUpdate} onDelete={() => {}} />);
+    renderRow(onUpdate);
 
     expect(screen.getByText('Train')).toBeTruthy();
     expect(screen.getByText('40% of 100%')).toBeTruthy();
@@ -29,7 +42,7 @@ describe('KeyResultRow', () => {
 
   test('calls onDelete from the row action', () => {
     const onDelete = rs.fn();
-    render(<KeyResultRow kr={percentKr} onUpdate={() => {}} onDelete={onDelete} />);
+    renderRow(() => {}, onDelete);
 
     fireEvent.click(screen.getByRole('button', { name: 'Delete key result Train' }));
 

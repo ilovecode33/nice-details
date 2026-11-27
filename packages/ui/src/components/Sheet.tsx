@@ -8,7 +8,7 @@ import { X } from 'lucide-react';
  * Modal sheet rendering a scrim, panel, title, close button, and children.
  * Controlled by `open`; the scrim, close button, and Escape call `onClose`.
  * Focus moves to the close button on open and is restored on close.
- * `title` comes from props; the close button has a fixed English label.
+ * `title` and `closeLabel` come from props; the close label defaults to English.
  */
 export function Sheet({
   open,
@@ -16,12 +16,14 @@ export function Sheet({
   title,
   children,
   style,
+  closeLabel = 'Close',
 }: {
   open: boolean;
   onClose: () => void;
   title: ReactNode;
   children: ReactNode;
   style?: CSSProperties;
+  closeLabel?: string;
 }) {
   const closeRef = useRef<HTMLButtonElement>(null);
   const restoreRef = useRef<HTMLElement | null>(null);
@@ -58,7 +60,7 @@ export function Sheet({
             ref={closeRef}
             type="button"
             className={[buttonClasses['ui-btn'], buttonClasses['ui-btn--plain'], buttonClasses['ui-btn--compact']].filter(Boolean).join(' ')}
-            aria-label="Close"
+            aria-label={closeLabel}
             onClick={onClose}
           >
             <span className={buttonClasses['ui-btn__icon']} aria-hidden="true">

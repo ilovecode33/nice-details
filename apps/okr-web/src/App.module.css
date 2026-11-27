@@ -49,6 +49,11 @@
   min-width: 0;
 }
 
+.locale {
+  width: auto;
+  min-width: calc(var(--space-8) * 4);
+}
+
 .summary {
   display: grid;
   grid-template-columns: minmax(0, 1fr);

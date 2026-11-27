@@ -1,8 +1,27 @@
 import type { KRUnit, KeyResult, Objective, ObjectiveSort } from './types';
 
-const numberFormatter = new Intl.NumberFormat('en-US', {
-  maximumFractionDigits: 0,
-});
+interface ValueFormatters {
+  number: Intl.NumberFormat;
+  currency: Intl.NumberFormat;
+}
+
+const formatterCache = new Map<string, ValueFormatters>();
+
+function valueFormatters(locale: string): ValueFormatters {
+  let formatters = formatterCache.get(locale);
+  if (!formatters) {
+    formatters = {
+      number: new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }),
+      currency: new Intl.NumberFormat(locale, {
+        style: 'currency',
+        currency: 'USD',
+        maximumFractionDigits: 0,
+      }),
+    };
+    formatterCache.set(locale, formatters);
+  }
+  return formatters;
+}
 
 /** Creates a unique id using crypto.randomUUID when available, with a safe fallback. */
 export function newId(): string {
@@ -48,12 +67,18 @@ export function overallProgress(objectives: Objective[]): number {
   return clamp(total / objectives.length, 0, 1);
 }
 
-/** Formats a value for display: percent, grouped currency, or grouped number. */
-export function formatValue(unit: KRUnit, value: number): string {
+/** Formats a value for display with locale-aware currency and number grouping. */
+export function formatValue(
+  unit: KRUnit,
+  value: number,
+  locale = 'en-US',
+): string {
   const safe = Number.isFinite(value) ? value : 0;
   if (unit === 'percent') return `${Math.round(safe)}%`;
-  const grouped = numberFormatter.format(safe);
-  return unit === 'currency' ? `$${grouped}` : grouped;
+  const formatters = valueFormatters(locale);
+  return unit === 'currency'
+    ? formatters.currency.format(safe)
+    : formatters.number.format(safe);
 }
 
 /** Returns a new sorted array without mutating the input or its objectives. */
@@ -69,9 +94,18 @@ export function sortObjectives(objectives: Objective[], sort: ObjectiveSort): Ob
   }
 }
 
-/** Returns unique period labels sorted in reverse chronological (descending) order. */
+/** Returns unique period labels sorted by their latest start date, newest first. */
 export function collectPeriods(objectives: Objective[]): string[] {
-  return Array.from(new Set(objectives.map((objective) => objective.period))).sort((a, b) =>
-    b.localeCompare(a),
-  );
+  const latestStart = new Map<string, string>();
+  for (const objective of objectives) {
+    const startDate = objective.startDate;
+    if (!startDate) continue;
+    const current = latestStart.get(objective.period);
+    if (current === undefined || startDate > current) {
+      latestStart.set(objective.period, startDate);
+    }
+  }
+  return [...latestStart.entries()]
+    .sort((a, b) => b[1].localeCompare(a[1]))
+    .map(([period]) => period);
 }
