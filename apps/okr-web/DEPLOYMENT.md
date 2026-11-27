@@ -20,6 +20,8 @@ The OKR tracker is a static site on Cloudflare Pages, with a separate Cloudflare
 3. Deploys `apps/okr-web/dist` to the `ilovecode33-okr-web` Pages project under `pr-<PR number>`.
 4. Comments the Pages preview URL on the PR.
 
+If the `CLOUDFLARE_WORKERS_API_TOKEN` secret is missing, the preview falls back to the production relay (`https://sync.ilovecode33.fyi`) so the Pages preview still deploys; add the secret to get a relay per PR.
+
 Each PR gets a stable Pages alias and its own relay, so a preview never uses the production relay. [`.github/workflows/cleanup-okr-sync-relay.yml`](../../.github/workflows/cleanup-okr-sync-relay.yml) deletes the PR Worker when the PR closes.
 
 The workflow has a fork guard: pull requests from forks do not get previews, because they cannot access the Cloudflare secrets.
@@ -42,15 +44,11 @@ The Worker has a `PairRoom` Durable Object that relays WebRTC offer/answer messa
 
 ## Required GitHub secrets
 
-- `CLOUDFLARE_API_TOKEN`
+- `CLOUDFLARE_API_TOKEN` — Pages deployments
 - `CLOUDFLARE_ACCOUNT_ID`
+- `CLOUDFLARE_WORKERS_API_TOKEN` — optional until relay deploys are needed; requires Workers Scripts:Edit and Durable Objects:Edit
 
-These are the same secrets used by the blog and UI landing workflows. The token needs:
-
-- Pages:Edit (Pages deployments)
-- Workers Scripts:Edit (Worker + PR preview deploys)
-- Durable Objects:Edit (the `PairRoom` binding)
-- DNS:Edit only if the workflows are extended to manage DNS; the current records are already attached.
+The Pages token is the same one used by the blog and UI landing workflows. The relay token is separate and is used only by the relay deploy, cleanup, and PR relay steps. Without it, PR previews use the production relay and relay deploys are skipped.
 
 ## Cloudflare resources
 
