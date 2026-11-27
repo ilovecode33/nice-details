@@ -1,5 +1,5 @@
-import { describe, expect, rs, test } from '@rstest/core';
-import { act, render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, rs, test } from '@rstest/core';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import {
   createSampleState,
   type OKRState,
@@ -28,6 +28,10 @@ type FakePairing = RelayPairing & {
 };
 
 const room = 'abcdefghijklmnopqrstuvwx';
+
+afterEach(() => {
+  localStorage.removeItem('okr-web.device-name');
+});
 
 const offer: PeerSignal = {
   v: 1,
@@ -154,6 +158,7 @@ function renderPanel({
   onStart?: (options: RelayPairingOptions) => void;
 } = {}) {
   let session: FakeSession | null = null;
+  let sessionOptions: LocalSyncOptions | null = null;
   let pairing: FakePairing | null = null;
   const view = render(
     <UIFoundation dictionaries={DICTIONARIES}>
@@ -165,6 +170,7 @@ function renderPanel({
         initialMode={initialMode}
         initialRoom={initialRoom}
         createSession={(options) => {
+          sessionOptions = options;
           session = createFakeSession(options, peers);
           return session;
         }}
@@ -179,6 +185,7 @@ function renderPanel({
   return {
     ...view,
     getSession: () => session,
+    getSessionOptions: () => sessionOptions,
     getPairing: () => pairing,
   };
 }
@@ -226,6 +233,23 @@ describe('SyncPanel', () => {
     });
 
     expect(onRemoteState).toHaveBeenCalledWith(remote);
+  });
+
+  test('saves a distinct device name and uses it for the session', async () => {
+    localStorage.setItem('okr-web.device-name', 'Test Phone');
+    const { getSessionOptions } = renderPanel();
+
+    const input = await screen.findByLabelText('Device name');
+    expect((input as HTMLInputElement).value).toBe('Test Phone');
+    expect(getSessionOptions()).toMatchObject({ label: 'Test Phone' });
+
+    fireEvent.change(input, { target: { value: 'Alan MacBook' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Save name' }));
+
+    await waitFor(() => {
+      expect(getSessionOptions()).toMatchObject({ label: 'Alan MacBook' });
+    });
+    expect(localStorage.getItem('okr-web.device-name')).toBe('Alan MacBook');
   });
 
   test('lists remembered peers with a forget action', async () => {

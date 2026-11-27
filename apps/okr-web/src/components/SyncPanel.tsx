@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { Badge, Button, Select, Sheet, TextArea, TextInput } from '@ilovecode33/ui';
 import {
   QrCode,
@@ -68,6 +68,7 @@ export function SyncPanel({
   relayUrl = SYNC_RELAY_URL,
 }: SyncPanelProps) {
   const { t } = useOkrI18n();
+  const deviceNameId = useId();
   const [mode, setMode] = useState<SyncMode>(initialMode);
   const [deviceName, setDeviceName] = useState(() => loadDeviceName());
   const [nameDraft, setNameDraft] = useState(deviceName);
@@ -336,10 +337,13 @@ export function SyncPanel({
       closeLabel={t('common.close')}
     >
       <div className={styles.panel}>
-        <label className={styles.field}>
-          <span className={styles.fieldLabel}>{t('sync.deviceName')}</span>
+        <div className={styles.field}>
+          <label className={styles.fieldLabel} htmlFor={deviceNameId}>
+            {t('sync.deviceName')}
+          </label>
           <div className={styles.row}>
             <TextInput
+              id={deviceNameId}
               className={styles.nameInput}
               aria-label={t('sync.deviceName')}
               value={nameDraft}
@@ -360,7 +364,7 @@ export function SyncPanel({
               {t('sync.saveName')}
             </Button>
           </div>
-        </label>
+        </div>
 
         <label className={styles.field}>
           <span className={styles.fieldLabel}>{t('sync.mode')}</span>
