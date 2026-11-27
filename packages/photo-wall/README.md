@@ -8,7 +8,7 @@ A seedable, procedural "endless photo wall" library extracted from the image-gal
 bun add @ilovecode33/photo-wall
 ```
 
-React 19 is a peer dependency. Import the components and the single stylesheet entry point:
+React 19 is a peer dependency. Import the components; their CSS Modules travel with the component imports:
 
 ```tsx
 import {
@@ -17,7 +17,6 @@ import {
   DEFAULT_LIGHT,
   DEFAULT_WALL_PARAMS,
 } from '@ilovecode33/photo-wall';
-import '@ilovecode33/photo-wall/styles.css';
 ```
 
 ## Usage
@@ -43,13 +42,13 @@ Pass `tiles` plus the matching ordered `images` to restore a saved wall; otherwi
 - Pure solvers usable without React or a DOM: `createWallTiles` / `createWallStyle` (`tiles.ts`), `solveFrameGeometry` (`geometry.ts`), `computeFrameLighting`, `computeFrameLightingMulti`, `computeWallGlow` / `computeWallGlows` and the shadow/glow formatters (`light.ts`), plus `frameVars` and `DEFAULT_WALL_PARAMS`.
 - `WallParams` mirrors the gallery's proto-generated message, so a control-panel params object can be passed straight through.
 - Multiple lights solve independently and accumulate: each contributes its own shadow layer and wall-glow gradient. Legacy `shadow*` tuning fields remain as normalized gains.
-- A single `@ilovecode33/photo-wall/styles.css` subpath bundles the component CSS Modules.
+- Component CSS Modules are preserved in the bundleless output and load with the component imports; there is no separate stylesheet entry to import.
 
 ## Development
 
 | Command | Description |
 | --- | --- |
-| `bun run build` | ESM bundle, declarations and CSS into `dist/` |
+| `bun run build` | Bundleless ESM, declarations and per-module CSS into `dist/` |
 | `bun run dev` | Watch build |
 | `bun run typecheck` | `tsc --noEmit` |
 | `bun run test` | Rstest specs (happy-dom for component tests) |

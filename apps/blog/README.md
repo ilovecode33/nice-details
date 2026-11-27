@@ -18,7 +18,7 @@ From the repository root (Bun 1.4.4, workspaces):
 
 ```bash
 bun install
-bunx turbo run dev --filter=@ilovecode33/blog
+bunx turbo run dev --filter=@ilovecode33/blog...
 ```
 
 The dev server listens on **port 3100** (see [`rsbuild.config.ts`](rsbuild.config.ts)).
@@ -30,7 +30,7 @@ Common scripts from `package.json`: `dev`, `build`, `preview`, `typecheck`, `cle
 - Runtime: `@ilovecode33/ui`, `@ilovecode33/editor-core`, `react`, `react-dom`, `react-router-dom` (v7).
 - Dev: `@rsbuild/core`, `@rsbuild/plugin-react`, TypeScript and React types.
 
-All `@ilovecode33/*` packages are workspace dependencies. The Rsbuild config aliases them to their source during development, so library builds are not required for hot reload.
+All `@ilovecode33/*` packages are workspace dependencies. Use the dependency-aware dev command above; Turbo builds the libraries once and keeps their `build --watch` tasks running while this app consumes their bundleless `dist`.
 
 ## Build and deployment
 

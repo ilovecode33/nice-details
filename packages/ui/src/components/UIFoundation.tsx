@@ -1,3 +1,7 @@
+// UIFoundation owns the global design-system layer: tokens, base resets and
+// the stable `data-ui` utilities. Consumers wrap their app in UIFoundation
+// instead of importing this stylesheet themselves.
+import '../styles.css';
 import type { UIFoundationProps } from '@ilovecode33/ui-types';
 import styles from './UIFoundation.module.css';
 import { useEffect, useMemo, useState } from 'react';

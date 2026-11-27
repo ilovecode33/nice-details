@@ -5,11 +5,12 @@ export default defineConfig({
     {
       format: 'esm',
       dts: true,
+      bundle: false,
     },
   ],
   source: {
     entry: {
-      index: './src/index.ts',
+      index: ['./src/**', '!src/**/*.spec.*'],
     },
   },
   output: {

@@ -19,7 +19,7 @@ From the repository root (Bun 1.4.4, workspaces):
 
 ```bash
 bun install
-bunx turbo run dev --filter=@ilovecode33/editor-app
+bunx turbo run dev --filter=@ilovecode33/editor-app...
 ```
 
 The dev server listens on **port 3000** (see [`rsbuild.config.ts`](rsbuild.config.ts)).

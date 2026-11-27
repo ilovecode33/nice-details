@@ -2,15 +2,13 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "jsx": "react-jsx",
-    "baseUrl": ".",
     "paths": {
       "@ilovecode33/ui": ["../../packages/ui/src/index.ts"],
       "@ilovecode33/ui/styles.css": ["../../packages/ui/src/styles.css"],
       "@ilovecode33/ui-core": ["../../packages/ui-core/src/index.ts"],
       "@ilovecode33/ui-tokens": ["../../packages/ui-tokens/src/index.ts"],
       "@ilovecode33/ui-types": ["../../packages/ui-types/src/index.ts"],
-      "@ilovecode33/photo-wall": ["../../packages/photo-wall/src/index.ts"],
-      "@ilovecode33/photo-wall/styles.css": ["../../packages/photo-wall/src/components/PhotoWall.module.css"]
+      "@ilovecode33/photo-wall": ["../../packages/photo-wall/src/index.ts"]
     }
   },
   "include": ["src", "rsbuild.config.ts"]

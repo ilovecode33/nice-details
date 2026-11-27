@@ -2,7 +2,6 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "jsx": "react-jsx",
-    "baseUrl": ".",
     "paths": {
       "@ilovecode33/ui": ["../../packages/ui/src/index.ts"],
       "@ilovecode33/ui/styles.css": ["../../packages/ui/src/styles.css"],

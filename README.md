@@ -22,16 +22,17 @@ packages/
   ui-swift/      # SwiftUI skeleton mirroring the UI contracts — a Swift package, NOT an npm workspace
 ```
 
-Every npm package uses the `@ilovecode33/` scope. Apps build with Rsbuild (Rspack + HMR); libraries build with Rslib (ESM + `.d.ts`). App `tsconfig.json` files map paths to library `src`, so editing a library shows hot updates without a separate build.
+Every npm package uses the `@ilovecode33/` scope. Apps build with Rsbuild (Rspack + HMR); libraries build with Rslib in bundleless mode (ESM + `.d.ts` + per-module assets). App `tsconfig.json` files map paths to library `src` for typechecking, while runtime imports use the libraries' built `dist`. Run an app with the dependency-aware filter (`--filter=<app>...`) so Turbo builds the libraries once and keeps their `build --watch` tasks running.
 
 ## Common commands
 
 ```bash
 bun install
-bun run dev                                            # all apps
-bunx turbo run dev --filter=@ilovecode33/editor-app     # editor — port 3000
-bunx turbo run dev --filter=@ilovecode33/blog           # blog — port 3100
-bunx turbo run dev --filter=@ilovecode33/ui-landing     # component gallery — port 3200
+bun run dev                                             # all apps
+bunx turbo run dev --filter=@ilovecode33/editor-app...  # editor — port 3000
+bunx turbo run dev --filter=@ilovecode33/blog...        # blog — port 3100
+bunx turbo run dev --filter=@ilovecode33/ui-landing...  # component gallery — port 3200
+bunx turbo run dev --filter=@ilovecode33/okr-web...     # personal OKRs — port 3201
 bunx turbo run typecheck build                          # typecheck + topological build, cached in .turbo
 bunx turbo run test                                     # all packages that define a test task
 bun run changeset                                      # author a changeset interactively
@@ -43,15 +44,18 @@ bun run version:packages                               # consume changesets, bum
 
 ## Workspaces, versions and READMEs
 
-All ten npm workspaces have a README, as does the Swift package. Versions below are the current ones.
+All thirteen npm workspaces have a README, as does the Swift package. Versions below are the current ones.
 
 | Workspace | Version | README |
 |---|---|---|
 | [`@ilovecode33/blog`](apps/blog/README.md) | 0.1.1 | App |
 | [`@ilovecode33/editor-app`](apps/editor/README.md) | 0.1.1 | App |
 | [`@ilovecode33/ui-landing`](apps/ui-landing/README.md) | 0.1.1 | App |
+| [`@ilovecode33/okr-web`](apps/okr-web/README.md) | 0.1.0 | App |
 | [`@ilovecode33/ai-rules`](packages/ai-rules/README.md) | 0.1.1 | Rule index |
 | [`@ilovecode33/editor-core`](packages/editor-core/README.md) | 0.1.1 | SDK |
+| [`@ilovecode33/okr-shared`](packages/okr-shared/README.md) | 0.1.0 | Library |
+| [`@ilovecode33/persistence`](packages/persistence/README.md) | 0.1.0 | Library |
 | [`@ilovecode33/photo-wall`](packages/photo-wall/README.md) | 0.2.0 | Library |
 | [`@ilovecode33/ui`](packages/ui/README.md) | 0.3.1 | Library |
 | [`@ilovecode33/ui-core`](packages/ui-core/README.md) | 0.3.1 | Library |
@@ -68,6 +72,7 @@ The four `ui*` packages are a Changesets `fixed` group and always upgrade togeth
 | Agent entry point, repo rules, definition of done | [`AGENTS.md`](AGENTS.md) |
 | Rule index and scope table | [`packages/ai-rules/README.md`](packages/ai-rules/README.md) |
 | Design principles, mobile-first, touch-first | [`design-principles.md`](packages/ai-rules/design-principles.md), [`mobile-first.md`](packages/ai-rules/mobile-first.md), [`user-first.md`](packages/ai-rules/user-first.md) |
+| Frontend project conventions (CSS Modules, same-name files) | [`frontend-project.md`](packages/ai-rules/frontend-project.md) |
 | Component entry / release exit / PR checklist | [`component-entry.md`](packages/ai-rules/component-entry.md), [`release-exit.md`](packages/ai-rules/release-exit.md), [`pr-checklist.md`](packages/ai-rules/pr-checklist.md) |
 | Floating surfaces, photo wall, editor core rules | [`floating-surfaces.md`](packages/ai-rules/floating-surfaces.md), [`photo-wall.md`](packages/ai-rules/photo-wall.md), [`editor-core.md`](packages/ai-rules/editor-core.md) |
 | Deprecation policy | [`deprecation.md`](packages/ai-rules/deprecation.md) |

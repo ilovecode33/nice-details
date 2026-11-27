@@ -1,7 +1,6 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "baseUrl": ".",
     "paths": {
       "@ilovecode33/editor-core": ["../../packages/editor-core/src/index.ts"]
     }

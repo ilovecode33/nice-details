@@ -17,7 +17,7 @@ From the repository root (Bun 1.4.4, workspaces):
 
 ```bash
 bun install
-bunx turbo run dev --filter=@ilovecode33/ui-landing
+bunx turbo run dev --filter=@ilovecode33/ui-landing...
 ```
 
 The dev server listens on **port 3200** (see [`rsbuild.config.ts`](rsbuild.config.ts)).
@@ -29,7 +29,7 @@ Common scripts from `package.json`: `dev`, `build`, `preview`, `typecheck`, `cle
 - Runtime: `@ilovecode33/ui`, `@ilovecode33/photo-wall`, `@ilovecode33/ui-types`, `lucide-react`, `react`, `react-dom`.
 - Dev: `@rsbuild/core`, `@rsbuild/plugin-react`, TypeScript and React types.
 
-The Rsbuild config aliases the workspace libraries to their source during development, so library builds are not required for hot reload. See [`../../packages/ui/ROADMAP.md`](../../packages/ui/ROADMAP.md) for the planned component expansion.
+The dependency-aware dev command above lets Turbo build the workspace libraries once and keep their `build --watch` tasks running; this app consumes every workspace library from its bundleless `dist`. See [`../../packages/ui/ROADMAP.md`](../../packages/ui/ROADMAP.md) for the planned component expansion.
 
 ## Build and deployment
 
