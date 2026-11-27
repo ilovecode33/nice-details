@@ -45,6 +45,7 @@ function isStateMessage(
 export interface SyncPanelProps {
   open: boolean;
   onClose: () => void;
+  onDisconnect?: () => void;
   state: OKRState;
   onRemoteState: (state: OKRState) => void;
   initialMode?: SyncMode;
@@ -60,6 +61,7 @@ export interface SyncPanelProps {
 export function SyncPanel({
   open,
   onClose,
+  onDisconnect,
   state,
   onRemoteState,
   initialMode = 'host',
@@ -72,6 +74,7 @@ export function SyncPanel({
   const { t } = useOkrI18n();
   const deviceNameId = useId();
   const [mode, setMode] = useState<SyncMode>(initialMode);
+  const [started, setStarted] = useState(false);
   const [deviceName, setDeviceName] = useState(() => loadDeviceName());
   const [nameDraft, setNameDraft] = useState(deviceName);
   const [relayStatus, setRelayStatus] = useState<PanelStatus>('idle');
@@ -175,7 +178,11 @@ export function SyncPanel({
   }
 
   useEffect(() => {
-    if (!open) return;
+    if (open) setStarted(true);
+  }, [open]);
+
+  useEffect(() => {
+    if (!started) return;
     let cancelled = false;
     const autoRoom = retryKey === 0 ? initialRoom : '';
     setRelayStatus('idle');
@@ -286,7 +293,7 @@ export function SyncPanel({
       sendStateRef.current = () => {};
     };
   }, [
-    open,
+    started,
     mode,
     deviceName,
     createSession,
@@ -371,6 +378,17 @@ export function SyncPanel({
     await session.forgetPeer(id);
     setPeers(await session.listPeers());
     setKnown(false);
+  }
+
+  function disconnect() {
+    setStarted(false);
+    setPairUrl('');
+    setRelayStatus('idle');
+    setKnown(false);
+    setPeers([]);
+    setError('');
+    if (onDisconnect) onDisconnect();
+    else onClose();
   }
 
   const statusText =
@@ -554,11 +572,20 @@ export function SyncPanel({
           </Button>
         )}
 
-        {isConnected && (
+        {relayStatus !== 'idle' && relayStatus !== 'failed' && (
           <div className={styles.row}>
-            <Badge tone={known ? 'success' : 'neutral'}>
-              {known ? t('sync.known') : t('sync.newPairing')}
-            </Badge>
+            {isConnected && (
+              <Badge tone={known ? 'success' : 'neutral'}>
+                {known ? t('sync.known') : t('sync.newPairing')}
+              </Badge>
+            )}
+            <Button
+              variant="plain"
+              size="compact"
+              onClick={disconnect}
+            >
+              {t('sync.disconnect')}
+            </Button>
           </div>
         )}
 

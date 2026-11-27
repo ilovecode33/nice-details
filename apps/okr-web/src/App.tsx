@@ -419,7 +419,8 @@ export function App({ storage }: AppProps = {}) {
         <SyncPanel
           key={syncLink || 'sync-manual'}
           open={syncOpen}
-          onClose={() => {
+          onClose={() => setSyncOpen(false)}
+          onDisconnect={() => {
             setSyncOpen(false);
             setSyncLink('');
           }}
