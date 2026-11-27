@@ -230,16 +230,23 @@ export class LocalSync implements LocalSyncSession {
     const store = await this.store();
     const saved = await store.getIdentity(role);
     if (saved) {
+      let changed = false;
       if (role === 'host' && !saved.password) {
         saved.password = randomToken(18);
-        await store.saveIdentity(saved);
+        changed = true;
       }
+      const label = this.options.label?.trim();
+      if (label && saved.label !== label) {
+        saved.label = label;
+        changed = true;
+      }
+      if (changed) await store.saveIdentity(saved);
       return saved;
     }
     const identity: LocalSyncIdentity = {
       role,
       id: randomToken(16),
-      label: this.options.label ?? 'This device',
+      label: this.options.label?.trim() || 'This device',
       ...(role === 'host' ? { password: randomToken(18) } : {}),
       createdAt: new Date().toISOString(),
     };

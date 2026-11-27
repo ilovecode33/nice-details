@@ -3,8 +3,7 @@
  * PUBLIC_SYNC_RELAY_URL when the relay lives on another host.
  */
 export const SYNC_RELAY_URL =
-  import.meta.env.PUBLIC_SYNC_RELAY_URL ??
-  'https://ilovecode33-okr-sync.2y6ddt55g7.workers.dev';
+  import.meta.env.PUBLIC_SYNC_RELAY_URL ?? 'https://sync.ilovecode33.fyi';
 
 /** Adds server-reflexive candidates while keeping the data channel P2P. */
 export const SYNC_ICE_SERVERS: RTCIceServer[] = [

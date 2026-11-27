@@ -31,7 +31,17 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      - name: Deploy PR sync relay
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: apps/sync-relay
+          command: deploy --name ilovecode33-okr-sync-pr-${{ github.event.pull_request.number }}
+
       - name: Build OKR web
+        env:
+          PUBLIC_SYNC_RELAY_URL: https://ilovecode33-okr-sync-pr-${{ github.event.pull_request.number }}.2y6ddt55g7.workers.dev
         run: bunx turbo run build --filter=@ilovecode33/okr-web
 
       - name: Ensure Pages project exists

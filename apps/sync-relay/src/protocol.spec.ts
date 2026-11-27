@@ -25,6 +25,7 @@ describe('sync relay protocol', () => {
     expect(isAllowedOrigin('https://pr-21.ilovecode33-okr-web.pages.dev')).toBe(
       true,
     );
+    expect(isAllowedOrigin('https://okr.ilovecode33.fyi')).toBe(true);
     expect(
       isAllowedOrigin('https://abc123.ilovecode33-okr-web.pages.dev'),
     ).toBe(true);

@@ -31,7 +31,11 @@ cd apps/sync-relay && bunx wrangler deploy
 
 The GitHub Actions workflow [`.github/workflows/deploy-sync-relay.yml`](../../.github/workflows/deploy-sync-relay.yml) deploys on pushes to `main` using the shared `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` secrets. The token needs **Workers Scripts:Edit** and **Durable Objects:Edit** in addition to the Pages permissions used by the other workflows.
 
-Production Worker: `https://ilovecode33-okr-sync.2y6ddt55g7.workers.dev`
+Production Worker: `https://sync.ilovecode33.fyi` (custom domain) and `https://ilovecode33-okr-sync.2y6ddt55g7.workers.dev`.
+
+## PR previews
+
+The OKR preview workflow deploys a per-PR Worker named `ilovecode33-okr-sync-pr-<PR number>` and builds the app with `PUBLIC_SYNC_RELAY_URL` pointing at it. That keeps previews off the production relay. [`.github/workflows/cleanup-okr-sync-relay.yml`](../../.github/workflows/cleanup-okr-sync-relay.yml) removes the Worker when the PR closes.
 
 ## Configuration
 

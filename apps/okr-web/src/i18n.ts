@@ -139,6 +139,8 @@ const en: Record<string, string> = {
   'sync.open': 'Sync',
   'sync.title': 'Sync devices',
   'sync.mode': 'Mode',
+  'sync.deviceName': 'Device name',
+  'sync.saveName': 'Save name',
   'sync.host': 'Host',
   'sync.join': 'Join',
   'sync.hostHint':
@@ -302,6 +304,8 @@ const zhTW: Record<string, string> = {
   'sync.open': '同步',
   'sync.title': '同步裝置',
   'sync.mode': '模式',
+  'sync.deviceName': '裝置名稱',
+  'sync.saveName': '儲存名稱',
   'sync.host': '主機',
   'sync.join': '加入',
   'sync.hostHint': '用另一部裝置掃描這個 QR 一次，回答會自動傳回。',
@@ -468,6 +472,8 @@ const de: Record<string, string> = {
   'sync.open': 'Synchronisieren',
   'sync.title': 'Geräte synchronisieren',
   'sync.mode': 'Modus',
+  'sync.deviceName': 'Gerätename',
+  'sync.saveName': 'Namen speichern',
   'sync.host': 'Host',
   'sync.join': 'Beitreten',
   'sync.hostHint':

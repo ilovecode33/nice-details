@@ -44,7 +44,7 @@ room id is random and embedded in the host QR; the relay never sees OKR data.
 // Host, once the panel opens:
 const host = createLocalSync({ role: 'host', label: 'Desktop' });
 const hostPairing = await startRelayPairing({
-  relayUrl: 'https://ilovecode33-okr-sync.2y6ddt55g7.workers.dev',
+  relayUrl: 'https://sync.ilovecode33.fyi',
   role: 'host',
   session: host,
 });
@@ -58,7 +58,7 @@ const guest = createLocalSync({ role: 'guest', label: 'Phone' });
 const room = parsePairingCode(window.location.href);
 if (room) {
   await startRelayPairing({
-    relayUrl: 'https://ilovecode33-okr-sync.2y6ddt55g7.workers.dev',
+    relayUrl: 'https://sync.ilovecode33.fyi',
     role: 'guest',
     session: guest,
     room,

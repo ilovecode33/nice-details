@@ -67,8 +67,12 @@ The QR link is `https://<app>/#sync=<room>`. Opening it with the system camera
 loads the app and joins automatically; the in-app **Join → Scan** flow and the
 paste field are fallbacks. The signaling relay only exchanges WebRTC
 offer/answer data. OKR state always travels over the peer-to-peer data channel.
-The relay URL defaults to `https://ilovecode33-okr-sync.2y6ddt55g7.workers.dev`
-and can be overridden with `PUBLIC_SYNC_RELAY_URL`.
+The relay URL defaults to `https://sync.ilovecode33.fyi` and can be overridden
+with `PUBLIC_SYNC_RELAY_URL`.
+
+Each device sends a readable name such as `Mac · Chrome` or `iPhone · Safari`.
+You can edit it in **Sync → Device name**; the name is stored under
+`okr-web.device-name` and shown in the other device's known-device list.
 
 The host state is sent when the connection opens; afterwards, local edits on
 either device are sent to the peer. Pairing identities and passwords are stored
@@ -88,12 +92,20 @@ offline and keeps one user's data on that device only.
 
 Existing data from the pre-IndexedDB `localStorage` key `okr-web.state.v1` is
 migrated on first load and the old key is removed. The language choice is saved
-under `okr-web.locale`. Clearing site data restores the sample set.
+under `okr-web.locale` and the device name under `okr-web.device-name`. Clearing
+site data restores the sample set.
 
 ## Deployment
 
 Pull requests targeting `main` get a Cloudflare Pages preview at
 `https://pr-<PR number>.ilovecode33-okr-web.pages.dev`, deployed by
 [`.github/workflows/preview-okr-web.yml`](../../.github/workflows/preview-okr-web.yml).
-The preview is HTTPS, so the camera QR scanner works on phones. Production
-deployment is not enabled yet; see [`DEPLOYMENT.md`](DEPLOYMENT.md).
+Each PR also gets its own signaling Worker at
+`https://ilovecode33-okr-sync-pr-<PR number>.2y6ddt55g7.workers.dev`, which is
+removed when the PR closes. The preview is HTTPS, so the camera QR scanner works
+on phones.
+
+Production deploys from `main` with
+[`.github/workflows/deploy-okr-web.yml`](../../.github/workflows/deploy-okr-web.yml)
+to `https://okr.ilovecode33.fyi`. The app uses the production relay at
+`https://sync.ilovecode33.fyi`. See [`DEPLOYMENT.md`](DEPLOYMENT.md).

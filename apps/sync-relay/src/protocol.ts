@@ -19,6 +19,7 @@ export type RelayServerMessage =
 const ROOM_PATTERN = /^[A-Za-z0-9_-]{16,64}$/;
 
 const ALLOWED_ORIGINS = [
+  /^https:\/\/okr\.ilovecode33\.fyi$/,
   /^https:\/\/ilovecode33-okr-web\.pages\.dev$/,
   /^https:\/\/[a-z0-9-]+\.ilovecode33-okr-web\.pages\.dev$/,
   /^http:\/\/localhost(?::\d+)?$/,

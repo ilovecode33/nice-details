@@ -1,0 +1,31 @@
+name: Cleanup OKR sync relay preview
+
+on:
+  pull_request:
+    types:
+      - closed
+
+permissions:
+  contents: read
+
+jobs:
+  cleanup:
+    # Forks never deployed a relay worker.
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete PR relay worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          status=$(curl -sS -o /dev/null -w '%{http_code}' \
+            -X DELETE \
+            -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+            "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/workers/scripts/ilovecode33-okr-sync-pr-${PR_NUMBER}?force=true")
+          echo "Worker delete status: ${status}"
+          # 404 means it was already removed; treat it as success.
+          if [ "${status}" != "200" ] && [ "${status}" != "204" ] && [ "${status}" != "404" ]; then
+            exit 1
+          fi

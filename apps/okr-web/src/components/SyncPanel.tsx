@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Badge, Button, Select, Sheet, TextArea } from '@ilovecode33/ui';
+import { Badge, Button, Select, Sheet, TextArea, TextInput } from '@ilovecode33/ui';
 import {
   QrCode,
   QrScanner,
@@ -15,6 +15,7 @@ import {
   type RelayPairingStatus,
 } from '@ilovecode33/local-sync';
 import type { OKRState } from '@ilovecode33/okr-shared';
+import { loadDeviceName, saveDeviceName } from '../deviceName';
 import { useOkrI18n } from '../i18n';
 import { SYNC_ICE_SERVERS, SYNC_RELAY_URL } from '../syncConfig';
 import styles from './SyncPanel.module.css';
@@ -68,6 +69,8 @@ export function SyncPanel({
 }: SyncPanelProps) {
   const { t } = useOkrI18n();
   const [mode, setMode] = useState<SyncMode>(initialMode);
+  const [deviceName, setDeviceName] = useState(() => loadDeviceName());
+  const [nameDraft, setNameDraft] = useState(deviceName);
   const [relayStatus, setRelayStatus] = useState<PanelStatus>('idle');
   const [pairUrl, setPairUrl] = useState('');
   const [joinInput, setJoinInput] = useState('');
@@ -81,14 +84,12 @@ export function SyncPanel({
   const pairingRef = useRef<RelayPairing | null>(null);
   const stateRef = useRef(state);
   const onRemoteStateRef = useRef(onRemoteState);
-  const labelRef = useRef(t('sync.deviceLabel'));
   const skipSendRef = useRef(false);
   const connectedRef = useRef(false);
   const copiedTimer = useRef<number | null>(null);
 
   stateRef.current = state;
   onRemoteStateRef.current = onRemoteState;
-  labelRef.current = t('sync.deviceLabel');
 
   useEffect(() => {
     return () => {
@@ -116,6 +117,14 @@ export function SyncPanel({
     setError(reason.code === 'timeout' ? t('sync.timeout') : messageOf(reason));
   }
 
+  function applyDeviceName() {
+    const next = nameDraft.trim();
+    if (!next || next === deviceName) return;
+    saveDeviceName(next);
+    setDeviceName(next);
+    setNameDraft(next);
+  }
+
   useEffect(() => {
     if (!open) return;
     let cancelled = false;
@@ -133,7 +142,7 @@ export function SyncPanel({
 
     const session = createSession({
       role: mode === 'host' ? 'host' : 'guest',
-      label: labelRef.current,
+      label: deviceName,
       iceServers: SYNC_ICE_SERVERS,
     });
     sessionRef.current = session;
@@ -224,7 +233,15 @@ export function SyncPanel({
       if (sessionRef.current === session) sessionRef.current = null;
       connectedRef.current = false;
     };
-  }, [open, mode, createSession, startPairing, relayUrl, retryKey]);
+  }, [
+    open,
+    mode,
+    deviceName,
+    createSession,
+    startPairing,
+    relayUrl,
+    retryKey,
+  ]);
 
   useEffect(() => {
     if (!connectedRef.current) return;
@@ -319,6 +336,32 @@ export function SyncPanel({
       closeLabel={t('common.close')}
     >
       <div className={styles.panel}>
+        <label className={styles.field}>
+          <span className={styles.fieldLabel}>{t('sync.deviceName')}</span>
+          <div className={styles.row}>
+            <TextInput
+              className={styles.nameInput}
+              aria-label={t('sync.deviceName')}
+              value={nameDraft}
+              maxLength={40}
+              disabled={isConnected}
+              onChange={(event) => setNameDraft(event.target.value)}
+            />
+            <Button
+              size="compact"
+              variant="secondary"
+              onClick={applyDeviceName}
+              disabled={
+                isConnected ||
+                nameDraft.trim() === '' ||
+                nameDraft.trim() === deviceName
+              }
+            >
+              {t('sync.saveName')}
+            </Button>
+          </div>
+        </label>
+
         <label className={styles.field}>
           <span className={styles.fieldLabel}>{t('sync.mode')}</span>
           <Select
