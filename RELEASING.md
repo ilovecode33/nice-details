@@ -40,9 +40,21 @@ are in use.
    a short summary. Commit the generated `.changeset/*.md` file together with
    the code change.
 2. Before merging, run `bun run check:changesets` and make sure it is green.
-3. At release time, run `bun run version:packages`, then `bun install` to refresh
-   `bun.lock`, verify with `bunx turbo run typecheck build test --force`, and
-   commit the version and changelog changes.
+3. Release time is automated: every push to `main` runs
+   [`.github/workflows/release.yml`](.github/workflows/release.yml), which uses
+   `changesets/action` to open or update the `chore: version packages` PR,
+   validates the bumped workspace with typecheck/build/test, reports the
+   required `preview` check, and squash-merges it back to `main`. No manual
+   `bun run version:packages` is needed.
+   If the automation cannot merge (for example a failing check), the version PR
+   stays open for manual review; merging it by hand is always safe.
+
+## Manual fallback
+
+If the workflow is unavailable, run `bun run version:packages`, then
+`bun install` to refresh `bun.lock`, verify with
+`bunx turbo run typecheck build test --force`, and commit the version and
+changelog changes.
 
 The summaries you write in changesets describe the change for readers, not the
 version number; Changesets derives the version from the bump types.
