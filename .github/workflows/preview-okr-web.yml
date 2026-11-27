@@ -37,6 +37,7 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: apps/sync-relay
+          packageManager: bun
           command: deploy --name ilovecode33-okr-sync-pr-${{ github.event.pull_request.number }}
 
       - name: Build OKR web
