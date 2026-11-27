@@ -159,6 +159,7 @@ class RelayClient implements RelayPairing {
   private readyReject: ((error: Error) => void) | null = null;
   private offerTimer: ReturnType<typeof setTimeout> | null = null;
   private readyTimer: ReturnType<typeof setTimeout> | null = null;
+  private connectionTimer: ReturnType<typeof setTimeout> | null = null;
   private answerSent = false;
   private closed = false;
 
@@ -189,6 +190,7 @@ class RelayClient implements RelayPairing {
 
     this.offSessionState = this.options.session.onStateChange((state) => {
       if (state === 'connected') {
+        this.clearConnectionTimer();
         this.setStatus('connected');
         this.closeSocket();
       } else if (state === 'failed') {
@@ -215,6 +217,7 @@ class RelayClient implements RelayPairing {
     const answer = await this.options.session.acceptOffer(offer);
     this.send({ type: 'answer', payload: answer });
     this.answerSent = true;
+    this.startConnectionTimer();
   }
 
   onStatus(listener: (status: RelayPairingStatus) => void): () => void {
@@ -314,6 +317,7 @@ class RelayClient implements RelayPairing {
     this.setStatus('signaling');
     try {
       await this.options.session.acceptAnswer(answer);
+      this.startConnectionTimer();
     } catch (error) {
       this.fail(asSyncError(error, 'webrtc'));
     }
@@ -395,6 +399,7 @@ class RelayClient implements RelayPairing {
   private clearWaiters(error: Error): void {
     this.clearReadyTimer();
     this.clearOfferTimer();
+    this.clearConnectionTimer();
     this.readyReject?.(error);
     this.offerReject?.(error);
     this.readyResolve = null;
@@ -407,6 +412,25 @@ class RelayClient implements RelayPairing {
     if (this.readyTimer !== null) {
       clearTimeout(this.readyTimer);
       this.readyTimer = null;
+    }
+  }
+
+  private startConnectionTimer(): void {
+    this.clearConnectionTimer();
+    this.connectionTimer = setTimeout(() => {
+      this.fail(
+        new LocalSyncError(
+          'The direct connection timed out. Check that both devices are on the same network.',
+          'timeout',
+        ),
+      );
+    }, 30_000);
+  }
+
+  private clearConnectionTimer(): void {
+    if (this.connectionTimer !== null) {
+      clearTimeout(this.connectionTimer);
+      this.connectionTimer = null;
     }
   }
 

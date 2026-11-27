@@ -112,7 +112,7 @@ export function SyncPanel({
 
   function handleError(reason: LocalSyncError) {
     setRelayStatus('failed');
-    setError(messageOf(reason));
+    setError(reason.code === 'timeout' ? t('sync.timeout') : messageOf(reason));
   }
 
   useEffect(() => {

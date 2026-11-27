@@ -150,6 +150,8 @@ const en: Record<string, string> = {
   'sync.waitingForGuest': 'Waiting for the other device. Scan the QR once.',
   'sync.waitingForHost': 'Connecting to the host…',
   'sync.invalidLink': 'This pairing link is not valid.',
+  'sync.timeout':
+    'The direct connection timed out. Make sure both devices are on the same Wi-Fi and try again.',
   'sync.offerCode': 'Host pairing code',
   'sync.answerQr': 'Answer QR code',
   'sync.answerCode': 'Answer code',
@@ -309,6 +311,7 @@ const zhTW: Record<string, string> = {
   'sync.waitingForGuest': '等待另一部裝置，只需掃一次 QR。',
   'sync.waitingForHost': '正在連線到主機…',
   'sync.invalidLink': '這個配對連結無效。',
+  'sync.timeout': '直接連線逾時。請確認兩部裝置在同一個 Wi-Fi，然後再試一次。',
   'sync.offerCode': '主機配對碼',
   'sync.answerQr': '回答 QR',
   'sync.answerCode': '回答碼',
@@ -475,6 +478,8 @@ const de: Record<string, string> = {
     'Warte auf das andere Gerät. Scanne den QR-Code einmal.',
   'sync.waitingForHost': 'Verbindung zum Host …',
   'sync.invalidLink': 'Dieser Kopplungslink ist ungültig.',
+  'sync.timeout':
+    'Die direkte Verbindung hat zu lange gedauert. Stelle sicher, dass beide Geräte im selben WLAN sind, und versuche es erneut.',
   'sync.offerCode': 'Host-Kopplungscode',
   'sync.answerQr': 'Antwort-QR',
   'sync.answerCode': 'Antwortcode',

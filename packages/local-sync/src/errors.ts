@@ -6,7 +6,8 @@ export type LocalSyncErrorCode =
   | 'channel'
   | 'camera'
   | 'permission'
-  | 'insecure';
+  | 'insecure'
+  | 'timeout';
 
 /** Error raised by LocalSync or the QR scanner. */
 export class LocalSyncError extends Error {
