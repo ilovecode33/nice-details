@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.3.2
+
+### Patch Changes
+
+- a6d7829: Keep the DockNavigation content locked to its target layout width during the expand/collapse morph, so the wrapped row count no longer cascades (for example 3 rows → 2 → 1) and the height no longer rises before settling to a single row.
+- 73ae073: Refresh README.md for every workspace with concise, current summaries and verified documentation links.
+- a6d7829: Extract the Segmented pill drag engine into a reusable `useSegmentPillDrag` hook (with a tunable `feel` for snap radius, dead zone, breakaway and magnet) and reuse it in the theme switcher, so the appearance control gets the same weighted drag and rebound-free settle with a smaller snap zone suited to its 44px icons. The theme pill uses the accent-tinted glass fill, stroke and halo so the selected option is clearly visible in both light and dark themes.
+- 430d577: Move the whole Segmented pill surface onto the inner drag layer so the damped pill, glow and spotlight track the pointer together without stacking across repeated drags.
+- 2295ad4: Hard-clamp Segmented drags at the end slots and skip the settle animation when an end-clamped release keeps the same selection, removing the endpoint rebound.
+- a6d7829: Re-base the Segmented settle animation against the new slot seat. Releasing a drag at the last boundary no longer throws the pill off-screen and springs it back: the inner offset is now computed so the pill stays exactly where the pointer left it while the outer seat snaps to the target, and mid-slot releases still glide smoothly into place.
+- c85cbdf: Give the Segmented thumb a weighted drag: heavy breakaway at the start of a drag, smooth 1:1 tracking once the pointer leaves the slot, a light magnet on entry, rubber-band resistance at the ends, and a spring settle window after release.
+- a6d7829: Let the Select menu be chosen by dragging: sliding the pointer over options highlights the option under it, and releasing applies that option and closes the menu — including when the gesture starts on the trigger, so press-drag-release selects in one motion. Once the menu is open its drop side is locked, so a later opposite drag cannot flip it.
+- 851dfe1: Detect drag direction intent on Select: horizontal-dominant drags no longer open or flip the dropdown.
+- 5f303cc: Open Select by dragging vertically: drag up opens the menu above the trigger, drag down opens it below, with click suppression after a drag and matching keyboard directions.
+- a6d7829: Add drag-to-toggle to Switch: the knob follows the pointer, previews the destination track colour, and commits the side it lands on when released. The knob stretch peaks halfway and rounds back to a circle at each seat, so it only deforms while crossing the middle. Sub-threshold presses and plain clicks still toggle, and the synthetic click after a drag is suppressed so it cannot double-toggle. The on track now uses the same accent glass as the pill (`--seg-thumb-solid`), so it no longer looks darker by compositing against the page background.
+- Updated dependencies [73ae073]
+  - @ilovecode33/ui-core@0.3.2
+  - @ilovecode33/ui-tokens@0.3.2
+  - @ilovecode33/ui-types@0.3.2
+
 ## 0.3.1
 
 ### Patch Changes

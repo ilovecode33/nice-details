@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.2
+
+### Patch Changes
+
+- 73ae073: Refresh README.md for every workspace with concise, current summaries and verified documentation links.
+- Updated dependencies [73ae073]
+  - @ilovecode33/editor-core@0.1.2
+
 ## 0.1.1
 
 ### Patch Changes
