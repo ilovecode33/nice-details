@@ -10,6 +10,7 @@ export type RelayPairingStatus =
   | 'waiting'
   | 'signaling'
   | 'connected'
+  | 'relay'
   | 'failed'
   | 'closed';
 
@@ -39,6 +40,9 @@ export interface RelayPairing {
   readonly role: RelayRole;
   readonly pairUrl: string;
   readonly status: RelayPairingStatus;
+  /** Sends app data through the relay when WebRTC is unavailable. */
+  send(message: string): void;
+  onMessage(listener: (message: string) => void): () => void;
   onStatus(listener: (status: RelayPairingStatus) => void): () => void;
   close(): void;
 }
@@ -49,6 +53,7 @@ type RelayServerMessage =
   | { type: 'peer-left' }
   | { type: 'offer'; payload: unknown }
   | { type: 'answer'; payload: unknown }
+  | { type: 'app'; data: string }
   | { type: 'pong' }
   | { type: 'error'; message?: string };
 
@@ -161,6 +166,10 @@ function parseRelayMessage(raw: unknown): RelayServerMessage | null {
   if (message.type === 'offer' || message.type === 'answer') {
     return { type: message.type, payload: message.payload };
   }
+  if (message.type === 'app') {
+    const data = (value as { data?: unknown }).data;
+    return typeof data === 'string' ? { type: 'app', data } : null;
+  }
   if (message.type === 'error') {
     const messageValue = (value as { message?: unknown }).message;
     return {
@@ -185,6 +194,7 @@ class RelayClient implements RelayPairing {
   private readonly statusListeners = new Set<
     (status: RelayPairingStatus) => void
   >();
+  private readonly messageListeners = new Set<(message: string) => void>();
   private offSessionState: (() => void) | null = null;
   private readyReceived = false;
   private pendingOffer: PeerSignal | null = null;
@@ -231,11 +241,14 @@ class RelayClient implements RelayPairing {
       if (state === 'connected') {
         this.clearConnectionTimer();
         this.setStatus('connected');
-        this.closeSocket();
       } else if (state === 'failed') {
-        this.fail(
-          new LocalSyncError('The direct connection failed', 'webrtc'),
-        );
+        if (this.socket?.readyState === SOCKET_OPEN) {
+          this.setStatus('relay');
+        } else {
+          this.fail(
+            new LocalSyncError('The direct connection failed', 'webrtc'),
+          );
+        }
       }
     });
 
@@ -244,7 +257,7 @@ class RelayClient implements RelayPairing {
 
     if (this.role === 'host') {
       const offer = await this.options.session.createOffer();
-      this.send({ type: 'offer', payload: offer });
+      this.sendSignal({ type: 'offer', payload: offer });
       this.setStatus('waiting');
       return;
     }
@@ -254,9 +267,21 @@ class RelayClient implements RelayPairing {
     this.assertActive();
     this.setStatus('signaling');
     const answer = await this.options.session.acceptOffer(offer);
-    this.send({ type: 'answer', payload: answer });
+    this.sendSignal({ type: 'answer', payload: answer });
     this.answerSent = true;
     this.startConnectionTimer();
+  }
+
+  send(message: string): void {
+    if (!this.socket || this.socket.readyState !== SOCKET_OPEN) {
+      throw new LocalSyncError('The pairing relay is not open', 'signal');
+    }
+    this.socket.send(JSON.stringify({ type: 'app', data: message }));
+  }
+
+  onMessage(listener: (message: string) => void): () => void {
+    this.messageListeners.add(listener);
+    return () => this.messageListeners.delete(listener);
   }
 
   onStatus(listener: (status: RelayPairingStatus) => void): () => void {
@@ -284,7 +309,7 @@ class RelayClient implements RelayPairing {
       this.handleMessage(message);
     });
     socket.addEventListener('close', () => {
-      if (this.closed || this.answerSent) return;
+      if (this.closed || this.currentStatus === 'connected') return;
       this.fail(new LocalSyncError('The pairing relay disconnected', 'signal'));
     });
     socket.addEventListener('error', () => {
@@ -327,6 +352,10 @@ class RelayClient implements RelayPairing {
         return;
       }
       void this.acceptAnswer(message.payload);
+      return;
+    }
+    if (message.type === 'app') {
+      for (const listener of this.messageListeners) listener(message.data);
       return;
     }
     if (message.type === 'peer-joined') {
@@ -414,7 +443,10 @@ class RelayClient implements RelayPairing {
     }
   }
 
-  private send(message: { type: 'offer' | 'answer'; payload: PeerSignal }): void {
+  private sendSignal(message: {
+    type: 'offer' | 'answer';
+    payload: PeerSignal;
+  }): void {
     if (!this.socket || this.socket.readyState !== SOCKET_OPEN) {
       throw new LocalSyncError('The pairing relay is not open', 'signal');
     }
@@ -457,13 +489,15 @@ class RelayClient implements RelayPairing {
   private startConnectionTimer(): void {
     this.clearConnectionTimer();
     this.connectionTimer = setTimeout(() => {
-      this.fail(
-        new LocalSyncError(
-          'The direct connection timed out. Check that both devices are on the same network.',
-          'timeout',
-        ),
-      );
-    }, 30_000);
+      if (
+        this.closed ||
+        this.currentStatus === 'connected' ||
+        this.currentStatus === 'failed'
+      ) {
+        return;
+      }
+      this.setStatus('relay');
+    }, 8_000);
   }
 
   private clearConnectionTimer(): void {

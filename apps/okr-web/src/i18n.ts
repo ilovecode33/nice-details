@@ -167,6 +167,8 @@ const en: Record<string, string> = {
   'sync.awaitingAnswer': 'Waiting for the answer code.',
   'sync.connecting': 'Connecting…',
   'sync.connected': 'Connected. Changes sync both ways.',
+  'sync.relayConnected':
+    'Connected through the relay. Direct peer-to-peer is unavailable.',
   'sync.failed': 'Could not connect.',
   'sync.error': 'Sync error: {error}',
   'sync.known': 'Previously paired',
@@ -330,6 +332,7 @@ const zhTW: Record<string, string> = {
   'sync.awaitingAnswer': '等待回答碼。',
   'sync.connecting': '連線中…',
   'sync.connected': '已連線，變更會雙向同步。',
+  'sync.relayConnected': '已透過 relay 連線；目前無法直接 P2P。',
   'sync.failed': '無法連線。',
   'sync.error': '同步錯誤：{error}',
   'sync.known': '先前已配對',
@@ -502,6 +505,8 @@ const de: Record<string, string> = {
   'sync.connecting': 'Verbindung wird hergestellt …',
   'sync.connected':
     'Verbunden. Änderungen werden in beide Richtungen synchronisiert.',
+  'sync.relayConnected':
+    'Über den Relay verbunden. Direkte Peer-to-Peer-Verbindung nicht verfügbar.',
   'sync.failed': 'Verbindung fehlgeschlagen.',
   'sync.error': 'Synchronisierungsfehler: {error}',
   'sync.known': 'Bereits gekoppelt',

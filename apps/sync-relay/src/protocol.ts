@@ -5,6 +5,7 @@ export type RelayRole = 'host' | 'guest';
 export type RelayClientMessage =
   | { type: 'offer'; payload: Record<string, unknown> }
   | { type: 'answer'; payload: Record<string, unknown> }
+  | { type: 'app'; data: string }
   | { type: 'ping' };
 
 export type RelayServerMessage =
@@ -13,6 +14,7 @@ export type RelayServerMessage =
   | { type: 'peer-left' }
   | { type: 'offer'; payload: Record<string, unknown> }
   | { type: 'answer'; payload: Record<string, unknown> }
+  | { type: 'app'; data: string }
   | { type: 'pong' }
   | { type: 'error'; message: string };
 
@@ -57,8 +59,14 @@ export function parseClientMessage(raw: string): RelayClientMessage | null {
     return null;
   }
   if (typeof value !== 'object' || value === null) return null;
-  const message = value as { type?: unknown; payload?: unknown };
+  const message = value as { type?: unknown; payload?: unknown; data?: unknown };
   if (message.type === 'ping') return { type: 'ping' };
+  if (message.type === 'app') {
+    return typeof message.data === 'string' &&
+      message.data.length <= MAX_RELAY_MESSAGE_BYTES
+      ? { type: 'app', data: message.data }
+      : null;
+  }
   if (message.type !== 'offer' && message.type !== 'answer') return null;
   const payload = message.payload;
   if (typeof payload !== 'object' || payload === null || Array.isArray(payload)) {

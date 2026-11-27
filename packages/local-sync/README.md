@@ -161,6 +161,7 @@ English labels are defaults; pass localized strings from the app.
 | --- | --- |
 | `createLocalSync(options)` / `LocalSync` | Host or guest WebRTC session. |
 | `startRelayPairing(options)` | One-scan pairing through a signaling relay. |
+| `RelayPairing.send(message)` / `onMessage(listener)` | App-data fallback over the relay when WebRTC is unavailable. |
 | `buildPairUrl(appUrl, room)` / `parsePairingCode(value)` | Pairing link helpers. |
 | `parsePairingLink(value)` | Returns `{ room, relayUrl? }` from a pairing link. |
 | `relaySocketUrl(relayUrl, room, role)` | WebSocket endpoint helper. |
@@ -179,6 +180,9 @@ ICE gathering (with a 4-second fallback) before returning the signal.
 - The pairing password is generated with `crypto.getRandomValues` and included
   in the offer. In relay mode the offer, including the password and ICE
   candidates, passes through the signaling Worker; the relay does not receive
+  OKR state during normal peer-to-peer operation.
+- If WebRTC cannot connect, the app can send app data through the relay. In that
+  fallback mode the Worker forwards (but does not store) encrypted-in-transit
   OKR state.
 - WebRTC data channels are encrypted with DTLS.
 - Anyone who can scan the QR or read the pairing link can attempt to pair. Treat

@@ -90,6 +90,8 @@ export function SyncPanel({
   const skipSendRef = useRef(false);
   const connectedRef = useRef(false);
   const copiedTimer = useRef<number | null>(null);
+  const offRelayMessagesRef = useRef<(() => void) | null>(null);
+  const sendStateRef = useRef<() => void>(() => {});
 
   stateRef.current = state;
   onRemoteStateRef.current = onRemoteState;
@@ -109,15 +111,59 @@ export function SyncPanel({
   function handleStatus(next: RelayPairingStatus) {
     setRelayStatus(next);
     const session = sessionRef.current;
-    if (next === 'connected' && session) {
+    if (
+      next === 'connected' ||
+      next === 'relay' ||
+      next === 'signaling'
+    ) {
+      connectedRef.current = true;
+    } else if (next === 'failed' || next === 'closed') {
+      connectedRef.current = false;
+    }
+    if (session && (next === 'connected' || next === 'relay')) {
       setKnown(session.knownPeer);
       refreshPeers(session);
+    }
+    if (session?.role === 'host' && (next === 'signaling' || next === 'relay')) {
+      sendStateRef.current();
     }
   }
 
   function handleError(reason: LocalSyncError) {
     setRelayStatus('failed');
     setError(reason.code === 'timeout' ? t('sync.timeout') : messageOf(reason));
+  }
+
+  function applyMessage(message: string) {
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(message);
+    } catch {
+      return;
+    }
+    if (!isStateMessage(parsed)) return;
+    skipSendRef.current = true;
+    onRemoteStateRef.current(parsed.state);
+    const session = sessionRef.current;
+    if (session) setKnown(session.knownPeer);
+  }
+
+  function sendMessage(message: string) {
+    const session = sessionRef.current;
+    if (session?.state === 'connected') {
+      try {
+        session.send(message);
+        return;
+      } catch {
+        /* Fall through to the relay. */
+      }
+    }
+    const pairing = pairingRef.current;
+    if (pairing) {
+      pairing.send(message);
+      return;
+    }
+    throw new Error('No sync transport is available');
   }
 
   function applyDeviceName() {
@@ -153,29 +199,17 @@ export function SyncPanel({
     refreshPeers(session);
 
     const sendState = () => {
-      const current = sessionRef.current;
-      if (!current) return;
       try {
-        current.send(
+        sendMessage(
           JSON.stringify({ type: 'state', state: stateRef.current }),
         );
       } catch (reason) {
         setError(messageOf(reason));
       }
     };
+    sendStateRef.current = sendState;
 
-    const offMessage = session.onMessage((message) => {
-      let parsed: unknown;
-      try {
-        parsed = JSON.parse(message);
-      } catch {
-        return;
-      }
-      if (!isStateMessage(parsed)) return;
-      skipSendRef.current = true;
-      onRemoteStateRef.current(parsed.state);
-      setKnown(session.knownPeer);
-    });
+    const offMessage = session.onMessage(applyMessage);
 
     const offState = session.onStateChange((next) => {
       connectedRef.current = next === 'connected';
@@ -209,6 +243,8 @@ export function SyncPanel({
             return;
           }
           pairingRef.current = pairing;
+          offRelayMessagesRef.current?.();
+          offRelayMessagesRef.current = pairing.onMessage(applyMessage);
           setPairUrl(pairing.pairUrl);
           setRelayStatus(pairing.status);
           if (mode === 'join') setJoinInput('');
@@ -240,11 +276,14 @@ export function SyncPanel({
       cancelled = true;
       offMessage();
       offState();
+      offRelayMessagesRef.current?.();
+      offRelayMessagesRef.current = null;
       pairingRef.current?.close();
       pairingRef.current = null;
       session.close();
       if (sessionRef.current === session) sessionRef.current = null;
       connectedRef.current = false;
+      sendStateRef.current = () => {};
     };
   }, [
     open,
@@ -259,14 +298,12 @@ export function SyncPanel({
 
   useEffect(() => {
     if (!connectedRef.current) return;
-    const session = sessionRef.current;
-    if (!session) return;
     if (skipSendRef.current) {
       skipSendRef.current = false;
       return;
     }
     try {
-      session.send(JSON.stringify({ type: 'state', state }));
+      sendMessage(JSON.stringify({ type: 'state', state }));
     } catch (reason) {
       setError(messageOf(reason));
     }
@@ -300,6 +337,8 @@ export function SyncPanel({
           onError: handleError,
         });
         pairingRef.current = pairing;
+        offRelayMessagesRef.current?.();
+        offRelayMessagesRef.current = pairing.onMessage(applyMessage);
         setPairUrl(pairing.pairUrl);
         setRelayStatus(pairing.status);
         setJoinInput('');
@@ -345,10 +384,13 @@ export function SyncPanel({
           ? t('sync.connecting')
           : relayStatus === 'connected'
             ? t('sync.connected')
-            : relayStatus === 'failed'
-              ? t('sync.failed')
-              : '';
-  const isConnected = relayStatus === 'connected';
+            : relayStatus === 'relay'
+              ? t('sync.relayConnected')
+              : relayStatus === 'failed'
+                ? t('sync.failed')
+                : '';
+  const isConnected =
+    relayStatus === 'connected' || relayStatus === 'relay';
   const canJoin = mode === 'join' && !isConnected && relayStatus === 'idle';
 
   return (

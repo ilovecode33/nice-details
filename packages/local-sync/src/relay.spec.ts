@@ -229,6 +229,33 @@ describe('relay pairing', () => {
     pairing.close();
   });
 
+  test('relays app messages when WebRTC is unavailable', async () => {
+    const sockets: FakeSocket[] = [];
+    const { session } = createFakeSession('host');
+    const pairing = await startRelayPairing({
+      relayUrl: 'https://relay.example',
+      role: 'host',
+      session,
+      appUrl: 'https://app.example/',
+      room: 'abcdefghijklmnopqrstuvwx',
+      socketFactory: fakeFactory(sockets),
+    });
+
+    const received: string[] = [];
+    const off = pairing.onMessage((message) => received.push(message));
+    sockets[0].receive({ type: 'app', data: 'hello from the peer' });
+    expect(received).toEqual(['hello from the peer']);
+
+    pairing.send('hello from this device');
+    expect(sockets[0].messages).toContainEqual({
+      type: 'app',
+      data: 'hello from this device',
+    });
+
+    off();
+    pairing.close();
+  });
+
   test('fails when the relay cannot be reached', async () => {
     const { session } = createFakeSession('guest');
     await expect(

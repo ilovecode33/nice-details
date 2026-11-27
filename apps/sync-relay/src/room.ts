@@ -107,6 +107,14 @@ export class PairRoom {
       socket.close(1008, 'Invalid message');
       return;
     }
+    const targetRole: RelayRole =
+      attachment.role === 'host' ? 'guest' : 'host';
+    if (parsed.type === 'app') {
+      for (const target of this.state.getWebSockets(targetRole)) {
+        send(target, parsed);
+      }
+      return;
+    }
     if (parsed.type === 'ping') {
       send(socket, { type: 'pong' });
       return;
@@ -121,8 +129,6 @@ export class PairRoom {
     }
 
     await this.state.storage.put(parsed.type, parsed.payload);
-    const targetRole: RelayRole =
-      attachment.role === 'host' ? 'guest' : 'host';
     for (const target of this.state.getWebSockets(targetRole)) {
       send(target, parsed);
     }

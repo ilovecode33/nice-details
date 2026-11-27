@@ -40,7 +40,7 @@ Because previews are served over HTTPS, the camera QR scanner and WebRTC pairing
 - Production deploy: [`.github/workflows/deploy-sync-relay.yml`](../../.github/workflows/deploy-sync-relay.yml) on pushes to `main`
 - PR deploy: the preview workflow deploys a per-PR Worker
 
-The Worker has a `PairRoom` Durable Object that relays WebRTC offer/answer messages. OKR data stays peer-to-peer after signaling. The origin allowlist accepts `https://okr.ilovecode33.fyi`, Pages preview/production domains, and `localhost`.
+The Worker has a `PairRoom` Durable Object that relays WebRTC offer/answer messages. It also forwards app data when WebRTC cannot connect; that fallback data is not stored. OKR data stays peer-to-peer whenever the direct connection succeeds. The origin allowlist accepts `https://okr.ilovecode33.fyi`, Pages preview/production domains, and `localhost`.
 
 ## Required GitHub secrets
 

@@ -81,7 +81,11 @@ either device are sent to the peer. Pairing identities and passwords are stored
 in the `local-sync` IndexedDB database, so the next session is recognized as a
 known device. A fresh pairing link is still required each session because
 WebRTC ICE/SDP values change. The app adds Cloudflare's public STUN server as a
-fallback for server-reflexive candidates; the data channel stays peer-to-peer.
+fallback for server-reflexive candidates.
+
+If WebRTC cannot connect after 8 seconds, the app keeps the relay socket and
+syncs state through the Worker; the panel shows **Connected through the relay**.
+In that mode OKR state passes through Cloudflare but is not stored there.
 Camera scanning needs HTTPS or localhost. WebRTC data is encrypted with DTLS,
 and anyone who can scan the QR or read the link can attempt to pair, so treat
 both as credentials.

@@ -12,6 +12,7 @@ WebRTC needs both an offer and an answer. Without a signaling service, the answe
 - `GET /ws?room=<id>&role=host|guest` upgrades to a WebSocket.
 - Rooms use Durable Objects. A host must connect before a guest; the latest offer is stored so a guest that scans later still receives it.
 - The host sends `{ "type": "offer", "payload": ... }`; the guest sends `{ "type": "answer", "payload": ... }`. The relay forwards each message to the other role.
+- When WebRTC cannot connect, the app sends `{ "type": "app", "data": "..." }` through the same socket; the relay forwards it without storing it.
 - The relay rejects the wrong role, oversized messages, and origins outside the OKR Pages project.
 
 ## Local development

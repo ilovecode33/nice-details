@@ -44,6 +44,12 @@ describe('sync relay protocol', () => {
         JSON.stringify({ type: 'offer', payload: { sdp: 'v=0' } }),
       ),
     ).toEqual({ type: 'offer', payload: { sdp: 'v=0' } });
+    expect(
+      parseClientMessage(JSON.stringify({ type: 'app', data: 'hello' })),
+    ).toEqual({ type: 'app', data: 'hello' });
+    expect(
+      parseClientMessage(JSON.stringify({ type: 'app', data: 42 })),
+    ).toBeNull();
     expect(parseClientMessage('not json')).toBeNull();
     expect(parseClientMessage(JSON.stringify({ type: 'state' }))).toBeNull();
     expect(

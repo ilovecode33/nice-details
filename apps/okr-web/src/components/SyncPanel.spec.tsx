@@ -25,6 +25,8 @@ type FakeSession = LocalSyncSession & {
 
 type FakePairing = RelayPairing & {
   emitStatus: (status: RelayPairingStatus) => void;
+  emitApp: (message: string) => void;
+  sent: string[];
 };
 
 const room = 'abcdefghijklmnopqrstuvwx';
@@ -113,6 +115,9 @@ function createFakeSession(
 
 function createFakePairing(options: RelayPairingOptions): FakePairing {
   const listeners = new Set<(status: RelayPairingStatus) => void>();
+  if (options.onStatus) listeners.add(options.onStatus);
+  const messageListeners = new Set<(message: string) => void>();
+  const sent: string[] = [];
   const pairingRoom = options.room ?? room;
   let currentStatus: RelayPairingStatus =
     options.role === 'host' ? 'waiting' : 'waiting';
@@ -121,8 +126,16 @@ function createFakePairing(options: RelayPairingOptions): FakePairing {
     room: pairingRoom,
     role: options.role,
     pairUrl: buildPairUrl('https://app.test/', pairingRoom, options.relayUrl),
+    sent,
     get status() {
       return currentStatus;
+    },
+    send(message) {
+      sent.push(message);
+    },
+    onMessage(listener) {
+      messageListeners.add(listener);
+      return () => messageListeners.delete(listener);
     },
     onStatus(listener) {
       listeners.add(listener);
@@ -136,6 +149,9 @@ function createFakePairing(options: RelayPairingOptions): FakePairing {
     emitStatus(next) {
       currentStatus = next;
       for (const listener of listeners) listener(currentStatus);
+    },
+    emitApp(message) {
+      for (const listener of messageListeners) listener(message);
     },
   };
 
@@ -290,6 +306,28 @@ describe('SyncPanel', () => {
       expect(getSessionOptions()).toMatchObject({ label: 'Alan MacBook' });
     });
     expect(localStorage.getItem('okr-web.device-name')).toBe('Alan MacBook');
+  });
+
+  test('syncs state through the relay when WebRTC is not connected', async () => {
+    const onRemoteState = rs.fn();
+    const { getPairing } = renderPanel({ onRemoteState });
+    await screen.findByText(
+      'Waiting for the other device. Scan the QR once.',
+    );
+
+    const pairing = getPairing();
+    act(() => pairing?.emitStatus('signaling'));
+    await waitFor(() => {
+      expect(
+        pairing?.sent.some((message) => message.includes('"type":"state"')),
+      ).toBe(true);
+    });
+
+    const remote: OKRState = { version: 1, objectives: [] };
+    act(() => {
+      pairing?.emitApp(JSON.stringify({ type: 'state', state: remote }));
+    });
+    expect(onRemoteState).toHaveBeenCalledWith(remote);
   });
 
   test('lists remembered peers with a forget action', async () => {
