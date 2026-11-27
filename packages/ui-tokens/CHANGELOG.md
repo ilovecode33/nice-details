@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.2
+
+### Patch Changes
+
+- 73ae073: Refresh README.md for every workspace with concise, current summaries and verified documentation links.
+
 ## 0.3.1
 
 No changes in this release.

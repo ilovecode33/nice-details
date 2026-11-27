@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.2
+
+### Patch Changes
+
+- 1a91833: Update the git workflow rule now that the repository is public and main branch protection is enabled.
+- 11e1e84: Add the no-direct-push-to-main workflow rule and a local pre-push guard.
+- 73ae073: Refresh README.md for every workspace with concise, current summaries and verified documentation links.
+
 ## 0.1.1
 
 ### Patch Changes

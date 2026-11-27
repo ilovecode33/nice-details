@@ -1,5 +1,31 @@
 # Changelog
 
+## 0.1.2
+
+### Patch Changes
+
+- cdaf137: Refresh the hero as a quiet editorial layout with an ambient accent wash, move preference controls below the actions, and keep the floating dock out of the fullscreen hero.
+- 73ae073: Refresh README.md for every workspace with concise, current summaries and verified documentation links.
+- 9de4e1d: Restore the saved scroll position before React mounts so a refresh never flashes the hero first.
+- b38cb4d: Serve cached HTML immediately and revalidate in the background, and lazy-load all below-the-fold component demos so the hero paints first.
+- 8dd91e1: Lazy-load the Photo Wall demo behind an IntersectionObserver with an idle prefetch, and register a production service worker so repeat opens serve cached assets.
+- c9ac7b1: Add PR-only Cloudflare Pages preview deploys and document the intended ui.ilovecode33.fyi production domain without enabling production deployment yet.
+- fe5a92f: Preserve the exact scroll position across refreshes of the lazy-loaded component details.
+- Updated dependencies [a6d7829]
+- Updated dependencies [73ae073]
+- Updated dependencies [a6d7829]
+- Updated dependencies [430d577]
+- Updated dependencies [2295ad4]
+- Updated dependencies [a6d7829]
+- Updated dependencies [c85cbdf]
+- Updated dependencies [a6d7829]
+- Updated dependencies [851dfe1]
+- Updated dependencies [5f303cc]
+- Updated dependencies [a6d7829]
+  - @ilovecode33/ui@0.3.2
+  - @ilovecode33/ui-types@0.3.2
+  - @ilovecode33/photo-wall@0.2.1
+
 ## 0.1.1
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.2
+
+### Patch Changes
+
+- 73ae073: Refresh README.md for every workspace with concise, current summaries and verified documentation links.
+- Updated dependencies [73ae073]
+  - @ilovecode33/ui-tokens@0.3.2
+
 ## 0.3.1
 
 ### Patch Changes
