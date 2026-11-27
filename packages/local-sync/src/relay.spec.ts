@@ -3,6 +3,7 @@ import { LocalSyncError } from './errors';
 import {
   buildPairUrl,
   parsePairingCode,
+  parsePairingLink,
   relaySocketUrl,
   startRelayPairing,
 } from './relay';
@@ -144,6 +145,15 @@ describe('relay pairing', () => {
       'https://app.example/okr#sync=abcdefghijklmnop',
     );
     expect(
+      buildPairUrl(
+        'https://app.example/okr',
+        'abcdefghijklmnop',
+        'https://relay.example',
+      ),
+    ).toBe(
+      'https://app.example/okr#sync=abcdefghijklmnop&relay=https%3A%2F%2Frelay.example',
+    );
+    expect(
       parsePairingCode('https://app.example/okr#sync=abcdefghijklmnop'),
     ).toBe('abcdefghijklmnop');
     expect(
@@ -151,6 +161,14 @@ describe('relay pairing', () => {
     ).toBe('abcdefghijklmnop');
     expect(parsePairingCode('abcdefghijklmnop')).toBe('abcdefghijklmnop');
     expect(parsePairingCode('https://app.example/okr')).toBeNull();
+    expect(
+      parsePairingLink(
+        'https://app.example/okr#sync=abcdefghijklmnop&relay=https%3A%2F%2Frelay.example',
+      ),
+    ).toEqual({
+      room: 'abcdefghijklmnop',
+      relayUrl: 'https://relay.example',
+    });
   });
 
   test('uses secure WebSocket URLs', () => {
@@ -175,7 +193,7 @@ describe('relay pairing', () => {
     });
 
     expect(pairing.pairUrl).toBe(
-      'https://app.example/#sync=abcdefghijklmnopqrstuvwx',
+      'https://app.example/#sync=abcdefghijklmnopqrstuvwx&relay=https%3A%2F%2Frelay.example',
     );
     expect(sockets[0].messages).toEqual([{ type: 'offer', payload: offer }]);
 

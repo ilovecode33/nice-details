@@ -28,6 +28,12 @@ export interface RelayPairingOptions {
   onError?: (error: LocalSyncError) => void;
 }
 
+export interface ParsedPairingLink {
+  room: string;
+  /** Relay origin carried by the host link, when present. */
+  relayUrl?: string;
+}
+
 export interface RelayPairing {
   readonly room: string;
   readonly role: RelayRole;
@@ -66,26 +72,55 @@ function defaultAppUrl(): string {
   return `${window.location.origin}${window.location.pathname}`;
 }
 
-/** Builds the URL encoded in the host QR; the room is in the hash. */
-export function buildPairUrl(appUrl: string, room: string): string {
+/** Builds the URL encoded in the host QR; the room and relay are in the hash. */
+export function buildPairUrl(
+  appUrl: string,
+  room: string,
+  relayUrl?: string,
+): string {
   const url = new URL(appUrl);
-  url.hash = `sync=${room}`;
+  const params = new URLSearchParams({ sync: room });
+  if (relayUrl) params.set('relay', relayUrl);
+  url.hash = params.toString();
   return url.toString();
 }
 
-/** Returns the room from a pair URL or a bare room code. */
-export function parsePairingCode(value: string): string | null {
+function normalizeRelayUrl(value: string): string | undefined {
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' || url.protocol === 'http:'
+      ? url.origin
+      : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/** Returns the room and optional relay from a pair URL or a bare room code. */
+export function parsePairingLink(value: string): ParsedPairingLink | null {
   const text = value.trim();
   if (!text) return null;
-  if (ROOM_PATTERN.test(text)) return text;
+  if (ROOM_PATTERN.test(text)) return { room: text };
   try {
     const url = new URL(text);
     const hash = new URLSearchParams(url.hash.replace(/^#/, ''));
     const room = hash.get('sync') ?? url.searchParams.get('sync');
-    return room && ROOM_PATTERN.test(room) ? room : null;
+    if (!room || !ROOM_PATTERN.test(room)) return null;
+    const relay = hash.get('relay') ?? url.searchParams.get('relay');
+    return {
+      room,
+      ...(relay && normalizeRelayUrl(relay)
+        ? { relayUrl: normalizeRelayUrl(relay) }
+        : {}),
+    };
   } catch {
     return null;
   }
+}
+
+/** Returns the room from a pair URL or a bare room code. */
+export function parsePairingCode(value: string): string | null {
+  return parsePairingLink(value)?.room ?? null;
 }
 
 /** Converts the relay base URL to its WebSocket endpoint. */
@@ -170,7 +205,11 @@ class RelayClient implements RelayPairing {
     if (!ROOM_PATTERN.test(this.room)) {
       throw new LocalSyncError('Invalid pairing room', 'signal');
     }
-    this.pairUrl = buildPairUrl(options.appUrl ?? defaultAppUrl(), this.room);
+    this.pairUrl = buildPairUrl(
+      options.appUrl ?? defaultAppUrl(),
+      this.room,
+      options.relayUrl,
+    );
   }
 
   get status(): RelayPairingStatus {

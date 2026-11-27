@@ -13,10 +13,12 @@ export { encodeSignal, decodeSignal, isPeerSignal } from './signal';
 export {
   buildPairUrl,
   parsePairingCode,
+  parsePairingLink,
   relaySocketUrl,
   startRelayPairing,
 } from './relay';
 export type {
+  ParsedPairingLink,
   RelayPairing,
   RelayPairingOptions,
   RelayPairingStatus,

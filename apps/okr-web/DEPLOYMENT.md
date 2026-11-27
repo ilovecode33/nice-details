@@ -20,7 +20,7 @@ The OKR tracker is a static site on Cloudflare Pages, with a separate Cloudflare
 3. Deploys `apps/okr-web/dist` to the `ilovecode33-okr-web` Pages project under `pr-<PR number>`.
 4. Comments the Pages preview URL on the PR.
 
-If the `CLOUDFLARE_WORKERS_API_TOKEN` secret is missing, the preview falls back to the production relay (`https://sync.ilovecode33.fyi`) so the Pages preview still deploys; add the secret to get a relay per PR.
+If the `CLOUDFLARE_WORKERS_API_TOKEN` secret is missing, the preview falls back to the production relay (`https://sync.ilovecode33.fyi`) so the Pages preview still deploys; add the secret to get a relay per PR. At runtime the app also falls back to the stable production relay when the PR relay is unreachable, and writes the working relay origin into the pairing link.
 
 Each PR gets a stable Pages alias and its own relay, so a preview never uses the production relay. [`.github/workflows/cleanup-okr-sync-relay.yml`](../../.github/workflows/cleanup-okr-sync-relay.yml) deletes the PR Worker when the PR closes.
 

@@ -4,7 +4,7 @@ import {
   QrCode,
   QrScanner,
   createLocalSync,
-  parsePairingCode,
+  parsePairingLink,
   startRelayPairing,
   type LocalSyncError,
   type LocalSyncOptions,
@@ -17,7 +17,7 @@ import {
 import type { OKRState } from '@ilovecode33/okr-shared';
 import { loadDeviceName, saveDeviceName } from '../deviceName';
 import { useOkrI18n } from '../i18n';
-import { SYNC_ICE_SERVERS, SYNC_RELAY_URL } from '../syncConfig';
+import { SYNC_ICE_SERVERS, SYNC_RELAY_FALLBACK_URL, SYNC_RELAY_URL } from '../syncConfig';
 import styles from './SyncPanel.module.css';
 
 type SyncMode = 'host' | 'join';
@@ -54,6 +54,7 @@ export interface SyncPanelProps {
   /** Injected in tests; defaults to the Cloudflare signaling relay. */
   startPairing?: (options: RelayPairingOptions) => Promise<RelayPairing>;
   relayUrl?: string;
+  fallbackRelayUrl?: string;
 }
 
 export function SyncPanel({
@@ -66,6 +67,7 @@ export function SyncPanel({
   createSession = createLocalSync,
   startPairing = startRelayPairing,
   relayUrl = SYNC_RELAY_URL,
+  fallbackRelayUrl = SYNC_RELAY_FALLBACK_URL,
 }: SyncPanelProps) {
   const { t } = useOkrI18n();
   const deviceNameId = useId();
@@ -184,40 +186,50 @@ export function SyncPanel({
       }
     });
 
-    const start = async (room?: string) => {
+    const start = async (room?: string, explicitRelay?: string) => {
       if (cancelled) return;
       setRelayStatus('connecting');
-      try {
-        const pairing = await startPairing({
-          relayUrl,
-          role: mode === 'host' ? 'host' : 'guest',
-          session,
-          ...(room ? { room } : {}),
-          onStatus: handleStatus,
-          onError: handleError,
-        });
-        if (cancelled) {
-          pairing.close();
+      const candidates = [
+        explicitRelay ?? relayUrl,
+        ...(explicitRelay ? [] : [fallbackRelayUrl]),
+      ].filter((value, index, all) => Boolean(value) && all.indexOf(value) === index);
+      let lastError: unknown = null;
+      for (const candidate of candidates) {
+        try {
+          const pairing = await startPairing({
+            relayUrl: candidate,
+            role: mode === 'host' ? 'host' : 'guest',
+            session,
+            ...(room ? { room } : {}),
+            onStatus: handleStatus,
+            onError: handleError,
+          });
+          if (cancelled) {
+            pairing.close();
+            return;
+          }
+          pairingRef.current = pairing;
+          setPairUrl(pairing.pairUrl);
+          setRelayStatus(pairing.status);
+          if (mode === 'join') setJoinInput('');
           return;
-        }
-        pairingRef.current = pairing;
-        setPairUrl(pairing.pairUrl);
-        setRelayStatus(pairing.status);
-        if (mode === 'join') setJoinInput('');
-      } catch (reason) {
-        if (!cancelled) {
-          setRelayStatus('failed');
-          setError(messageOf(reason));
+        } catch (reason) {
+          lastError = reason;
+          if (cancelled) return;
         }
       }
+      setRelayStatus('failed');
+      setError(
+        messageOf(lastError ?? new Error('No pairing relay available')),
+      );
     };
 
     if (mode === 'host') {
       void start();
     } else if (autoRoom) {
-      const room = parsePairingCode(autoRoom);
-      if (room) {
-        void start(room);
+      const parsed = parsePairingLink(autoRoom);
+      if (parsed) {
+        void start(parsed.room, parsed.relayUrl);
       } else {
         setRelayStatus('failed');
         setError(t('sync.invalidLink'));
@@ -241,6 +253,7 @@ export function SyncPanel({
     createSession,
     startPairing,
     relayUrl,
+    fallbackRelayUrl,
     retryKey,
   ]);
 
@@ -262,32 +275,41 @@ export function SyncPanel({
   async function joinWith(value: string) {
     const session = sessionRef.current;
     if (!session || session.role !== 'guest' || !value.trim()) return;
-    const room = parsePairingCode(value);
-    if (!room) {
+    const parsed = parsePairingLink(value);
+    if (!parsed) {
       setError(t('sync.invalidLink'));
       return;
     }
     setError('');
     setShowScanner(false);
     setRelayStatus('connecting');
-    try {
-      pairingRef.current?.close();
-      const pairing = await startPairing({
-        relayUrl,
-        role: 'guest',
-        session,
-        room,
-        onStatus: handleStatus,
-        onError: handleError,
-      });
-      pairingRef.current = pairing;
-      setPairUrl(pairing.pairUrl);
-      setRelayStatus(pairing.status);
-      setJoinInput('');
-    } catch (reason) {
-      setRelayStatus('failed');
-      setError(messageOf(reason));
+    pairingRef.current?.close();
+    const candidates = [
+      parsed.relayUrl ?? relayUrl,
+      ...(parsed.relayUrl ? [] : [fallbackRelayUrl]),
+    ].filter((candidate, index, all) => Boolean(candidate) && all.indexOf(candidate) === index);
+    let lastError: unknown = null;
+    for (const candidate of candidates) {
+      try {
+        const pairing = await startPairing({
+          relayUrl: candidate,
+          role: 'guest',
+          session,
+          room: parsed.room,
+          onStatus: handleStatus,
+          onError: handleError,
+        });
+        pairingRef.current = pairing;
+        setPairUrl(pairing.pairUrl);
+        setRelayStatus(pairing.status);
+        setJoinInput('');
+        return;
+      } catch (reason) {
+        lastError = reason;
+      }
     }
+    setRelayStatus('failed');
+    setError(messageOf(lastError ?? new Error('No pairing relay available')));
   }
 
   async function copyLink() {

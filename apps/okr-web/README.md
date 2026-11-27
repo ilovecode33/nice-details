@@ -63,12 +63,14 @@ Open **Sync** in the toolbar to pair two devices on the same network.
 3. The guest connects automatically; the host does not scan anything.
 4. Both panels show **Connected. Changes sync both ways.**
 
-The QR link is `https://<app>/#sync=<room>`. Opening it with the system camera
-loads the app and joins automatically; the in-app **Join → Scan** flow and the
-paste field are fallbacks. The signaling relay only exchanges WebRTC
-offer/answer data. OKR state always travels over the peer-to-peer data channel.
-The relay URL defaults to `https://sync.ilovecode33.fyi` and can be overridden
-with `PUBLIC_SYNC_RELAY_URL`.
+The QR link is `https://<app>/#sync=<room>&relay=<relay-origin>`. Opening it
+with the system camera loads the app and joins automatically; the in-app
+**Join → Scan** flow and the paste field are fallbacks. The signaling relay only
+exchanges WebRTC offer/answer data. OKR state always travels over the
+peer-to-peer data channel. The host tries its configured relay first and falls
+back to `https://sync.ilovecode33.fyi`; the successful origin is written into
+the pairing link so both devices use the same relay. The default relay can be
+overridden with `PUBLIC_SYNC_RELAY_URL`.
 
 Each device sends a readable name such as `Mac · Chrome` or `iPhone · Safari`.
 You can edit it in **Sync → Device name**; the name is stored under

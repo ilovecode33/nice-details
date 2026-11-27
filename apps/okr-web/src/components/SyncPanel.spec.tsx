@@ -120,7 +120,7 @@ function createFakePairing(options: RelayPairingOptions): FakePairing {
   const pairing: FakePairing = {
     room: pairingRoom,
     role: options.role,
-    pairUrl: buildPairUrl('https://app.test/', pairingRoom),
+    pairUrl: buildPairUrl('https://app.test/', pairingRoom, options.relayUrl),
     get status() {
       return currentStatus;
     },
@@ -148,6 +148,9 @@ function renderPanel({
   peers = [],
   initialMode,
   initialRoom,
+  relayUrl,
+  fallbackRelayUrl,
+  failRelays = [],
   onStart,
 }: {
   state?: OKRState;
@@ -155,6 +158,9 @@ function renderPanel({
   peers?: LocalSyncPeer[];
   initialMode?: 'host' | 'join';
   initialRoom?: string;
+  relayUrl?: string;
+  fallbackRelayUrl?: string;
+  failRelays?: string[];
   onStart?: (options: RelayPairingOptions) => void;
 } = {}) {
   let session: FakeSession | null = null;
@@ -169,6 +175,8 @@ function renderPanel({
         onRemoteState={onRemoteState}
         initialMode={initialMode}
         initialRoom={initialRoom}
+        relayUrl={relayUrl}
+        fallbackRelayUrl={fallbackRelayUrl}
         createSession={(options) => {
           sessionOptions = options;
           session = createFakeSession(options, peers);
@@ -176,6 +184,9 @@ function renderPanel({
         }}
         startPairing={async (options) => {
           onStart?.(options);
+          if (options.relayUrl && failRelays.includes(options.relayUrl)) {
+            throw new Error('relay unavailable');
+          }
           pairing = createFakePairing(options);
           return pairing;
         }}
@@ -212,12 +223,41 @@ describe('SyncPanel', () => {
     const starts: RelayPairingOptions[] = [];
     renderPanel({
       initialMode: 'join',
-      initialRoom: `https://app.test/#sync=${room}`,
+      initialRoom: `https://app.test/#sync=${room}&relay=${encodeURIComponent(
+        'https://link-relay.test',
+      )}`,
+      relayUrl: 'https://primary.test',
       onStart: (options) => starts.push(options),
     });
 
     expect(await screen.findByText('Connecting to the host…')).toBeTruthy();
-    expect(starts[0]).toMatchObject({ role: 'guest', room });
+    expect(starts[0]).toMatchObject({
+      role: 'guest',
+      room,
+      relayUrl: 'https://link-relay.test',
+    });
+  });
+
+  test('falls back to the stable relay when the primary is unreachable', async () => {
+    const starts: RelayPairingOptions[] = [];
+    renderPanel({
+      relayUrl: 'https://primary.test',
+      fallbackRelayUrl: 'https://fallback.test',
+      failRelays: ['https://primary.test'],
+      onStart: (options) => starts.push(options),
+    });
+
+    expect(
+      await screen.findByText(
+        'Waiting for the other device. Scan the QR once.',
+      ),
+    ).toBeTruthy();
+    expect(starts.map((options) => options.relayUrl)).toEqual([
+      'https://primary.test',
+      'https://fallback.test',
+    ]);
+    const link = screen.getByLabelText('Pairing link') as HTMLTextAreaElement;
+    expect(link.value).toContain('relay=https%3A%2F%2Ffallback.test');
   });
 
   test('applies a remote state message', async () => {

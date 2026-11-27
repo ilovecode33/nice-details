@@ -69,9 +69,10 @@ if (room) {
 The guest can also join by pasting the link. The host does not scan anything and
 does not need a camera.
 
-The pairing link looks like `https://app.example/#sync=<room>`. Opening it with
-the system camera loads the app and lets it join automatically; pasting it into
-the in-app join field also works.
+The pairing link looks like `https://app.example/#sync=<room>&relay=<origin>`.
+Opening it with the system camera loads the app and lets it join automatically;
+pasting it into the in-app join field also works. The relay origin lets the
+guest use the same relay that the host reached.
 
 ## Manual pairing (no relay)
 
@@ -161,6 +162,7 @@ English labels are defaults; pass localized strings from the app.
 | `createLocalSync(options)` / `LocalSync` | Host or guest WebRTC session. |
 | `startRelayPairing(options)` | One-scan pairing through a signaling relay. |
 | `buildPairUrl(appUrl, room)` / `parsePairingCode(value)` | Pairing link helpers. |
+| `parsePairingLink(value)` | Returns `{ room, relayUrl? }` from a pairing link. |
 | `relaySocketUrl(relayUrl, room, role)` | WebSocket endpoint helper. |
 | `encodeSignal(signal)` / `decodeSignal(code)` | Manual QR/paste signal codec. |
 | `isPeerSignal(value)` | Validates a decoded signal. |
