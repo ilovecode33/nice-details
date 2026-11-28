@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.8.1
+
+### Patch Changes
+
+- Updated dependencies [5f37fc8]
+- Updated dependencies [5f37fc8]
+- Updated dependencies [5f37fc8]
+  - @ilovecode33/ui@0.5.2
+  - @ilovecode33/ui-tokens@0.5.2
+  - @ilovecode33/ui-types@0.5.2
+
 ## 0.8.0
 
 ### Minor Changes
