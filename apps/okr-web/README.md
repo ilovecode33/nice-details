@@ -45,11 +45,11 @@ builds in bundleless mode.
 ## Features
 
 - Objectives with weighted key results in percent, number, or currency units.
-- Date-based periods with a quick 2-month preset, plus a day/percent countdown.
+- Quarter buckets (`2026 Q4`) derived from the start date, with a quick 2-month preset and a day/percent countdown.
 - Creation and update dates on every objective.
 - English, Traditional Chinese, and German UI with a persisted language selector.
 - Progress at key-result, objective, and overall level.
-- Period and sort filters, with an editable objective sheet and inline updates.
+- Quarter and sort filters that are remembered across visits, plus an editable objective sheet and inline updates.
 - Confirmed deletion of objectives and key results; the sample-data reset is
   available only in development.
 - Light, dark, and system appearance with selectable accent color.
@@ -119,6 +119,7 @@ data on that device only.
 | Backup of an unreadable document | `state` → `current.corrupt` | raw stored value |
 | Saved sync room | `state` → `sync-room` | `{ version: 1, room, role, key }` (version-less records read as v1) |
 | Device name | `state` → `device-name` | non-empty string |
+| Filter view | `state` → `view` | `{ version: 1, period, sort }` |
 | Realtime room | Durable Object storage → `room` | `{ recordVersion: 1, payload: { iv, data }, revision, updatedAt }` |
 
 The document is versioned (`CURRENT_STATE_VERSION`) and read through

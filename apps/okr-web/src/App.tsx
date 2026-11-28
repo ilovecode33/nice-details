@@ -16,7 +16,6 @@ import {
   createSampleState,
   deleteKeyResult,
   deleteObjective,
-  formatPeriodLabel,
   keyResultProgress,
   overallProgress,
   sortObjectives,
@@ -62,7 +61,7 @@ export interface AppProps {
 }
 
 export function App({ storage }: AppProps = {}) {
-  const { locale, setLocale, intlLocale, t } = useOkrI18n();
+  const { locale, setLocale, t } = useOkrI18n();
   const [state, setState] = useState<OKRState | null>(null);
   const [period, setPeriod] = useState(ALL_PERIODS);
   const [sort, setSort] = useState<ObjectiveSort>('updated');
@@ -77,6 +76,7 @@ export function App({ storage }: AppProps = {}) {
   const [attempt, setAttempt] = useState(0);
   const storageRef = useRef<OkrStorage | null>(storage ?? null);
   const loadedRef = useRef(false);
+  const viewLoadedRef = useRef(false);
 
   const loadStoredRoom = useCallback(async () => {
     return (await storageRef.current?.loadSyncRoom()) ?? null;
@@ -114,6 +114,7 @@ export function App({ storage }: AppProps = {}) {
   useEffect(() => {
     let cancelled = false;
     loadedRef.current = false;
+    viewLoadedRef.current = false;
     storageRef.current = storage ?? null;
     setState(null);
     setLoadError(null);
@@ -122,10 +123,23 @@ export function App({ storage }: AppProps = {}) {
     const pending = storage ? Promise.resolve(storage) : getOkrStorage();
     pending
       .then(async (current) => {
-        const loaded = await current.load();
+        const [loaded, view] = await Promise.all([
+          current.load(),
+          current.loadView(),
+        ]);
         if (cancelled) return;
         storageRef.current = current;
         setState(loaded);
+        if (view) {
+          setSort(view.sort);
+          setPeriod(
+            view.period === ALL_PERIODS ||
+              collectPeriods(loaded.objectives).includes(view.period)
+              ? view.period
+              : ALL_PERIODS,
+          );
+        }
+        viewLoadedRef.current = true;
       })
       .catch((error: unknown) => {
         if (!cancelled) {
@@ -137,6 +151,11 @@ export function App({ storage }: AppProps = {}) {
       cancelled = true;
     };
   }, [storage, attempt]);
+
+  useEffect(() => {
+    if (!viewLoadedRef.current || !storageRef.current) return;
+    void storageRef.current.saveView({ period, sort });
+  }, [period, sort]);
 
   useEffect(() => {
     if (!state || !storageRef.current) return;
@@ -170,19 +189,7 @@ export function App({ storage }: AppProps = {}) {
   );
   const periodOptions = [
     { value: ALL_PERIODS, label: t('toolbar.allPeriods') },
-    ...periods.map((value) => {
-      const objective = objectives.find((item) => item.period === value);
-      return {
-        value,
-        label: objective
-          ? formatPeriodLabel(
-              objective.startDate,
-              objective.endDate,
-              intlLocale,
-            )
-          : value,
-      };
-    }),
+    ...periods.map((value) => ({ value, label: value })),
   ];
   const sortOptions: Array<{ value: ObjectiveSort; label: string }> = [
     { value: 'updated', label: t('sort.updated') },

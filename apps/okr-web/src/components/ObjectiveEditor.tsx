@@ -10,8 +10,8 @@ import {
 } from '@ilovecode33/ui';
 import {
   addMonths,
-  formatPeriodLabel,
   newId,
+  quarterLabel,
   todayIso,
   type KeyResult,
   type KRUnit,
@@ -167,7 +167,7 @@ export function ObjectiveEditor({
       id: draft.id,
       title,
       note: draft.note.trim(),
-      period: formatPeriodLabel(draft.startDate, draft.endDate),
+      period: quarterLabel(draft.startDate),
       startDate: draft.startDate,
       endDate: draft.endDate,
       keyResults,
@@ -264,6 +264,14 @@ export function ObjectiveEditor({
             }}
           />
         </label>
+
+        {quarterLabel(draft.startDate) && (
+          <p className={styles.hint}>
+            {t('editor.periodHint', {
+              period: quarterLabel(draft.startDate),
+            })}
+          </p>
+        )}
 
         <div>
           <p className={styles.section}>{t('editor.keyResults')}</p>

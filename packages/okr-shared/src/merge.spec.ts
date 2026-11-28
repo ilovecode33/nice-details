@@ -16,7 +16,7 @@ function objective(
     id,
     title: `Objective ${id}`,
     note: '',
-    period: 'Oct 1 – Dec 31, 2026',
+    period: '2026 Q4',
     startDate: '2026-10-01',
     endDate: '2026-12-31',
     keyResults: [],

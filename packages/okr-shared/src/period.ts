@@ -1,33 +1,5 @@
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-interface PeriodFormatters {
-  monthDay: Intl.DateTimeFormat;
-  monthDayYear: Intl.DateTimeFormat;
-}
-
-const formatterCache = new Map<string, PeriodFormatters>();
-
-function periodFormatters(locale: string): PeriodFormatters {
-  let formatters = formatterCache.get(locale);
-  if (!formatters) {
-    formatters = {
-      monthDay: new Intl.DateTimeFormat(locale, {
-        month: 'short',
-        day: 'numeric',
-        timeZone: 'UTC',
-      }),
-      monthDayYear: new Intl.DateTimeFormat(locale, {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-        timeZone: 'UTC',
-      }),
-    };
-    formatterCache.set(locale, formatters);
-  }
-  return formatters;
-}
-
 /** Two-digit zero padding for date parts. */
 function pad2(value: number): string {
   return String(value).padStart(2, '0');
@@ -78,21 +50,20 @@ export function addMonths(isoDate: string, months: number): string {
   )}`;
 }
 
-/** Formats a date range with a single year when both dates share it. */
-export function formatPeriodLabel(
-  startDate: string,
-  endDate: string,
-  locale = 'en-US',
-): string {
-  const start = parseDate(startDate);
-  const end = parseDate(endDate);
-  if (start === null || end === null) return '';
-  const startDateObject = new Date(start);
-  const endDateObject = new Date(end);
-  const { monthDay, monthDayYear } = periodFormatters(locale);
-  return startDateObject.getUTCFullYear() === endDateObject.getUTCFullYear()
-    ? `${monthDay.format(startDateObject)} – ${monthDayYear.format(endDateObject)}`
-    : `${monthDayYear.format(startDateObject)} – ${monthDayYear.format(endDateObject)}`;
+/** Returns the quarter label ("2026 Q4") for a date or ISO timestamp. */
+export function quarterLabel(value: string): string {
+  const time = parseDate(value);
+  if (time === null) return '';
+  const date = new Date(time);
+  const quarter = Math.floor(date.getUTCMonth() / 3) + 1;
+  return `${date.getUTCFullYear()} Q${quarter}`;
+}
+
+/** Sortable index for a quarter label, or null when the label is not one. */
+export function quarterOrder(period: string): number | null {
+  const match = period.trim().match(/^(\d{4})\s*Q([1-4])$/i);
+  if (!match) return null;
+  return Number(match[1]) * 4 + Number(match[2]) - 1;
 }
 
 /** Status of an objective's time window. */

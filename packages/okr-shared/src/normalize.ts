@@ -1,6 +1,6 @@
 import {
   addMonths,
-  formatPeriodLabel,
+  quarterLabel,
   quarterRange,
   toDateOnly,
   todayIso,
@@ -35,7 +35,7 @@ export function normalizeObjective(objective: StoredObjective): Objective {
     ...objective,
     startDate,
     endDate,
-    period: formatPeriodLabel(startDate, endDate),
+    period: quarterLabel(startDate),
   };
 }
 

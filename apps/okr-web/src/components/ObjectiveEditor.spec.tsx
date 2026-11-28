@@ -46,7 +46,7 @@ describe('ObjectiveEditor', () => {
     expect(saved.title).toBe('New goal');
     expect(saved.startDate).toBe('2027-01-01');
     expect(saved.endDate).toBe('2027-03-01');
-    expect(saved.period).toBe('Jan 1 – Mar 1, 2027');
+    expect(saved.period).toBe('2027 Q1');
 
     fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
     expect(onClose).toHaveBeenCalledTimes(1);

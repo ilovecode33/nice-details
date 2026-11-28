@@ -3,6 +3,7 @@ import {
   createSampleState,
   parseState,
   STORAGE_KEY,
+  type ObjectiveSort,
   type OKRState,
 } from '@ilovecode33/okr-shared';
 import { isRoomKey } from './crypto';
@@ -15,8 +16,12 @@ const OKR_KEY = 'current';
 const OKR_BACKUP_KEY = 'current.corrupt';
 const SYNC_ROOM_KEY = 'sync-room';
 const SYNC_ROOM_VERSION = 1;
+const VIEW_KEY = 'view';
+const VIEW_VERSION = 1;
 const DEVICE_NAME_KEY = 'device-name';
 const SYNC_ROOM_PATTERN = /^[A-Za-z0-9_-]{16,64}$/;
+const VIEW_PERIOD_PATTERN = /^(all|\d{4} Q[1-4])$/;
+const VIEW_SORTS: readonly ObjectiveSort[] = ['updated', 'progress', 'title'];
 
 /** Last room used by realtime sync, stored in IndexedDB. */
 export interface StoredSyncRoom {
@@ -25,10 +30,18 @@ export interface StoredSyncRoom {
   key: string;
 }
 
+/** Period and sort filters, restored on the next visit. */
+export interface StoredView {
+  period: string;
+  sort: ObjectiveSort;
+}
+
 /** Storage contract used by the app and injected in tests. */
 export interface OkrStorage {
   load(): Promise<OKRState>;
   save(state: OKRState): Promise<void>;
+  loadView(): Promise<StoredView | null>;
+  saveView(view: StoredView): Promise<void>;
   loadSyncRoom(): Promise<StoredSyncRoom | null>;
   saveSyncRoom(room: StoredSyncRoom): Promise<void>;
   clearSyncRoom(): Promise<void>;
@@ -102,6 +115,32 @@ export async function openOkrStorage(
       return sample;
     },
     save: (state) => kv.set(OKR_KEY, state),
+    async loadView() {
+      const value = await kv.get(VIEW_KEY);
+      if (typeof value !== 'object' || value === null) return null;
+      const record = value as {
+        version?: unknown;
+        period?: unknown;
+        sort?: unknown;
+      };
+      if (record.version !== undefined && record.version !== VIEW_VERSION) {
+        return null;
+      }
+      if (
+        typeof record.period !== 'string' ||
+        !VIEW_PERIOD_PATTERN.test(record.period)
+      ) {
+        return null;
+      }
+      if (
+        typeof record.sort !== 'string' ||
+        !VIEW_SORTS.includes(record.sort as ObjectiveSort)
+      ) {
+        return null;
+      }
+      return { period: record.period, sort: record.sort as ObjectiveSort };
+    },
+    saveView: (view) => kv.set(VIEW_KEY, { version: VIEW_VERSION, ...view }),
     async loadSyncRoom() {
       const value = await kv.get(SYNC_ROOM_KEY);
       if (typeof value !== 'object' || value === null) return null;

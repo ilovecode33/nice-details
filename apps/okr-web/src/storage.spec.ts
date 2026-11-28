@@ -132,6 +132,36 @@ describe('openOkrStorage', () => {
     expect(await storage.loadDeviceName()).toBe('Mac · Chrome');
   });
 
+  test('persists the period and sort filters', async () => {
+    const name = uniqueName();
+    const first = await openOkrStorage(name);
+    expect(await first.loadView()).toBeNull();
+    await first.saveView({ period: '2026 Q3', sort: 'progress' });
+    first.close();
+
+    const second = await openOkrStorage(name);
+    opened.push(second);
+    expect(await second.loadView()).toEqual({
+      period: '2026 Q3',
+      sort: 'progress',
+    });
+  });
+
+  test('ignores invalid filter values and future view versions', async () => {
+    const name = uniqueName();
+    await seed(name, {
+      view: { version: 1, period: 'Autumn', sort: 'progress' },
+    });
+    const storage = await openOkrStorage(name);
+    opened.push(storage);
+    expect(await storage.loadView()).toBeNull();
+
+    await seed(name, {
+      view: { version: 2, period: '2026 Q3', sort: 'progress' },
+    });
+    expect(await storage.loadView()).toBeNull();
+  });
+
   test('accepts a sync room saved before records were versioned', async () => {
     const name = uniqueName();
     const key = 'A'.repeat(43);

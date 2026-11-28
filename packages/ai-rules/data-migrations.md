@@ -16,11 +16,15 @@ a migration that moves it forward. Silent fallbacks are treated as data loss.
 | OKR document (`okr-web` → `state` → `current`) | `CURRENT_STATE_VERSION` | `packages/okr-shared/src/schema.ts` |
 | Legacy localStorage document (`okr-web.state.v1`) | `CURRENT_STATE_VERSION` | `packages/okr-shared/src/storage.ts` |
 | Saved sync room (`sync-room`) | `SYNC_ROOM_VERSION` | `apps/okr-web/src/storage.ts` |
+| Saved period/sort filters (`view`) | `VIEW_VERSION` | `apps/okr-web/src/storage.ts` |
 | Durable Object room record (`room`) | `ROOM_RECORD_VERSION` | `apps/okr-realtime/src/room.ts` |
 | IndexedDB database itself | `OKR_DATABASE_VERSION` | `apps/okr-web/src/storage.ts` |
 
 The encrypted room payload is opaque to the Worker; its shape is the OKR document
 and is migrated on the client with `parseState`.
+
+Derived values are exempt: `objective.period` is recomputed from `startDate` on
+every read, so changing its format never needs a version bump.
 
 ## Rules
 

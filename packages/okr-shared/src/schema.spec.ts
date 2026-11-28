@@ -24,7 +24,7 @@ describe('parseState', () => {
     expect(result.migrated).toBe(false);
     expect(result.state.objectives[0]?.startDate).toBe('2026-10-01');
     expect(result.state.objectives[0]?.endDate).toBe('2026-12-31');
-    expect(result.state.objectives[0]?.period).toBe('Oct 1 – Dec 31, 2026');
+    expect(result.state.objectives[0]?.period).toBe('2026 Q4');
     // Unknown fields survive so a newer app can read them back.
     expect(
       (result.state.objectives[0] as unknown as Record<string, unknown>).extra,

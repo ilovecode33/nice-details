@@ -20,7 +20,7 @@ export interface Objective {
   id: string;
   title: string;
   note: string;
-  /** Derived label for the start/end range, for example "Oct 1 – Dec 31, 2026". */
+  /** Quarter bucket derived from the start date, for example "2026 Q4". */
   period: string;
   /** First day of the objective, as YYYY-MM-DD. */
   startDate: string;

@@ -24,8 +24,9 @@ export {
 export type { PeriodProgress, PeriodStatus } from './period';
 export {
   addMonths,
-  formatPeriodLabel,
   periodProgress,
+  quarterLabel,
+  quarterOrder,
   quarterRange,
   toDateOnly,
   todayIso,

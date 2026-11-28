@@ -1,4 +1,4 @@
-import { formatPeriodLabel } from './period';
+import { quarterLabel } from './period';
 import type { KeyResult, OKRState, Objective } from './types';
 
 const Q4_START = '2026-10-01';
@@ -25,7 +25,7 @@ export function createSampleState(): OKRState {
       id: 'sample-running',
       title: 'Build a consistent running habit',
       note: 'Train steadily and finish the autumn half marathon.',
-      period: formatPeriodLabel(Q4_START, Q4_END),
+      period: quarterLabel(Q4_START),
       startDate: Q4_START,
       endDate: Q4_END,
       keyResults: [
@@ -40,7 +40,7 @@ export function createSampleState(): OKRState {
       id: 'sample-reading',
       title: 'Read more deliberately',
       note: 'Less scrolling, more finished books and notes.',
-      period: formatPeriodLabel(Q4_START, Q4_END),
+      period: quarterLabel(Q4_START),
       startDate: Q4_START,
       endDate: Q4_END,
       keyResults: [
@@ -54,7 +54,7 @@ export function createSampleState(): OKRState {
       id: 'sample-mornings',
       title: 'Make mornings calmer',
       note: 'A small routine that survives busy weeks.',
-      period: formatPeriodLabel(Q3_START, Q3_END),
+      period: quarterLabel(Q3_START),
       startDate: Q3_START,
       endDate: Q3_END,
       keyResults: [

@@ -1,10 +1,11 @@
 import { describe, expect, test } from '@rstest/core';
 import {
   addMonths,
-  formatPeriodLabel,
   formatValue,
   normalizeState,
   periodProgress,
+  quarterLabel,
+  quarterOrder,
   quarterRange,
 } from './index';
 
@@ -15,16 +16,17 @@ describe('period helpers', () => {
     expect(addMonths('2024-01-31', 1)).toBe('2024-02-29');
   });
 
-  test('formats same-year and cross-year ranges', () => {
-    expect(formatPeriodLabel('2026-10-01', '2026-12-31')).toBe(
-      'Oct 1 – Dec 31, 2026',
-    );
-    expect(formatPeriodLabel('2026-12-01', '2027-01-31')).toBe(
-      'Dec 1, 2026 – Jan 31, 2027',
-    );
-    expect(formatPeriodLabel('2026-10-01', '2026-12-31', 'de-DE')).toContain(
-      'Okt',
-    );
+  test('derives quarter labels from any date in the quarter', () => {
+    expect(quarterLabel('2026-10-01')).toBe('2026 Q4');
+    expect(quarterLabel('2026-11-28T09:00:00.000Z')).toBe('2026 Q4');
+    expect(quarterLabel('2027-01-31')).toBe('2027 Q1');
+    expect(quarterLabel('not a date')).toBe('');
+  });
+
+  test('orders quarters for sorting', () => {
+    expect(quarterOrder('2026 Q4')).toBe(2026 * 4 + 3);
+    expect(quarterOrder('2026 Q1')).toBe(2026 * 4);
+    expect(quarterOrder('Autumn')).toBeNull();
   });
 
   test('formats values with the requested locale', () => {
@@ -80,7 +82,7 @@ describe('normalizeState', () => {
 
     expect(state.objectives[0].startDate).toBe('2026-10-01');
     expect(state.objectives[0].endDate).toBe('2026-12-31');
-    expect(state.objectives[0].period).toBe('Oct 1 – Dec 31, 2026');
+    expect(state.objectives[0].period).toBe('2026 Q4');
   });
 
   test('falls back to createdAt plus two months for unknown labels', () => {
@@ -101,5 +103,6 @@ describe('normalizeState', () => {
 
     expect(state.objectives[0].startDate).toBe('2026-11-27');
     expect(state.objectives[0].endDate).toBe('2027-01-27');
+    expect(state.objectives[0].period).toBe('2026 Q4');
   });
 });

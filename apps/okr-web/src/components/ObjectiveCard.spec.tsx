@@ -45,7 +45,7 @@ describe('ObjectiveCard', () => {
     renderCard();
 
     expect(screen.getByRole('heading', { level: 2, name: 'Read more' })).toBeTruthy();
-    expect(screen.getByText('Oct 1 – Dec 31, 2026')).toBeTruthy();
+    expect(screen.getByText('2026 Q4')).toBeTruthy();
     expect(screen.getByText('Books')).toBeTruthy();
     expect(screen.getByText('6 of 12')).toBeTruthy();
   });
