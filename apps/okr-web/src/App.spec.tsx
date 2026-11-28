@@ -1,6 +1,11 @@
 import { describe, expect, rs, test } from '@rstest/core';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { createSampleState } from '@ilovecode33/okr-shared';
+import {
+  addMonths,
+  createSampleState,
+  todayIso,
+  type OKRState,
+} from '@ilovecode33/okr-shared';
 import { UIFoundation } from '@ilovecode33/ui';
 import { App } from './App';
 import { DICTIONARIES } from './i18n';
@@ -22,42 +27,126 @@ function createTestStorage(): OkrStorage {
   };
 }
 
+function renderApp(storage: OkrStorage = createTestStorage()) {
+  return render(
+    <UIFoundation dictionaries={DICTIONARIES}>
+      <App storage={storage} />
+    </UIFoundation>,
+  );
+}
+
+async function openPage(name: 'Dashboard' | 'OKRs' | 'Settings') {
+  fireEvent.click(await screen.findByRole('button', { name }));
+}
+
+/** A state with one objective whose window contains today. */
+function activeState(): OKRState {
+  const today = todayIso();
+  return {
+    version: 1,
+    objectives: [
+      {
+        id: 'active',
+        title: 'Ship the mobile layout',
+        note: '',
+        period: '2026 Q4',
+        startDate: addMonths(today, -1),
+        endDate: addMonths(today, 1),
+        keyResults: [
+          {
+            id: 'kr',
+            title: 'Screens',
+            start: 0,
+            target: 10,
+            current: 5,
+            unit: 'number',
+            weight: 5,
+          },
+        ],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+    ],
+  };
+}
+
 describe('App', () => {
-  test('renders the dashboard with the sample objectives', async () => {
-    render(
-      <UIFoundation dictionaries={DICTIONARIES}>
-        <App storage={createTestStorage()} />
-      </UIFoundation>,
-    );
+  test('renders the dashboard with summary and primary navigation', async () => {
+    renderApp();
 
     expect(
       screen.getByRole('heading', { level: 1, name: 'My OKRs' }),
     ).toBeTruthy();
-    expect(
-      await screen.findByText('Build a consistent running habit'),
-    ).toBeTruthy();
-    expect(screen.getByRole('button', { name: 'New objective' })).toBeTruthy();
-    expect(screen.getByRole('button', { name: /^Sync/ })).toBeTruthy();
+    expect(await screen.findByText('Current focus')).toBeTruthy();
+    expect(screen.getByText('Objectives')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Dashboard' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'OKRs' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Settings' })).toBeTruthy();
+    // The list actions and sync entry live on their own pages.
+    expect(screen.queryByRole('button', { name: 'New objective' })).toBeNull();
+    expect(screen.queryByRole('button', { name: /^Sync/ })).toBeNull();
     // Sample-data reset is a development-only convenience.
     expect(
       screen.queryByRole('button', { name: 'Reset sample data' }),
     ).toBeNull();
   });
 
-  test('restores the saved period and sort filters', async () => {
+  test('shows active objectives on the dashboard', async () => {
+    renderApp({
+      ...createTestStorage(),
+      load: async () => activeState(),
+    });
+
+    expect(await screen.findByText('Ship the mobile layout')).toBeTruthy();
+    expect(
+      screen
+        .getByRole('progressbar', {
+          name: 'Ship the mobile layout progress',
+        })
+        .getAttribute('aria-valuenow'),
+    ).toBe('50');
+  });
+
+  test('opens the OKR list from the dashboard', async () => {
+    renderApp();
+    await screen.findByText('Current focus');
+
+    fireEvent.click(screen.getByRole('button', { name: 'View all objectives' }));
+
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'OKRs' }),
+    ).toBeTruthy();
+    expect(
+      await screen.findByRole('button', { name: 'New objective' }),
+    ).toBeTruthy();
+  });
+
+  test('moves appearance, language, and sync into settings', async () => {
+    renderApp();
+    await screen.findByText('Current focus');
+    await openPage('Settings');
+
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'Settings' }),
+    ).toBeTruthy();
+    expect(screen.getByRole('group', { name: 'Appearance' })).toBeTruthy();
+    expect(
+      screen.getByRole('combobox', { name: 'Accent color' }),
+    ).toBeTruthy();
+    expect(screen.getByRole('combobox', { name: 'Language' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /^Sync/ })).toBeTruthy();
+  });
+
+  test('restores the saved period and sort filters on the OKR list', async () => {
     const saveView = rs.fn();
     const view: StoredView = { period: '2026 Q3', sort: 'title' };
-    render(
-      <UIFoundation dictionaries={DICTIONARIES}>
-        <App
-          storage={{
-            ...createTestStorage(),
-            loadView: async () => view,
-            saveView,
-          }}
-        />
-      </UIFoundation>,
-    );
+    renderApp({
+      ...createTestStorage(),
+      loadView: async () => view,
+      saveView,
+    });
+
+    await openPage('OKRs');
 
     // The saved period filters out the Q4 objectives.
     expect(await screen.findByText('Make mornings calmer')).toBeTruthy();
@@ -98,17 +187,13 @@ describe('App', () => {
       createdAt: '2026-11-01T00:00:00.000Z',
       updatedAt: '2026-11-20T00:00:00.000Z',
     };
-    render(
-      <UIFoundation dictionaries={DICTIONARIES}>
-        <App
-          storage={{
-            ...createTestStorage(),
-            load: async () => ({ version: 1, objectives: [spanning] }),
-            loadView: async () => ({ period: '2027 Q1', sort: 'updated' }),
-          }}
-        />
-      </UIFoundation>,
-    );
+    renderApp({
+      ...createTestStorage(),
+      load: async () => ({ version: 1, objectives: [spanning] }),
+      loadView: async () => ({ period: '2027 Q1', sort: 'updated' }),
+    });
+
+    await openPage('OKRs');
 
     expect(await screen.findByText('Across the new year')).toBeTruthy();
     await waitFor(() => {
@@ -120,16 +205,12 @@ describe('App', () => {
   });
 
   test('falls back to all periods when the saved quarter is gone', async () => {
-    render(
-      <UIFoundation dictionaries={DICTIONARIES}>
-        <App
-          storage={{
-            ...createTestStorage(),
-            loadView: async () => ({ period: '2019 Q1', sort: 'updated' }),
-          }}
-        />
-      </UIFoundation>,
-    );
+    renderApp({
+      ...createTestStorage(),
+      loadView: async () => ({ period: '2019 Q1', sort: 'updated' }),
+    });
+
+    await openPage('OKRs');
 
     expect(
       await screen.findByText('Build a consistent running habit'),

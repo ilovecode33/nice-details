@@ -11,7 +11,7 @@
   padding:
     calc(var(--safe-top) + var(--space-4))
     calc(var(--safe-right) + var(--space-4))
-    calc(var(--safe-bottom) + var(--space-8))
+    calc(var(--safe-bottom) + var(--touch) + var(--space-8) + var(--space-3))
     calc(var(--safe-left) + var(--space-4));
 }
 
@@ -39,27 +39,6 @@
   color: var(--text-dim);
   font-size: var(--text-sm);
   line-height: 1.55;
-}
-
-.titleRow {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-3);
-  min-width: 0;
-}
-
-.headerControls {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-2);
-  min-width: 0;
-}
-
-.locale {
-  width: auto;
-  min-width: calc(var(--space-8) * 4);
 }
 
 .summary {
@@ -157,24 +136,12 @@
     padding:
       calc(var(--safe-top) + var(--space-6))
       calc(var(--safe-right) + var(--space-6))
-      calc(var(--safe-bottom) + var(--space-8))
+      calc(var(--safe-bottom) + var(--touch) + var(--space-8) + var(--space-3))
       calc(var(--safe-left) + var(--space-6));
-  }
-
-  .header {
-    flex-direction: row;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: var(--space-4);
   }
 
   .headerIntro {
     flex: 1 1 auto;
-  }
-
-  .headerControls {
-    flex: 0 0 auto;
-    justify-content: flex-end;
   }
 
   .summary {
@@ -198,5 +165,108 @@
   .list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: start;
+  }
+}
+
+/* Bottom-navigation and page layouts. */
+.navIcon {
+  display: inline-flex;
+  margin-right: var(--space-1);
+}
+
+.focus {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: var(--text-base);
+  font-weight: 650;
+}
+
+.focusList {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.focusCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.focusTop {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.focusTitle {
+  font-weight: 600;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.focusPercent {
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+  font-weight: 650;
+}
+
+.focusMeta {
+  color: var(--text-dim);
+  font-size: var(--text-sm);
+}
+
+.settings {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.settingsFields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.settingsRow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.settingsLabel {
+  color: var(--text-dim);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.settingsSelect {
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .focusList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
