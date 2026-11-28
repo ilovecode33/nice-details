@@ -1,4 +1,4 @@
-import { quarterOrder } from './period';
+import { objectiveQuarters, quarterOrder } from './period';
 import type { KRUnit, KeyResult, Objective, ObjectiveSort } from './types';
 
 interface ValueFormatters {
@@ -96,11 +96,11 @@ export function sortObjectives(objectives: Objective[], sort: ObjectiveSort): Ob
 }
 
 /** Returns unique period labels sorted by their latest start date, newest first. */
-/** Distinct quarter labels, newest first. */
+/** Distinct quarters covered by the objectives, newest first. */
 export function collectPeriods(objectives: Objective[]): string[] {
   const periods = new Set<string>();
   for (const objective of objectives) {
-    if (objective.period) periods.add(objective.period);
+    for (const quarter of objectiveQuarters(objective)) periods.add(quarter);
   }
   return [...periods].sort((a, b) => {
     const left = quarterOrder(a);

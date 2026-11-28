@@ -17,6 +17,7 @@ import {
   deleteKeyResult,
   deleteObjective,
   keyResultProgress,
+  objectiveQuarters,
   overallProgress,
   sortObjectives,
   type KeyResult,
@@ -177,7 +178,9 @@ export function App({ storage }: AppProps = {}) {
     const filtered =
       period === ALL_PERIODS
         ? objectives
-        : objectives.filter((item) => item.period === period);
+        : objectives.filter((item) =>
+            objectiveQuarters(item).includes(period),
+          );
     return sortObjectives(filtered, sort);
   }, [objectives, period, sort]);
 

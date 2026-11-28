@@ -10,8 +10,10 @@ import {
 } from '@ilovecode33/ui';
 import {
   addMonths,
+  formatQuarterSpan,
   newId,
   quarterLabel,
+  quarterSpan,
   todayIso,
   type KeyResult,
   type KRUnit,
@@ -128,6 +130,9 @@ export function ObjectiveEditor({
     })),
   ];
 
+  const quarterLabelText = formatQuarterSpan(
+    quarterSpan(draft.startDate, draft.endDate),
+  );
   const quickLength = matchedLength(draft.startDate, draft.endDate);
   const quickLengthValue = quickLength ? String(quickLength) : 'custom';
 
@@ -265,11 +270,9 @@ export function ObjectiveEditor({
           />
         </label>
 
-        {quarterLabel(draft.startDate) && (
+        {quarterLabelText && (
           <p className={styles.hint}>
-            {t('editor.periodHint', {
-              period: quarterLabel(draft.startDate),
-            })}
+            {t('editor.periodHint', { period: quarterLabelText })}
           </p>
         )}
 

@@ -1,8 +1,9 @@
 import { Badge, Button, Card, Divider, ProgressBar, Row } from '@ilovecode33/ui';
 import {
+  formatQuarterSpan,
   objectiveProgress,
+  objectiveQuarters,
   periodProgress,
-  quarterLabel,
   type Objective,
 } from '@ilovecode33/okr-shared';
 import { Pencil, Trash2 } from 'lucide-react';
@@ -31,7 +32,7 @@ export function ObjectiveCard({
   const progress = Math.round(objectiveProgress(objective) * 100);
   const timing = periodProgress(objective.startDate, objective.endDate);
   const periodLabel =
-    objective.period || quarterLabel(objective.startDate);
+    formatQuarterSpan(objectiveQuarters(objective)) || objective.period;
   const countdown =
     timing.status === 'upcoming'
       ? t(

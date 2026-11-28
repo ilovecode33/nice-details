@@ -23,8 +23,9 @@ a migration that moves it forward. Silent fallbacks are treated as data loss.
 The encrypted room payload is opaque to the Worker; its shape is the OKR document
 and is migrated on the client with `parseState`.
 
-Derived values are exempt: `objective.period` is recomputed from `startDate` on
-every read, so changing its format never needs a version bump.
+Derived values are exempt: the quarter fields are recomputed from the
+objective's dates on every read, so changing their format never needs a version
+bump.
 
 ## Rules
 

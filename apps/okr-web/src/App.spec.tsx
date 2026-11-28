@@ -86,6 +86,39 @@ describe('App', () => {
     });
   });
 
+  test('keeps a spanning objective under every quarter it covers', async () => {
+    const spanning = {
+      id: 'spanning',
+      title: 'Across the new year',
+      note: '',
+      period: '2026 Q4',
+      startDate: '2026-11-28',
+      endDate: '2027-01-28',
+      keyResults: [],
+      createdAt: '2026-11-01T00:00:00.000Z',
+      updatedAt: '2026-11-20T00:00:00.000Z',
+    };
+    render(
+      <UIFoundation dictionaries={DICTIONARIES}>
+        <App
+          storage={{
+            ...createTestStorage(),
+            load: async () => ({ version: 1, objectives: [spanning] }),
+            loadView: async () => ({ period: '2027 Q1', sort: 'updated' }),
+          }}
+        />
+      </UIFoundation>,
+    );
+
+    expect(await screen.findByText('Across the new year')).toBeTruthy();
+    await waitFor(() => {
+      expect(
+        screen.getByRole('combobox', { name: 'Filter by period' })
+          .textContent,
+      ).toContain('2027 Q1');
+    });
+  });
+
   test('falls back to all periods when the saved quarter is gone', async () => {
     render(
       <UIFoundation dictionaries={DICTIONARIES}>

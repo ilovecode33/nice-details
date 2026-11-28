@@ -20,7 +20,7 @@ export interface Objective {
   id: string;
   title: string;
   note: string;
-  /** Quarter bucket derived from the start date, for example "2026 Q4". */
+  /** First quarter of the window, for example "2026 Q4". Derived from the dates. */
   period: string;
   /** First day of the objective, as YYYY-MM-DD. */
   startDate: string;

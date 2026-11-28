@@ -45,7 +45,7 @@ builds in bundleless mode.
 ## Features
 
 - Objectives with weighted key results in percent, number, or currency units.
-- Quarter buckets (`2026 Q4`) derived from the start date, with a quick 2-month preset and a day/percent countdown.
+- Quarter buckets (`2026 Q4`) derived from the date window; an objective that crosses quarters appears under each one. Includes a quick 2-month preset and a day/percent countdown.
 - Creation and update dates on every objective.
 - English, Traditional Chinese, and German UI with a persisted language selector.
 - Progress at key-result, objective, and overall level.

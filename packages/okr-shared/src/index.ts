@@ -24,10 +24,13 @@ export {
 export type { PeriodProgress, PeriodStatus } from './period';
 export {
   addMonths,
+  formatQuarterSpan,
+  objectiveQuarters,
   periodProgress,
   quarterLabel,
   quarterOrder,
   quarterRange,
+  quarterSpan,
   toDateOnly,
   todayIso,
 } from './period';

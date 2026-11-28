@@ -21,6 +21,7 @@ const objective: Objective = {
 
 function renderCard(
   props: {
+    objective?: Objective;
     onEdit?: () => void;
     onDelete?: () => void;
     onUpdateKr?: (krId: string, current: number) => void;
@@ -30,7 +31,7 @@ function renderCard(
   return render(
     <UIFoundation dictionaries={DICTIONARIES}>
       <ObjectiveCard
-        objective={objective}
+        objective={props.objective ?? objective}
         onEdit={props.onEdit ?? (() => {})}
         onDelete={props.onDelete ?? (() => {})}
         onUpdateKr={props.onUpdateKr ?? (() => {})}
@@ -48,6 +49,18 @@ describe('ObjectiveCard', () => {
     expect(screen.getByText('2026 Q4')).toBeTruthy();
     expect(screen.getByText('Books')).toBeTruthy();
     expect(screen.getByText('6 of 12')).toBeTruthy();
+  });
+
+  test('shows the full quarter span when the window crosses quarters', () => {
+    renderCard({
+      objective: {
+        ...objective,
+        startDate: '2026-11-28',
+        endDate: '2027-01-28',
+      },
+    });
+
+    expect(screen.getByText('2026 Q4 – 2027 Q1')).toBeTruthy();
   });
 
   test('wires the objective and key-result actions', () => {

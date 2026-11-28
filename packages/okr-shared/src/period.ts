@@ -1,3 +1,5 @@
+import type { Objective } from './types';
+
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 /** Two-digit zero padding for date parts. */
@@ -52,11 +54,21 @@ export function addMonths(isoDate: string, months: number): string {
 
 /** Returns the quarter label ("2026 Q4") for a date or ISO timestamp. */
 export function quarterLabel(value: string): string {
+  const index = quarterIndex(value);
+  if (index === null) return '';
+  return labelForIndex(index);
+}
+
+/** Index of the quarter containing a date, or null when the date is invalid. */
+function quarterIndex(value: string): number | null {
   const time = parseDate(value);
-  if (time === null) return '';
+  if (time === null) return null;
   const date = new Date(time);
-  const quarter = Math.floor(date.getUTCMonth() / 3) + 1;
-  return `${date.getUTCFullYear()} Q${quarter}`;
+  return date.getUTCFullYear() * 4 + Math.floor(date.getUTCMonth() / 3);
+}
+
+function labelForIndex(index: number): string {
+  return `${Math.floor(index / 4)} Q${(index % 4) + 1}`;
 }
 
 /** Sortable index for a quarter label, or null when the label is not one. */
@@ -64,6 +76,41 @@ export function quarterOrder(period: string): number | null {
   const match = period.trim().match(/^(\d{4})\s*Q([1-4])$/i);
   if (!match) return null;
   return Number(match[1]) * 4 + Number(match[2]) - 1;
+}
+
+/**
+ * Every quarter a date window touches, oldest first. The end date is
+ * inclusive, so Dec 31 – Jan 1 spans two quarters. A window that ends before
+ * it starts, or has no valid start, falls back to the start quarter or nothing.
+ */
+export function quarterSpan(startDate: string, endDate: string): string[] {
+  const first = quarterIndex(startDate);
+  if (first === null) return [];
+  const lastIndex = quarterIndex(endDate);
+  const last = lastIndex !== null && lastIndex >= first ? lastIndex : first;
+  const span: string[] = [];
+  for (let index = first; index <= last; index += 1) {
+    span.push(labelForIndex(index));
+  }
+  return span;
+}
+
+/** Quarters an objective belongs to, derived from its dates. */
+export function objectiveQuarters(
+  objective: Pick<Objective, 'startDate' | 'endDate' | 'period'>,
+): string[] {
+  const span = quarterSpan(objective.startDate, objective.endDate);
+  if (span.length > 0) return span;
+  return quarterOrder(objective.period) === null ? [] : [objective.period];
+}
+
+/** A compact label for one or more quarters: "2026 Q4" or "2026 Q4 – 2027 Q1". */
+export function formatQuarterSpan(quarters: string[]): string {
+  const first = quarters[0];
+  if (!first) return '';
+  if (quarters.length === 1) return first;
+  const last = quarters[quarters.length - 1] ?? first;
+  return `${first} – ${last}`;
 }
 
 /** Status of an objective's time window. */

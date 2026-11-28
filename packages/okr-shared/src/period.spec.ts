@@ -1,12 +1,16 @@
 import { describe, expect, test } from '@rstest/core';
 import {
   addMonths,
+  collectPeriods,
+  formatQuarterSpan,
   formatValue,
   normalizeState,
+  objectiveQuarters,
   periodProgress,
   quarterLabel,
   quarterOrder,
   quarterRange,
+  quarterSpan,
 } from './index';
 
 describe('period helpers', () => {
@@ -27,6 +31,73 @@ describe('period helpers', () => {
     expect(quarterOrder('2026 Q4')).toBe(2026 * 4 + 3);
     expect(quarterOrder('2026 Q1')).toBe(2026 * 4);
     expect(quarterOrder('Autumn')).toBeNull();
+  });
+
+  test('spans every quarter a window touches', () => {
+    expect(quarterSpan('2026-10-01', '2026-12-31')).toEqual(['2026 Q4']);
+    expect(quarterSpan('2026-11-28', '2027-01-28')).toEqual([
+      '2026 Q4',
+      '2027 Q1',
+    ]);
+    expect(quarterSpan('2026-06-15', '2027-03-01')).toEqual([
+      '2026 Q2',
+      '2026 Q3',
+      '2026 Q4',
+      '2027 Q1',
+    ]);
+    expect(quarterSpan('not a date', '2026-12-31')).toEqual([]);
+    // An inverted window keeps the start quarter instead of looping.
+    expect(quarterSpan('2026-12-31', '2026-01-01')).toEqual(['2026 Q4']);
+  });
+
+  test('derives the quarters an objective belongs to', () => {
+    expect(
+      objectiveQuarters({
+        startDate: '2026-11-28',
+        endDate: '2027-01-28',
+        period: '2026 Q4',
+      }),
+    ).toEqual(['2026 Q4', '2027 Q1']);
+    expect(
+      objectiveQuarters({ startDate: '', endDate: '', period: '2026 Q3' }),
+    ).toEqual(['2026 Q3']);
+    expect(
+      objectiveQuarters({ startDate: '', endDate: '', period: 'Autumn' }),
+    ).toEqual([]);
+    expect(formatQuarterSpan(['2026 Q4'])).toBe('2026 Q4');
+    expect(formatQuarterSpan(['2026 Q4', '2027 Q1'])).toBe(
+      '2026 Q4 – 2027 Q1',
+    );
+    expect(formatQuarterSpan([])).toBe('');
+  });
+
+  test('collects every quarter covered by the objectives', () => {
+    const base = {
+      note: '',
+      keyResults: [],
+      createdAt: '2026-10-01T00:00:00.000Z',
+      updatedAt: '2026-10-01T00:00:00.000Z',
+    };
+    expect(
+      collectPeriods([
+        {
+          ...base,
+          id: 'spanning',
+          title: 'Across the year',
+          period: '2026 Q4',
+          startDate: '2026-11-28',
+          endDate: '2027-01-28',
+        },
+        {
+          ...base,
+          id: 'single',
+          title: 'Summer',
+          period: '2026 Q3',
+          startDate: '2026-07-01',
+          endDate: '2026-09-30',
+        },
+      ]),
+    ).toEqual(['2027 Q1', '2026 Q4', '2026 Q3']);
   });
 
   test('formats values with the requested locale', () => {
