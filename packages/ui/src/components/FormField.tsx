@@ -5,7 +5,7 @@ import { cloneElement, isValidElement, useId, type ReactNode } from 'react';
 
 /** ARIA props injected into the wrapped control by `FormField`. */
 
-type FieldControlProps = {
+export type FieldControlProps = {
   id: string;
   'aria-describedby': string | undefined;
   'aria-invalid': boolean | undefined;
@@ -32,15 +32,17 @@ export function FormField({
 }) {
   const generated = useId();
   const controlId = id ?? generated;
+  const hintId = `${controlId}-hint`;
   const errorId = `${controlId}-error`;
   const semantics = fieldSemantics(
     { value: '', touched: Boolean(error), error },
     label,
     errorId,
   );
+  const describedBy = semantics.describedBy ?? (hint ? hintId : undefined);
   const controlProps: FieldControlProps = {
     id: controlId,
-    'aria-describedby': semantics.describedBy,
+    'aria-describedby': describedBy,
     'aria-invalid': semantics.invalid || undefined,
   };
 
@@ -50,7 +52,7 @@ export function FormField({
   } else if (isValidElement(children)) {
     control = cloneElement(children as React.ReactElement<FieldControlProps>, {
       id: controlId,
-      'aria-describedby': semantics.describedBy,
+      'aria-describedby': describedBy,
       'aria-invalid': semantics.invalid || undefined,
     });
   } else {
@@ -68,7 +70,7 @@ export function FormField({
           <span aria-hidden="true">✕</span> {error}
         </p>
       ) : (
-        hint && <p className={styles['ui-formfield__hint']}>{hint}</p>
+        hint && <p id={hintId} className={styles['ui-formfield__hint']}>{hint}</p>
       )}
     </div>
   );

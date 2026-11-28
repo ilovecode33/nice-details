@@ -110,6 +110,16 @@ export function componentAnchor(name: string): string {
   return `component-${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
 }
 
+export function componentDemoAnchor(name: string): string {
+  return name === 'Row' || name === 'Stack' ? 'component-stack-row' : componentAnchor(name);
+}
+
+export function hasComponentDemo(name: string): boolean {
+  return COMPONENT_GROUPS.some((item) =>
+    item.components.some((component) => component.split('/').map((part) => part.trim()).includes(name)),
+  );
+}
+
 export function group(id: string): ComponentGroup {
   const found = COMPONENT_GROUPS.find((item) => item.id === id);
   if (!found) throw new Error(`Unknown component group: ${id}`);

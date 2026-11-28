@@ -4,16 +4,17 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "rsbuild dev",
-    "build": "rsbuild build",
+    "dev": "bun scripts/generate-library-reference.ts && rsbuild dev",
+    "build": "bun scripts/generate-library-reference.ts && rsbuild build",
     "preview": "rsbuild preview",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "bun scripts/generate-library-reference.ts && tsc --noEmit",
     "clean": "rm -rf dist"
   },
   "dependencies": {
     "@ilovecode33/photo-wall": "workspace:*",
     "@ilovecode33/ui": "workspace:*",
     "@ilovecode33/ui-types": "workspace:*",
+    "highlight.js": "^11.12.0",
     "lucide-react": "^1.82.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1"
@@ -23,6 +24,7 @@
     "@rsbuild/plugin-react": "^2.1.1",
     "@types/react": "^19.3.3",
     "@types/react-dom": "^19.3.0",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "typescript-compiler-api": "npm:typescript@6.0.3"
   }
 }

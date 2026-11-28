@@ -250,7 +250,19 @@ export const DockNavigation = forwardRef<DockNavigationHandle, DockNavigationPro
       value: activeId ?? items[0]?.id ?? '',
       onChange: (id) => onSelect?.(id),
       deform,
+      layoutKey: collapsed,
     });
+    const thumbTransition = pill.thumbStyle.transition;
+    const dockThumbStyle = {
+      ...pill.thumbStyle,
+      top: pill.geometry.top ?? 0,
+      height: pill.geometry.height ?? 0,
+      bottom: 'auto',
+      transition:
+        !thumbTransition || thumbTransition === 'none'
+          ? 'none'
+          : `${thumbTransition}, top var(--dur) var(--ease), height var(--dur) var(--ease)`,
+    };
     // The dock element is both the collapse geometry source and the pill track.
     const attachDock = (node: HTMLDivElement | null) => {
       dockRef.current = node;
@@ -281,7 +293,7 @@ export const DockNavigation = forwardRef<DockNavigationHandle, DockNavigationPro
               ref={pill.thumbRef}
               className={styles['ui-dock__thumb']}
               data-ui="dock__thumb"
-              style={pill.thumbStyle}
+              style={dockThumbStyle}
             >
               <div
                 ref={pill.shiftRef}

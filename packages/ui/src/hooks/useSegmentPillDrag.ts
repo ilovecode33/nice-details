@@ -32,6 +32,8 @@ const SETTLE_MS = 220;
 export interface SegmentPillSlot {
   left: number;
   width: number;
+  top?: number;
+  height?: number;
 }
 
 /**
@@ -112,6 +114,8 @@ export interface UseSegmentPillDragOptions<T extends string> {
   values: readonly T[];
   /** Currently selected value; drives the settled seat. */
   value: T;
+  /** Re-measures slot geometry when the track switches between layouts. */
+  layoutKey?: unknown;
   /** Called once on release when the pointer's nearest slot differs. */
   onChange: (value: T) => void;
   /** Marks an index as non-draggable/non-selectable. */
@@ -136,6 +140,7 @@ export interface UseSegmentPillDragOptions<T extends string> {
 export function useSegmentPillDrag<T extends string>({
   values,
   value,
+  layoutKey,
   onChange,
   isDisabled,
   deform = true,
@@ -164,7 +169,7 @@ export function useSegmentPillDrag<T extends string>({
   const reduced = usePrefersReducedMotion();
   const motion = useDeform({ enabled: deform, axis: 'x', touchAction: 'pan-y' });
   const activeIndex = Math.max(0, values.indexOf(value));
-  const geometry = slots?.[activeIndex] ?? { left: 0, width: 0 };
+  const geometry = slots?.[activeIndex] ?? { left: 0, width: 0, top: 0, height: 0 };
 
   // Measure every slot, not just the active one: the pill needs the other
   // positions to snap on release, and options can have different widths.
@@ -174,21 +179,48 @@ export function useSegmentPillDrag<T extends string>({
     const measure = () => {
       const buttons = [...track.querySelectorAll<HTMLElement>('[data-index]')];
       if (!buttons.length) return;
-      const trackLeft = track.getBoundingClientRect().left;
-      setSlots(
-        buttons.map((button) => {
-          const rect = button.getBoundingClientRect();
-          return { left: rect.left - trackLeft, width: rect.width };
-        }),
-      );
+      const trackRect = track.getBoundingClientRect();
+      const nextSlots = buttons.map((button) => {
+        const rect = button.getBoundingClientRect();
+        return {
+          // The thumb is positioned in the track's scrollable content box.
+          // Convert viewport coordinates back to that box so scrolling the
+          // track does not leave the pill behind.
+          left: rect.left - trackRect.left - track.clientLeft + track.scrollLeft,
+          width: rect.width,
+          top: rect.top - trackRect.top - track.clientTop + track.scrollTop,
+          height: rect.height,
+        };
+      });
+      setSlots((current) => {
+        if (
+          current?.length === nextSlots.length &&
+          current.every(
+            (slot, index) =>
+              slot.left === nextSlots[index].left &&
+              slot.width === nextSlots[index].width &&
+              slot.top === nextSlots[index].top &&
+              slot.height === nextSlots[index].height,
+          )
+        ) {
+          return current;
+        }
+        return nextSlots;
+      });
     };
     measure();
-    if (typeof ResizeObserver === 'undefined') return;
-    const observer = new ResizeObserver(measure);
-    observer.observe(track);
-    track.querySelectorAll<HTMLElement>('[data-index]').forEach((button) => observer.observe(button));
-    return () => observer.disconnect();
-  }, [value, values.length]);
+    track.addEventListener('scroll', measure, { passive: true });
+    const observer =
+      typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(measure);
+    observer?.observe(track);
+    track
+      .querySelectorAll<HTMLElement>('[data-index]')
+      .forEach((button) => observer?.observe(button));
+    return () => {
+      observer?.disconnect();
+      track.removeEventListener('scroll', measure);
+    };
+  }, [layoutKey, value, values.length]);
 
   const pressedIndex = (event: ReactPointerEvent<HTMLElement>) => {
     const hit = (event.target as HTMLElement).closest<HTMLElement>('[data-index]');
@@ -259,7 +291,8 @@ export function useSegmentPillDrag<T extends string>({
       ? clamp(raw, minLeft - drag.current.baseLeft, maxLeft - drag.current.baseLeft)
       : weightedOffset(
           raw,
-          event.clientX - (trackRef.current?.getBoundingClientRect().left ?? 0),
+          event.clientX - (trackRef.current?.getBoundingClientRect().left ?? 0) +
+            (trackRef.current?.scrollLeft ?? 0),
           drag.current.baseLeft,
           slots,
           feel,
@@ -280,11 +313,12 @@ export function useSegmentPillDrag<T extends string>({
     motion.handlers.onPointerUp(event);
     // Snap to the slot under the released pointer, not the pill's centre —
     // that is where the user's finger actually is.
-    const trackLeft = trackRef.current?.getBoundingClientRect().left ?? 0;
+    const track = trackRef.current;
+    const trackLeft = track?.getBoundingClientRect().left ?? 0;
     const pointerX =
       event.type === 'pointercancel'
         ? baseLeft + (dragOffset ?? 0) + geometry.width / 2
-        : event.clientX - trackLeft;
+        : event.clientX - trackLeft + (track?.scrollLeft ?? 0);
     let nearest = 0;
     let distance = Infinity;
     slots?.forEach((slot, index) => {

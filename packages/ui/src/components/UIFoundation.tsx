@@ -19,6 +19,15 @@ import { AccentProvider } from './AccentProvider';
  * Locale is controlled via `locale` or uncontrolled via `defaultLocale`
  * (default 'en'); dictionaries come from the host and `t` falls back to the key.
  * Wrapped content disables text selection; form fields keep it.
+ *
+ * @example
+ * ```tsx
+ * import { Button, UIFoundation } from '@ilovecode33/ui';
+ *
+ * <UIFoundation defaultTheme="system" defaultAccent="warmth">
+ *   <Button variant="primary">Save changes</Button>
+ * </UIFoundation>
+ * ```
  */
 export function UIFoundation({
   children,

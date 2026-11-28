@@ -59,6 +59,78 @@ describe('DockNavigation', () => {
     );
   });
 
+  test('keeps the active bubble aligned with its row while the dock wraps and collapses', () => {
+    const original = Element.prototype.getBoundingClientRect;
+    let collapsed = false;
+    let scrollLeft = 0;
+    const wrappedItems = [
+      { id: 'first', label: 'First' },
+      { id: 'second', label: 'Second' },
+      { id: 'third', label: 'Third' },
+    ];
+    Element.prototype.getBoundingClientRect = function () {
+      if (this instanceof HTMLElement && this.dataset.ui === 'dock') {
+        return new DOMRect(0, 0, 300, collapsed ? 44 : 92);
+      }
+      if (this instanceof HTMLElement && this.dataset.index !== undefined) {
+        const index = Number(this.dataset.index);
+        const top = !collapsed && index === 2 ? 48 : 0;
+        const left = collapsed ? index * 100 - scrollLeft : index === 2 ? 0 : index * 80;
+        return new DOMRect(left, top, 80, 44);
+      }
+      return original.call(this);
+    };
+
+    try {
+      const view = render(
+        <DockNavigation
+          label="Dock"
+          items={wrappedItems}
+          activeId="third"
+          collapsed={collapsed}
+        />,
+      );
+
+      const getThumb = () => document.querySelector<HTMLElement>('[data-ui="dock__thumb"]');
+      expect(getThumb()?.style.top).toBe('48px');
+      expect(getThumb()?.style.height).toBe('44px');
+      expect(getThumb()?.style.bottom).toBe('auto');
+
+      collapsed = true;
+      view.rerender(
+        <DockNavigation
+          label="Dock"
+          items={wrappedItems}
+          activeId="third"
+          collapsed={collapsed}
+        />,
+      );
+      expect(getThumb()?.style.top).toBe('0px');
+      expect(getThumb()?.style.height).toBe('44px');
+
+      const collapsedTrack = document.querySelector<HTMLDivElement>('[data-ui="dock"]');
+      if (!collapsedTrack) throw new Error('Expected collapsed dock track');
+      scrollLeft = 150;
+      collapsedTrack.scrollLeft = scrollLeft;
+      fireEvent.scroll(collapsedTrack);
+      expect(getThumb()?.style.left).toBe('200px');
+
+      collapsed = false;
+      view.rerender(
+        <DockNavigation
+          label="Dock"
+          items={wrappedItems}
+          activeId="third"
+          collapsed={collapsed}
+        />,
+      );
+      expect(getThumb()?.style.top).toBe('48px');
+      expect(getThumb()?.style.height).toBe('44px');
+    } finally {
+      Element.prototype.getBoundingClientRect = original;
+    }
+  });
+
   test('collapses to a scrollable strip with the active item highlighted', () => {
     render(
       <DockNavigation label="Dock" items={items} activeId="about" defaultCollapsed />,

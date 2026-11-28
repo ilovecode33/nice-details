@@ -47,6 +47,12 @@ function initialState(): DeformState {
  * Press bookkeeping lives in `createGestureMachine`; this hook maps its phases
  * to deform feedback, pointer capture, scroll blocking, and click suppression,
  * and reports each snapshot through `onGesture`.
+ *
+ * @example
+ * ```tsx
+ * const motion = useDeform({ axis: 'x', touchAction: 'pan-y' });
+ * return <button {...motion.handlers} style={motion.style}>Drag me</button>;
+ * ```
  */
 export function useDeform({
   max = DEFAULT_MAX,

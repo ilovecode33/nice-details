@@ -25,6 +25,14 @@ export const AccentContext = createContext<AccentValue | null>(null);
  * Return the accent context (`accent` and `setAccent`) supplied by
  * `<AccentProvider>`. Throws when called outside that provider so consumers
  * always receive a non-null value.
+ *
+ * @example
+ * ```tsx
+ * function AccentAction() {
+ *   const { accent, setAccent } = useAccent();
+ *   return <button onClick={() => setAccent('serenity')}>Accent: {accent}</button>;
+ * }
+ * ```
  */
 export function useAccent(): AccentValue {
   const ctx = useContext(AccentContext);

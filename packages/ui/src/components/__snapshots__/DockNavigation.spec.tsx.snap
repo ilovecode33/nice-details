@@ -23,7 +23,7 @@ exports[`DockNavigation > matches its structural snapshot 1`] = `
             <div
               class="src-components-DockNavigation-module__ui-dock__thumb-IRdcz2"
               data-ui="dock__thumb"
-              style="transform-origin: 50% 50%; transition: left var(--dur) var(--ease), width var(--dur) var(--ease), transform var(--dur) var(--ease); touch-action: pan-y; --glow-x: 50%; --glow-y: 50%; left: 0px; width: 0px;"
+              style="transform-origin: 50% 50%; transition: left var(--dur) var(--ease), width var(--dur) var(--ease), transform var(--dur) var(--ease), top var(--dur) var(--ease), height var(--dur) var(--ease); touch-action: pan-y; --glow-x: 50%; --glow-y: 50%; left: 0px; width: 0px; top: 0px; height: 0px; bottom: auto;"
             >
               <div
                 class="src-components-DockNavigation-module__ui-dock__thumb-shift-rsAVdK"
