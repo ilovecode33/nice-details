@@ -142,6 +142,9 @@ describe('App', () => {
       screen.getByRole('heading', { level: 2, name: 'Install' }),
     ).toBeTruthy();
     expect(screen.getByText('Version')).toBeTruthy();
+    expect(
+      screen.getByRole('button', { name: 'Check for updates' }),
+    ).toBeTruthy();
   });
 
   test('offers the browser install prompt when the event fires', async () => {

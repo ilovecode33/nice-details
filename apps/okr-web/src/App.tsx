@@ -47,6 +47,7 @@ import { SyncPanel } from './components/SyncPanel';
 import { SyncStatus } from './components/SyncStatus';
 import { LOCALES, LOCALE_NAMES, useOkrI18n } from './i18n';
 import { formatBuildTime } from './buildInfo';
+import { useAppUpdate } from './useAppUpdate';
 import { useInstallPrompt } from './useInstallPrompt';
 import { useThemeChrome } from './useThemeChrome';
 import { getOkrStorage, type OkrStorage, type StoredSyncRoom } from './storage';
@@ -89,6 +90,7 @@ export function App({ storage }: AppProps = {}) {
   const appVersion = import.meta.env.PUBLIC_APP_VERSION ?? '0.0.0';
   const buildTime = formatBuildTime(import.meta.env.PUBLIC_BUILD_TIME, intlLocale);
   const install = useInstallPrompt();
+  const appUpdate = useAppUpdate();
   const [period, setPeriod] = useState(ALL_PERIODS);
   const [sort, setSort] = useState<ObjectiveSort>('updated');
   // undefined = closed, null = create a new objective, otherwise the one to edit.
@@ -622,6 +624,27 @@ export function App({ storage }: AppProps = {}) {
                       <span className={styles.version}>{buildTime}</span>
                     </div>
                   )}
+                  <div className={styles.settingsRow}>
+                    <span className={styles.settingsLabel}>
+                      {t('settings.updates')}
+                    </span>
+                    <span className={styles.installHint}>
+                      {appUpdate.checking
+                        ? t('settings.updateChecking')
+                        : appUpdate.updateReady
+                          ? t('settings.updateReady')
+                          : t('settings.updateHint')}
+                    </span>
+                    <Button
+                      variant={appUpdate.updateReady ? 'primary' : 'secondary'}
+                      onClick={() => void appUpdate.update()}
+                      disabled={appUpdate.checking}
+                    >
+                      {appUpdate.updateReady
+                        ? t('settings.updateNow')
+                        : t('settings.checkUpdates')}
+                    </Button>
+                  </div>
                 </div>
               </Card>
             </div>
