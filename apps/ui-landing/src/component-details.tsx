@@ -100,6 +100,8 @@ function Section({
 }
 
 export type ComponentDetailsProps = {
+  /** Opens the source-generated API reference for the selected library export. */
+  onOpenReference: (name: string) => void;
   /** The intro sheet lives in App; the overlays card opens it through this. */
   onOpenIntro: () => void;
   /** The floating dock lives in App; the floating card toggles it directly. */
@@ -109,7 +111,7 @@ export type ComponentDetailsProps = {
   onReady?: () => void;
 };
 
-export function ComponentDetails({ onOpenIntro, dockRef, dockCollapsed, onReady }: ComponentDetailsProps) {
+export function ComponentDetails({ onOpenIntro, onOpenReference, dockRef, dockCollapsed, onReady }: ComponentDetailsProps) {
   const { t } = useLocale();
 
   useEffect(() => {
@@ -190,6 +192,11 @@ export function ComponentDetails({ onOpenIntro, dockRef, dockCollapsed, onReady 
     <>
       <Section id="details" title={t('details.title')} subtitle={t('details.subtitle')}>
         <div data-ui="stack stack--lg">
+            <div data-ui="row">
+              <Button variant="secondary" onClick={() => onOpenReference('TextInput')}>
+                {t('reference.title')}
+              </Button>
+            </div>
             {/* Button */}
             <Card id="group-button" title={t(group('button').title)} subtitle={t(group('button').subtitle)}>
               <div data-ui="stack stack--md">

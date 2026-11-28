@@ -20,6 +20,14 @@ function readSavedLocale(key: string, fallback: string): string {
 /**
  * Return the locale context from `<UIFoundation>`: the active `locale`, `setLocale`,
  * the `t` translator, and the current `dictionary`. Throws outside the provider.
+ *
+ * @example
+ * ```tsx
+ * function PageTitle() {
+ *   const { locale, t } = useLocale();
+ *   return <h1 lang={locale}>{t('settings.title')}</h1>;
+ * }
+ * ```
  */
 export function useLocale(): LocaleValue {
   const value = useContext(LocaleContext);

@@ -5,7 +5,7 @@ import { cloneElement, isValidElement, useId, type ReactNode } from 'react';
 
 /** ARIA props injected into the wrapped control by `FormField`. */
 
-type FieldControlProps = {
+export type FieldControlProps = {
   id: string;
   'aria-describedby': string | undefined;
   'aria-invalid': boolean | undefined;

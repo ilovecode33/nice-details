@@ -36,6 +36,14 @@ export function readSaved(defaultTheme: Theme): Theme {
 /**
  * Return the theme context: `theme`, the resolved `light`/`dark` value, and
  * `setTheme`. Throws when used outside `<ThemeProvider>`.
+ *
+ * @example
+ * ```tsx
+ * function ThemeStatus() {
+ *   const { resolved, setTheme } = useTheme();
+ *   return <button onClick={() => setTheme('system')}>Theme: {resolved}</button>;
+ * }
+ * ```
  */
 export function useTheme(): ThemeValue {
   const ctx = useContext(ThemeContext);

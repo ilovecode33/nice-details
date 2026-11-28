@@ -12,7 +12,7 @@
     },
     "apps/blog": {
       "name": "@ilovecode33/blog",
-      "version": "0.1.3",
+      "version": "0.1.5",
       "dependencies": {
         "@ilovecode33/editor-core": "workspace:*",
         "@ilovecode33/ui": "workspace:*",
@@ -51,7 +51,7 @@
     },
     "apps/okr-web": {
       "name": "@ilovecode33/okr-web",
-      "version": "0.3.0",
+      "version": "0.7.0",
       "dependencies": {
         "@ilovecode33/okr-shared": "workspace:*",
         "@ilovecode33/persistence": "workspace:*",
@@ -80,11 +80,12 @@
     },
     "apps/ui-landing": {
       "name": "@ilovecode33/ui-landing",
-      "version": "0.1.3",
+      "version": "0.1.5",
       "dependencies": {
         "@ilovecode33/photo-wall": "workspace:*",
         "@ilovecode33/ui": "workspace:*",
         "@ilovecode33/ui-types": "workspace:*",
+        "highlight.js": "^11.12.0",
         "lucide-react": "^1.82.0",
         "react": "^19.3.1",
         "react-dom": "^19.3.1",
@@ -95,6 +96,7 @@
         "@types/react": "^19.3.3",
         "@types/react-dom": "^19.3.0",
         "typescript": "^7.0.2",
+        "typescript-compiler-api": "npm:typescript@6.0.3",
       },
     },
     "packages/ai-rules": {
@@ -120,7 +122,7 @@
     },
     "packages/okr-shared": {
       "name": "@ilovecode33/okr-shared",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "devDependencies": {
         "@rslib/core": "^1.1.0",
         "@rstest/core": "^0.12.6",
@@ -171,7 +173,7 @@
     },
     "packages/ui": {
       "name": "@ilovecode33/ui",
-      "version": "0.4.0",
+      "version": "0.5.1",
       "dependencies": {
         "@ilovecode33/ui-core": "workspace:*",
         "@ilovecode33/ui-tokens": "workspace:*",
@@ -200,7 +202,7 @@
     },
     "packages/ui-core": {
       "name": "@ilovecode33/ui-core",
-      "version": "0.4.0",
+      "version": "0.5.1",
       "dependencies": {
         "@ilovecode33/state-machine": "workspace:*",
         "@ilovecode33/ui-types": "workspace:*",
@@ -213,7 +215,7 @@
     },
     "packages/ui-tokens": {
       "name": "@ilovecode33/ui-tokens",
-      "version": "0.4.0",
+      "version": "0.5.1",
       "devDependencies": {
         "@rslib/core": "^1.1.0",
         "@types/node": "^26.6.11",
@@ -222,7 +224,7 @@
     },
     "packages/ui-types": {
       "name": "@ilovecode33/ui-types",
-      "version": "0.4.0",
+      "version": "0.5.1",
       "dependencies": {
         "@ilovecode33/ui-tokens": "workspace:*",
       },
@@ -768,6 +770,8 @@
 
     "hasown": ["hasown@2.0.4", "", { "dependencies": { "function-bind": "^1.1.2" } }, "sha512-T2UbfbBEF32wiepXIsMlTW9+dDYC6wMh/t/vYA4tuOMKqWz/n3vr1NFSxQiyP+zk2mXsoMA/i/7qV6LKut1t1A=="],
 
+    "highlight.js": ["highlight.js@11.12.0", "", {}, "sha512-nbfWpyRMcMrPMmDwJB+dhX/eiaPKtc2RB+0QZskqJ3WjRA/FDS0e9hZrx8EC/lbEv8gXy98FcDbNa/dspAaJMg=="],
+
     "human-id": ["human-id@4.2.2", "", { "bin": { "human-id": "dist/cli.js" } }, "sha512-Z+8unD6em/MJwyrkWQ2M3wygRGI1+MztbutiNwk1DCuEPXOZRWGjtcMPZYP1exY9iNZMhd7ZOSMQSo9WYtiQRw=="],
 
     "humanize-ms": ["humanize-ms@1.2.1", "", { "dependencies": { "ms": "^2.0.0" } }, "sha512-Fl70vYtsAFb/C06PTS9dZBo7ihau+Tu/DNCk/OyHhea07S+aeMWpFFkUaXRa8fI+ScZbEI8dfSxwY7gxZ9SAVQ=="],
@@ -891,6 +895,8 @@
     "turbo": ["turbo@2.11.13", "", { "optionalDependencies": { "@turbo/darwin-64": "2.11.13", "@turbo/darwin-arm64": "2.11.13", "@turbo/linux-64": "2.11.13", "@turbo/linux-arm64": "2.11.13", "@turbo/windows-64": "2.11.13", "@turbo/windows-arm64": "2.11.13" }, "bin": { "turbo": "bin/turbo" } }, "sha512-2EZ8StW6tqaj71HGF60oUOmJrPQHidmZ5dcwv2VORofya9JthVrfZhxbzRMx/QxjPwYi754i2h5RFsZSDzpnaQ=="],
 
     "typescript": ["typescript@7.0.2", "", { "optionalDependencies": { "@typescript/typescript-aix-ppc64": "7.0.2", "@typescript/typescript-darwin-arm64": "7.0.2", "@typescript/typescript-darwin-x64": "7.0.2", "@typescript/typescript-freebsd-arm64": "7.0.2", "@typescript/typescript-freebsd-x64": "7.0.2", "@typescript/typescript-linux-arm": "7.0.2", "@typescript/typescript-linux-arm64": "7.0.2", "@typescript/typescript-linux-loong64": "7.0.2", "@typescript/typescript-linux-mips64el": "7.0.2", "@typescript/typescript-linux-ppc64": "7.0.2", "@typescript/typescript-linux-riscv64": "7.0.2", "@typescript/typescript-linux-s390x": "7.0.2", "@typescript/typescript-linux-x64": "7.0.2", "@typescript/typescript-netbsd-arm64": "7.0.2", "@typescript/typescript-netbsd-x64": "7.0.2", "@typescript/typescript-openbsd-arm64": "7.0.2", "@typescript/typescript-openbsd-x64": "7.0.2", "@typescript/typescript-sunos-x64": "7.0.2", "@typescript/typescript-win32-arm64": "7.0.2", "@typescript/typescript-win32-x64": "7.0.2" }, "bin": { "tsc": "bin/tsc" } }, "sha512-8FYau96o3NKOhbjKi/qNvG/W5jhzxkbdm5sj9AbZ/5T5sWqn3hJgLfGx27sRKZWTvyzCP8dLRBTf5tBTSRVUNA=="],
+
+    "typescript-compiler-api": ["typescript@6.0.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-y2TvuxSZPDyQakkFRPZHKFm+KKVqIisdg9/CZwm9ftvKXLP8NRWj38/ODjNbr43SsoXqNuAisEf1GdCxqWcdBw=="],
 
     "undici": ["undici@7.30.2", "", {}, "sha512-mLyPQnHwUxaM/rideoK/+KL8DaAJLRl4aBCfmX444aCSLnIaomqPLtNRe2jdCYcsk5wZzXrDIQC8ZeYNRAYyIA=="],
 
