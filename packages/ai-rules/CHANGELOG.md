@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.5
+
+### Patch Changes
+
+- 7732b76: Add the deployment workflows rule: production deploys skip a push that still carries a
+  pending changeset, are dispatched for the version commit, and never overlap.
+
 ## 0.1.4
 
 ### Patch Changes
