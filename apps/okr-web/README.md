@@ -53,6 +53,8 @@ builds in bundleless mode.
 - Confirmed deletion of objectives and key results; the sample-data reset is
   available only in development.
 - Light, dark, and system appearance with selectable accent color.
+- The About settings show the deployed latest version when checked; checking does
+  not reload the app, and **Update now** applies an available update separately.
 - IndexedDB persistence through `@ilovecode33/persistence`.
 - Realtime two-device sync over a Cloudflare Durable Object WebSocket room, with
   automatic reconnect and readable device names.
