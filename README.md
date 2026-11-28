@@ -15,6 +15,7 @@ packages/
   ai-rules/      # @ilovecode33/ai-rules — private, unpublished workspace indexing AI rules as topic-based Markdown
   editor-core/   # @ilovecode33/editor-core — framework-agnostic Lexical SDK with a small typed controller
   photo-wall/    # @ilovecode33/photo-wall — seedable, procedural framed-photo layout generator and renderer
+  state-machine/ # @ilovecode33/state-machine — minimal typed state machine shared by gesture and UI logic
   ui/            # @ilovecode33/ui — React component and hook library, renderer over tokens and contracts
   ui-core/       # @ilovecode33/ui-core — framework-neutral reducers and portable component contracts
   ui-tokens/     # @ilovecode33/ui-tokens — single source of truth for token values, with CSS/JSON/Swift generators
@@ -57,6 +58,7 @@ All fourteen npm workspaces have a README, as does the Swift package. Versions b
 | [`@ilovecode33/editor-core`](packages/editor-core/README.md) | 0.1.1 | SDK |
 | [`@ilovecode33/okr-shared`](packages/okr-shared/README.md) | 0.1.0 | Library |
 | [`@ilovecode33/persistence`](packages/persistence/README.md) | 0.1.0 | Library |
+| [`@ilovecode33/state-machine`](packages/state-machine/README.md) | 0.0.0 | Library |
 | [`@ilovecode33/photo-wall`](packages/photo-wall/README.md) | 0.2.0 | Library |
 | [`@ilovecode33/ui`](packages/ui/README.md) | 0.3.1 | Library |
 | [`@ilovecode33/ui-core`](packages/ui-core/README.md) | 0.3.1 | Library |

@@ -9,6 +9,7 @@ export * from './media';
 export * from './navigation';
 export * from './floating';
 export * from './deform';
+export * from './gesture';
 
 import { disclosureContract } from './disclosure';
 import { feedbackContract } from './feedback';

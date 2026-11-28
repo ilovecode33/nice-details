@@ -159,6 +159,15 @@
         "react-dom": "^19.0.0",
       },
     },
+    "packages/state-machine": {
+      "name": "@ilovecode33/state-machine",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@rslib/core": "^1.1.0",
+        "@rstest/core": "^0.12.6",
+        "typescript": "^7.0.2",
+      },
+    },
     "packages/ui": {
       "name": "@ilovecode33/ui",
       "version": "0.3.2",
@@ -192,6 +201,7 @@
       "name": "@ilovecode33/ui-core",
       "version": "0.3.2",
       "dependencies": {
+        "@ilovecode33/state-machine": "workspace:*",
         "@ilovecode33/ui-types": "workspace:*",
       },
       "devDependencies": {
@@ -360,6 +370,8 @@
     "@ilovecode33/persistence": ["@ilovecode33/persistence@workspace:packages/persistence"],
 
     "@ilovecode33/photo-wall": ["@ilovecode33/photo-wall@workspace:packages/photo-wall"],
+
+    "@ilovecode33/state-machine": ["@ilovecode33/state-machine@workspace:packages/state-machine"],
 
     "@ilovecode33/ui": ["@ilovecode33/ui@workspace:packages/ui"],
 

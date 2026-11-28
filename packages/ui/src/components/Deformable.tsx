@@ -1,6 +1,6 @@
 import styles from './Deformable.module.css';
 
-import type { DeformAxis, DeformState } from '@ilovecode33/ui-types';
+import type { DeformAxis, DeformState, GestureSnapshot } from '@ilovecode33/ui-types';
 import { useEffect, type CSSProperties, type HTMLAttributes } from 'react';
 import { PressGlow } from './PressGlow';
 import { useDeform } from '../hooks/useDeform';
@@ -19,6 +19,7 @@ export function Deformable({
   enabled,
   touchAction,
   longPressMs,
+  onGesture,
   onDragStateChange,
   style,
   ...rest
@@ -28,9 +29,10 @@ export function Deformable({
   enabled?: boolean;
   touchAction?: CSSProperties['touchAction'];
   longPressMs?: number;
+  onGesture?: (snapshot: GestureSnapshot) => void;
   onDragStateChange?: (state: DeformState) => void;
 }) {
-  const deform = useDeform({ max, axis, enabled, touchAction, longPressMs });
+  const deform = useDeform({ max, axis, enabled, touchAction, longPressMs, onGesture });
   useEffect(() => {
     onDragStateChange?.(deform.state);
   }, [deform.state, onDragStateChange]);
