@@ -417,12 +417,9 @@ export function App({ storage }: AppProps = {}) {
                       return (
                         <Card key={objective.id}>
                           <div className={styles.focusCard}>
-                            <div className={styles.focusTop}>
-                              <span className={styles.focusTitle}>
-                                {objective.title}
-                              </span>
-                              <span className={styles.focusPercent}>{value}%</span>
-                            </div>
+                            <span className={styles.focusTitle}>
+                              {objective.title}
+                            </span>
                             <ProgressBar
                               value={value}
                               label={t('objective.progress', {
