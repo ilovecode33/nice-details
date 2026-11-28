@@ -27,6 +27,18 @@ describe('ObjectiveEditor', () => {
     expect(onSave).not.toHaveBeenCalled();
   });
 
+  test('closes the quick length menu after choosing a length', async () => {
+    renderEditor(rs.fn());
+
+    fireEvent.click(
+      screen.getByRole('combobox', { name: 'Set period length' }),
+    );
+    expect(screen.getByRole('listbox')).toBeTruthy();
+
+    fireEvent.click(screen.getByText('3 months'));
+    expect(screen.queryByRole('listbox')).toBeNull();
+  });
+
   test('saves the edited objective and calls onClose from cancel', () => {
     const onSave = rs.fn();
     const onClose = rs.fn();

@@ -2,6 +2,7 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { Badge, Button, Sheet, TextArea, TextInput } from '@ilovecode33/ui';
 import {
   canonicalJson,
+  createSampleState,
   mergeStates,
   parseState,
   type OKRState,
@@ -90,10 +91,8 @@ export function SyncPanel({
   const onRemoteStateRef = useRef(onRemoteState);
   const skipSendRef = useRef(false);
   const readyToSendRef = useRef(false);
-  /** The next state received replaces the local document (joining a room). */
-  const adoptRef = useRef(false);
-  /** Set by the entry point that connects to a room the user is not in yet. */
-  const adoptNextRef = useRef(false);
+  /** Adopt only the first state of a session, and only on a fresh install. */
+  const firstStateRef = useRef(true);
   const copiedTimer = useRef<number | null>(null);
 
   stateRef.current = state;
@@ -126,7 +125,6 @@ export function SyncPanel({
       if (linkRoom) {
         setMode('join');
         setPendingRoom(linkRoom);
-        adoptNextRef.current = true;
         setStarted(true);
       } else if (savedRoom) {
         setMode(savedRoom.role);
@@ -157,13 +155,16 @@ export function SyncPanel({
       return;
     }
     const remoteState = parsed.state;
-    // Joining a room adopts its document; every later update merges per
-    // objective so concurrent edits on the other device are kept.
-    const adopt = adoptRef.current;
-    adoptRef.current = false;
-    const next = adopt
-      ? remoteState
-      : mergeStates(stateRef.current, remoteState);
+    // A fresh install only holds the sample placeholders, so it adopts the
+    // room instead of pushing samples into it. Any device with real data
+    // merges: joining must never wipe local objectives, even when the room is
+    // empty.
+    const localState = stateRef.current;
+    const pristineSample =
+      canonicalJson(localState) === canonicalJson(createSampleState());
+    const adopt = firstStateRef.current && pristineSample;
+    firstStateRef.current = false;
+    const next = adopt ? remoteState : mergeStates(localState, remoteState);
     // Keep the ref current for messages that arrive before React re-renders.
     stateRef.current = next;
     // Only talk back when merging produced something the sender lacks; a
@@ -185,10 +186,9 @@ export function SyncPanel({
     nextKey: string,
   ) {
     sessionRef.current?.close();
+    firstStateRef.current = true;
     setRevision(0);
     setUpdatedAt(null);
-    adoptRef.current = adoptNextRef.current;
-    adoptNextRef.current = false;
     const session = createRealtime({
       url: syncUrl,
       room: nextRoom,
@@ -265,14 +265,12 @@ export function SyncPanel({
   }
 
   function selectHost() {
-    adoptNextRef.current = false;
     setMode('host');
     setPendingRoom({ room: createRoomId(), key: createRoomKey() });
     setStarted(true);
   }
 
   function selectJoin() {
-    adoptNextRef.current = false;
     setMode('join');
     setPendingRoom(null);
     setStarted(true);
@@ -297,7 +295,6 @@ export function SyncPanel({
       setError(t('sync.invalidLink'));
       return;
     }
-    adoptNextRef.current = true;
     connectRoom(target.room, 'join', target.key);
     setJoinInput('');
     setShowScanner(false);

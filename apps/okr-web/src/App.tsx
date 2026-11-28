@@ -456,7 +456,7 @@ export function App({ storage }: AppProps = {}) {
           {page === 'okrs' && (
             <>
               <section className={styles.toolbar} aria-label={t('toolbar.aria')}>
-                <label className={styles.field}>
+                <div className={styles.field}>
                   <span className={styles.fieldLabel}>{t('toolbar.period')}</span>
                   <Select
                     aria-label={t('toolbar.filterAria')}
@@ -464,8 +464,8 @@ export function App({ storage }: AppProps = {}) {
                     options={periodOptions}
                     onChange={(event) => setPeriod(event.target.value)}
                   />
-                </label>
-                <label className={styles.field}>
+                </div>
+                <div className={styles.field}>
                   <span className={styles.fieldLabel}>{t('toolbar.sort')}</span>
                   <Select<ObjectiveSort>
                     aria-label={t('toolbar.sortAria')}
@@ -473,7 +473,7 @@ export function App({ storage }: AppProps = {}) {
                     options={sortOptions}
                     onChange={(event) => setSort(event.target.value)}
                   />
-                </label>
+                </div>
                 <Button
                   variant="primary"
                   onClick={() => setEditing(null)}

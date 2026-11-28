@@ -202,7 +202,14 @@ describe('SyncPanel', () => {
 
   test('merges a remote update into the local document', async () => {
     const onRemoteState = rs.fn();
-    const { getSession } = renderPanel({ onRemoteState });
+    const local = createSampleState();
+    const [first] = local.objectives;
+    if (!first) throw new Error('sample state is empty');
+    const edited = {
+      ...local,
+      objectives: [{ ...first, title: 'My running goal' }, ...local.objectives.slice(1)],
+    };
+    const { getSession } = renderPanel({ onRemoteState, state: edited });
     await startHost();
 
     act(() => {
@@ -229,6 +236,30 @@ describe('SyncPanel', () => {
     });
 
     expect(onRemoteState).toHaveBeenCalledWith(remote);
+  });
+
+  test('joining an empty room keeps edited local objectives', async () => {
+    const onRemoteState = rs.fn();
+    const local = createSampleState();
+    const [first] = local.objectives;
+    if (!first) throw new Error('sample state is empty');
+    const edited = {
+      ...local,
+      objectives: [{ ...first, title: 'Keep me' }, ...local.objectives.slice(1)],
+    };
+    const { getSession } = renderPanel({
+      state: edited,
+      initialRoom: `https://app.test/#sync=${room}&key=${key}`,
+      onRemoteState,
+    });
+    await screen.findByText('Connected. Changes sync in realtime.');
+
+    act(() => {
+      getSession()?.emitState({ version: 1, objectives: [] });
+    });
+
+    const merged = onRemoteState.mock.calls[0]?.[0] as OKRState;
+    expect(merged.objectives.map((item) => item.title)).toContain('Keep me');
   });
 
   test('shows the room id and data version', async () => {

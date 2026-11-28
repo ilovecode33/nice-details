@@ -250,7 +250,7 @@ export function ObjectiveEditor({
             }}
           />
         </label>
-        <label className={styles.field}>
+        <div className={styles.field}>
           <span className={styles.fieldLabel}>{t('editor.quickLength')}</span>
           <Select
             aria-label={t('editor.quickLengthAria')}
@@ -268,7 +268,7 @@ export function ObjectiveEditor({
               if (error) setError('');
             }}
           />
-        </label>
+        </div>
 
         {quarterLabelText && (
           <p className={styles.hint}>
@@ -316,7 +316,7 @@ export function ObjectiveEditor({
                     onChange={(event) => patchKr(kr.id, { current: event.target.value })}
                   />
                 </label>
-                <label className={styles.field}>
+                <div className={styles.field}>
                   <span className={styles.fieldLabel}>{t('editor.unit')}</span>
                   <Select<KRUnit>
                     aria-label={t('editor.unitAria', { index: index + 1 })}
@@ -324,7 +324,7 @@ export function ObjectiveEditor({
                     options={unitOptions}
                     onChange={(event) => patchKr(kr.id, { unit: event.target.value })}
                   />
-                </label>
+                </div>
                 <div className={styles.field}>
                   <span className={styles.fieldLabel}>{t('editor.weight')}</span>
                   <Stepper
