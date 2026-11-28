@@ -31,8 +31,10 @@ import {
 import { parseSyncLink, type RealtimeStatus } from './realtime';
 import {
   AlertTriangle,
+  Check,
   LayoutDashboard,
   ListChecks,
+  MonitorDown,
   Plus,
   RotateCcw,
   Settings,
@@ -43,6 +45,7 @@ import { ObjectiveEditor } from './components/ObjectiveEditor';
 import { SyncPanel } from './components/SyncPanel';
 import { SyncStatus } from './components/SyncStatus';
 import { LOCALES, LOCALE_NAMES, useOkrI18n } from './i18n';
+import { useInstallPrompt } from './useInstallPrompt';
 import { getOkrStorage, type OkrStorage, type StoredSyncRoom } from './storage';
 import styles from './App.module.css';
 
@@ -81,6 +84,7 @@ export function App({ storage }: AppProps = {}) {
   const [page, setPage] = useState<AppPage>('dashboard');
   const [dockCollapsed, setDockCollapsed] = useState(true);
   const appVersion = import.meta.env.PUBLIC_APP_VERSION ?? '0.0.0';
+  const install = useInstallPrompt();
   const [period, setPeriod] = useState(ALL_PERIODS);
   const [sort, setSort] = useState<ObjectiveSort>('updated');
   // undefined = closed, null = create a new objective, otherwise the one to edit.
@@ -582,6 +586,32 @@ export function App({ storage }: AppProps = {}) {
                 subtitle={t('settings.syncHint')}
               >
                 <SyncStatus status={syncStatus} onOpen={() => setSyncOpen(true)} />
+              </Card>
+
+              <Card className={styles.settingsCard} title={t('install.title')}>
+                {install.installed ? (
+                  <p className={styles.installState}>
+                    <Check size={16} aria-hidden="true" />
+                    {t('install.installed')}
+                  </p>
+                ) : (
+                  <div className={styles.installBody}>
+                    <p className={styles.installHint}>{t('install.hint')}</p>
+                    {install.canPrompt ? (
+                      <Button
+                        variant="primary"
+                        icon={<MonitorDown />}
+                        onClick={() => void install.prompt()}
+                      >
+                        {t('install.action')}
+                      </Button>
+                    ) : (
+                      <p className={styles.installHint}>
+                        {install.ios ? t('install.ios') : t('install.manual')}
+                      </p>
+                    )}
+                  </div>
+                )}
               </Card>
 
               <Card className={styles.settingsCard} title={t('settings.about')}>

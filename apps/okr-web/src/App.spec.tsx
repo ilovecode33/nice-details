@@ -1,5 +1,5 @@
 import { describe, expect, rs, test } from '@rstest/core';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import {
   addMonths,
   createSampleState,
@@ -135,7 +135,36 @@ describe('App', () => {
     ).toBeTruthy();
     expect(screen.getByRole('combobox', { name: 'Language' })).toBeTruthy();
     expect(screen.getByRole('button', { name: /^Sync/ })).toBeTruthy();
+    expect(
+      screen.getByRole('heading', { level: 2, name: 'Install' }),
+    ).toBeTruthy();
     expect(screen.getByText('Version')).toBeTruthy();
+  });
+
+  test('offers the browser install prompt when the event fires', async () => {
+    renderApp();
+    await screen.findByText('Current focus');
+
+    const prompt = rs.fn(async () => {});
+    const event = Object.assign(
+      new Event('beforeinstallprompt', { cancelable: true }),
+      {
+        prompt,
+        userChoice: Promise.resolve({ outcome: 'accepted', platform: 'web' }),
+      },
+    );
+    act(() => {
+      window.dispatchEvent(event);
+    });
+
+    await openPage('Settings');
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Add to Home Screen' }),
+    );
+
+    await waitFor(() => {
+      expect(prompt).toHaveBeenCalledTimes(1);
+    });
   });
 
   test('restores the saved period and sort filters on the OKR list', async () => {
