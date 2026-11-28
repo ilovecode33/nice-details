@@ -21,6 +21,7 @@ type FakeSession = RealtimeSession & {
 };
 
 const room = 'abcdefghijklmnopqrstuvwx';
+const key = 'A'.repeat(43);
 
 function createFakeSession(
   options: RealtimeOptions,
@@ -149,7 +150,7 @@ describe('SyncPanel', () => {
   test('reconnects to the last room from persistence', async () => {
     const starts: RealtimeOptions[] = [];
     renderPanel({
-      storedRoom: { room, role: 'host' },
+      storedRoom: { room, role: 'host', key },
       onStart: (options) => starts.push(options),
     });
 
@@ -162,7 +163,7 @@ describe('SyncPanel', () => {
   test('joins a room from a link', async () => {
     const starts: RealtimeOptions[] = [];
     renderPanel({
-      initialRoom: `https://app.test/#sync=${room}`,
+      initialRoom: `https://app.test/#sync=${room}&key=${key}`,
       onStart: (options) => starts.push(options),
     });
 

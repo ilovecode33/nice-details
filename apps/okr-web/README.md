@@ -67,21 +67,25 @@ Open **Sync** in the toolbar to start a room or join one.
 3. Both panels show **Connected. Changes sync in realtime.**
 4. Closing the Sync sheet keeps the room connected. Use **Disconnect** to stop.
 
-The link is `https://<app>/#sync=<room>`. The room's latest state is stored in
-the Cloudflare Durable Object and sent to every new connection, so a late join
-or reconnect picks up the current data. Local edits broadcast immediately to the
-other connected devices; there is no WebRTC/ICE negotiation. The realtime Worker
-URL defaults to `https://sync.ilovecode33.fyi` and can be overridden with
-`PUBLIC_SYNC_URL`.
+The link is `https://<app>/#sync=<room>&key=<room-key>`. The room's latest
+encrypted state is stored in the Cloudflare Durable Object and sent to every new
+connection. The AES-GCM key lives only in the URL fragment, so it is never sent
+to Cloudflare; the Worker stores and relays ciphertext. Local edits broadcast
+immediately to the other connected devices; there is no WebRTC/ICE negotiation.
+The realtime Worker URL defaults to `https://sync.ilovecode33.fyi` and can be
+overridden with `PUBLIC_SYNC_URL`.
 
 Each device sends a readable name such as `Mac · Chrome` or `iPhone · Safari`.
 You can edit it in **Sync → Device name**; the name and the last room are stored
 in the `okr-web` IndexedDB database through `@ilovecode33/persistence` and shown
 in **Connected devices**.
 
-Room data passes through the Cloudflare Worker while connected. It is scoped to
-the random room id and retained for up to 24 hours after the last device leaves.
-Anyone who can open the room link can join, so treat it as a credential.
+Room data is encrypted in the browser with AES-GCM. The key travels only in the
+URL fragment and never reaches Cloudflare. The Worker stores ciphertext and
+revision metadata for up to 24 hours after the last device leaves. Anyone who
+can open the full room link can join and decrypt, so treat the link as a
+credential. No account password is required; the link itself is the bearer
+secret.
 
 ## Data
 

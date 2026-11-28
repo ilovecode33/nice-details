@@ -51,15 +51,18 @@ describe('openOkrStorage', () => {
   test('persists and clears the last sync room', async () => {
     const storage = await openOkrStorage(uniqueName());
     opened.push(storage);
+    const key = 'A'.repeat(43);
 
     expect(await storage.loadSyncRoom()).toBeNull();
     await storage.saveSyncRoom({
       room: 'abcdefghijklmnop',
       role: 'host',
+      key,
     });
     expect(await storage.loadSyncRoom()).toEqual({
       room: 'abcdefghijklmnop',
       role: 'host',
+      key,
     });
     await storage.clearSyncRoom();
     expect(await storage.loadSyncRoom()).toBeNull();

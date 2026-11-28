@@ -6,6 +6,7 @@ import {
   STORAGE_KEY,
   type OKRState,
 } from '@ilovecode33/okr-shared';
+import { isRoomKey } from './crypto';
 
 export const OKR_DATABASE = 'okr-web';
 export const OKR_DATABASE_VERSION = 1;
@@ -19,6 +20,7 @@ const SYNC_ROOM_PATTERN = /^[A-Za-z0-9_-]{16,64}$/;
 export interface StoredSyncRoom {
   room: string;
   role: 'host' | 'join';
+  key: string;
 }
 
 /** Storage contract used by the app and injected in tests. */
@@ -83,15 +85,17 @@ export async function openOkrStorage(
     async loadSyncRoom() {
       const value = await syncKv.get(SYNC_ROOM_KEY);
       if (typeof value !== 'object' || value === null) return null;
-      const record = value as { room?: unknown; role?: unknown };
+      const record = value as { room?: unknown; role?: unknown; key?: unknown };
       if (
         typeof record.room !== 'string' ||
         !SYNC_ROOM_PATTERN.test(record.room) ||
-        (record.role !== 'host' && record.role !== 'join')
+        (record.role !== 'host' && record.role !== 'join') ||
+        typeof record.key !== 'string' ||
+        !isRoomKey(record.key)
       ) {
         return null;
       }
-      return { room: record.room, role: record.role };
+      return { room: record.room, role: record.role, key: record.key };
     },
     saveSyncRoom: (room) => syncKv.set(SYNC_ROOM_KEY, room),
     clearSyncRoom: () => syncKv.delete(SYNC_ROOM_KEY),

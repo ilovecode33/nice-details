@@ -5,9 +5,14 @@ export interface RealtimePeer {
   device: string;
 }
 
+export interface EncryptedPayload {
+  iv: string;
+  data: string;
+}
+
 export type RealtimeClientMessage =
   | { type: 'hello'; device: string }
-  | { type: 'state'; state: Record<string, unknown> }
+  | { type: 'state'; payload: EncryptedPayload }
   | { type: 'ping' };
 
 export type RealtimeServerMessage =
@@ -21,7 +26,7 @@ export type RealtimeServerMessage =
   | { type: 'peers'; peers: RealtimePeer[] }
   | {
       type: 'state';
-      state: Record<string, unknown>;
+      payload: EncryptedPayload;
       revision: number;
       updatedAt: string;
     }
@@ -67,7 +72,7 @@ export function parseClientMessage(
   const message = value as {
     type?: unknown;
     device?: unknown;
-    state?: unknown;
+    payload?: unknown;
   };
   if (message.type === 'ping') return { type: 'ping' };
   if (message.type === 'hello') {
@@ -76,11 +81,21 @@ export function parseClientMessage(
     return device ? { type: 'hello', device } : null;
   }
   if (message.type === 'state') {
-    const state = message.state;
-    if (typeof state !== 'object' || state === null || Array.isArray(state)) {
+    const payload = message.payload;
+    if (typeof payload !== 'object' || payload === null || Array.isArray(payload)) {
       return null;
     }
-    return { type: 'state', state: state as Record<string, unknown> };
+    const encrypted = payload as { iv?: unknown; data?: unknown };
+    if (
+      typeof encrypted.iv !== 'string' ||
+      typeof encrypted.data !== 'string'
+    ) {
+      return null;
+    }
+    return {
+      type: 'state',
+      payload: { iv: encrypted.iv, data: encrypted.data },
+    };
   }
   return null;
 }

@@ -6,25 +6,27 @@ import {
   syncSocketUrl,
 } from './realtime';
 
+const room = 'abcdefghijklmnop';
+const key = 'A'.repeat(43);
+
 describe('realtime helpers', () => {
   test('creates URL-safe room ids', () => {
-    const room = createRoomId();
-    expect(room).toMatch(/^[A-Za-z0-9_-]{16,64}$/);
-    expect(createRoomId()).not.toBe(room);
+    const id = createRoomId();
+    expect(id).toMatch(/^[A-Za-z0-9_-]{16,64}$/);
+    expect(createRoomId()).not.toBe(id);
   });
 
-  test('builds and parses room links', () => {
-    expect(buildSyncUrl('https://app.example/okr', 'abcdefghijklmnop')).toBe(
-      'https://app.example/okr#sync=abcdefghijklmnop',
-    );
-    expect(
-      parseSyncLink('https://app.example/okr#sync=abcdefghijklmnop'),
-    ).toBe('abcdefghijklmnop');
-    expect(
-      parseSyncLink('https://app.example/okr?sync=abcdefghijklmnop'),
-    ).toBe('abcdefghijklmnop');
-    expect(parseSyncLink('abcdefghijklmnop')).toBe('abcdefghijklmnop');
+  test('builds and parses room links with the key in the fragment', () => {
+    const link = buildSyncUrl('https://app.example/okr', room, key);
+    expect(link).toContain(`#sync=${room}&key=${key}`);
+    expect(parseSyncLink(link)).toEqual({ room, key });
     expect(parseSyncLink('https://app.example/okr')).toBeNull();
+    expect(
+      parseSyncLink(`https://app.example/okr#sync=${room}`),
+    ).toBeNull();
+    expect(
+      parseSyncLink(`https://app.example/okr?sync=${room}&key=${key}`),
+    ).toEqual({ room, key });
   });
 
   test('builds secure WebSocket endpoints', () => {

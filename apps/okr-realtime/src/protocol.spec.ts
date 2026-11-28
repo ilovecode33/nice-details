@@ -29,13 +29,21 @@ describe('okr realtime protocol', () => {
     ).toEqual({ type: 'hello', device: 'Mac' });
     expect(
       parseClientMessage(
-        JSON.stringify({ type: 'state', state: { version: 1 } }),
+        JSON.stringify({
+          type: 'state',
+          payload: { iv: 'iv-value', data: 'ciphertext' },
+        }),
       ),
-    ).toEqual({ type: 'state', state: { version: 1 } });
+    ).toEqual({
+      type: 'state',
+      payload: { iv: 'iv-value', data: 'ciphertext' },
+    });
+    expect(
+      parseClientMessage(JSON.stringify({ type: 'state', payload: {} })),
+    ).toBeNull();
     expect(parseClientMessage(JSON.stringify({ type: 'ping' }))).toEqual({
       type: 'ping',
     });
-    expect(parseClientMessage(JSON.stringify({ type: 'state' }))).toBeNull();
     expect(parseClientMessage('not json')).toBeNull();
   });
 });

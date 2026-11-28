@@ -2,6 +2,7 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { Badge, Button, Sheet, TextArea, TextInput } from '@ilovecode33/ui';
 import type { OKRState } from '@ilovecode33/okr-shared';
 import { defaultDeviceName } from '../deviceName';
+import { createRoomKey } from '../crypto';
 import { useOkrI18n } from '../i18n';
 import {
   buildSyncUrl,
@@ -12,6 +13,7 @@ import {
   type RealtimeSession,
   type RealtimeStateMeta,
   type RealtimeStatus,
+  type SyncTarget,
 } from '../realtime';
 import { SYNC_URL } from '../syncConfig';
 import type { StoredSyncRoom } from '../storage';
@@ -71,7 +73,7 @@ export function SyncPanel({
   const [mode, setMode] = useState<SyncMode>('host');
   const [started, setStarted] = useState(false);
   const [booted, setBooted] = useState(false);
-  const [pendingRoom, setPendingRoom] = useState('');
+  const [pendingRoom, setPendingRoom] = useState<SyncTarget | null>(null);
   const [deviceName, setDeviceName] = useState(() => defaultDeviceName());
   const [nameDraft, setNameDraft] = useState(deviceName);
   const [status, setStatus] = useState<PanelStatus>('idle');
@@ -121,7 +123,7 @@ export function SyncPanel({
         setStarted(true);
       } else if (savedRoom) {
         setMode(savedRoom.role);
-        setPendingRoom(savedRoom.room);
+        setPendingRoom({ room: savedRoom.room, key: savedRoom.key });
         setStarted(true);
       }
       setBooted(true);
@@ -149,13 +151,18 @@ export function SyncPanel({
     if (next === 'connected') readyToSendRef.current = true;
   }
 
-  function connectRoom(nextRoom: string, role: SyncMode) {
+  function connectRoom(
+    nextRoom: string,
+    role: SyncMode,
+    nextKey: string,
+  ) {
     sessionRef.current?.close();
     setRevision(0);
     setUpdatedAt(null);
     const session = createRealtime({
       url: syncUrl,
       room: nextRoom,
+      key: nextKey,
       device: deviceName,
       ...(role === 'host' ? { initialState: stateRef.current } : {}),
       onState: applyRemoteState,
@@ -165,14 +172,16 @@ export function SyncPanel({
       },
       onPeers: setPeers,
       onStatus: handleStatus,
+      onError: (reason) => setError(messageOf(reason)),
     });
     sessionRef.current = session;
-    void saveStoredRoom?.({ room: nextRoom, role });
+    void saveStoredRoom?.({ room: nextRoom, role, key: nextKey });
     setRoom(nextRoom);
     setRoomUrl(
       buildSyncUrl(
         `${window.location.origin}${window.location.pathname}`,
         nextRoom,
+        nextKey,
       ),
     );
     setStatus(session.status);
@@ -190,10 +199,10 @@ export function SyncPanel({
     setRevision(0);
     setUpdatedAt(null);
 
-    if (mode === 'host') {
-      connectRoom(pendingRoom || createRoomId(), 'host');
-    } else if (pendingRoom) {
-      connectRoom(pendingRoom, 'join');
+    if (mode === 'host' && pendingRoom) {
+      connectRoom(pendingRoom.room, 'host', pendingRoom.key);
+    } else if (mode === 'join' && pendingRoom) {
+      connectRoom(pendingRoom.room, 'join', pendingRoom.key);
     } else {
       setStatus('idle');
       setRoom('');
@@ -227,20 +236,20 @@ export function SyncPanel({
 
   function selectHost() {
     setMode('host');
-    setPendingRoom('');
+    setPendingRoom({ room: createRoomId(), key: createRoomKey() });
     setStarted(true);
   }
 
   function selectJoin() {
     setMode('join');
-    setPendingRoom('');
+    setPendingRoom(null);
     setStarted(true);
   }
 
   function backToChoice() {
     setStarted(false);
     setMode('host');
-    setPendingRoom('');
+    setPendingRoom(null);
     setStatus('idle');
     setRoom('');
     setRoomUrl('');
@@ -251,12 +260,12 @@ export function SyncPanel({
 
   function joinWith(value: string) {
     if (mode !== 'join' || !value.trim()) return;
-    const nextRoom = parseSyncLink(value);
-    if (!nextRoom) {
+    const target = parseSyncLink(value);
+    if (!target) {
       setError(t('sync.invalidLink'));
       return;
     }
-    connectRoom(nextRoom, 'join');
+    connectRoom(target.room, 'join', target.key);
     setJoinInput('');
     setShowScanner(false);
   }
@@ -279,7 +288,7 @@ export function SyncPanel({
     void clearStoredRoom?.();
     setStarted(false);
     setMode('host');
-    setPendingRoom('');
+    setPendingRoom(null);
     setStatus('idle');
     setRoom('');
     setRoomUrl('');

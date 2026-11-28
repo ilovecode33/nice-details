@@ -29,7 +29,7 @@ The workflow has a fork guard: pull requests from forks do not get previews, bec
 - Production domain: `sync.ilovecode33.fyi` (Workers custom domain)
 - Deploy: [`.github/workflows/deploy-okr-realtime.yml`](../../.github/workflows/deploy-okr-realtime.yml) on pushes to `main`
 
-The Worker has a `SyncRoom` Durable Object. Each room stores the latest OKR state and broadcasts changes over WebSocket. It keeps state for up to 24 hours after the last device leaves. The origin allowlist accepts `https://okr.ilovecode33.fyi`, Pages preview/production domains, and `localhost`.
+The Worker has a `SyncRoom` Durable Object. Each room stores the latest encrypted OKR payload and broadcasts changes over WebSocket. It keeps ciphertext and revision metadata for up to 24 hours after the last device leaves; the AES-GCM key stays in the URL fragment and never reaches the Worker. The origin allowlist accepts `https://okr.ilovecode33.fyi`, Pages preview/production domains, and `localhost`.
 
 ## Required GitHub secrets
 

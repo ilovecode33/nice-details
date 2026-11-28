@@ -2,6 +2,7 @@ import {
   MAX_MESSAGE_BYTES,
   parseClientMessage,
   parseConnection,
+  type EncryptedPayload,
   type RealtimePeer,
 } from './protocol';
 
@@ -13,7 +14,7 @@ interface SocketAttachment {
 }
 
 interface RoomRecord {
-  state: Record<string, unknown>;
+  payload: EncryptedPayload;
   revision: number;
   updatedAt: string;
 }
@@ -62,7 +63,7 @@ export class SyncRoom {
     if (stored) {
       send(server, {
         type: 'state',
-        state: stored.state,
+        payload: stored.payload,
         revision: stored.revision,
         updatedAt: stored.updatedAt,
       });
@@ -112,7 +113,7 @@ export class SyncRoom {
     const revision = (current?.revision ?? 0) + 1;
     const updatedAt = new Date().toISOString();
     const record: RoomRecord = {
-      state: parsed.state,
+      payload: parsed.payload,
       revision,
       updatedAt,
     };
@@ -122,7 +123,7 @@ export class SyncRoom {
       if (target !== socket) {
         send(target, {
           type: 'state',
-          state: record.state,
+          payload: record.payload,
           revision,
           updatedAt,
         });

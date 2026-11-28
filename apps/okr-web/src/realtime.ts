@@ -1,4 +1,12 @@
 import type { OKRState } from '@ilovecode33/okr-shared';
+import {
+  decryptState,
+  encryptState,
+  importRoomKey,
+  isEncryptedPayload,
+  isRoomKey,
+  type EncryptedPayload,
+} from './crypto';
 
 export type RealtimeStatus =
   | 'connecting'
@@ -12,6 +20,11 @@ export interface RealtimePeer {
   device: string;
 }
 
+export interface SyncTarget {
+  room: string;
+  key: string;
+}
+
 export interface RealtimeStateMeta {
   revision: number;
   updatedAt: string | null;
@@ -21,6 +34,7 @@ export interface RealtimeOptions {
   /** Base URL of the realtime Worker. */
   url: string;
   room: string;
+  key: string;
   device: string;
   /** Sent once after the first successful connection (hosts use this). */
   initialState?: OKRState;
@@ -28,6 +42,7 @@ export interface RealtimeOptions {
   onVersion?: (meta: RealtimeStateMeta) => void;
   onPeers?: (peers: RealtimePeer[]) => void;
   onStatus?: (status: RealtimeStatus) => void;
+  onError?: (error: Error) => void;
   /** Injected in tests. */
   socketFactory?: (url: string) => WebSocket;
 }
@@ -50,7 +65,7 @@ type ServerMessage =
   | { type: 'peers'; peers: RealtimePeer[] }
   | {
       type: 'state';
-      state: unknown;
+      payload: EncryptedPayload;
       revision: number;
       updatedAt: string;
     }
@@ -77,23 +92,35 @@ export function createRoomId(): string {
   return randomRoom();
 }
 
-/** Builds the link encoded in the host QR. */
-export function buildSyncUrl(appUrl: string, room: string): string {
+/** Builds the link encoded in the host QR; the key stays in the fragment. */
+export function buildSyncUrl(
+  appUrl: string,
+  room: string,
+  key: string,
+): string {
   const url = new URL(appUrl);
-  url.hash = `sync=${room}`;
+  url.hash = new URLSearchParams({ sync: room, key }).toString();
   return url.toString();
 }
 
-/** Reads the room from a sync link or a bare room id. */
-export function parseSyncLink(value: string): string | null {
+/** Reads the room and encryption key from a sync link. */
+export function parseSyncLink(value: string): SyncTarget | null {
   const text = value.trim();
   if (!text) return null;
-  if (ROOM_PATTERN.test(text)) return text;
   try {
     const url = new URL(text);
     const hash = new URLSearchParams(url.hash.replace(/^#/, ''));
     const room = hash.get('sync') ?? url.searchParams.get('sync');
-    return room && ROOM_PATTERN.test(room) ? room : null;
+    const key = hash.get('key') ?? url.searchParams.get('key');
+    if (
+      !room ||
+      !ROOM_PATTERN.test(room) ||
+      !key ||
+      !isRoomKey(key)
+    ) {
+      return null;
+    }
+    return { room, key };
   } catch {
     return null;
   }
@@ -127,6 +154,7 @@ function parseServerMessage(raw: unknown): ServerMessage | null {
     room?: unknown;
     peers?: unknown;
     state?: unknown;
+    payload?: unknown;
     message?: unknown;
     revision?: unknown;
     updatedAt?: unknown;
@@ -149,9 +177,10 @@ function parseServerMessage(raw: unknown): ServerMessage | null {
       : { type: 'peers', peers };
   }
   if (message.type === 'state') {
+    if (!isEncryptedPayload(message.payload)) return null;
     return {
       type: 'state',
-      state: message.state,
+      payload: message.payload,
       revision: typeof message.revision === 'number' ? message.revision : 0,
       updatedAt:
         typeof message.updatedAt === 'string' ? message.updatedAt : '',
@@ -188,6 +217,8 @@ class RealtimeClient implements RealtimeSession {
   private pendingState: OKRState | null = null;
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
   private attempts = 0;
+  private keyPromise: Promise<CryptoKey> | null = null;
+  private stateChain: Promise<void> = Promise.resolve();
 
   constructor(options: RealtimeOptions) {
     if (!ROOM_PATTERN.test(options.room)) {
@@ -249,21 +280,12 @@ class RealtimeClient implements RealtimeSession {
             message.revision === 0
           ) {
             this.initialSent = true;
-            this.sendRaw({
-              type: 'state',
-              state: this.options.initialState,
-            });
+            this.pendingState = this.options.initialState;
+            this.flushState();
           }
         }
       } else if (message.type === 'state') {
-        this.options.onState?.(message.state, {
-          revision: message.revision,
-          updatedAt: message.updatedAt,
-        });
-        this.options.onVersion?.({
-          revision: message.revision,
-          updatedAt: message.updatedAt,
-        });
+        void this.handleStateMessage(message);
       } else if (message.type === 'ack') {
         this.options.onVersion?.({
           revision: message.revision,
@@ -275,12 +297,53 @@ class RealtimeClient implements RealtimeSession {
     socket.addEventListener('error', () => this.scheduleReconnect(socket));
   }
 
+  private getKey(): Promise<CryptoKey> {
+    this.keyPromise ??= importRoomKey(this.options.key);
+    return this.keyPromise;
+  }
+
+  private async handleStateMessage(
+    message: Extract<ServerMessage, { type: 'state' }>,
+  ): Promise<void> {
+    const meta = {
+      revision: message.revision,
+      updatedAt: message.updatedAt,
+    };
+    this.options.onVersion?.(meta);
+    try {
+      const key = await this.getKey();
+      const state = await decryptState(key, message.payload);
+      this.options.onState?.(state, meta);
+    } catch (error) {
+      this.options.onError?.(
+        error instanceof Error ? error : new Error(String(error)),
+      );
+    }
+  }
+
   private flushState(): void {
     if (!this.pendingState || this.socket?.readyState !== SOCKET_OPEN) return;
     const state = this.pendingState;
     this.pendingState = null;
     this.initialSent = true;
-    this.sendRaw({ type: 'state', state });
+    this.stateChain = this.stateChain
+      .then(async () => {
+        const key = await this.getKey();
+        const payload = await encryptState(key, state);
+        if (this.socket?.readyState === SOCKET_OPEN) {
+          this.sendRaw({ type: 'state', payload });
+        } else {
+          this.pendingState ??= state;
+        }
+      })
+      .catch((error: unknown) => {
+        this.options.onError?.(
+          error instanceof Error ? error : new Error(String(error)),
+        );
+      })
+      .then(() => {
+        if (this.pendingState) this.flushState();
+      });
   }
 
   private sendRaw(message: unknown): void {
