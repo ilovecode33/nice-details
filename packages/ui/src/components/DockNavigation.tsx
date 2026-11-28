@@ -1,7 +1,8 @@
 import type { DockNavigationHandle, DockNavigationProps } from '@ilovecode33/ui-types';
 import styles from './DockNavigation.module.css';
-import { forwardRef, useEffect, useImperativeHandle, useLayoutEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
+import { forwardRef, useImperativeHandle, useLayoutEffect, useRef, useState } from 'react';
 import { FloatingBar } from './FloatingBar';
+import { useSegmentPillDrag } from '../hooks/useSegmentPillDrag';
 
 /**
  * Pixel geometry captured before a collapse or expand. Using pixel frames
@@ -25,9 +26,6 @@ function durationMs(variable: string, fallback: number): number {
   if (!Number.isFinite(value)) return fallback;
   return raw.endsWith('ms') ? value : value * 1000;
 }
-
-/** Travel (px) that turns a dock press into a horizontal select drag. */
-const DRAG_SELECT_THRESHOLD = 8;
 
 /** Returns the `--morph-dur` duration in milliseconds, defaulting to 260. */
 function morphDurationMs(): number {
@@ -100,14 +98,6 @@ export const DockNavigation = forwardRef<DockNavigationHandle, DockNavigationPro
     const [internalCollapsed, setInternalCollapsed] = useState(defaultCollapsed);
     const collapsed = controlledCollapsed ?? internalCollapsed;
     const dockRef = useRef<HTMLDivElement>(null);
-    const dragRef = useRef<{
-      pointerId: number;
-      startX: number;
-      startY: number;
-      moved: boolean;
-    } | null>(null);
-    const detachDragRef = useRef<(() => void) | null>(null);
-    const [previewIndex, setPreviewIndex] = useState<number | null>(null);
     const before = useRef<Geometry | null>(null);
     const animations = useRef<{ bar?: Animation; dock?: Animation }>({});
 
@@ -255,97 +245,16 @@ export const DockNavigation = forwardRef<DockNavigationHandle, DockNavigationPro
       return () => cancelAnimationFrame(frame);
     }, [activeId, collapsed]);
 
-    /** Resolves the item index under a client point, or null outside the dock. */
-    const indexAt = (x: number, y: number): number | null => {
-      const dock = dockRef.current;
-      if (!dock || typeof document.elementFromPoint !== 'function') return null;
-      const hit = document
-        .elementFromPoint(x, y)
-        ?.closest<HTMLElement>('[data-index]');
-      if (!hit || !dock.contains(hit)) return null;
-      const index = Number(hit.dataset.index);
-      return Number.isInteger(index) ? index : null;
-    };
-
-    const detachDrag = () => {
-      detachDragRef.current?.();
-      detachDragRef.current = null;
-    };
-
-    useEffect(() => () => detachDrag(), []);
-
-    const suppressClick = () => {
-      const block = (clickEvent: MouseEvent) => {
-        clickEvent.preventDefault();
-        clickEvent.stopPropagation();
-      };
-      document.addEventListener('click', block, { capture: true, once: true });
-      window.setTimeout(
-        () => document.removeEventListener('click', block, { capture: true }),
-        0,
-      );
-    };
-
-    /**
-     * Drag selection listens on `document` because the floating bar's deform
-     * feedback captures the pointer after a few pixels; dock-level pointermove
-     * events would stop arriving. Horizontal intent only, so vertical swipes
-     * still scroll the page.
-     */
-    const onDockPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
-      if (event.pointerType === 'mouse' && event.button !== 0) return;
-      detachDrag();
-      dragRef.current = {
-        pointerId: event.pointerId,
-        startX: event.clientX,
-        startY: event.clientY,
-        moved: false,
-      };
-
-      const onMove = (moveEvent: PointerEvent) => {
-        const drag = dragRef.current;
-        if (!drag || moveEvent.pointerId !== drag.pointerId) return;
-        const dx = moveEvent.clientX - drag.startX;
-        const dy = moveEvent.clientY - drag.startY;
-        if (!drag.moved) {
-          if (
-            Math.abs(dx) < DRAG_SELECT_THRESHOLD ||
-            Math.abs(dx) <= Math.abs(dy)
-          ) {
-            return;
-          }
-          drag.moved = true;
-        }
-        setPreviewIndex(indexAt(moveEvent.clientX, moveEvent.clientY));
-      };
-
-      const onEnd = (endEvent: PointerEvent) => {
-        const drag = dragRef.current;
-        if (!drag || endEvent.pointerId !== drag.pointerId) return;
-        dragRef.current = null;
-        detachDrag();
-        const wasDragging = drag.moved;
-        const index = wasDragging ? indexAt(endEvent.clientX, endEvent.clientY) : null;
-        setPreviewIndex(null);
-        if (!wasDragging) return;
-        suppressClick();
-        const item = index !== null ? items[index] : undefined;
-        if (item) {
-          onSelect?.(
-            item.id,
-            endEvent as unknown as Parameters<NonNullable<typeof onSelect>>[1],
-          );
-        }
-      };
-
-      document.addEventListener('pointermove', onMove, true);
-      document.addEventListener('pointerup', onEnd, true);
-      document.addEventListener('pointercancel', onEnd, true);
-      detachDragRef.current = () => {
-        document.removeEventListener('pointermove', onMove, true);
-        document.removeEventListener('pointerup', onEnd, true);
-        document.removeEventListener('pointercancel', onEnd, true);
-      };
+    const pill = useSegmentPillDrag({
+      values: items.map((item) => item.id),
+      value: activeId ?? items[0]?.id ?? '',
+      onChange: (id) => onSelect?.(id),
+      deform,
+    });
+    // The dock element is both the collapse geometry source and the pill track.
+    const attachDock = (node: HTMLDivElement | null) => {
+      dockRef.current = node;
+      pill.trackRef.current = node;
     };
 
     return (
@@ -357,16 +266,31 @@ export const DockNavigation = forwardRef<DockNavigationHandle, DockNavigationPro
         onCollapsedChange={changeCollapsed}
         collapseLabel={collapseLabel}
         expandLabel={expandLabel}
-        deform={deform}
+        deform={false}
         className={className}
       >
         <div
           key={collapsed ? 'compact' : 'expanded'}
-          ref={dockRef}
+          ref={attachDock}
           data-ui="dock"
           className={[styles['ui-dock'], styles['ui-dock--enter'], styles[collapsed ? 'is-collapsed' : ''] || '', styles[collapsed && items.length < 3 ? 'is-short' : ''] || ''].filter(Boolean).join(' ')}
-          onPointerDown={onDockPointerDown}
+          {...pill.handlers}
         >
+          {pill.slots && (
+            <div
+              ref={pill.thumbRef}
+              className={styles['ui-dock__thumb']}
+              data-ui="dock__thumb"
+              style={pill.thumbStyle}
+            >
+              <div
+                ref={pill.shiftRef}
+                className={[styles['ui-dock__thumb-shift'], pill.hoveredIndex === pill.activeIndex ? styles['is-hovered'] : ''].filter(Boolean).join(' ')}
+                data-ui="dock__thumb-shift"
+                style={pill.shiftStyle}
+              />
+            </div>
+          )}
           {items.map((item, index) => {
             const current = item.id === activeId;
             const itemClass = [styles['ui-dock__item'], styles[current ? 'is-current' : ''] || ''].filter(Boolean).join(' ');
@@ -382,8 +306,9 @@ export const DockNavigation = forwardRef<DockNavigationHandle, DockNavigationPro
                   key={item.id}
                   href={item.href}
                   data-index={index}
-                  data-preview={previewIndex === index}
                   className={itemClass}
+                  onPointerEnter={() => pill.setHoveredIndex(index)}
+                  onPointerLeave={() => pill.setHoveredIndex(null)}
                   data-active={current}
                   aria-current={current ? 'page' : undefined}
                   onClick={(event) => onSelect?.(item.id, event)}
@@ -397,8 +322,9 @@ export const DockNavigation = forwardRef<DockNavigationHandle, DockNavigationPro
                 key={item.id}
                 type="button"
                 data-index={index}
-                data-preview={previewIndex === index}
                 className={itemClass}
+                onPointerEnter={() => pill.setHoveredIndex(index)}
+                onPointerLeave={() => pill.setHoveredIndex(null)}
                 data-active={current}
                 aria-current={current ? 'location' : undefined}
                 onClick={(event) => onSelect?.(item.id, event)}

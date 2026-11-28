@@ -324,9 +324,3 @@ section.settingsCard {
   margin: 0;
   transform: none;
 }
-
-/* Stronger route highlight for the icon-only dock: an accent wash behind the
-   current page icon on top of the library's accent colour. */
-[data-ui='dock'] button[data-active='true'] {
-  background: var(--accent-soft);
-}

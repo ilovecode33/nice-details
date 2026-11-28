@@ -76,49 +76,59 @@ describe('DockNavigation', () => {
   });
 
   test('drag-selects the item under the pointer', () => {
-    let selected = '';
-    render(
-      <DockNavigation
-        items={[
-          { id: 'one', label: 'One' },
-          { id: 'two', label: 'Two' },
-        ]}
-        activeId="one"
-        onSelect={(id) => {
-          selected = id;
-        }}
-      />,
-    );
-    const dock = document.querySelector<HTMLElement>('[data-ui="dock"]');
-    if (!dock) throw new Error('dock missing');
-    const one = screen.getByRole('button', { name: 'One' });
-    const two = screen.getByRole('button', { name: 'Two' });
-    const original = document.elementFromPoint;
-    document.elementFromPoint = () => two;
+    const original = Element.prototype.getBoundingClientRect;
+    Element.prototype.getBoundingClientRect = function () {
+      if (this instanceof HTMLElement && this.dataset.index !== undefined) {
+        const index = Number(this.dataset.index);
+        return new DOMRect(index * 60, 0, 60, 44);
+      }
+      if (this instanceof HTMLElement && this.dataset.ui === 'dock') {
+        return new DOMRect(0, 0, 180, 44);
+      }
+      return original.call(this);
+    };
+
     try {
+      let selected = '';
+      render(
+        <DockNavigation
+          items={[
+            { id: 'one', label: 'One' },
+            { id: 'two', label: 'Two' },
+          ]}
+          activeId="one"
+          onSelect={(id) => {
+            selected = id;
+          }}
+        />,
+      );
+      const dock = document.querySelector<HTMLElement>('[data-ui="dock"]');
+      if (!dock) throw new Error('dock missing');
+      const one = screen.getByRole('button', { name: 'One' });
+
       fireEvent.pointerDown(one, {
         pointerId: 7,
         pointerType: 'touch',
-        clientX: 10,
-        clientY: 10,
+        clientX: 30,
+        clientY: 20,
       });
       fireEvent.pointerMove(dock, {
         pointerId: 7,
         pointerType: 'touch',
-        clientX: 80,
-        clientY: 12,
+        clientX: 90,
+        clientY: 20,
       });
       fireEvent.pointerUp(dock, {
         pointerId: 7,
         pointerType: 'touch',
-        clientX: 80,
-        clientY: 12,
+        clientX: 90,
+        clientY: 20,
       });
-    } finally {
-      document.elementFromPoint = original;
-    }
 
-    expect(selected).toBe('two');
+      expect(selected).toBe('two');
+    } finally {
+      Element.prototype.getBoundingClientRect = original;
+    }
   });
 
   test('the imperative handle toggles the dock', () => {

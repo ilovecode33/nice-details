@@ -38,7 +38,7 @@ function SiteNavigation() {
       expandLabel="Expand navigation"
       onSelect={(id, event) => {
         // Keep real hrefs for accessibility, but let the router navigate.
-        event.preventDefault();
+        event?.preventDefault();
         navigate(ROUTES[id as RouteId]);
       }}
     />
