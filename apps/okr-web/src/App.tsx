@@ -5,6 +5,7 @@ import {
   AlertDialog,
   Button,
   Card,
+  Deformable,
   DockNavigation,
   EmptyState,
   ProgressBar,
@@ -629,7 +630,9 @@ export function App({ storage }: AppProps = {}) {
       )}
 
       <div className={styles.bottomBar}>
-        <SyncStatus status={syncStatus} onOpen={() => setSyncOpen(true)} />
+        <Deformable touchAction="pan-y">
+          <SyncStatus status={syncStatus} onOpen={() => setSyncOpen(true)} />
+        </Deformable>
         <DockNavigation
           className={styles.dock}
           label={t('nav.label')}

@@ -1,6 +1,6 @@
 import type { DockNavigationHandle, DockNavigationProps } from '@ilovecode33/ui-types';
 import styles from './DockNavigation.module.css';
-import { forwardRef, useImperativeHandle, useLayoutEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useLayoutEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 import { FloatingBar } from './FloatingBar';
 
 /**
@@ -106,6 +106,7 @@ export const DockNavigation = forwardRef<DockNavigationHandle, DockNavigationPro
       startY: number;
       moved: boolean;
     } | null>(null);
+    const detachDragRef = useRef<(() => void) | null>(null);
     const [previewIndex, setPreviewIndex] = useState<number | null>(null);
     const before = useRef<Geometry | null>(null);
     const animations = useRef<{ bar?: Animation; dock?: Animation }>({});
@@ -266,49 +267,14 @@ export const DockNavigation = forwardRef<DockNavigationHandle, DockNavigationPro
       return Number.isInteger(index) ? index : null;
     };
 
-    const onDockPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
-      if (event.pointerType === 'mouse' && event.button !== 0) return;
-      dragRef.current = {
-        pointerId: event.pointerId,
-        startX: event.clientX,
-        startY: event.clientY,
-        moved: false,
-      };
+    const detachDrag = () => {
+      detachDragRef.current?.();
+      detachDragRef.current = null;
     };
 
-    const onDockPointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
-      const drag = dragRef.current;
-      if (!drag || event.pointerId !== drag.pointerId) return;
-      const dx = event.clientX - drag.startX;
-      const dy = event.clientY - drag.startY;
-      if (!drag.moved) {
-        // Horizontal intent only; a vertical swipe stays a page scroll.
-        if (
-          Math.abs(dx) < DRAG_SELECT_THRESHOLD ||
-          Math.abs(dx) <= Math.abs(dy)
-        ) {
-          return;
-        }
-        drag.moved = true;
-        try {
-          event.currentTarget.setPointerCapture?.(event.pointerId);
-        } catch {
-          /* capture is best-effort */
-        }
-      }
-      setPreviewIndex(indexAt(event.clientX, event.clientY));
-    };
+    useEffect(() => () => detachDrag(), []);
 
-    const onDockPointerEnd = (event: ReactPointerEvent<HTMLDivElement>) => {
-      const drag = dragRef.current;
-      if (!drag || event.pointerId !== drag.pointerId) return;
-      dragRef.current = null;
-      const wasDragging = drag.moved;
-      const index = wasDragging ? indexAt(event.clientX, event.clientY) : null;
-      setPreviewIndex(null);
-      if (!wasDragging) return;
-
-      // The drag itself selects; block the click that follows pointerup.
+    const suppressClick = () => {
       const block = (clickEvent: MouseEvent) => {
         clickEvent.preventDefault();
         clickEvent.stopPropagation();
@@ -318,11 +284,68 @@ export const DockNavigation = forwardRef<DockNavigationHandle, DockNavigationPro
         () => document.removeEventListener('click', block, { capture: true }),
         0,
       );
+    };
 
-      const item = index !== null ? items[index] : undefined;
-      if (item) {
-        onSelect?.(item.id, event as unknown as Parameters<NonNullable<typeof onSelect>>[1]);
-      }
+    /**
+     * Drag selection listens on `document` because the floating bar's deform
+     * feedback captures the pointer after a few pixels; dock-level pointermove
+     * events would stop arriving. Horizontal intent only, so vertical swipes
+     * still scroll the page.
+     */
+    const onDockPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+      if (event.pointerType === 'mouse' && event.button !== 0) return;
+      detachDrag();
+      dragRef.current = {
+        pointerId: event.pointerId,
+        startX: event.clientX,
+        startY: event.clientY,
+        moved: false,
+      };
+
+      const onMove = (moveEvent: PointerEvent) => {
+        const drag = dragRef.current;
+        if (!drag || moveEvent.pointerId !== drag.pointerId) return;
+        const dx = moveEvent.clientX - drag.startX;
+        const dy = moveEvent.clientY - drag.startY;
+        if (!drag.moved) {
+          if (
+            Math.abs(dx) < DRAG_SELECT_THRESHOLD ||
+            Math.abs(dx) <= Math.abs(dy)
+          ) {
+            return;
+          }
+          drag.moved = true;
+        }
+        setPreviewIndex(indexAt(moveEvent.clientX, moveEvent.clientY));
+      };
+
+      const onEnd = (endEvent: PointerEvent) => {
+        const drag = dragRef.current;
+        if (!drag || endEvent.pointerId !== drag.pointerId) return;
+        dragRef.current = null;
+        detachDrag();
+        const wasDragging = drag.moved;
+        const index = wasDragging ? indexAt(endEvent.clientX, endEvent.clientY) : null;
+        setPreviewIndex(null);
+        if (!wasDragging) return;
+        suppressClick();
+        const item = index !== null ? items[index] : undefined;
+        if (item) {
+          onSelect?.(
+            item.id,
+            endEvent as unknown as Parameters<NonNullable<typeof onSelect>>[1],
+          );
+        }
+      };
+
+      document.addEventListener('pointermove', onMove, true);
+      document.addEventListener('pointerup', onEnd, true);
+      document.addEventListener('pointercancel', onEnd, true);
+      detachDragRef.current = () => {
+        document.removeEventListener('pointermove', onMove, true);
+        document.removeEventListener('pointerup', onEnd, true);
+        document.removeEventListener('pointercancel', onEnd, true);
+      };
     };
 
     return (
@@ -343,9 +366,6 @@ export const DockNavigation = forwardRef<DockNavigationHandle, DockNavigationPro
           data-ui="dock"
           className={[styles['ui-dock'], styles['ui-dock--enter'], styles[collapsed ? 'is-collapsed' : ''] || '', styles[collapsed && items.length < 3 ? 'is-short' : ''] || ''].filter(Boolean).join(' ')}
           onPointerDown={onDockPointerDown}
-          onPointerMove={onDockPointerMove}
-          onPointerUp={onDockPointerEnd}
-          onPointerCancel={onDockPointerEnd}
         >
           {items.map((item, index) => {
             const current = item.id === activeId;
