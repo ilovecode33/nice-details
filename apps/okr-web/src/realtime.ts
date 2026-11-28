@@ -229,10 +229,6 @@ class RealtimeClient implements RealtimeSession {
       this.attempts = 0;
       this.setStatus('connected');
       this.sendRaw({ type: 'hello', device: this.options.device });
-      if (!this.initialSent && this.options.initialState) {
-        this.initialSent = true;
-        this.sendRaw({ type: 'state', state: this.options.initialState });
-      }
       if (this.pendingState) this.flushState();
     });
     socket.addEventListener('message', (event) => {
@@ -247,6 +243,17 @@ class RealtimeClient implements RealtimeSession {
             revision: message.revision,
             updatedAt: message.updatedAt,
           });
+          if (
+            !this.initialSent &&
+            this.options.initialState &&
+            message.revision === 0
+          ) {
+            this.initialSent = true;
+            this.sendRaw({
+              type: 'state',
+              state: this.options.initialState,
+            });
+          }
         }
       } else if (message.type === 'state') {
         this.options.onState?.(message.state, {
@@ -272,6 +279,7 @@ class RealtimeClient implements RealtimeSession {
     if (!this.pendingState || this.socket?.readyState !== SOCKET_OPEN) return;
     const state = this.pendingState;
     this.pendingState = null;
+    this.initialSent = true;
     this.sendRaw({ type: 'state', state });
   }
 

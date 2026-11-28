@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, rs, test } from '@rstest/core';
+import { describe, expect, rs, test } from '@rstest/core';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { createSampleState, type OKRState } from '@ilovecode33/okr-shared';
 import { UIFoundation } from '@ilovecode33/ui';
@@ -21,10 +21,6 @@ type FakeSession = RealtimeSession & {
 };
 
 const room = 'abcdefghijklmnopqrstuvwx';
-
-afterEach(() => {
-  // The component persists sync rooms and device names through OkrStorage.
-});
 
 function createFakeSession(
   options: RealtimeOptions,
