@@ -9,6 +9,7 @@ import {
   type RealtimeStateMeta,
   type RealtimeStatus,
 } from '../realtime';
+import type { StoredSyncRoom } from '../storage';
 import { DICTIONARIES } from '../i18n';
 import { SyncPanel } from './SyncPanel';
 
@@ -22,7 +23,7 @@ type FakeSession = RealtimeSession & {
 const room = 'abcdefghijklmnopqrstuvwx';
 
 afterEach(() => {
-  localStorage.removeItem('okr-web.device-name');
+  // The component persists sync rooms and device names through OkrStorage.
 });
 
 function createFakeSession(
@@ -64,20 +65,24 @@ function createFakeSession(
 function renderPanel({
   state = createSampleState(),
   onRemoteState = () => {},
-  initialMode,
   initialRoom,
+  storedRoom = null,
+  storedDeviceName = null,
   initialStatus = 'connected',
   onStart,
 }: {
   state?: OKRState;
   onRemoteState?: (next: OKRState) => void;
-  initialMode?: 'host' | 'join';
   initialRoom?: string;
+  storedRoom?: StoredSyncRoom | null;
+  storedDeviceName?: string | null;
   initialStatus?: RealtimeStatus;
   onStart?: (options: RealtimeOptions) => void;
 } = {}) {
   let session: FakeSession | null = null;
   let sessionOptions: RealtimeOptions | null = null;
+  let saved: StoredSyncRoom | null = storedRoom;
+  let savedDevice: string | null = storedDeviceName;
   const createRealtime = (options: RealtimeOptions) => {
     sessionOptions = options;
     onStart?.(options);
@@ -92,10 +97,20 @@ function renderPanel({
         state={state}
         onClose={() => {}}
         onRemoteState={onRemoteState}
-        initialMode={initialMode}
         initialRoom={initialRoom}
         createRealtime={createRealtime}
         syncUrl="https://sync.test"
+        loadStoredRoom={async () => saved}
+        saveStoredRoom={async (next) => {
+          saved = next;
+        }}
+        clearStoredRoom={async () => {
+          saved = null;
+        }}
+        loadStoredDeviceName={async () => savedDevice}
+        saveStoredDeviceName={async (name) => {
+          savedDevice = name;
+        }}
       />
     </UIFoundation>,
   );
@@ -104,16 +119,27 @@ function renderPanel({
     ...view,
     getSession: () => session,
     getSessionOptions: () => sessionOptions,
+    getSavedDeviceName: () => savedDevice,
   };
 }
 
+async function startHost() {
+  fireEvent.click(await screen.findByRole('button', { name: 'Host' }));
+  await screen.findByText('Connected. Changes sync in realtime.');
+}
+
 describe('SyncPanel', () => {
+  test('offers host or join when there is no saved room', async () => {
+    renderPanel();
+
+    expect(await screen.findByRole('button', { name: 'Host' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Join' })).toBeTruthy();
+  });
+
   test('hosts a realtime room and renders the QR code', async () => {
     const { getSessionOptions } = renderPanel();
+    await startHost();
 
-    expect(
-      await screen.findByText('Connected. Changes sync in realtime.'),
-    ).toBeTruthy();
     expect(screen.getByRole('img', { name: 'Sync QR code' })).toBeTruthy();
     expect(
       (screen.getByLabelText('Room link') as HTMLTextAreaElement).value,
@@ -124,10 +150,22 @@ describe('SyncPanel', () => {
     });
   });
 
+  test('reconnects to the last room from persistence', async () => {
+    const starts: RealtimeOptions[] = [];
+    renderPanel({
+      storedRoom: { room, role: 'host' },
+      onStart: (options) => starts.push(options),
+    });
+
+    expect(
+      await screen.findByText('Connected. Changes sync in realtime.'),
+    ).toBeTruthy();
+    expect(starts[0]).toMatchObject({ room, initialState: createSampleState() });
+  });
+
   test('joins a room from a link', async () => {
     const starts: RealtimeOptions[] = [];
     renderPanel({
-      initialMode: 'join',
       initialRoom: `https://app.test/#sync=${room}`,
       onStart: (options) => starts.push(options),
     });
@@ -139,7 +177,9 @@ describe('SyncPanel', () => {
   });
 
   test('offers camera scanning when joining manually', async () => {
-    renderPanel({ initialMode: 'join' });
+    renderPanel({ storedRoom: null });
+    fireEvent.click(await screen.findByRole('button', { name: 'Join' }));
+
     expect(
       await screen.findByRole('button', { name: 'Scan with camera' }),
     ).toBeTruthy();
@@ -149,7 +189,7 @@ describe('SyncPanel', () => {
   test('applies a remote state message', async () => {
     const onRemoteState = rs.fn();
     const { getSession } = renderPanel({ onRemoteState });
-    await screen.findByText('Connected. Changes sync in realtime.');
+    await startHost();
 
     const remote: OKRState = { version: 1, objectives: [] };
     act(() => {
@@ -161,10 +201,10 @@ describe('SyncPanel', () => {
 
   test('shows the room id and data version', async () => {
     const { getSession, getSessionOptions } = renderPanel();
-    await screen.findByText('Connected. Changes sync in realtime.');
+    await startHost();
 
-    const room = getSessionOptions()?.room ?? '';
-    expect(screen.getByText(room, { selector: 'code' })).toBeTruthy();
+    const roomId = getSessionOptions()?.room ?? '';
+    expect(screen.getByText(roomId, { selector: 'code' })).toBeTruthy();
     act(() => {
       getSession()?.emitState(
         { version: 1, objectives: [] },
@@ -176,7 +216,7 @@ describe('SyncPanel', () => {
 
   test('lists connected devices', async () => {
     const { getSession } = renderPanel();
-    await screen.findByText('Connected. Changes sync in realtime.');
+    await startHost();
 
     act(() => {
       getSession()?.emitPeers([
@@ -191,8 +231,12 @@ describe('SyncPanel', () => {
   });
 
   test('saves a distinct device name and uses it for the session', async () => {
-    localStorage.setItem('okr-web.device-name', 'Test Phone');
-    const { getSessionOptions } = renderPanel({ initialStatus: 'connecting' });
+    const { getSavedDeviceName, getSessionOptions } = renderPanel({
+      initialStatus: 'connecting',
+      storedDeviceName: 'Test Phone',
+    });
+    fireEvent.click(await screen.findByRole('button', { name: 'Host' }));
+    await screen.findByText('Connecting…');
 
     const input = await screen.findByLabelText('Device name');
     expect((input as HTMLInputElement).value).toBe('Test Phone');
@@ -204,6 +248,6 @@ describe('SyncPanel', () => {
     await waitFor(() => {
       expect(getSessionOptions()).toMatchObject({ device: 'Alan MacBook' });
     });
-    expect(localStorage.getItem('okr-web.device-name')).toBe('Alan MacBook');
+    expect(getSavedDeviceName()).toBe('Alan MacBook');
   });
 });

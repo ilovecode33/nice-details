@@ -75,8 +75,9 @@ URL defaults to `https://sync.ilovecode33.fyi` and can be overridden with
 `PUBLIC_SYNC_URL`.
 
 Each device sends a readable name such as `Mac · Chrome` or `iPhone · Safari`.
-You can edit it in **Sync → Device name**; the name is stored under
-`okr-web.device-name` and shown in **Connected devices**.
+You can edit it in **Sync → Device name**; the name and the last room are stored
+in the `okr-web` IndexedDB database through `@ilovecode33/persistence` and shown
+in **Connected devices**.
 
 Room data passes through the Cloudflare Worker while connected. It is scoped to
 the random room id and retained for up to 24 hours after the last device leaves.
@@ -90,8 +91,8 @@ offline and keeps one user's data on that device only.
 
 Existing data from the pre-IndexedDB `localStorage` key `okr-web.state.v1` is
 migrated on first load and the old key is removed. The language choice is saved
-under `okr-web.locale` and the device name under `okr-web.device-name`. Clearing
-site data restores the sample set.
+under `okr-web.locale`; the device name and last sync room are stored in the
+`okr-web` IndexedDB database. Clearing site data restores the sample set.
 
 ## Deployment
 

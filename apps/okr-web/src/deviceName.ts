@@ -1,5 +1,3 @@
-const STORAGE_KEY = 'okr-web.device-name';
-
 function platformName(): string {
   if (typeof navigator === 'undefined') return 'Device';
   const ua = navigator.userAgent;
@@ -32,22 +30,4 @@ function browserName(): string {
 /** A readable default such as "Mac · Chrome" or "iPhone · Safari". */
 export function defaultDeviceName(): string {
   return `${platformName()} · ${browserName()}`;
-}
-
-/** Reads the saved device name, falling back to the platform default. */
-export function loadDeviceName(): string {
-  try {
-    return localStorage.getItem(STORAGE_KEY)?.trim() || defaultDeviceName();
-  } catch {
-    return defaultDeviceName();
-  }
-}
-
-/** Persists the device name used in pairing signals. */
-export function saveDeviceName(name: string): void {
-  try {
-    localStorage.setItem(STORAGE_KEY, name);
-  } catch {
-    /* Storage can be unavailable in private or restricted contexts. */
-  }
 }

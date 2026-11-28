@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   AccentSwitcher,
   ActivityIndicator,
@@ -22,13 +22,14 @@ import {
   type ObjectiveSort,
   type OKRState,
 } from '@ilovecode33/okr-shared';
-import { parseSyncLink } from './realtime';
-import { AlertTriangle, Plus, RefreshCw, RotateCcw, Target } from 'lucide-react';
+import { parseSyncLink, type RealtimeStatus } from './realtime';
+import { AlertTriangle, Plus, RotateCcw, Target } from 'lucide-react';
 import { ObjectiveCard } from './components/ObjectiveCard';
 import { ObjectiveEditor } from './components/ObjectiveEditor';
 import { SyncPanel } from './components/SyncPanel';
+import { SyncStatus } from './components/SyncStatus';
 import { LOCALES, LOCALE_NAMES, useOkrI18n } from './i18n';
-import { getOkrStorage, type OkrStorage } from './storage';
+import { getOkrStorage, type OkrStorage, type StoredSyncRoom } from './storage';
 import styles from './App.module.css';
 
 const ALL_PERIODS = 'all';
@@ -56,11 +57,28 @@ export function App({ storage }: AppProps = {}) {
   const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
   const [syncOpen, setSyncOpen] = useState(false);
   const [syncLink, setSyncLink] = useState('');
+  const [syncStatus, setSyncStatus] = useState<RealtimeStatus | 'idle'>('idle');
   const [loadError, setLoadError] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
   const storageRef = useRef<OkrStorage | null>(storage ?? null);
   const loadedRef = useRef(false);
+
+  const loadStoredRoom = useCallback(async () => {
+    return (await storageRef.current?.loadSyncRoom()) ?? null;
+  }, []);
+  const saveStoredRoom = useCallback(async (room: StoredSyncRoom) => {
+    await storageRef.current?.saveSyncRoom(room);
+  }, []);
+  const clearStoredRoom = useCallback(async () => {
+    await storageRef.current?.clearSyncRoom();
+  }, []);
+  const loadStoredDeviceName = useCallback(async () => {
+    return (await storageRef.current?.loadDeviceName()) ?? null;
+  }, []);
+  const saveStoredDeviceName = useCallback(async (name: string) => {
+    await storageRef.current?.saveDeviceName(name);
+  }, []);
 
   useEffect(() => {
     document.title = t('app.title');
@@ -245,7 +263,13 @@ export function App({ storage }: AppProps = {}) {
     <main className={styles.shell}>
       <header className={styles.header}>
         <div className={styles.headerIntro}>
-          <h1>{t('app.title')}</h1>
+          <div className={styles.titleRow}>
+            <h1>{t('app.title')}</h1>
+            <SyncStatus
+              status={syncStatus}
+              onOpen={() => setSyncOpen(true)}
+            />
+          </div>
           <p>{t('app.subtitle')}</p>
         </div>
         <div className={styles.headerControls}>
@@ -361,13 +385,6 @@ export function App({ storage }: AppProps = {}) {
                 {t('toolbar.reset')}
               </Button>
             )}
-            <Button
-              variant="plain"
-              onClick={() => setSyncOpen(true)}
-              icon={<RefreshCw />}
-            >
-              {t('sync.open')}
-            </Button>
           </section>
 
           {visible.length === 0 ? (
@@ -425,8 +442,13 @@ export function App({ storage }: AppProps = {}) {
             setSyncLink('');
           }}
           state={state}
-          initialMode={syncLink ? 'join' : 'host'}
           initialRoom={syncLink}
+          onStatusChange={setSyncStatus}
+          loadStoredRoom={loadStoredRoom}
+          saveStoredRoom={saveStoredRoom}
+          clearStoredRoom={clearStoredRoom}
+          loadStoredDeviceName={loadStoredDeviceName}
+          saveStoredDeviceName={saveStoredDeviceName}
           onRemoteState={(next) => {
             setState(next);
             setPeriod(ALL_PERIODS);

@@ -1,7 +1,7 @@
 import { useEffect, useId, useRef, useState } from 'react';
-import { Badge, Button, Select, Sheet, TextArea, TextInput } from '@ilovecode33/ui';
+import { Badge, Button, Sheet, TextArea, TextInput } from '@ilovecode33/ui';
 import type { OKRState } from '@ilovecode33/okr-shared';
-import { loadDeviceName, saveDeviceName } from '../deviceName';
+import { defaultDeviceName } from '../deviceName';
 import { useOkrI18n } from '../i18n';
 import {
   buildSyncUrl,
@@ -14,6 +14,7 @@ import {
   type RealtimeStatus,
 } from '../realtime';
 import { SYNC_URL } from '../syncConfig';
+import type { StoredSyncRoom } from '../storage';
 import { QrCode } from './QrCode';
 import { QrScanner } from './QrScanner';
 import styles from './SyncPanel.module.css';
@@ -35,31 +36,43 @@ export interface SyncPanelProps {
   open: boolean;
   onClose: () => void;
   onDisconnect?: () => void;
+  onStatusChange?: (status: RealtimeStatus | 'idle') => void;
   state: OKRState;
   onRemoteState: (state: OKRState) => void;
-  initialMode?: SyncMode;
   initialRoom?: string;
   /** Injected in tests; defaults to the realtime WebSocket client. */
   createRealtime?: typeof createRealtimeSession;
   syncUrl?: string;
+  loadStoredRoom?: () => Promise<StoredSyncRoom | null>;
+  saveStoredRoom?: (room: StoredSyncRoom) => Promise<void>;
+  clearStoredRoom?: () => Promise<void>;
+  loadStoredDeviceName?: () => Promise<string | null>;
+  saveStoredDeviceName?: (name: string) => Promise<void>;
 }
 
 export function SyncPanel({
   open,
   onClose,
   onDisconnect,
+  onStatusChange,
   state,
   onRemoteState,
-  initialMode = 'host',
   initialRoom = '',
   createRealtime = createRealtimeSession,
   syncUrl = SYNC_URL,
+  loadStoredRoom,
+  saveStoredRoom,
+  clearStoredRoom,
+  loadStoredDeviceName,
+  saveStoredDeviceName,
 }: SyncPanelProps) {
   const { t, intlLocale } = useOkrI18n();
   const deviceNameId = useId();
-  const [mode, setMode] = useState<SyncMode>(initialMode);
+  const [mode, setMode] = useState<SyncMode>('host');
   const [started, setStarted] = useState(false);
-  const [deviceName, setDeviceName] = useState(() => loadDeviceName());
+  const [booted, setBooted] = useState(false);
+  const [pendingRoom, setPendingRoom] = useState('');
+  const [deviceName, setDeviceName] = useState(() => defaultDeviceName());
   const [nameDraft, setNameDraft] = useState(deviceName);
   const [status, setStatus] = useState<PanelStatus>('idle');
   const [room, setRoom] = useState('');
@@ -90,8 +103,37 @@ export function SyncPanel({
   }, []);
 
   useEffect(() => {
-    if (open) setStarted(true);
-  }, [open]);
+    let cancelled = false;
+    void (async () => {
+      const [savedRoom, savedDevice] = await Promise.all([
+        loadStoredRoom?.(),
+        loadStoredDeviceName?.(),
+      ]);
+      if (cancelled) return;
+      if (savedDevice) {
+        setDeviceName(savedDevice);
+        setNameDraft(savedDevice);
+      }
+      const linkRoom = parseSyncLink(initialRoom);
+      if (linkRoom) {
+        setMode('join');
+        setPendingRoom(linkRoom);
+        setStarted(true);
+      } else if (savedRoom) {
+        setMode(savedRoom.role);
+        setPendingRoom(savedRoom.room);
+        setStarted(true);
+      }
+      setBooted(true);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [initialRoom, loadStoredRoom, loadStoredDeviceName]);
+
+  useEffect(() => {
+    onStatusChange?.(status);
+  }, [status, onStatusChange]);
 
   function applyRemoteState(value: unknown, meta: RealtimeStateMeta) {
     setRevision(meta.revision);
@@ -125,6 +167,7 @@ export function SyncPanel({
       onStatus: handleStatus,
     });
     sessionRef.current = session;
+    void saveStoredRoom?.({ room: nextRoom, role });
     setRoom(nextRoom);
     setRoomUrl(
       buildSyncUrl(
@@ -148,15 +191,9 @@ export function SyncPanel({
     setUpdatedAt(null);
 
     if (mode === 'host') {
-      connectRoom(createRoomId(), 'host');
-    } else if (initialRoom) {
-      const nextRoom = parseSyncLink(initialRoom);
-      if (nextRoom) {
-        connectRoom(nextRoom, 'join');
-      } else {
-        setStatus('failed');
-        setError(t('sync.invalidLink'));
-      }
+      connectRoom(pendingRoom || createRoomId(), 'host');
+    } else if (pendingRoom) {
+      connectRoom(pendingRoom, 'join');
     } else {
       setStatus('idle');
       setRoom('');
@@ -169,7 +206,7 @@ export function SyncPanel({
     };
     // connectRoom is intentionally not a dependency: it would recreate the
     // session on every render.
-  }, [started, mode, deviceName, initialRoom, createRealtime, syncUrl]);
+  }, [started, mode, deviceName, pendingRoom, createRealtime, syncUrl]);
 
   useEffect(() => {
     if (!started || !readyToSendRef.current) return;
@@ -183,9 +220,33 @@ export function SyncPanel({
   function applyDeviceName() {
     const next = nameDraft.trim();
     if (!next || next === deviceName) return;
-    saveDeviceName(next);
+    void saveStoredDeviceName?.(next);
     setDeviceName(next);
     setNameDraft(next);
+  }
+
+  function selectHost() {
+    setMode('host');
+    setPendingRoom('');
+    setStarted(true);
+  }
+
+  function selectJoin() {
+    setMode('join');
+    setPendingRoom('');
+    setStarted(true);
+  }
+
+  function backToChoice() {
+    setStarted(false);
+    setMode('host');
+    setPendingRoom('');
+    setStatus('idle');
+    setRoom('');
+    setRoomUrl('');
+    setPeers([]);
+    setError('');
+    setShowScanner(false);
   }
 
   function joinWith(value: string) {
@@ -215,7 +276,10 @@ export function SyncPanel({
   }
 
   function disconnect() {
+    void clearStoredRoom?.();
     setStarted(false);
+    setMode('host');
+    setPendingRoom('');
     setStatus('idle');
     setRoom('');
     setRoomUrl('');
@@ -277,167 +341,177 @@ export function SyncPanel({
           </div>
         </div>
 
-        <label className={styles.field}>
-          <span className={styles.fieldLabel}>{t('sync.mode')}</span>
-          <Select
-            aria-label={t('sync.mode')}
-            value={mode}
-            options={[
-              { value: 'host', label: t('sync.host') },
-              { value: 'join', label: t('sync.join') },
-            ]}
-            onChange={(event) => setMode(event.target.value as SyncMode)}
-          />
-        </label>
-
-        {statusText && (
+        {!booted ? (
           <p className={styles.status} role="status">
-            {statusText}
+            {t('sync.loadingRoom')}
           </p>
-        )}
-        {error && (
-          <p className={styles.error} role="alert">
-            {t('sync.error', { error })}
-          </p>
-        )}
-
-        {room && (
-          <div className={styles.roomMeta}>
-            <p className={styles.status}>
-              {t('sync.roomId')}:{' '}
-              <code className={styles.roomId}>{room}</code>
-            </p>
-            <p className={styles.status}>
-              {t('sync.dataVersion', { version: revision })}
-            </p>
-            {updatedAt && (
-              <p className={styles.status}>
-                {t('sync.lastUpdated', {
-                  time: new Date(updatedAt).toLocaleTimeString(intlLocale),
-                })}
+        ) : !started ? (
+          <div className={styles.choice}>
+            <p className={styles.hint}>{t('sync.chooseHint')}</p>
+            <div className={styles.actions}>
+              <Button variant="primary" onClick={selectHost}>
+                {t('sync.host')}
+              </Button>
+              <Button variant="secondary" onClick={selectJoin}>
+                {t('sync.join')}
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <>
+            {statusText && (
+              <p className={styles.status} role="status">
+                {statusText}
               </p>
             )}
-          </div>
-        )}
+            {error && (
+              <p className={styles.error} role="alert">
+                {t('sync.error', { error })}
+              </p>
+            )}
 
-        {mode === 'host' && roomUrl && (
-          <div className={styles.qr}>
-            <QrCode
-              value={roomUrl}
-              size={280}
-              label={t('sync.offerQr')}
-            />
-            <p className={styles.hint}>{t('sync.hostHint')}</p>
-            <div className={styles.row}>
-              <Button size="compact" onClick={() => void copyLink()}>
-                {t('sync.copy')}
-              </Button>
-              {copied && (
-                <span className={styles.status} role="status">
-                  {t('sync.copied')}
-                </span>
-              )}
-            </div>
-            <label className={styles.field}>
-              <span className={styles.fieldLabel}>{t('sync.roomLink')}</span>
-              <TextArea
-                className={styles.code}
-                readOnly
-                rows={2}
-                value={roomUrl}
-                aria-label={t('sync.roomLink')}
-              />
-            </label>
-            <p className={styles.hint}>{t('sync.roomLinkHint')}</p>
-          </div>
-        )}
+            {room && (
+              <div className={styles.roomMeta}>
+                <p className={styles.status}>
+                  {t('sync.roomId')}:{' '}
+                  <code className={styles.roomId}>{room}</code>
+                </p>
+                <p className={styles.status}>
+                  {t('sync.dataVersion', { version: revision })}
+                </p>
+                {updatedAt && (
+                  <p className={styles.status}>
+                    {t('sync.lastUpdated', {
+                      time: new Date(updatedAt).toLocaleTimeString(intlLocale),
+                    })}
+                  </p>
+                )}
+              </div>
+            )}
 
-        {mode === 'join' && status === 'idle' && (
-          <>
-            {showScanner ? (
-              <div className={styles.scanner}>
-                <QrScanner
-                  onScan={(value) => {
-                    setShowScanner(false);
-                    joinWith(value);
-                  }}
-                  labels={{
-                    scanning: t('sync.scanHint'),
-                    camera: t('sync.camera'),
-                    unavailable: t('sync.cameraUnavailable'),
-                    insecure: t('sync.cameraInsecure'),
-                    permission: t('sync.cameraPermission'),
-                    error: t('sync.cameraError'),
-                    success: t('sync.scanSuccess'),
-                  }}
+            {roomUrl && (
+              <div className={styles.qr}>
+                <QrCode
+                  value={roomUrl}
+                  size={280}
+                  label={t('sync.offerQr')}
                 />
+                <p className={styles.hint}>{t('sync.hostHint')}</p>
+                <div className={styles.row}>
+                  <Button size="compact" onClick={() => void copyLink()}>
+                    {t('sync.copy')}
+                  </Button>
+                  {copied && (
+                    <span className={styles.status} role="status">
+                      {t('sync.copied')}
+                    </span>
+                  )}
+                </div>
+                <label className={styles.field}>
+                  <span className={styles.fieldLabel}>
+                    {t('sync.roomLink')}
+                  </span>
+                  <TextArea
+                    className={styles.code}
+                    readOnly
+                    rows={2}
+                    value={roomUrl}
+                    aria-label={t('sync.roomLink')}
+                  />
+                </label>
+                <p className={styles.hint}>{t('sync.roomLinkHint')}</p>
+              </div>
+            )}
+
+            {mode === 'join' && !roomUrl && status === 'idle' && (
+              <>
+                {showScanner ? (
+                  <div className={styles.scanner}>
+                    <QrScanner
+                      onScan={(value) => {
+                        setShowScanner(false);
+                        joinWith(value);
+                      }}
+                      labels={{
+                        scanning: t('sync.scanHint'),
+                        camera: t('sync.camera'),
+                        unavailable: t('sync.cameraUnavailable'),
+                        insecure: t('sync.cameraInsecure'),
+                        permission: t('sync.cameraPermission'),
+                        error: t('sync.cameraError'),
+                        success: t('sync.scanSuccess'),
+                      }}
+                    />
+                    <Button
+                      size="compact"
+                      variant="secondary"
+                      onClick={() => setShowScanner(false)}
+                    >
+                      {t('sync.stopScan')}
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    variant="secondary"
+                    onClick={() => setShowScanner(true)}
+                  >
+                    {t('sync.scan')}
+                  </Button>
+                )}
+
+                <label className={styles.field}>
+                  <span className={styles.fieldLabel}>
+                    {t('sync.roomLink')}
+                  </span>
+                  <TextArea
+                    className={styles.code}
+                    rows={2}
+                    value={joinInput}
+                    onChange={(event) => setJoinInput(event.target.value)}
+                    placeholder={t('sync.joinPlaceholder')}
+                  />
+                </label>
                 <Button
-                  size="compact"
-                  variant="secondary"
-                  onClick={() => setShowScanner(false)}
+                  variant="primary"
+                  onClick={() => joinWith(joinInput)}
+                  disabled={joinInput.trim() === ''}
                 >
-                  {t('sync.stopScan')}
+                  {t('sync.connect')}
+                </Button>
+                <Button
+                  variant="plain"
+                  size="compact"
+                  onClick={backToChoice}
+                >
+                  {t('sync.back')}
+                </Button>
+              </>
+            )}
+
+            {roomUrl && (
+              <div className={styles.row}>
+                {isConnected && (
+                  <Badge tone="success">{t('sync.realtimeBadge')}</Badge>
+                )}
+                <Button variant="plain" size="compact" onClick={disconnect}>
+                  {t('sync.disconnect')}
                 </Button>
               </div>
-            ) : (
-              <Button
-                variant="secondary"
-                onClick={() => setShowScanner(true)}
-              >
-                {t('sync.scan')}
-              </Button>
             )}
 
-            <label className={styles.field}>
-              <span className={styles.fieldLabel}>{t('sync.roomLink')}</span>
-              <TextArea
-                className={styles.code}
-                rows={2}
-                value={joinInput}
-                onChange={(event) => setJoinInput(event.target.value)}
-                placeholder={t('sync.joinPlaceholder')}
-              />
-            </label>
-            <Button
-              variant="primary"
-              onClick={() => joinWith(joinInput)}
-              disabled={joinInput.trim() === ''}
-            >
-              {t('sync.connect')}
-            </Button>
+            {peers.length > 0 && (
+              <div>
+                <p className={styles.section}>{t('sync.connectedDevices')}</p>
+                <ul className={styles.peers}>
+                  {peers.map((peer) => (
+                    <li className={styles.peer} key={peer.id}>
+                      <span className={styles.peerLabel}>{peer.device}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </>
-        )}
-
-        {mode === 'join' && status !== 'idle' && status !== 'failed' && (
-          <p className={styles.hint}>{t('sync.joinHint')}</p>
-        )}
-
-        {(isConnected || status === 'reconnecting') && (
-          <div className={styles.row}>
-            {isConnected && (
-              <Badge tone="success">{t('sync.realtimeBadge')}</Badge>
-            )}
-            <Button variant="plain" size="compact" onClick={disconnect}>
-              {t('sync.disconnect')}
-            </Button>
-          </div>
-        )}
-
-        {peers.length > 0 && (
-          <div>
-            <p className={styles.section}>{t('sync.connectedDevices')}</p>
-            <ul className={styles.peers}>
-              {peers.map((peer) => (
-                <li className={styles.peer} key={peer.id}>
-                  <span className={styles.peerLabel}>{peer.device}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {room && isConnected && peers.length === 0 && (
-          <p className={styles.hint}>{t('sync.hostHint')}</p>
         )}
       </div>
     </Sheet>

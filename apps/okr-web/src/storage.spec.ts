@@ -47,4 +47,25 @@ describe('openOkrStorage', () => {
     expect(await storage.load()).toEqual(legacy);
     expect(window.localStorage.getItem(STORAGE_KEY)).toBeNull();
   });
+
+  test('persists and clears the last sync room', async () => {
+    const storage = await openOkrStorage(uniqueName());
+    opened.push(storage);
+
+    expect(await storage.loadSyncRoom()).toBeNull();
+    await storage.saveSyncRoom({
+      room: 'abcdefghijklmnop',
+      role: 'host',
+    });
+    expect(await storage.loadSyncRoom()).toEqual({
+      room: 'abcdefghijklmnop',
+      role: 'host',
+    });
+    await storage.clearSyncRoom();
+    expect(await storage.loadSyncRoom()).toBeNull();
+
+    expect(await storage.loadDeviceName()).toBeNull();
+    await storage.saveDeviceName('  Mac · Chrome  ');
+    expect(await storage.loadDeviceName()).toBe('Mac · Chrome');
+  });
 });

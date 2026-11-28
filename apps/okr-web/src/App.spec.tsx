@@ -10,6 +10,11 @@ function createTestStorage(): OkrStorage {
   return {
     load: async () => createSampleState(),
     save: async () => {},
+    loadSyncRoom: async () => null,
+    saveSyncRoom: async () => {},
+    clearSyncRoom: async () => {},
+    loadDeviceName: async () => null,
+    saveDeviceName: async () => {},
     close: () => {},
     destroy: async () => {},
   };
@@ -30,7 +35,7 @@ describe('App', () => {
       await screen.findByText('Build a consistent running habit'),
     ).toBeTruthy();
     expect(screen.getByRole('button', { name: 'New objective' })).toBeTruthy();
-    expect(screen.getByRole('button', { name: 'Sync' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /^Sync/ })).toBeTruthy();
     // Sample-data reset is a development-only convenience.
     expect(
       screen.queryByRole('button', { name: 'Reset sample data' }),
