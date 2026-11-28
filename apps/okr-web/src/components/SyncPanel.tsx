@@ -155,6 +155,8 @@ export function SyncPanel({
     const adopt = adoptRef.current;
     adoptRef.current = false;
     const next = adopt ? value : mergeStates(stateRef.current, value);
+    // Keep the ref current for messages that arrive before React re-renders.
+    stateRef.current = next;
     // Only talk back when merging produced something the sender lacks; a
     // deterministic merge stops after both sides agree.
     skipSendRef.current = canonicalJson(next) === canonicalJson(value);
