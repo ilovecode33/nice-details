@@ -45,6 +45,7 @@ import { ObjectiveEditor } from './components/ObjectiveEditor';
 import { SyncPanel } from './components/SyncPanel';
 import { SyncStatus } from './components/SyncStatus';
 import { LOCALES, LOCALE_NAMES, useOkrI18n } from './i18n';
+import { formatBuildTime } from './buildInfo';
 import { useInstallPrompt } from './useInstallPrompt';
 import { useThemeChrome } from './useThemeChrome';
 import { getOkrStorage, type OkrStorage, type StoredSyncRoom } from './storage';
@@ -80,11 +81,12 @@ export interface AppProps {
 }
 
 export function App({ storage }: AppProps = {}) {
-  const { locale, setLocale, t } = useOkrI18n();
+  const { locale, setLocale, intlLocale, t } = useOkrI18n();
   useThemeChrome();
   const [state, setState] = useState<OKRState | null>(null);
   const [page, setPage] = useState<AppPage>('dashboard');
   const appVersion = import.meta.env.PUBLIC_APP_VERSION ?? '0.0.0';
+  const buildTime = formatBuildTime(import.meta.env.PUBLIC_BUILD_TIME, intlLocale);
   const install = useInstallPrompt();
   const [period, setPeriod] = useState(ALL_PERIODS);
   const [sort, setSort] = useState<ObjectiveSort>('updated');
@@ -604,9 +606,21 @@ export function App({ storage }: AppProps = {}) {
               </Card>
 
               <Card className={styles.settingsCard} title={t('settings.about')}>
-                <div className={styles.settingsRow}>
-                  <span className={styles.settingsLabel}>{t('settings.version')}</span>
-                  <span className={styles.version}>{appVersion}</span>
+                <div className={styles.settingsFields}>
+                  <div className={styles.settingsRow}>
+                    <span className={styles.settingsLabel}>
+                      {t('settings.version')}
+                    </span>
+                    <span className={styles.version}>{appVersion}</span>
+                  </div>
+                  {buildTime && (
+                    <div className={styles.settingsRow}>
+                      <span className={styles.settingsLabel}>
+                        {t('settings.built')}
+                      </span>
+                      <span className={styles.version}>{buildTime}</span>
+                    </div>
+                  )}
                 </div>
               </Card>
             </div>

@@ -39,6 +39,7 @@ const en: Record<string, string> = {
   'install.installed': 'Installed',
   'settings.about': 'About',
   'settings.version': 'Version',
+  'settings.built': 'Built',
 
   'summary.aria': 'Summary',
   'summary.objectives': 'Objectives',
@@ -228,6 +229,7 @@ const zhTW: Record<string, string> = {
   'install.installed': '已安裝',
   'settings.about': '關於',
   'settings.version': '版本',
+  'settings.built': '建置時間',
 
   'summary.aria': '摘要',
   'summary.objectives': '目標',
@@ -412,6 +414,7 @@ const de: Record<string, string> = {
   'install.installed': 'Installiert',
   'settings.about': 'Über',
   'settings.version': 'Version',
+  'settings.built': 'Gebaut',
 
   'summary.aria': 'Zusammenfassung',
   'summary.objectives': 'Ziele',

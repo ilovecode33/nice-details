@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import { SURFACES } from '@ilovecode33/ui-tokens';
 
 const syncUrl = process.env.PUBLIC_SYNC_URL;
+const buildTime = new Date().toISOString();
 const { version } = JSON.parse(
   readFileSync(new URL('./package.json', import.meta.url), 'utf8'),
 ) as { version: string };
@@ -29,6 +30,7 @@ export default defineConfig({
     },
     define: {
       'import.meta.env.PUBLIC_APP_VERSION': JSON.stringify(version),
+      'import.meta.env.PUBLIC_BUILD_TIME': JSON.stringify(buildTime),
       // Local or alternate realtime Worker during development.
       ...(syncUrl
         ? { 'import.meta.env.PUBLIC_SYNC_URL': JSON.stringify(syncUrl) }
