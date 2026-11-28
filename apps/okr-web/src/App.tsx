@@ -14,10 +14,13 @@ import {
 import {
   collectPeriods,
   createSampleState,
+  deleteKeyResult,
+  deleteObjective,
   formatPeriodLabel,
   keyResultProgress,
   overallProgress,
   sortObjectives,
+  type KeyResult,
   type Objective,
   type ObjectiveSort,
   type OKRState,
@@ -40,6 +43,17 @@ interface Confirmation {
   message: string;
   confirmLabel: string;
   onConfirm: () => void;
+}
+
+function sameKeyResult(left: KeyResult, right: KeyResult): boolean {
+  return (
+    left.title === right.title &&
+    left.start === right.start &&
+    left.target === right.target &&
+    left.current === right.current &&
+    left.unit === right.unit &&
+    left.weight === right.weight
+  );
 }
 
 export interface AppProps {
@@ -193,14 +207,32 @@ export function App({ storage }: AppProps = {}) {
   function saveObjective(next: Objective) {
     setState((prev) => {
       if (!prev) return prev;
-      const exists = prev.objectives.some((objective) => objective.id === next.id);
+      const now = new Date().toISOString();
+      const existing = prev.objectives.find(
+        (objective) => objective.id === next.id,
+      );
+      // Unchanged key results keep their timestamp, so a concurrent edit on
+      // another device still wins the merge for them.
+      const keyResults = next.keyResults.map((keyResult) => {
+        const before = existing?.keyResults.find(
+          (item) => item.id === keyResult.id,
+        );
+        if (before && sameKeyResult(before, keyResult)) {
+          return {
+            ...keyResult,
+            updatedAt: before.updatedAt ?? existing?.updatedAt ?? now,
+          };
+        }
+        return { ...keyResult, updatedAt: now };
+      });
+      const saved: Objective = { ...next, keyResults };
       return {
         ...prev,
-        objectives: exists
+        objectives: existing
           ? prev.objectives.map((objective) =>
-              objective.id === next.id ? next : objective,
+              objective.id === saved.id ? saved : objective,
             )
-          : [...prev.objectives, next],
+          : [...prev.objectives, saved],
       };
     });
     setEditing(undefined);
@@ -213,14 +245,7 @@ export function App({ storage }: AppProps = {}) {
       confirmLabel: t('common.delete'),
       onConfirm: () =>
         setState((prev) =>
-          prev
-            ? {
-                ...prev,
-                objectives: prev.objectives.filter(
-                  (item) => item.id !== objective.id,
-                ),
-              }
-            : prev,
+          prev ? deleteObjective(prev, objective.id) : prev,
         ),
     });
   }
@@ -234,10 +259,9 @@ export function App({ storage }: AppProps = {}) {
       }),
       confirmLabel: t('common.delete'),
       onConfirm: () =>
-        patchObjective(objective.id, (current) => ({
-          ...current,
-          keyResults: current.keyResults.filter((item) => item.id !== krId),
-        })),
+        setState((prev) =>
+          prev ? deleteKeyResult(prev, objective.id, krId) : prev,
+        ),
     });
   }
 
@@ -420,7 +444,13 @@ export function App({ storage }: AppProps = {}) {
                     patchObjective(objective.id, (currentObjective) => ({
                       ...currentObjective,
                       keyResults: currentObjective.keyResults.map((kr) =>
-                        kr.id === krId ? { ...kr, current } : kr,
+                        kr.id === krId
+                          ? {
+                              ...kr,
+                              current,
+                              updatedAt: new Date().toISOString(),
+                            }
+                          : kr,
                       ),
                     }))
                   }
@@ -449,10 +479,7 @@ export function App({ storage }: AppProps = {}) {
           clearStoredRoom={clearStoredRoom}
           loadStoredDeviceName={loadStoredDeviceName}
           saveStoredDeviceName={saveStoredDeviceName}
-          onRemoteState={(next) => {
-            setState(next);
-            setPeriod(ALL_PERIODS);
-          }}
+          onRemoteState={(next) => setState(next)}
         />
       )}
 

@@ -1,4 +1,5 @@
 export type {
+  DeletedItems,
   KRUnit,
   KeyResult,
   Objective,
@@ -31,5 +32,11 @@ export {
 } from './period';
 
 export { normalizeObjective, normalizeState } from './normalize';
+export {
+  canonicalJson,
+  deleteKeyResult,
+  deleteObjective,
+  mergeStates,
+} from './merge';
 export { createSampleState } from './sample';
 export { loadState, saveState } from './storage';

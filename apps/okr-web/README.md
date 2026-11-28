@@ -75,6 +75,26 @@ immediately to the other connected devices; there is no WebRTC/ICE negotiation.
 The realtime Worker URL defaults to `https://sync.ilovecode33.fyi` and can be
 overridden with `PUBLIC_SYNC_URL`.
 
+### How updates merge
+
+The first state received when joining a room replaces the local document; from
+then on every update is merged, so two devices never overwrite each other's
+whole document:
+
+- Objectives merge by `id`. A copy edited on both devices keeps the title, note,
+  and dates from the newer `updatedAt`.
+- Key results merge by `id` with their own `updatedAt`, so a progress update on
+  one device and a title edit on another both survive.
+- Deleting an objective or key result records a tombstone (`state.deleted`), so
+  a device that was offline cannot bring it back.
+- The merge is deterministic and commutative. When the merged result contains
+  something the sender did not have, the receiving device sends it back once; a
+  second merge then matches and the exchange stops.
+
+Timestamps come from each device's clock, so a badly skewed clock can win or
+lose merges unexpectedly. Tombstones are kept so offline devices cannot revive
+deleted items; the document stays small for personal use.
+
 Each device sends a readable name such as `Mac · Chrome` or `iPhone · Safari`.
 You can edit it in **Sync → Device name**; the name and the last room are stored
 in the `okr-web` IndexedDB database through `@ilovecode33/persistence` and shown

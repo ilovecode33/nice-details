@@ -1,6 +1,10 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { Badge, Button, Sheet, TextArea, TextInput } from '@ilovecode33/ui';
-import type { OKRState } from '@ilovecode33/okr-shared';
+import {
+  canonicalJson,
+  mergeStates,
+  type OKRState,
+} from '@ilovecode33/okr-shared';
 import { defaultDeviceName } from '../deviceName';
 import { createRoomKey } from '../crypto';
 import { useOkrI18n } from '../i18n';
@@ -91,6 +95,10 @@ export function SyncPanel({
   const onRemoteStateRef = useRef(onRemoteState);
   const skipSendRef = useRef(false);
   const readyToSendRef = useRef(false);
+  /** The next state received replaces the local document (joining a room). */
+  const adoptRef = useRef(false);
+  /** Set by the entry point that connects to a room the user is not in yet. */
+  const adoptNextRef = useRef(false);
   const copiedTimer = useRef<number | null>(null);
 
   stateRef.current = state;
@@ -120,6 +128,7 @@ export function SyncPanel({
       if (linkRoom) {
         setMode('join');
         setPendingRoom(linkRoom);
+        adoptNextRef.current = true;
         setStarted(true);
       } else if (savedRoom) {
         setMode(savedRoom.role);
@@ -141,9 +150,16 @@ export function SyncPanel({
     setRevision(meta.revision);
     setUpdatedAt(meta.updatedAt);
     if (!isOkrState(value)) return;
-    skipSendRef.current = true;
+    // Joining a room adopts its document; every later update merges per
+    // objective so concurrent edits on the other device are kept.
+    const adopt = adoptRef.current;
+    adoptRef.current = false;
+    const next = adopt ? value : mergeStates(stateRef.current, value);
+    // Only talk back when merging produced something the sender lacks; a
+    // deterministic merge stops after both sides agree.
+    skipSendRef.current = canonicalJson(next) === canonicalJson(value);
     readyToSendRef.current = true;
-    onRemoteStateRef.current(value);
+    onRemoteStateRef.current(next);
   }
 
   function handleStatus(next: RealtimeStatus) {
@@ -159,6 +175,8 @@ export function SyncPanel({
     sessionRef.current?.close();
     setRevision(0);
     setUpdatedAt(null);
+    adoptRef.current = adoptNextRef.current;
+    adoptNextRef.current = false;
     const session = createRealtime({
       url: syncUrl,
       room: nextRoom,
@@ -235,12 +253,14 @@ export function SyncPanel({
   }
 
   function selectHost() {
+    adoptNextRef.current = false;
     setMode('host');
     setPendingRoom({ room: createRoomId(), key: createRoomKey() });
     setStarted(true);
   }
 
   function selectJoin() {
+    adoptNextRef.current = false;
     setMode('join');
     setPendingRoom(null);
     setStarted(true);
@@ -265,6 +285,7 @@ export function SyncPanel({
       setError(t('sync.invalidLink'));
       return;
     }
+    adoptNextRef.current = true;
     connectRoom(target.room, 'join', target.key);
     setJoinInput('');
     setShowScanner(false);

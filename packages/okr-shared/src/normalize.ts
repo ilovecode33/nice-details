@@ -6,6 +6,7 @@ import {
   todayIso,
 } from './period';
 import type {
+  DeletedItems,
   Objective,
   OKRState,
   StoredObjective,
@@ -38,10 +39,38 @@ export function normalizeObjective(objective: StoredObjective): Objective {
   };
 }
 
+/** Keeps only the id-to-timestamp entries a tombstone map can hold. */
+function normalizeTombstones(
+  value: unknown,
+): Record<string, string> | undefined {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    return undefined;
+  }
+  const entries = Object.entries(value as Record<string, unknown>).filter(
+    (entry): entry is [string, string] => typeof entry[1] === 'string',
+  );
+  return entries.length > 0 ? Object.fromEntries(entries) : undefined;
+}
+
+function normalizeDeleted(value: unknown): DeletedItems | undefined {
+  if (typeof value !== 'object' || value === null) return undefined;
+  const record = value as DeletedItems;
+  const objectives = normalizeTombstones(record.objectives);
+  const keyResults = normalizeTombstones(record.keyResults);
+  if (!objectives && !keyResults) return undefined;
+  return {
+    ...(objectives ? { objectives } : {}),
+    ...(keyResults ? { keyResults } : {}),
+  };
+}
+
 /** Normalizes every objective in a persisted state. */
 export function normalizeState(state: StoredOKRState): OKRState {
+  const { deleted: rawDeleted, ...rest } = state;
+  const deleted = normalizeDeleted(rawDeleted);
   return {
-    ...state,
-    objectives: state.objectives.map(normalizeObjective),
+    ...rest,
+    objectives: rest.objectives.map(normalizeObjective),
+    ...(deleted ? { deleted } : {}),
   };
 }

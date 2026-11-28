@@ -1,6 +1,10 @@
 import { describe, expect, rs, test } from '@rstest/core';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { createSampleState, type OKRState } from '@ilovecode33/okr-shared';
+import {
+  createSampleState,
+  type Objective,
+  type OKRState,
+} from '@ilovecode33/okr-shared';
 import { UIFoundation } from '@ilovecode33/ui';
 import {
   type RealtimeOptions,
@@ -22,6 +26,19 @@ type FakeSession = RealtimeSession & {
 
 const room = 'abcdefghijklmnopqrstuvwx';
 const key = 'A'.repeat(43);
+
+/** A state from the other device with one extra, newer objective. */
+function remoteState(): OKRState {
+  const [first] = createSampleState().objectives;
+  if (!first) throw new Error('sample state is empty');
+  const objective: Objective = {
+    ...first,
+    id: 'remote-objective',
+    title: 'Remote goal',
+    updatedAt: '2030-01-01T00:00:00.000Z',
+  };
+  return { version: 1, objectives: [objective] };
+}
 
 function createFakeSession(
   options: RealtimeOptions,
@@ -183,12 +200,30 @@ describe('SyncPanel', () => {
     expect(screen.getByLabelText('Room link')).toBeTruthy();
   });
 
-  test('applies a remote state message', async () => {
+  test('merges a remote update into the local document', async () => {
     const onRemoteState = rs.fn();
     const { getSession } = renderPanel({ onRemoteState });
     await startHost();
 
-    const remote: OKRState = { version: 1, objectives: [] };
+    act(() => {
+      getSession()?.emitState(remoteState());
+    });
+
+    const merged = onRemoteState.mock.calls[0]?.[0] as OKRState;
+    const ids = merged.objectives.map((item) => item.id);
+    expect(ids).toContain('remote-objective');
+    expect(ids).toContain('sample-running');
+  });
+
+  test('adopts the room document when joining from a link', async () => {
+    const onRemoteState = rs.fn();
+    const { getSession } = renderPanel({
+      initialRoom: `https://app.test/#sync=${room}&key=${key}`,
+      onRemoteState,
+    });
+    await screen.findByText('Connected. Changes sync in realtime.');
+
+    const remote = remoteState();
     act(() => {
       getSession()?.emitState(remote);
     });

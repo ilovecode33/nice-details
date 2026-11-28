@@ -11,6 +11,8 @@ export interface KeyResult {
   unit: KRUnit;
   /** Relative importance inside the objective, from 1 to 10. */
   weight: number;
+  /** Last local edit, used to merge concurrent changes; older data falls back to the objective. */
+  updatedAt?: string;
 }
 
 /** A goal for a period, made up of zero or more key results. */
@@ -29,10 +31,19 @@ export interface Objective {
   updatedAt: string;
 }
 
-/** State persisted by the app. */
+/** Deleted ids and when they were deleted, so a stale device cannot revive them. */
+export interface DeletedItems {
+  /** Objective id to deletion time (ISO 8601). */
+  objectives?: Record<string, string>;
+  /** `${objectiveId}/${keyResultId}` to deletion time (ISO 8601). */
+  keyResults?: Record<string, string>;
+}
+
+/** State persisted by the app and exchanged over a sync room. */
 export interface OKRState {
   version: 1;
   objectives: Objective[];
+  deleted?: DeletedItems;
 }
 
 /** Supported objective orderings. */
@@ -46,6 +57,7 @@ export type StoredObjective = Omit<Objective, 'startDate' | 'endDate'> &
 export interface StoredOKRState {
   version: 1;
   objectives: StoredObjective[];
+  deleted?: DeletedItems;
 }
 
 /** localStorage key used by the legacy adapter. */
