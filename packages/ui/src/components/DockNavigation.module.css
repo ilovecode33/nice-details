@@ -54,12 +54,14 @@
 .ui-dock__thumb-shift {
   position: absolute;
   inset: 0;
+  /* The second, lighter accent weight: translucent fill instead of the solid
+     pill the appearance switcher uses, so the dock stays quiet. */
   border-radius: var(--radius-pill);
   border: 1px solid var(--seg-thumb-stroke);
-  background: var(--seg-thumb-solid);
+  background: var(--seg-thumb-fill);
   box-shadow:
     var(--shadow-sm),
-    0 0 var(--space-2) var(--seg-thumb-halo);
+    inset 0 1px 0 var(--glass-highlight);
   -webkit-backdrop-filter: var(--glass-backdrop);
   backdrop-filter: var(--glass-backdrop);
   transition: box-shadow var(--glow-dur) var(--glow-ease);
@@ -68,7 +70,8 @@
 .ui-dock__thumb-shift.is-hovered {
   box-shadow:
     var(--shadow-sm),
-    0 0 var(--space-3) var(--seg-thumb-halo);
+    inset 0 1px 0 var(--glass-highlight),
+    0 0 var(--space-1) var(--seg-thumb-halo);
 }
 
 .ui-dock.is-collapsed {
