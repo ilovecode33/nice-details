@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.5.3
+
+### Patch Changes
+
+- 112f6a7: Add direct objective editing from Current focus and document Bun startup plus
+  repository-wide Markdown formatting and lint commands. Add touch dismissal and background scroll
+  locking to mobile sheets.
+- 112f6a7: Move `Sheet` lifecycle and drag-to-dismiss gestures to `createSheetMachine` in
+  `@ilovecode33/ui-core`, scope entrance `@keyframes` to the one-shot `opening` phase so drag
+  release never replays the entrance animation, document the state-machine/animation rules, and
+  resolve `@ilovecode33/*` workspace packages from built `dist` in `okr-web`.
+- @ilovecode33/ui-core@0.5.3
+  - @ilovecode33/ui-tokens@0.5.3
+  - @ilovecode33/ui-types@0.5.3
+
 ## 0.5.2
 
 ### Patch Changes
