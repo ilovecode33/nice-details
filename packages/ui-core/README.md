@@ -28,11 +28,14 @@ For each domain, the entry point exposes a reducer, a semantics mapper and a por
 - Fields, lists, feedback, media and navigation: `fieldContract`, `listContract`, `feedbackContract`, `mediaContract`, `selectionModeContract`, `navigationContract`.
 - Floating surfaces and drag feedback: `floatingContract`, `deformContract`.
 
+Press gestures use `createGestureMachine` from this package: `idle → pressing → armed → dragging`, with guards for long-press arming and scroll handoff. `@ilovecode33/ui` drives it from pointer events and reports phases through `onGesture`.
+
 Helpers include `resist`, `createSelectionState`, `enabledIndexes`, `checkboxSemantics`, `radioSemantics`, `comboboxSemantics`, `optionSemantics` and `tabSemantics`. `PORTABLE_COMPONENTS` collects every contract keyed by its React component name.
 
 ## Relationship to the other ui-* packages
 
 - `@ilovecode33/ui-types` is a direct dependency: all state, event and semantic types come from there, so no local type module is exported.
+- `@ilovecode33/state-machine` provides the generic transition engine behind `createGestureMachine`.
 - `@ilovecode33/ui` consumes these contracts as the React renderer; the `swiftUI` field records the intended native counterpart for other renderers.
 - `@ilovecode33/ui-tokens` holds the corresponding design values; this package holds only behavior.
 - All four packages share one version through the Changesets fixed group.

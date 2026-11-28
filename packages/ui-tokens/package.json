@@ -18,14 +18,14 @@
   ],
   "scripts": {
     "build": "rslib build",
-    "dev": "rslib build --watch",
+    "dev": "rslib build --watch --no-dts --no-clean",
     "typecheck": "tsc --noEmit",
     "generate": "bun scripts/generate.ts",
     "clean": "rm -rf dist"
   },
   "devDependencies": {
-    "@rslib/core": "^1.0.7",
-    "@types/node": "^24.0.0",
-    "typescript": "^5.9.3"
+    "@rslib/core": "^1.1.0",
+    "@types/node": "^26.6.11",
+    "typescript": "^7.0.2"
   }
 }

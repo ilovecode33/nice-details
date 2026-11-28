@@ -12,7 +12,6 @@ import {
   type VirtualLight,
   type WallParams,
 } from '@ilovecode33/photo-wall';
-import '@ilovecode33/photo-wall/styles.css';
 import { Button, Segmented, SliderRow, useLocale } from '@ilovecode33/ui';
 
 /** A square stage gives a taller canvas: lights above, framed prints below. */

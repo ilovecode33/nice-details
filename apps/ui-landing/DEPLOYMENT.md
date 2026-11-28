@@ -40,7 +40,7 @@ From the repository root:
 
 ```bash
 bun install
-bunx turbo run dev --filter=@ilovecode33/ui-landing    # dev server on port 3200 (rsbuild.config.ts)
+bunx turbo run dev --filter=@ilovecode33/ui-landing... # dev server on port 3200 (rsbuild.config.ts)
 bunx turbo run build --filter=@ilovecode33/ui-landing  # static output in apps/ui-landing/dist
 bunx turbo run typecheck build                         # full repo typecheck + build check
 ```

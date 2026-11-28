@@ -17,6 +17,7 @@ stories — they are rules for developers and agents, not user-facing copy.
 | [Design principles](design-principles.md) | HIG principle mapping; applies to all UI work |
 | [Mobile-first](mobile-first.md) | Phone base, 375px, touch sizes, safe areas |
 | [User-first / touch-first](user-first.md) | Feedback, keyboard parity, contrast, reduced motion |
+| [Frontend project conventions](frontend-project.md) | CSS Modules only, same-name component/style/test files — every frontend app and UI package |
 | [Floating surfaces and gesture feedback](floating-surfaces.md) | Glass material, halos/portals, drag deformation, button and segmented recipes — `@ilovecode33/ui` |
 | [Component entry criteria](component-entry.md) | What must be true before a new component is merged — `@ilovecode33/ui` |
 | [Release exit criteria](release-exit.md) | What must be checked before a release — `@ilovecode33/ui` |
@@ -25,6 +26,7 @@ stories — they are rules for developers and agents, not user-facing copy.
 | [Photo wall](photo-wall.md) | File layout, tests, and public API rules — `@ilovecode33/photo-wall` |
 | [Editor core](editor-core.md) | Framework-agnostic Lexical SDK rules — `@ilovecode33/editor-core` |
 | [Git workflow](git-workflow.md) | Never push directly to `main`; branch, PR, checks, changesets |
+| [Persisted data and migrations](data-migrations.md) | Version every stored shape; keep old records readable, back up unreadable ones, refuse newer ones |
 
 ## Updating rules
 

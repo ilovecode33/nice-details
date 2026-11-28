@@ -1,5 +1,5 @@
-import { describe, expect, test } from '@rstest/core';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, rs, test } from '@rstest/core';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { useState } from 'react';
 import { expectComponentSnapshot } from '../test-utils/snapshot';
 import { Switch } from './Switch';
@@ -17,16 +17,62 @@ const pointer = {
   button: 0,
 } as const;
 
-/** The component listens for move/up on document, outside the React tree. */
+const touch = {
+  pointerId: 2,
+  pointerType: 'touch',
+  isPrimary: true,
+  button: 0,
+} as const;
+
+const control = () => screen.getByRole('switch', { name: 'Wifi' });
 const move = (clientX: number) =>
-  fireEvent.pointerMove(document, { ...pointer, clientX });
+  fireEvent.pointerMove(control(), { ...pointer, clientX });
 const release = (clientX: number) =>
-  fireEvent.pointerUp(document, { ...pointer, clientX });
+  fireEvent.pointerUp(control(), { ...pointer, clientX });
 
 const getKnob = (control: HTMLElement) =>
   control.querySelector('[class*="ui-switch__knob"]') as HTMLElement;
 
+// Drag gestures schedule a one-tick click blocker; flush it between tests.
+afterEach(async () => {
+  await new Promise((resolve) => setTimeout(resolve, 0));
+});
+
 describe('Switch', () => {
+  test('a touch swipe scrolls instead of flipping the switch', () => {
+    render(<SwitchDemo />);
+    const control = screen.getByRole('switch', { name: 'Wifi' });
+
+    fireEvent.pointerDown(control, { ...touch, clientX: 100 });
+    fireEvent.pointerMove(control, { ...touch, clientX: 160 });
+    fireEvent.pointerUp(control, { ...touch, clientX: 160 });
+
+    expect(control).toHaveAttribute('aria-checked', 'false');
+  });
+
+  test('a held touch then drag flips the switch', () => {
+    rs.useFakeTimers();
+    try {
+      render(<SwitchDemo />);
+      const control = screen.getByRole('switch', { name: 'Wifi' });
+
+      fireEvent.pointerDown(control, { ...touch, clientX: 100 });
+      act(() => {
+        rs.advanceTimersByTime(500);
+      });
+      fireEvent.pointerMove(control, { ...touch, clientX: 130 });
+      fireEvent.pointerUp(control, { ...touch, clientX: 130 });
+      // Flush the deferred click blocker so it cannot leak into the next test.
+      act(() => {
+        rs.advanceTimersByTime(0);
+      });
+
+      expect(control).toHaveAttribute('aria-checked', 'true');
+    } finally {
+      rs.useRealTimers();
+    }
+  });
+
   test('exposes switch semantics and syncs aria-checked with the visual state', () => {
     render(<SwitchDemo />);
     const control = screen.getByRole('switch', { name: 'Wifi' });

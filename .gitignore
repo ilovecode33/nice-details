@@ -9,3 +9,6 @@ dist
 
 # Swift Package Manager build output
 packages/ui-swift/.build/
+
+# Wrangler local dev state
+.wrangler/

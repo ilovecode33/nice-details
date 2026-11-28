@@ -1,0 +1,108 @@
+/* Objective form inside the shared Sheet. Base rules are phone-first;
+   the key-result grid switches to two columns at 768px. */
+
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  width: 100%;
+  min-width: 0;
+}
+
+.fieldLabel {
+  color: var(--text-dim);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.error {
+  margin: 0;
+}
+
+.hint {
+  margin: 0;
+  color: var(--text-dim);
+  font-size: var(--text-sm);
+}
+
+.section {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-base);
+  font-weight: 650;
+}
+
+.krList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0 0 var(--space-3);
+  padding: 0;
+  list-style: none;
+  min-width: 0;
+}
+
+.kr {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-elevated-2);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-1);
+}
+
+.actions > * {
+  flex: 1 1 auto;
+}
+
+/* Element + class keeps this ahead of the library input rule; 16px+ stops
+   iOS Safari from zooming on focus. */
+input.input,
+textarea.input {
+  min-height: var(--touch);
+  font-size: var(--text-lg);
+}
+
+.input {
+  width: 100%;
+}
+
+.input::placeholder {
+  color: var(--text-faint);
+}
+
+@media (min-width: 768px) {
+  .kr {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
+  }
+
+  /* The key result title spans the full row; the remaining fields pair up. */
+  .kr > .field:first-child {
+    grid-column: 1 / -1;
+  }
+
+  .actions {
+    justify-content: flex-end;
+  }
+
+  .actions > * {
+    flex: 0 0 auto;
+  }
+}

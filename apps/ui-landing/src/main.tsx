@@ -12,7 +12,6 @@ import {
 } from '@ilovecode33/ui';
 import type { DockNavigationHandle } from '@ilovecode33/ui-types';
 import { ArrowRight } from 'lucide-react';
-import '@ilovecode33/ui/styles.css';
 import './app.css';
 import { DICTIONARIES, LOCALES, LOCALE_NAMES, type Locale } from './i18n';
 import { COMPONENT_GROUPS } from './component-groups';

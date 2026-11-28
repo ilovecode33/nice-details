@@ -49,9 +49,10 @@ algorithms behind it. It is React-specific but contains no app-specific logic.
   modules.
 - Types are defined and owned locally in this package. Do not move them to
   `@ilovecode33/ui-types`; that rule applies only to `ui` and `ui-core`.
-- Styles are a separate public subpath, `@ilovecode33/photo-wall/styles.css`
-  (mapped to `dist/index.css`). Consumers import it explicitly; do not inject
-  CSS from JavaScript.
+- Styles ship as colocated CSS Modules. The library builds in bundleless mode,
+  so each component keeps its CSS Module import in the output and the consumer
+  bundles only the styles of the components it imports. There is no separate
+  `styles.css` subpath to import.
 
 ## What not to put in the library
 

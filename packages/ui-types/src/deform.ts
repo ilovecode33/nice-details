@@ -1,4 +1,5 @@
 import type { CSSProperties, PointerEvent as ReactPointerEvent } from 'react';
+import type { GestureSnapshot } from './gesture';
 
 export type DeformAxis = 'x' | 'y' | 'both';
 
@@ -37,6 +38,13 @@ export interface DeformOptions {
   enabled?: boolean;
   /** Override `touch-action`; by axis: x → pan-y, y → pan-x, both → none. */
   touchAction?: CSSProperties['touchAction'];
+  /**
+   * Touch press (ms) that arms drag feedback. Until it elapses, movement
+   * scrolls the page and never deforms the control. Mouse input is immediate.
+   */
+  longPressMs?: number;
+  /** Observes the press and drag phases, e.g. to open a list on a vertical drag. */
+  onGesture?: (snapshot: GestureSnapshot) => void;
 }
 
 export interface DeformResult {

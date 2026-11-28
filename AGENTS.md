@@ -59,13 +59,18 @@ Reference: https://developer.apple.com/design/human-interface-guidelines/design-
 ## 5. Engineering workflow
 
 - Use Bun as the package manager; every package name uses the `@ilovecode33/` scope.
-- Apps use Rsbuild (on top of Rspack); libraries use Rslib. There is no standalone Storybook — component showcase lives in `apps/ui-landing`.
-- App `tsconfig.json` maps paths to library `src`; do not require a library build before hot reload.
+- Apps use Rsbuild (on top of Rspack); libraries use Rslib in bundleless mode (`bundle: false` with a glob `source.entry`) so per-module imports and CSS modules are preserved. There is no standalone Storybook — component showcase lives in `apps/ui-landing`.
+- Every frontend project follows [`frontend-project.md`](packages/ai-rules/frontend-project.md): component styles are CSS Modules (no app-level global stylesheets), and each component keeps `Name.tsx`, `Name.module.css`, and `Name.spec.tsx` together with the same base name.
+- App `tsconfig.json` maps paths to library `src` for typechecking, but runtime imports resolve to each library's built `dist`. `turbo` `dev` builds dependencies first (`dependsOn: ["^build"]`) and then runs their `build --watch` tasks alongside the app, so use the dependency-aware filter: `bunx turbo run dev --filter=@ilovecode33/okr-web...`. Library edits are picked up after the watch rebuild writes `dist`.
+- TypeScript 7 removes `baseUrl`; write `paths` relative to the tsconfig file and declare `*.css` / `*.module.css` in an `env.d.ts` or `css-modules.d.ts` for every side-effect CSS import.
+- `@ilovecode33/ui` builds in bundleless mode: component CSS Modules stay attached to their component imports, and `UIFoundation` loads the global `styles.css` (tokens + base/reset) internally. Wrap the app in `UIFoundation`; import `styles.css` explicitly only when using components without it.
 - Common commands:
   - `bunx turbo run typecheck build`
-  - `bunx turbo run dev --filter=@ilovecode33/ui-landing` (3200)
+  - `bunx turbo run dev --filter=@ilovecode33/ui-landing...` (3200)
+  - `bunx turbo run dev --filter=@ilovecode33/okr-web...` (3201)
 - `turbo.json` task `outputs` must be accurate, otherwise a cache hit restores nothing.
 - Versioning and changelogs are managed with Changesets; follow [`RELEASING.md`](RELEASING.md) for authoring changesets, checking status before merge and releasing.
+- Persisted data changes only through a versioned migration: bump the schema constant, keep old records readable, back up unreadable values, and refuse records from a newer release. See [`data-migrations.md`](packages/ai-rules/data-migrations.md).
 - The `@ilovecode33/ai-rules` workspace holds the project rules as plain Markdown documents, one topic per file, with an index in `packages/ai-rules/README.md`. Rule content lives only in `AGENTS.md` and that workspace.
 - **Never push directly to `main`** — work on a topic branch and merge through a PR with green checks and a changeset. See [`git-workflow.md`](packages/ai-rules/git-workflow.md); install the local guard with `bun run hooks:install`.
 

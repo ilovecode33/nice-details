@@ -1,9 +1,14 @@
-import { describe, expect, test } from '@rstest/core';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, rs, test } from '@rstest/core';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { Select } from './Select';
 import { expectComponentSnapshot } from '../test-utils/snapshot';
 
 const snapNoop = () => {};
+
+// Drag gestures schedule a one-tick click blocker; flush it between tests.
+afterEach(async () => {
+  await new Promise((resolve) => setTimeout(resolve, 0));
+});
 
 describe('Select', () => {
   test('opens the list and chooses an option', () => {
@@ -49,6 +54,13 @@ describe('Select', () => {
     button: 0,
   } as const;
 
+  const touch = {
+    pointerId: 2,
+    pointerType: 'touch',
+    isPrimary: true,
+    button: 0,
+  } as const;
+
   /** Makes hit-testing deterministic; returns a restore function. */
   const stubElementFromPoint = (element: Element | null) => {
     const original = document.elementFromPoint;
@@ -58,13 +70,60 @@ describe('Select', () => {
     };
   };
 
+  test('a touch swipe scrolls the page instead of opening the list', () => {
+    renderSelect();
+    const trigger = screen.getByRole('combobox', { name: 'Fruit' });
+
+    fireEvent.pointerDown(trigger, { ...touch, clientY: 150 });
+    fireEvent.pointerMove(trigger, { ...touch, clientY: 220 });
+    expect(screen.queryByRole('listbox')).toBeNull();
+
+    fireEvent.pointerUp(trigger, { ...touch, clientY: 220 });
+    expect(screen.queryByRole('listbox')).toBeNull();
+  });
+
+  test('a held touch then drag opens the list', () => {
+    rs.useFakeTimers();
+    try {
+      renderSelect();
+      const trigger = screen.getByRole('combobox', { name: 'Fruit' });
+
+      fireEvent.pointerDown(trigger, { ...touch, clientY: 150 });
+      act(() => {
+        rs.advanceTimersByTime(500);
+      });
+      fireEvent.pointerMove(trigger, { ...touch, clientY: 220 });
+
+      expect(screen.getByRole('listbox')).toHaveAttribute(
+        'data-ui',
+        'select__menu',
+      );
+      act(() => {
+        rs.advanceTimersByTime(0);
+      });
+    } finally {
+      rs.useRealTimers();
+    }
+  });
+
+  test('a touch tap still opens the list', () => {
+    renderSelect();
+    const trigger = screen.getByRole('combobox', { name: 'Fruit' });
+
+    fireEvent.pointerDown(trigger, { ...touch, clientY: 150 });
+    fireEvent.pointerUp(trigger, { ...touch, clientY: 150 });
+    fireEvent.click(trigger);
+
+    expect(screen.getByRole('listbox')).toBeTruthy();
+  });
+
   test('opens upward when dragged above the trigger', () => {
     renderSelect();
     const trigger = screen.getByRole('combobox', { name: 'Fruit' });
 
     fireEvent.pointerDown(trigger, { ...pointer, clientY: 200 });
-    fireEvent.pointerMove(document, { ...pointer, clientY: 150 });
-    fireEvent.pointerUp(document, { ...pointer, clientY: 150 });
+    fireEvent.pointerMove(trigger, { ...pointer, clientY: 150 });
+    fireEvent.pointerUp(trigger, { ...pointer, clientY: 150 });
 
     expect(screen.getByRole('listbox')).toHaveAttribute(
       'data-ui',
@@ -77,8 +136,8 @@ describe('Select', () => {
     const trigger = screen.getByRole('combobox', { name: 'Fruit' });
 
     fireEvent.pointerDown(trigger, { ...pointer, clientY: 150 });
-    fireEvent.pointerMove(document, { ...pointer, clientY: 200 });
-    fireEvent.pointerUp(document, { ...pointer, clientY: 200 });
+    fireEvent.pointerMove(trigger, { ...pointer, clientY: 200 });
+    fireEvent.pointerUp(trigger, { ...pointer, clientY: 200 });
 
     const menu = screen.getByRole('listbox');
     expect(menu).toHaveAttribute('data-ui', 'select__menu');
@@ -90,8 +149,8 @@ describe('Select', () => {
     const trigger = screen.getByRole('combobox', { name: 'Fruit' });
 
     fireEvent.pointerDown(trigger, { ...pointer, clientY: 200 });
-    fireEvent.pointerMove(document, { ...pointer, clientY: 150 });
-    fireEvent.pointerUp(document, { ...pointer, clientY: 150 });
+    fireEvent.pointerMove(trigger, { ...pointer, clientY: 150 });
+    fireEvent.pointerUp(trigger, { ...pointer, clientY: 150 });
     fireEvent.click(trigger);
 
     expect(screen.getByRole('listbox')).not.toBeNull();
@@ -103,8 +162,8 @@ describe('Select', () => {
     const trigger = screen.getByRole('combobox', { name: 'Fruit' });
 
     fireEvent.pointerDown(trigger, { ...pointer, clientY: 150 });
-    fireEvent.pointerMove(document, { ...pointer, clientY: 154 });
-    fireEvent.pointerUp(document, { ...pointer, clientY: 154 });
+    fireEvent.pointerMove(trigger, { ...pointer, clientY: 154 });
+    fireEvent.pointerUp(trigger, { ...pointer, clientY: 154 });
 
     expect(screen.queryByRole('listbox')).toBeNull();
 
@@ -137,8 +196,8 @@ describe('Select', () => {
     const trigger = screen.getByRole('combobox', { name: 'Fruit' });
 
     fireEvent.pointerDown(trigger, { ...pointer, clientX: 100, clientY: 150 });
-    fireEvent.pointerMove(document, { ...pointer, clientX: 260, clientY: 150 });
-    fireEvent.pointerUp(document, { ...pointer, clientX: 260, clientY: 150 });
+    fireEvent.pointerMove(trigger, { ...pointer, clientX: 260, clientY: 150 });
+    fireEvent.pointerUp(trigger, { ...pointer, clientX: 260, clientY: 150 });
 
     expect(screen.queryByRole('listbox')).toBeNull();
   });
@@ -148,8 +207,8 @@ describe('Select', () => {
     const trigger = screen.getByRole('combobox', { name: 'Fruit' });
 
     fireEvent.pointerDown(trigger, { ...pointer, clientX: 100, clientY: 200 });
-    fireEvent.pointerMove(document, { ...pointer, clientX: 220, clientY: 160 });
-    fireEvent.pointerUp(document, { ...pointer, clientX: 220, clientY: 160 });
+    fireEvent.pointerMove(trigger, { ...pointer, clientX: 220, clientY: 160 });
+    fireEvent.pointerUp(trigger, { ...pointer, clientX: 220, clientY: 160 });
 
     expect(screen.queryByRole('listbox')).toBeNull();
   });
@@ -159,8 +218,8 @@ describe('Select', () => {
     const trigger = screen.getByRole('combobox', { name: 'Fruit' });
 
     fireEvent.pointerDown(trigger, { ...pointer, clientX: 100, clientY: 200 });
-    fireEvent.pointerMove(document, { ...pointer, clientX: 130, clientY: 120 });
-    fireEvent.pointerUp(document, { ...pointer, clientX: 130, clientY: 120 });
+    fireEvent.pointerMove(trigger, { ...pointer, clientX: 130, clientY: 120 });
+    fireEvent.pointerUp(trigger, { ...pointer, clientX: 130, clientY: 120 });
 
     expect(screen.getByRole('listbox')).toHaveAttribute(
       'data-ui',
@@ -176,8 +235,8 @@ describe('Select', () => {
     expect(screen.getByRole('listbox')).toHaveAttribute('data-ui', 'select__menu');
 
     fireEvent.pointerDown(trigger, { ...pointer, clientX: 100, clientY: 150 });
-    fireEvent.pointerMove(document, { ...pointer, clientX: 260, clientY: 150 });
-    fireEvent.pointerUp(document, { ...pointer, clientX: 260, clientY: 150 });
+    fireEvent.pointerMove(trigger, { ...pointer, clientX: 260, clientY: 150 });
+    fireEvent.pointerUp(trigger, { ...pointer, clientX: 260, clientY: 150 });
 
     expect(screen.getByRole('listbox')).toHaveAttribute('data-ui', 'select__menu');
   });
@@ -190,8 +249,8 @@ describe('Select', () => {
     expect(screen.getByRole('listbox')).toHaveAttribute('data-ui', 'select__menu');
 
     fireEvent.pointerDown(trigger, { ...pointer, clientY: 200 });
-    fireEvent.pointerMove(document, { ...pointer, clientY: 120 });
-    fireEvent.pointerUp(document, { ...pointer, clientY: 120 });
+    fireEvent.pointerMove(trigger, { ...pointer, clientY: 120 });
+    fireEvent.pointerUp(trigger, { ...pointer, clientY: 120 });
 
     const menu = screen.getByRole('listbox');
     expect(menu).toHaveAttribute('data-ui', 'select__menu');
@@ -209,8 +268,8 @@ describe('Select', () => {
     );
 
     fireEvent.pointerDown(trigger, { ...pointer, clientY: 100 });
-    fireEvent.pointerMove(document, { ...pointer, clientY: 180 });
-    fireEvent.pointerUp(document, { ...pointer, clientY: 180 });
+    fireEvent.pointerMove(trigger, { ...pointer, clientY: 180 });
+    fireEvent.pointerUp(trigger, { ...pointer, clientY: 180 });
 
     expect(screen.getByRole('listbox')).toHaveAttribute(
       'data-ui',
@@ -234,12 +293,12 @@ describe('Select', () => {
     const trigger = screen.getByRole('combobox', { name: 'Fruit' });
 
     fireEvent.pointerDown(trigger, { ...pointer, clientY: 100 });
-    fireEvent.pointerMove(document, { ...pointer, clientY: 160 });
+    fireEvent.pointerMove(trigger, { ...pointer, clientY: 160 });
     const banana = screen.getByRole('option', { name: 'Banana' });
     const restore = stubElementFromPoint(banana);
     try {
-      fireEvent.pointerMove(document, { ...pointer, clientY: 220 });
-      fireEvent.pointerUp(document, { ...pointer, clientY: 220 });
+      fireEvent.pointerMove(trigger, { ...pointer, clientY: 220 });
+      fireEvent.pointerUp(trigger, { ...pointer, clientY: 220 });
     } finally {
       restore();
     }
@@ -269,8 +328,8 @@ describe('Select', () => {
     fireEvent.pointerDown(apple, { ...pointer, clientX: 100, clientY: 200 });
     const restore = stubElementFromPoint(banana);
     try {
-      fireEvent.pointerMove(document, { ...pointer, clientX: 100, clientY: 260 });
-      fireEvent.pointerUp(document, { ...pointer, clientX: 100, clientY: 260 });
+      fireEvent.pointerMove(trigger, { ...pointer, clientX: 100, clientY: 260 });
+      fireEvent.pointerUp(trigger, { ...pointer, clientX: 100, clientY: 260 });
     } finally {
       restore();
     }

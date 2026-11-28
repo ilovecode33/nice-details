@@ -14,7 +14,7 @@
     "@ilovecode33/editor-core": "workspace:*"
   },
   "devDependencies": {
-    "@rsbuild/core": "^2.3.3",
-    "typescript": "^5.9.3"
+    "@rsbuild/core": "^2.3.5",
+    "typescript": "^7.0.2"
   }
 }

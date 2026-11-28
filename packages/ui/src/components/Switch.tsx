@@ -1,19 +1,21 @@
 import styles from './Switch.module.css';
 import { toggleReducer, toggleSemantics } from '@ilovecode33/ui-core';
 
-import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
+import { useState } from 'react';
+import type { GestureSnapshot } from '@ilovecode33/ui-types';
 import { Deformable } from './Deformable';
+import { SWITCH_LONG_PRESS_MS } from '../press';
 
-// px the pointer must travel before the press becomes a drag, and the knob's
-// full left-to-right travel inside the track.
-const DRAG_START = 4;
+// The knob's full left-to-right travel inside the track.
 const KNOB_TRAVEL = 20;
 
 /**
  * Toggle switch with `aria-checked` synced to the controlled `checked` prop.
- * Clicking calls `onChange` with the toggled value. Dragging the knob follows
- * the pointer (with `Deformable` supplying stretch/squash feedback) and commits
- * the side the knob ends on when released; a sub-threshold press stays a click.
+ * Clicking calls `onChange` with the toggled value. A touch drag arms only
+ * after a long press, so swiping the page never flips the switch; dragging the
+ * knob then follows the pointer (with `Deformable` supplying stretch/squash
+ * feedback) and commits the side it ends on. Mouse drags stay immediate.
+ * Press phases and click suppression come from the shared gesture machine.
  * `label` is supplied by props and used as the accessible name.
  */
 export function Switch({
@@ -33,77 +35,22 @@ export function Switch({
   // Live pointer delta while dragging; null when settled. Kept in px so the
   // knob can follow the finger exactly and clamp at both ends of the track.
   const [dragRaw, setDragRaw] = useState<number | null>(null);
-  const dragRef = useRef<{
-    pointerId: number;
-    startX: number;
-    moved: boolean;
-    base: number;
-  } | null>(null);
-  const detachRef = useRef<(() => void) | null>(null);
 
-  const detachDrag = () => {
-    detachRef.current?.();
-    detachRef.current = null;
-  };
-
-  useEffect(() => () => detachDrag(), []);
-
-  /** Blocks the synthetic click that follows a drag, without touching later taps. */
-  const blockNextClick = () => {
-    const block = (event: MouseEvent) => {
-      event.preventDefault();
-      event.stopPropagation();
-    };
-    document.addEventListener('click', block, { capture: true, once: true });
-    window.setTimeout(
-      () => document.removeEventListener('click', block, { capture: true }),
-      0,
-    );
-  };
-
-  const onPointerDown = (event: ReactPointerEvent<HTMLButtonElement>) => {
-    if (event.pointerType === 'mouse' && event.button !== 0) return;
-    detachDrag();
-    dragRef.current = {
-      pointerId: event.pointerId,
-      startX: event.clientX,
-      moved: false,
-      base,
-    };
-
-    const onMove = (moveEvent: PointerEvent) => {
-      const drag = dragRef.current;
-      if (!drag || moveEvent.pointerId !== drag.pointerId) return;
-      const raw = moveEvent.clientX - drag.startX;
-      if (!drag.moved && Math.abs(raw) >= DRAG_START) drag.moved = true;
-      if (drag.moved) setDragRaw(raw);
-    };
-
-    const onUp = (upEvent: PointerEvent) => {
-      const drag = dragRef.current;
-      if (!drag || upEvent.pointerId !== drag.pointerId) return;
-      dragRef.current = null;
-      detachDrag();
-      if (!drag.moved || upEvent.type !== 'pointerup') {
-        setDragRaw(null);
-        return;
-      }
-      const raw = upEvent.clientX - drag.startX;
-      const clamped = Math.min(Math.max(raw, -drag.base), KNOB_TRAVEL - drag.base);
-      const next = drag.base + clamped > KNOB_TRAVEL / 2;
-      setDragRaw(null);
-      blockNextClick();
+  const handleGesture = (snapshot: GestureSnapshot) => {
+    if (snapshot.phase === 'dragging') {
+      setDragRaw(snapshot.delta.x);
+      return;
+    }
+    if (snapshot.phase !== 'idle') return;
+    if (snapshot.previous === 'dragging' && snapshot.committed) {
+      const clamped = Math.min(
+        Math.max(snapshot.delta.x, -base),
+        KNOB_TRAVEL - base,
+      );
+      const next = base + clamped > KNOB_TRAVEL / 2;
       if (next !== checked) onChange(next);
-    };
-
-    document.addEventListener('pointermove', onMove, true);
-    document.addEventListener('pointerup', onUp, true);
-    document.addEventListener('pointercancel', onUp, true);
-    detachRef.current = () => {
-      document.removeEventListener('pointermove', onMove, true);
-      document.removeEventListener('pointerup', onUp, true);
-      document.removeEventListener('pointercancel', onUp, true);
-    };
+    }
+    setDragRaw(null);
   };
 
   const dragging = dragRaw !== null;
@@ -119,14 +66,18 @@ export function Switch({
   const previewOn = dragging ? knobTranslate > KNOB_TRAVEL / 2 : checked;
 
   return (
-    <Deformable enabled={deform} touchAction="pan-y">
+    <Deformable
+      enabled={deform}
+      touchAction="pan-y"
+      longPressMs={SWITCH_LONG_PRESS_MS}
+      onGesture={handleGesture}
+    >
       <button
         type="button"
         role={semantics.role}
         aria-checked={semantics.checked}
         aria-label={semantics.label}
         className={[styles['ui-switch'], styles[previewOn ? 'is-on' : ''] || ''].filter(Boolean).join(' ')}
-        onPointerDown={onPointerDown}
         onClick={() => onChange(toggleReducer({ checked }, { type: 'toggle' }).checked)}
       >
         <span

@@ -1,5 +1,6 @@
 export * from './semantics';
 export * from './deform';
+export * from './gesture';
 export * from './toggle';
 export * from './selection';
 export * from './disclosure';

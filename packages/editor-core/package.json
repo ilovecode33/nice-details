@@ -16,7 +16,7 @@
   ],
   "scripts": {
     "build": "rslib build",
-    "dev": "rslib build --watch",
+    "dev": "rslib build --watch --no-dts --no-clean",
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist",
     "test": "rstest run"
@@ -29,9 +29,9 @@
     "lexical": "^0.53.0"
   },
   "devDependencies": {
-    "@rslib/core": "^1.0.7",
+    "@rslib/core": "^1.1.0",
     "@rstest/core": "^0.12.6",
     "happy-dom": "^21.0.4",
-    "typescript": "^5.9.3"
+    "typescript": "^7.0.2"
   }
 }

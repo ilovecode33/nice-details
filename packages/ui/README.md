@@ -6,7 +6,6 @@ React component and hook library for the UI family: the renderer layer over the 
 
 ```tsx
 import { Button, ThemeSwitcher, UIFoundation } from '@ilovecode33/ui';
-import '@ilovecode33/ui/styles.css';
 
 export function Settings() {
   return (
@@ -18,7 +17,9 @@ export function Settings() {
 }
 ```
 
-Inside this repository, add it as a workspace dependency (`bun add @ilovecode33/ui@workspace:*`); published consumers install `@ilovecode33/ui`. `react` and `react-dom` 19 are peer dependencies. The published package exposes `@ilovecode33/ui/styles.css` and `@ilovecode33/ui/index.css`.
+`UIFoundation` loads the global token/base stylesheet internally, so wrapped apps do not import it separately. If you use a component without `UIFoundation`, import `@ilovecode33/ui/styles.css` yourself.
+
+Inside this repository, add it as a workspace dependency (`bun add @ilovecode33/ui@workspace:*`); published consumers install `@ilovecode33/ui`. `react` and `react-dom` 19 are peer dependencies. Component styles are preserved in the transformed output and load with the component imports.
 
 ## Exports
 
@@ -31,7 +32,7 @@ Shared prop, state and event types are **not** re-exported by this package; impo
 
 ## Relationship to the other ui-* packages
 
-- `@ilovecode33/ui-tokens` owns the token values and generators. `src/styles.css` imports `@ilovecode33/ui-tokens/styles.css`; the build inlines the generated sheet into this package's `dist/styles.css`.
+- `@ilovecode33/ui-tokens` owns the token values and generators. `src/styles.css` imports `@ilovecode33/ui-tokens/styles.css` and is emitted as `dist/styles.css` (tokens + base/reset). Rslib runs in bundleless mode, so each component keeps its CSS Module import in the output (`Button.module.js` → `Button_module.css`) and the consumer's bundler includes only the styles of the components it imports. There is no custom post-build script and no aggregate `index.css`.
 - `@ilovecode33/ui-types` supplies the domain-grouped types consumed directly by components.
 - `@ilovecode33/ui-core` supplies the framework-neutral reducers and portable contracts that these components render.
 - All four packages share one version through the Changesets fixed group.

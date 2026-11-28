@@ -1,9 +1,14 @@
-import type { SelectOption, SelectProps } from '@ilovecode33/ui-types';
+import type {
+  GestureSnapshot,
+  SelectOption,
+  SelectProps,
+} from '@ilovecode33/ui-types';
 import styles from './Select.module.css';
 import { comboboxSemantics, enabledIndexes, optionSemantics, selectionReducer } from '@ilovecode33/ui-core';
 import type { SelectionEvent, SelectionState } from '@ilovecode33/ui-types';
 import { Children, isValidElement, useEffect, useId, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent, type ReactNode } from 'react';
 import { Deformable } from './Deformable';
+import { SELECT_LONG_PRESS_MS } from '../press';
 
 /**
  * Derives the option list from element children: skips non-elements and
@@ -32,27 +37,14 @@ function optionsFromChildren(children: ReactNode): SelectOption[] {
 
 /**
  * Travel (px) that turns a trigger press into a direction drag. The gesture
- * opens/flips the menu only when vertical dominance is detected first — that
- * is, |deltaY| >= 8 and |deltaY| > |deltaX| * 1.2 — while a horizontal-dominant
- * press (|deltaX| > |deltaY| * 1.2 and |deltaX| >= 8) is ignored: it never
- * opens, never flips, and never arms click suppression. The chosen intent is
- * sticky for the whole gesture, so a later move in the other direction cannot
- * change it. Below the threshold the press stays an ordinary click; once
- * crossed with a vertical intent, the synthetic click after pointerup is
- * suppressed so the menu just opened (or flipped) is not immediately toggled
- * shut.
+ * opens or flips the menu only when vertical dominance is detected — that is,
+ * |deltaY| >= 8 and |deltaY| > |deltaX| * 1.2 — while a mostly-horizontal drag
+ * leaves the list untouched. Press timing, long-press arming, capture, and
+ * click suppression live in the shared gesture machine; this threshold only
+ * decides whether the drag means "open the list".
  */
 const DRAG_THRESHOLD = 8;
 
-type DragGesture = {
-  pointerId: number;
-  startX: number;
-  startY: number;
-  direction: 'up' | 'down' | null;
-  listOpen: boolean;
-  /** Sticky: once horizontal intent wins, the rest of the gesture is ignored. */
-  horizontal: boolean;
-};
 
 /**
  * Custom listbox-style dropdown supporting rich option content (leading nodes,
@@ -60,7 +52,9 @@ type DragGesture = {
  * Controlled via `value` or uncontrolled via `defaultValue`; closes on outside
  * pointerdown or Escape (focus returns to the trigger on select and Escape).
  * A vertical-dominant trigger drag opens the menu toward the drag; a
- * horizontal-dominant drag is ignored; a plain click toggles.
+ * horizontal-dominant drag is ignored; a plain click toggles. On touch the drag
+ * arms only after a long press, so swiping the page over the trigger scrolls
+ * instead of opening the menu.
  * `placeholder` defaults to 'Select...'; labels come from props or children.
  */
 export function Select<T extends string = string>({
@@ -149,9 +143,6 @@ export function Select<T extends string = string>({
     closeList();
   };
 
-  const dragRef = useRef<DragGesture | null>(null);
-  const suppressClickRef = useRef(false);
-  const detachDragRef = useRef<(() => void) | null>(null);
   // Press-and-slide inside an open menu: the option under the pointer becomes
   // active as the finger moves, and releasing applies it and closes the list.
   const menuDragRef = useRef<{
@@ -161,12 +152,10 @@ export function Select<T extends string = string>({
     moved: boolean;
   } | null>(null);
   const detachMenuDragRef = useRef<(() => void) | null>(null);
-
-  /** Removes the document-level drag listeners; idempotent, including on unmount. */
-  const detachDragListeners = () => {
-    detachDragRef.current?.();
-    detachDragRef.current = null;
-  };
+  /** A trigger gesture already opened the list; reset on the next press. */
+  const gestureOpenedRef = useRef(false);
+  /** The current trigger gesture committed to a vertical drag. */
+  const gestureVerticalRef = useRef(false);
 
   const detachMenuDragListeners = () => {
     detachMenuDragRef.current?.();
@@ -175,108 +164,61 @@ export function Select<T extends string = string>({
 
   useEffect(() => {
     return () => {
-      detachDragRef.current?.();
-      detachDragRef.current = null;
       detachMenuDragRef.current?.();
       detachMenuDragRef.current = null;
     };
   }, []);
 
   /**
-   * Starts a drag on the trigger. Listeners live on `document` in the capture
-   * phase because Deformable may call setPointerCapture on its wrapper, making
-   * trigger-level move/up events unreliable. The first move that shows clear
-   * dominance decides the gesture's intent: vertical opens/flips the menu and
-   * arms `suppressClickRef`, which the trigger's onClick consumes once, while
-   * horizontal ignores the rest of the gesture without arming suppression. The
-   * intent is sticky and sub-threshold presses stay ordinary clicks.
+   * The wrapper's gesture machine owns press timing, long-press arming, pointer
+   * capture, and click suppression. This callback only decides what a vertical
+   * drag means: open or flip the list when the threshold is crossed, track the
+   * option under the pointer, and commit it on release.
    */
-  const onTriggerPointerDown = (event: ReactPointerEvent<HTMLButtonElement>) => {
-    // A drag whose click landed elsewhere must not suppress the next real click.
-    suppressClickRef.current = false;
-    if (disabled || (event.pointerType === 'mouse' && event.button !== 0)) return;
+  const onTriggerGesture = (snapshot: GestureSnapshot) => {
+    if (snapshot.previous === 'idle' && snapshot.phase !== 'idle') {
+      gestureOpenedRef.current = false;
+      gestureVerticalRef.current = false;
+    }
 
-    detachDragListeners();
-    dragRef.current = {
-      pointerId: event.pointerId,
-      startX: event.clientX,
-      startY: event.clientY,
-      direction: null,
-      listOpen: state.open,
-      horizontal: false,
-    };
-
-    const onMove = (moveEvent: PointerEvent) => {
-      const drag = dragRef.current;
-      if (!drag || moveEvent.pointerId !== drag.pointerId) return;
-      // A horizontal intent is sticky: ignore every later move of this gesture.
-      if (drag.horizontal) return;
-
-      const deltaX = moveEvent.clientX - drag.startX;
-      const deltaY = moveEvent.clientY - drag.startY;
-
-      if (!drag.direction) {
-        // Decide intent once: the first move with clear dominance wins.
-        if (
-          Math.abs(deltaX) > Math.abs(deltaY) * 1.2 &&
-          Math.abs(deltaX) >= DRAG_THRESHOLD
-        ) {
-          drag.horizontal = true;
-          return;
-        }
-        if (
-          Math.abs(deltaY) < DRAG_THRESHOLD ||
-          Math.abs(deltaY) <= Math.abs(deltaX) * 1.2
-        ) {
-          return;
+    if (snapshot.phase === 'dragging') {
+      const { x, y } = snapshot.delta;
+      // A mostly-horizontal drag never opens the list.
+      if (Math.abs(y) < DRAG_THRESHOLD || Math.abs(y) <= Math.abs(x) * 1.2) {
+        return;
+      }
+      gestureVerticalRef.current = true;
+      if (!gestureOpenedRef.current) {
+        gestureOpenedRef.current = true;
+        if (!state.open) {
+          setDropUp(y < 0);
+          openList();
         }
       }
-
-      // Vertical intent (or an already-decided vertical drag): open/flip.
-      const next: DragGesture['direction'] =
-        deltaY <= -DRAG_THRESHOLD ? 'up' : deltaY >= DRAG_THRESHOLD ? 'down' : null;
-      if (!next) return;
-      // Any threshold crossing is a drag, even if the direction stays the same.
-      suppressClickRef.current = true;
-      if (next !== drag.direction) drag.direction = next;
-      // Only the gesture that opens the menu picks its side. Once open — by this
-      // gesture or an earlier click/keyboard/drag — the drop side is locked, so a
-      // later opposite drag cannot flip an already-open list.
-      if (!drag.listOpen) {
-        drag.listOpen = true;
-        setDropUp(next === 'up');
-        openList();
-      }
-      // While the menu is open, track the option under the pointer so the same
-      // press can slide onto a choice and commit it on release.
-      const index = optionIndexAt(moveEvent.clientX, moveEvent.clientY);
+      const point = snapshot.point;
+      if (!point) return;
+      const index = optionIndexAt(point.x, point.y);
       if (index !== null) {
         const option = list[index];
         if (option && !option.disabled) dispatch({ type: 'setActive', index });
       }
-    };
+      return;
+    }
 
-    /** Ends this gesture; a leftover click flag is cleared by the next pointerdown. */
-    const onEnd = (endEvent: PointerEvent) => {
-      const drag = dragRef.current;
-      if (!drag || endEvent.pointerId !== drag.pointerId) return;
-      dragRef.current = null;
-      detachDragListeners();
-      // A vertical drag released over an option commits it and closes the menu.
-      if (endEvent.type !== 'pointerup' || !drag.direction) return;
-      const index = optionIndexAt(endEvent.clientX, endEvent.clientY);
+    if (
+      snapshot.phase === 'idle' &&
+      snapshot.previous === 'dragging' &&
+      snapshot.committed &&
+      gestureVerticalRef.current
+    ) {
+      gestureOpenedRef.current = false;
+      gestureVerticalRef.current = false;
+      const point = snapshot.point;
+      if (!point) return;
+      const index = optionIndexAt(point.x, point.y);
       const option = index !== null ? list[index] : undefined;
       if (option && !option.disabled) choose(option);
-    };
-
-    document.addEventListener('pointermove', onMove, true);
-    document.addEventListener('pointerup', onEnd, true);
-    document.addEventListener('pointercancel', onEnd, true);
-    detachDragRef.current = () => {
-      document.removeEventListener('pointermove', onMove, true);
-      document.removeEventListener('pointerup', onEnd, true);
-      document.removeEventListener('pointercancel', onEnd, true);
-    };
+    }
   };
 
   /**
@@ -410,8 +352,10 @@ export function Select<T extends string = string>({
 
   return (
     <Deformable
-      enabled={deform}
+      enabled={deform && !disabled}
       touchAction="pan-y"
+      longPressMs={SELECT_LONG_PRESS_MS}
+      onGesture={onTriggerGesture}
       style={{ zIndex: state.open ? 50 : undefined }}
     >
     <div
@@ -435,17 +379,12 @@ export function Select<T extends string = string>({
         aria-disabled={disabled || semantics.disabled || undefined}
         disabled={disabled}
         onClick={() => {
-          if (suppressClickRef.current) {
-            suppressClickRef.current = false;
-            return;
-          }
           if (state.open) closeList(false);
           else {
             setDropUp(false);
             openList();
           }
         }}
-        onPointerDown={onTriggerPointerDown}
         onKeyDown={onTriggerKeyDown}
       >
         <span className={styles['ui-select__value']}>
