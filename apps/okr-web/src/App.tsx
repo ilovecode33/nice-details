@@ -5,6 +5,7 @@ import {
   AlertDialog,
   Button,
   Card,
+  DockNavigation,
   EmptyState,
   ProgressBar,
   Select,
@@ -17,8 +18,10 @@ import {
   deleteKeyResult,
   deleteObjective,
   keyResultProgress,
+  objectiveProgress,
   objectiveQuarters,
   overallProgress,
+  periodProgress,
   sortObjectives,
   type KeyResult,
   type Objective,
@@ -26,7 +29,15 @@ import {
   type OKRState,
 } from '@ilovecode33/okr-shared';
 import { parseSyncLink, type RealtimeStatus } from './realtime';
-import { AlertTriangle, Plus, RotateCcw, Target } from 'lucide-react';
+import {
+  AlertTriangle,
+  LayoutDashboard,
+  ListChecks,
+  Plus,
+  RotateCcw,
+  Settings,
+  Target,
+} from 'lucide-react';
 import { ObjectiveCard } from './components/ObjectiveCard';
 import { ObjectiveEditor } from './components/ObjectiveEditor';
 import { SyncPanel } from './components/SyncPanel';
@@ -37,6 +48,9 @@ import styles from './App.module.css';
 
 const ALL_PERIODS = 'all';
 const EMPTY_OBJECTIVES: Objective[] = [];
+
+/** Bottom-navigation pages. */
+type AppPage = 'dashboard' | 'okrs' | 'settings';
 
 interface Confirmation {
   title: string;
@@ -64,6 +78,9 @@ export interface AppProps {
 export function App({ storage }: AppProps = {}) {
   const { locale, setLocale, t } = useOkrI18n();
   const [state, setState] = useState<OKRState | null>(null);
+  const [page, setPage] = useState<AppPage>('dashboard');
+  const [dockCollapsed, setDockCollapsed] = useState(true);
+  const appVersion = import.meta.env.PUBLIC_APP_VERSION ?? '0.0.0';
   const [period, setPeriod] = useState(ALL_PERIODS);
   const [sort, setSort] = useState<ObjectiveSort>('updated');
   // undefined = closed, null = create a new objective, otherwise the one to edit.
@@ -183,6 +200,34 @@ export function App({ storage }: AppProps = {}) {
           );
     return sortObjectives(filtered, sort);
   }, [objectives, period, sort]);
+  const focus = useMemo(
+    () =>
+      objectives
+        .map((objective) => ({
+          objective,
+          timing: periodProgress(objective.startDate, objective.endDate),
+        }))
+        .filter((item) => item.timing.status === 'active')
+        .sort((a, b) => a.timing.daysLeft - b.timing.daysLeft)
+        .slice(0, 3),
+    [objectives],
+  );
+  const pageTitle =
+    page === 'dashboard'
+      ? t('app.title')
+      : page === 'okrs'
+        ? t('nav.okrs')
+        : t('nav.settings');
+  const pageSubtitle =
+    page === 'dashboard'
+      ? t('app.subtitle')
+      : page === 'okrs'
+        ? t('okrs.subtitle')
+        : t('settings.subtitle');
+  // The collapsed dock shows icons only; the label stays available to
+  // assistive tech and appears again when the dock is expanded.
+  const navLabel = (label: string) =>
+    dockCollapsed ? <span className="ui-sr-only">{label}</span> : label;
 
   const progress = state ? Math.round(overallProgress(objectives) * 100) : 0;
   const completedKrs = objectives.reduce(
@@ -297,44 +342,8 @@ export function App({ storage }: AppProps = {}) {
     <main className={styles.shell}>
       <header className={styles.header}>
         <div className={styles.headerIntro}>
-          <div className={styles.titleRow}>
-            <h1>{t('app.title')}</h1>
-            <SyncStatus
-              status={syncStatus}
-              onOpen={() => setSyncOpen(true)}
-            />
-          </div>
-          <p>{t('app.subtitle')}</p>
-        </div>
-        <div className={styles.headerControls}>
-          <Select
-            className={styles.locale}
-            aria-label={t('app.language')}
-            value={locale}
-            options={LOCALES.map((value) => ({
-              value,
-              label: LOCALE_NAMES[value],
-            }))}
-            onChange={(event) => setLocale(event.target.value)}
-          />
-          <ThemeSwitcher
-            labels={{
-              group: t('theme.group'),
-              system: t('theme.system'),
-              light: t('theme.light'),
-              dark: t('theme.dark'),
-            }}
-          />
-          <AccentSwitcher
-            labels={{
-              group: t('accent.group'),
-              warmth: t('accent.warmth'),
-              serenity: t('accent.serenity'),
-              growth: t('accent.growth'),
-              gentle: t('accent.gentle'),
-              vitality: t('accent.vitality'),
-            }}
-          />
+          <h1>{pageTitle}</h1>
+          <p>{pageSubtitle}</p>
         </div>
       </header>
 
@@ -365,74 +374,102 @@ export function App({ storage }: AppProps = {}) {
             </p>
           )}
 
-          <section className={styles.summary} aria-label={t('summary.aria')}>
-            <Stat
-              label={t('summary.objectives')}
-              value={objectives.length}
-              tone="accent"
-            />
-            <div className={styles.summaryProgress}>
-              <span className={styles.summaryValue}>{progress}%</span>
-              <span className={styles.summaryLabel}>
-                {t('summary.overallProgress')}
-              </span>
-              <ProgressBar
-                value={progress}
-                label={t('summary.overallProgress')}
-              />
-            </div>
-            <Stat
-              label={t('summary.completedKeyResults')}
-              value={completedKrs}
-              tone="success"
-            />
-          </section>
-
-          <section className={styles.toolbar} aria-label={t('toolbar.aria')}>
-            <label className={styles.field}>
-              <span className={styles.fieldLabel}>{t('toolbar.period')}</span>
-              <Select
-                aria-label={t('toolbar.filterAria')}
-                value={period}
-                options={periodOptions}
-                onChange={(event) => setPeriod(event.target.value)}
-              />
-            </label>
-            <label className={styles.field}>
-              <span className={styles.fieldLabel}>{t('toolbar.sort')}</span>
-              <Select<ObjectiveSort>
-                aria-label={t('toolbar.sortAria')}
-                value={sort}
-                options={sortOptions}
-                onChange={(event) => setSort(event.target.value)}
-              />
-            </label>
-            <Button
-              variant="primary"
-              onClick={() => setEditing(null)}
-              icon={<Plus />}
-            >
-              {t('toolbar.newObjective')}
-            </Button>
-            {import.meta.env.DEV && (
-              <Button variant="plain" onClick={askToReset} icon={<RotateCcw />}>
-                {t('toolbar.reset')}
-              </Button>
-            )}
-          </section>
-
-          {visible.length === 0 ? (
-            <Card>
-              <div className={styles.empty}>
-                <EmptyState
-                  icon={<Target />}
-                  title={
-                    objectives.length
-                      ? t('empty.noPeriod')
-                      : t('empty.noObjectives')
-                  }
-                  detail={t('empty.detail')}
+          {page === 'dashboard' && (
+            <>
+              <section className={styles.summary} aria-label={t('summary.aria')}>
+                <Stat
+                  label={t('summary.objectives')}
+                  value={objectives.length}
+                  tone="accent"
                 />
+                <div className={styles.summaryProgress}>
+                  <span className={styles.summaryValue}>{progress}%</span>
+                  <span className={styles.summaryLabel}>
+                    {t('summary.overallProgress')}
+                  </span>
+                  <ProgressBar
+                    value={progress}
+                    label={t('summary.overallProgress')}
+                  />
+                </div>
+                <Stat
+                  label={t('summary.completedKeyResults')}
+                  value={completedKrs}
+                  tone="success"
+                />
+              </section>
+
+              <section className={styles.focus} aria-label={t('dashboard.focus')}>
+                <div className={styles.sectionHeader}>
+                  <h2 className={styles.sectionTitle}>{t('dashboard.focus')}</h2>
+                  <Button variant="plain" onClick={() => setPage('okrs')}>
+                    {t('dashboard.viewAll')}
+                  </Button>
+                </div>
+                {focus.length === 0 ? (
+                  <Card>
+                    <div className={styles.empty}>
+                      <EmptyState
+                        icon={<Target />}
+                        title={t('dashboard.empty')}
+                        detail={t('empty.detail')}
+                      />
+                    </div>
+                  </Card>
+                ) : (
+                  <div className={styles.focusList}>
+                    {focus.map(({ objective, timing }) => {
+                      const value = Math.round(objectiveProgress(objective) * 100);
+                      return (
+                        <Card key={objective.id}>
+                          <div className={styles.focusCard}>
+                            <span className={styles.focusTitle}>
+                              {objective.title}
+                            </span>
+                            <ProgressBar
+                              value={value}
+                              label={t('objective.progress', {
+                                title: objective.title,
+                              })}
+                            />
+                            <span className={styles.focusMeta}>
+                              {timing.daysLeft === 1
+                                ? t('objective.dayLeft', { days: 1 })
+                                : t('objective.daysLeft', {
+                                    days: timing.daysLeft,
+                                  })}
+                            </span>
+                          </div>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                )}
+              </section>
+            </>
+          )}
+
+          {page === 'okrs' && (
+            <>
+              <section className={styles.toolbar} aria-label={t('toolbar.aria')}>
+                <label className={styles.field}>
+                  <span className={styles.fieldLabel}>{t('toolbar.period')}</span>
+                  <Select
+                    aria-label={t('toolbar.filterAria')}
+                    value={period}
+                    options={periodOptions}
+                    onChange={(event) => setPeriod(event.target.value)}
+                  />
+                </label>
+                <label className={styles.field}>
+                  <span className={styles.fieldLabel}>{t('toolbar.sort')}</span>
+                  <Select<ObjectiveSort>
+                    aria-label={t('toolbar.sortAria')}
+                    value={sort}
+                    options={sortOptions}
+                    onChange={(event) => setSort(event.target.value)}
+                  />
+                </label>
                 <Button
                   variant="primary"
                   onClick={() => setEditing(null)}
@@ -440,37 +477,162 @@ export function App({ storage }: AppProps = {}) {
                 >
                   {t('toolbar.newObjective')}
                 </Button>
-              </div>
-            </Card>
-          ) : (
-            <section className={styles.list} aria-label={t('list.aria')}>
-              {visible.map((objective) => (
-                <ObjectiveCard
-                  key={objective.id}
-                  objective={objective}
-                  onEdit={() => setEditing(objective)}
-                  onDelete={() => askToDeleteObjective(objective)}
-                  onUpdateKr={(krId, current) =>
-                    patchObjective(objective.id, (currentObjective) => ({
-                      ...currentObjective,
-                      keyResults: currentObjective.keyResults.map((kr) =>
-                        kr.id === krId
-                          ? {
-                              ...kr,
-                              current,
-                              updatedAt: new Date().toISOString(),
-                            }
-                          : kr,
-                      ),
-                    }))
-                  }
-                  onDeleteKr={(krId) => askToDeleteKr(objective, krId)}
+                {import.meta.env.DEV && (
+                  <Button variant="plain" onClick={askToReset} icon={<RotateCcw />}>
+                    {t('toolbar.reset')}
+                  </Button>
+                )}
+              </section>
+
+              {visible.length === 0 ? (
+                <Card>
+                  <div className={styles.empty}>
+                    <EmptyState
+                      icon={<Target />}
+                      title={
+                        objectives.length
+                          ? t('empty.noPeriod')
+                          : t('empty.noObjectives')
+                      }
+                      detail={t('empty.detail')}
+                    />
+                    <Button
+                      variant="primary"
+                      onClick={() => setEditing(null)}
+                      icon={<Plus />}
+                    >
+                      {t('toolbar.newObjective')}
+                    </Button>
+                  </div>
+                </Card>
+              ) : (
+                <section className={styles.list} aria-label={t('list.aria')}>
+                  {visible.map((objective) => (
+                    <ObjectiveCard
+                      key={objective.id}
+                      objective={objective}
+                      onEdit={() => setEditing(objective)}
+                      onDelete={() => askToDeleteObjective(objective)}
+                      onUpdateKr={(krId, current) =>
+                        patchObjective(objective.id, (currentObjective) => ({
+                          ...currentObjective,
+                          keyResults: currentObjective.keyResults.map((kr) =>
+                            kr.id === krId
+                              ? {
+                                  ...kr,
+                                  current,
+                                  updatedAt: new Date().toISOString(),
+                                }
+                              : kr,
+                          ),
+                        }))
+                      }
+                      onDeleteKr={(krId) => askToDeleteKr(objective, krId)}
+                    />
+                  ))}
+                </section>
+              )}
+            </>
+          )}
+
+          {page === 'settings' && (
+            <div className={styles.settings}>
+              <Card className={styles.settingsCard} title={t('theme.group')}>
+                <div className={styles.settingsFields}>
+                  <ThemeSwitcher
+                    labels={{
+                      group: t('theme.group'),
+                      system: t('theme.system'),
+                      light: t('theme.light'),
+                      dark: t('theme.dark'),
+                    }}
+                  />
+                  <div className={styles.settingsRow}>
+                    <span className={styles.settingsLabel}>{t('accent.group')}</span>
+                    <AccentSwitcher
+                      labels={{
+                        group: t('accent.group'),
+                        warmth: t('accent.warmth'),
+                        serenity: t('accent.serenity'),
+                        growth: t('accent.growth'),
+                        gentle: t('accent.gentle'),
+                        vitality: t('accent.vitality'),
+                      }}
+                    />
+                  </div>
+                </div>
+              </Card>
+
+              <Card className={styles.settingsCard} title={t('app.language')}>
+                <Select
+                  className={styles.settingsSelect}
+                  aria-label={t('app.language')}
+                  value={locale}
+                  options={LOCALES.map((value) => ({
+                    value,
+                    label: LOCALE_NAMES[value],
+                  }))}
+                  onChange={(event) => setLocale(event.target.value)}
                 />
-              ))}
-            </section>
+              </Card>
+
+              <Card
+                className={styles.settingsCard}
+                title={t('sync.title')}
+                subtitle={t('settings.syncHint')}
+              >
+                <SyncStatus status={syncStatus} onOpen={() => setSyncOpen(true)} />
+              </Card>
+
+              <Card className={styles.settingsCard} title={t('settings.about')}>
+                <div className={styles.settingsRow}>
+                  <span className={styles.settingsLabel}>{t('settings.version')}</span>
+                  <span className={styles.version}>{appVersion}</span>
+                </div>
+              </Card>
+            </div>
           )}
         </>
       )}
+
+      <DockNavigation
+        label={t('nav.label')}
+        activeId={page}
+        collapsed={dockCollapsed}
+        onCollapsedChange={setDockCollapsed}
+        collapseLabel={t('nav.collapse')}
+        expandLabel={t('nav.expand')}
+        onSelect={(id) => setPage(id as AppPage)}
+        items={[
+          {
+            id: 'dashboard',
+            label: navLabel(t('nav.dashboard')),
+            icon: (
+              <span className={styles.navIcon}>
+                <LayoutDashboard size={18} />
+              </span>
+            ),
+          },
+          {
+            id: 'okrs',
+            label: navLabel(t('nav.okrs')),
+            icon: (
+              <span className={styles.navIcon}>
+                <ListChecks size={18} />
+              </span>
+            ),
+          },
+          {
+            id: 'settings',
+            label: navLabel(t('nav.settings')),
+            icon: (
+              <span className={styles.navIcon}>
+                <Settings size={18} />
+              </span>
+            ),
+          },
+        ]}
+      />
 
       {state && (
         <SyncPanel
