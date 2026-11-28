@@ -22,7 +22,7 @@ exports[`DockNavigation > matches its structural snapshot 1`] = `
           >
             <a
               aria-current="page"
-              class="src-components-DockNavigation-module__ui-dock__item-ImyT1s"
+              class="src-components-DockNavigation-module__ui-dock__item-ImyT1s src-components-DockNavigation-module__is-current-V1llTo"
               data-active="true"
               href="/"
             >

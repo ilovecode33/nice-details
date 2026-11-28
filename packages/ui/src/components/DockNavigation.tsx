@@ -264,7 +264,7 @@ export const DockNavigation = forwardRef<DockNavigationHandle, DockNavigationPro
         >
           {items.map((item) => {
             const current = item.id === activeId;
-            const itemClass = [styles['ui-dock__item'], styles[collapsed && current ? 'is-current' : ''] || ''].filter(Boolean).join(' ');
+            const itemClass = [styles['ui-dock__item'], styles[current ? 'is-current' : ''] || ''].filter(Boolean).join(' ');
             const content = (
               <>
                 {item.icon}

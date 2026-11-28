@@ -47,6 +47,18 @@ describe('DockNavigation', () => {
     expect(selected).toBe('layout');
   });
 
+  test('marks the active item in the expanded dock too', () => {
+    render(<DockNavigation label="Dock" items={items} activeId="about" />);
+    const strip = document.querySelector<HTMLElement>('[data-ui="dock"]');
+    expect(strip?.className).not.toContain('is-collapsed');
+    expect(screen.getByRole('link', { name: 'About' }).className).toContain(
+      'is-current',
+    );
+    expect(screen.getByRole('link', { name: 'Posts' }).className).not.toContain(
+      'is-current',
+    );
+  });
+
   test('collapses to a scrollable strip with the active item highlighted', () => {
     render(
       <DockNavigation label="Dock" items={items} activeId="about" defaultCollapsed />,
