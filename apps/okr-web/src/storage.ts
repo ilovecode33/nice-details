@@ -19,6 +19,7 @@ const SYNC_ROOM_VERSION = 1;
 const VIEW_KEY = 'view';
 const VIEW_VERSION = 1;
 const DEVICE_NAME_KEY = 'device-name';
+const USER_NAME_KEY = 'user-name';
 const SYNC_ROOM_PATTERN = /^[A-Za-z0-9_-]{16,64}$/;
 const VIEW_PERIOD_PATTERN = /^(all|\d{4} Q[1-4])$/;
 const VIEW_SORTS: readonly ObjectiveSort[] = ['updated', 'progress', 'title'];
@@ -47,6 +48,8 @@ export interface OkrStorage {
   clearSyncRoom(): Promise<void>;
   loadDeviceName(): Promise<string | null>;
   saveDeviceName(name: string): Promise<void>;
+  loadUserName(): Promise<string | null>;
+  saveUserName(name: string): Promise<void>;
   close(): void;
   destroy(): Promise<void>;
 }
@@ -175,6 +178,18 @@ export async function openOkrStorage(
         : null;
     },
     saveDeviceName: (name) => kv.set(DEVICE_NAME_KEY, name.trim().slice(0, 40)),
+    async loadUserName() {
+      const value = await kv.get(USER_NAME_KEY);
+      return typeof value === 'string' && value.trim()
+        ? value.trim().slice(0, 40)
+        : null;
+    },
+    saveUserName: (name) => {
+      const trimmed = name.trim().slice(0, 40);
+      return trimmed
+        ? kv.set(USER_NAME_KEY, trimmed)
+        : kv.delete(USER_NAME_KEY);
+    },
     close: () => db.close(),
     destroy: () => db.destroy(),
   };
