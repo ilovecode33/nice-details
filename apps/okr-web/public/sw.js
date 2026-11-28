@@ -30,10 +30,18 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   const { request } = event;
+  const url = new URL(request.url);
   if (
     request.method !== 'GET' ||
-    new URL(request.url).origin !== self.location.origin
+    url.origin !== self.location.origin
   ) {
+    return;
+  }
+
+  // Version checks must fail offline instead of reporting a cached app shell
+  // as the latest deployed version.
+  if (url.searchParams.has('__version_check')) {
+    event.respondWith(fetch(request));
     return;
   }
 

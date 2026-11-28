@@ -43,6 +43,11 @@ export default defineConfig({
     tags: [
       {
         tag: 'meta',
+        attrs: { name: 'app-version', content: version },
+        head: true,
+      },
+      {
+        tag: 'meta',
         attrs: { name: 'theme-color', content: SURFACES.light.bg },
         head: true,
       },

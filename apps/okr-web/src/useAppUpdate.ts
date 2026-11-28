@@ -1,23 +1,61 @@
 import { useCallback, useEffect, useState } from 'react';
 
 export interface AppUpdateState {
-  /** A newer worker is installed and waiting for a reload. */
+  /** A newer app version or build is available to reload. */
   updateReady: boolean;
   checking: boolean;
-  /** Checks the service worker, then reloads the app. */
-  update: () => Promise<void>;
+  latestVersion: string | null;
+  checkFailed: boolean;
+  /** Checks the deployed app version without reloading. */
+  checkForUpdates: () => Promise<void>;
+  /** Reloads after the user chooses to apply the update. */
+  update: () => void;
+}
+
+const VERSION_PATTERN = /^\d+\.\d+\.\d+$/;
+
+function isNewerVersion(candidate: string, current: string): boolean {
+  if (!VERSION_PATTERN.test(candidate) || !VERSION_PATTERN.test(current)) {
+    return false;
+  }
+  const candidateParts = candidate.split('.').map(Number);
+  const currentParts = current.split('.').map(Number);
+  for (let index = 0; index < 3; index += 1) {
+    if (candidateParts[index] !== currentParts[index]) {
+      return candidateParts[index] > currentParts[index];
+    }
+  }
+  return false;
+}
+
+async function fetchLatestVersion(): Promise<string> {
+  const url = new URL(window.location.href);
+  url.hash = '';
+  url.searchParams.set('__version_check', String(Date.now()));
+  const response = await fetch(url, { cache: 'no-store' });
+  if (!response.ok) throw new Error('Version check failed');
+
+  const html = await response.text();
+  const document = new DOMParser().parseFromString(html, 'text/html');
+  const version = document
+    .querySelector('meta[name="app-version"]')
+    ?.getAttribute('content')
+    ?.trim();
+  if (!version || !VERSION_PATTERN.test(version)) {
+    throw new Error('Latest app version is unavailable');
+  }
+  return version;
 }
 
 /**
- * Gives an installed PWA (or a Safari home-screen bookmark) an explicit update
- * path: check for a new service worker when the app becomes visible, expose an
- * "update ready" state, and reload on demand. The service worker is
- * network-first, so a reload also picks up a new HTML/JS build even when the
- * worker itself did not change.
+ * Reports the deployed app version separately from installing it. A visible
+ * page may check the service worker automatically, but only Update now reloads.
  */
-export function useAppUpdate(): AppUpdateState {
-  const [updateReady, setUpdateReady] = useState(false);
+export function useAppUpdate(currentVersion: string): AppUpdateState {
+  const [workerUpdateReady, setWorkerUpdateReady] = useState(false);
   const [checking, setChecking] = useState(false);
+  const [latestVersion, setLatestVersion] = useState<string | null>(null);
+  const [checkFailed, setCheckFailed] = useState(false);
 
   useEffect(() => {
     if (typeof navigator === 'undefined' || !('serviceWorker' in navigator)) {
@@ -26,7 +64,7 @@ export function useAppUpdate(): AppUpdateState {
     let cancelled = false;
     let registration: ServiceWorkerRegistration | null = null;
     const markReady = () => {
-      if (!cancelled) setUpdateReady(true);
+      if (!cancelled) setWorkerUpdateReady(true);
     };
 
     void navigator.serviceWorker.getRegistration().then((current) => {
@@ -57,23 +95,39 @@ export function useAppUpdate(): AppUpdateState {
     };
   }, []);
 
-  const update = useCallback(async () => {
+  const checkForUpdates = useCallback(async () => {
     setChecking(true);
+    setLatestVersion(null);
+    setCheckFailed(false);
     try {
       if ('serviceWorker' in navigator) {
-        const registration = await navigator.serviceWorker.getRegistration();
-        if (registration) {
-          await Promise.race([
-            registration.update(),
-            new Promise((resolve) => setTimeout(resolve, 3000)),
-          ]);
-        }
+        void navigator.serviceWorker
+          .getRegistration()
+          .then((registration) => registration?.update())
+          .catch(() => {
+            /* Version lookup below still works when service-worker checks fail. */
+          });
       }
+      setLatestVersion(await fetchLatestVersion());
     } catch {
-      /* A failed check still reloads to fetch the latest shell. */
+      setCheckFailed(true);
+    } finally {
+      setChecking(false);
     }
+  }, []);
+
+  const update = useCallback(() => {
     window.location.reload();
   }, []);
 
-  return { updateReady, checking, update };
+  return {
+    updateReady:
+      workerUpdateReady ||
+      (latestVersion !== null && isNewerVersion(latestVersion, currentVersion)),
+    checking,
+    latestVersion,
+    checkFailed,
+    checkForUpdates,
+    update,
+  };
 }

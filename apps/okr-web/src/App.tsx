@@ -92,7 +92,7 @@ export function App({ storage }: AppProps = {}) {
   const appVersion = import.meta.env.PUBLIC_APP_VERSION ?? '0.0.0';
   const buildTime = formatBuildTime(import.meta.env.PUBLIC_BUILD_TIME, intlLocale);
   const install = useInstallPrompt();
-  const appUpdate = useAppUpdate();
+  const appUpdate = useAppUpdate(appVersion);
   const [period, setPeriod] = useState(ALL_PERIODS);
   const [sort, setSort] = useState<ObjectiveSort>('updated');
   // undefined = closed, null = create a new objective, otherwise the one to edit.
@@ -687,18 +687,35 @@ export function App({ storage }: AppProps = {}) {
                       {appUpdate.checking
                         ? t('settings.updateChecking')
                         : appUpdate.updateReady
-                          ? t('settings.updateReady')
-                          : t('settings.updateHint')}
+                          ? appUpdate.latestVersion
+                            ? t('settings.updateAvailable', {
+                                version: appUpdate.latestVersion,
+                              })
+                            : t('settings.updateReady')
+                          : appUpdate.latestVersion
+                            ? t('settings.updateCurrent', {
+                                version: appUpdate.latestVersion,
+                              })
+                            : appUpdate.checkFailed
+                              ? t('settings.updateFailed')
+                              : t('settings.updateHint')}
                     </span>
                     <Button
-                      variant={appUpdate.updateReady ? 'primary' : 'secondary'}
-                      onClick={() => void appUpdate.update()}
+                      variant="secondary"
+                      onClick={() => void appUpdate.checkForUpdates()}
                       disabled={appUpdate.checking}
                     >
-                      {appUpdate.updateReady
-                        ? t('settings.updateNow')
-                        : t('settings.checkUpdates')}
+                      {t('settings.checkUpdates')}
                     </Button>
+                    {appUpdate.updateReady && (
+                      <Button
+                        variant="primary"
+                        onClick={appUpdate.update}
+                        disabled={appUpdate.checking}
+                      >
+                        {t('settings.updateNow')}
+                      </Button>
+                    )}
                   </div>
                 </div>
               </Card>
