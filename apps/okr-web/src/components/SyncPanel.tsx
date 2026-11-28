@@ -10,10 +10,12 @@ import {
   parseSyncLink,
   type RealtimePeer,
   type RealtimeSession,
+  type RealtimeStateMeta,
   type RealtimeStatus,
 } from '../realtime';
 import { SYNC_URL } from '../syncConfig';
 import { QrCode } from './QrCode';
+import { QrScanner } from './QrScanner';
 import styles from './SyncPanel.module.css';
 
 type SyncMode = 'host' | 'join';
@@ -53,7 +55,7 @@ export function SyncPanel({
   createRealtime = createRealtimeSession,
   syncUrl = SYNC_URL,
 }: SyncPanelProps) {
-  const { t } = useOkrI18n();
+  const { t, intlLocale } = useOkrI18n();
   const deviceNameId = useId();
   const [mode, setMode] = useState<SyncMode>(initialMode);
   const [started, setStarted] = useState(false);
@@ -62,9 +64,12 @@ export function SyncPanel({
   const [status, setStatus] = useState<PanelStatus>('idle');
   const [room, setRoom] = useState('');
   const [roomUrl, setRoomUrl] = useState('');
+  const [revision, setRevision] = useState(0);
+  const [updatedAt, setUpdatedAt] = useState<string | null>(null);
   const [joinInput, setJoinInput] = useState('');
   const [error, setError] = useState('');
   const [peers, setPeers] = useState<RealtimePeer[]>([]);
+  const [showScanner, setShowScanner] = useState(false);
   const [copied, setCopied] = useState(false);
   const sessionRef = useRef<RealtimeSession | null>(null);
   const stateRef = useRef(state);
@@ -88,7 +93,9 @@ export function SyncPanel({
     if (open) setStarted(true);
   }, [open]);
 
-  function applyRemoteState(value: unknown) {
+  function applyRemoteState(value: unknown, meta: RealtimeStateMeta) {
+    setRevision(meta.revision);
+    setUpdatedAt(meta.updatedAt);
     if (!isOkrState(value)) return;
     skipSendRef.current = true;
     readyToSendRef.current = true;
@@ -102,12 +109,18 @@ export function SyncPanel({
 
   function connectRoom(nextRoom: string, role: SyncMode) {
     sessionRef.current?.close();
+    setRevision(0);
+    setUpdatedAt(null);
     const session = createRealtime({
       url: syncUrl,
       room: nextRoom,
       device: deviceName,
       ...(role === 'host' ? { initialState: stateRef.current } : {}),
       onState: applyRemoteState,
+      onVersion: (meta) => {
+        setRevision(meta.revision);
+        setUpdatedAt(meta.updatedAt);
+      },
       onPeers: setPeers,
       onStatus: handleStatus,
     });
@@ -130,6 +143,9 @@ export function SyncPanel({
     setPeers([]);
     setError('');
     setCopied(false);
+    setShowScanner(false);
+    setRevision(0);
+    setUpdatedAt(null);
 
     if (mode === 'host') {
       connectRoom(createRoomId(), 'host');
@@ -181,6 +197,7 @@ export function SyncPanel({
     }
     connectRoom(nextRoom, 'join');
     setJoinInput('');
+    setShowScanner(false);
   }
 
   async function copyLink() {
@@ -204,6 +221,9 @@ export function SyncPanel({
     setRoomUrl('');
     setPeers([]);
     setError('');
+    setShowScanner(false);
+    setRevision(0);
+    setUpdatedAt(null);
     if (onDisconnect) onDisconnect();
     else onClose();
   }
@@ -281,6 +301,25 @@ export function SyncPanel({
           </p>
         )}
 
+        {room && (
+          <div className={styles.roomMeta}>
+            <p className={styles.status}>
+              {t('sync.roomId')}:{' '}
+              <code className={styles.roomId}>{room}</code>
+            </p>
+            <p className={styles.status}>
+              {t('sync.dataVersion', { version: revision })}
+            </p>
+            {updatedAt && (
+              <p className={styles.status}>
+                {t('sync.lastUpdated', {
+                  time: new Date(updatedAt).toLocaleTimeString(intlLocale),
+                })}
+              </p>
+            )}
+          </div>
+        )}
+
         {mode === 'host' && roomUrl && (
           <div className={styles.qr}>
             <QrCode
@@ -309,11 +348,46 @@ export function SyncPanel({
                 aria-label={t('sync.roomLink')}
               />
             </label>
+            <p className={styles.hint}>{t('sync.roomLinkHint')}</p>
           </div>
         )}
 
         {mode === 'join' && status === 'idle' && (
           <>
+            {showScanner ? (
+              <div className={styles.scanner}>
+                <QrScanner
+                  onScan={(value) => {
+                    setShowScanner(false);
+                    joinWith(value);
+                  }}
+                  labels={{
+                    scanning: t('sync.scanHint'),
+                    camera: t('sync.camera'),
+                    unavailable: t('sync.cameraUnavailable'),
+                    insecure: t('sync.cameraInsecure'),
+                    permission: t('sync.cameraPermission'),
+                    error: t('sync.cameraError'),
+                    success: t('sync.scanSuccess'),
+                  }}
+                />
+                <Button
+                  size="compact"
+                  variant="secondary"
+                  onClick={() => setShowScanner(false)}
+                >
+                  {t('sync.stopScan')}
+                </Button>
+              </div>
+            ) : (
+              <Button
+                variant="secondary"
+                onClick={() => setShowScanner(true)}
+              >
+                {t('sync.scan')}
+              </Button>
+            )}
+
             <label className={styles.field}>
               <span className={styles.fieldLabel}>{t('sync.roomLink')}</span>
               <TextArea

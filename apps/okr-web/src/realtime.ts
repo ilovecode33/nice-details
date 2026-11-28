@@ -12,6 +12,11 @@ export interface RealtimePeer {
   device: string;
 }
 
+export interface RealtimeStateMeta {
+  revision: number;
+  updatedAt: string | null;
+}
+
 export interface RealtimeOptions {
   /** Base URL of the realtime Worker. */
   url: string;
@@ -19,7 +24,8 @@ export interface RealtimeOptions {
   device: string;
   /** Sent once after the first successful connection (hosts use this). */
   initialState?: OKRState;
-  onState?: (state: unknown) => void;
+  onState?: (state: unknown, meta: RealtimeStateMeta) => void;
+  onVersion?: (meta: RealtimeStateMeta) => void;
   onPeers?: (peers: RealtimePeer[]) => void;
   onStatus?: (status: RealtimeStatus) => void;
   /** Injected in tests. */
@@ -34,9 +40,21 @@ export interface RealtimeSession {
 }
 
 type ServerMessage =
-  | { type: 'welcome'; room: string; peers: RealtimePeer[] }
+  | {
+      type: 'welcome';
+      room: string;
+      peers: RealtimePeer[];
+      revision: number;
+      updatedAt: string | null;
+    }
   | { type: 'peers'; peers: RealtimePeer[] }
-  | { type: 'state'; state: unknown }
+  | {
+      type: 'state';
+      state: unknown;
+      revision: number;
+      updatedAt: string;
+    }
+  | { type: 'ack'; revision: number; updatedAt: string }
   | { type: 'pong' }
   | { type: 'error'; message: string };
 
@@ -110,6 +128,8 @@ function parseServerMessage(raw: unknown): ServerMessage | null {
     peers?: unknown;
     state?: unknown;
     message?: unknown;
+    revision?: unknown;
+    updatedAt?: unknown;
   };
   if (message.type === 'pong') return { type: 'pong' };
   if (message.type === 'welcome' || message.type === 'peers') {
@@ -121,11 +141,29 @@ function parseServerMessage(raw: unknown): ServerMessage | null {
           type: 'welcome',
           room: typeof message.room === 'string' ? message.room : '',
           peers,
+          revision:
+            typeof message.revision === 'number' ? message.revision : 0,
+          updatedAt:
+            typeof message.updatedAt === 'string' ? message.updatedAt : null,
         }
       : { type: 'peers', peers };
   }
   if (message.type === 'state') {
-    return { type: 'state', state: message.state };
+    return {
+      type: 'state',
+      state: message.state,
+      revision: typeof message.revision === 'number' ? message.revision : 0,
+      updatedAt:
+        typeof message.updatedAt === 'string' ? message.updatedAt : '',
+    };
+  }
+  if (message.type === 'ack') {
+    return {
+      type: 'ack',
+      revision: typeof message.revision === 'number' ? message.revision : 0,
+      updatedAt:
+        typeof message.updatedAt === 'string' ? message.updatedAt : '',
+    };
   }
   if (message.type === 'error') {
     return {
@@ -204,8 +242,26 @@ class RealtimeClient implements RealtimeSession {
       if (!message) return;
       if (message.type === 'welcome' || message.type === 'peers') {
         this.options.onPeers?.(message.peers);
+        if (message.type === 'welcome') {
+          this.options.onVersion?.({
+            revision: message.revision,
+            updatedAt: message.updatedAt,
+          });
+        }
       } else if (message.type === 'state') {
-        this.options.onState?.(message.state);
+        this.options.onState?.(message.state, {
+          revision: message.revision,
+          updatedAt: message.updatedAt,
+        });
+        this.options.onVersion?.({
+          revision: message.revision,
+          updatedAt: message.updatedAt,
+        });
+      } else if (message.type === 'ack') {
+        this.options.onVersion?.({
+          revision: message.revision,
+          updatedAt: message.updatedAt,
+        });
       }
     });
     socket.addEventListener('close', () => this.scheduleReconnect(socket));

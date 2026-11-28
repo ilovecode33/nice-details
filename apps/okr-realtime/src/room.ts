@@ -12,6 +12,12 @@ interface SocketAttachment {
   device: string;
 }
 
+interface RoomRecord {
+  state: Record<string, unknown>;
+  revision: number;
+  updatedAt: string;
+}
+
 function send(socket: WebSocket, message: unknown): void {
   try {
     socket.send(JSON.stringify(message));
@@ -45,15 +51,22 @@ export class SyncRoom {
       device: 'Device',
     } satisfies SocketAttachment);
 
+    const stored = await this.state.storage.get<RoomRecord>('room');
     send(server, {
       type: 'welcome',
       room: connection.room,
       peers: this.peers(),
+      revision: stored?.revision ?? 0,
+      updatedAt: stored?.updatedAt ?? null,
     });
-    const stored = await this.state.storage.get<Record<string, unknown>>(
-      'state',
-    );
-    if (stored) send(server, { type: 'state', state: stored });
+    if (stored) {
+      send(server, {
+        type: 'state',
+        state: stored.state,
+        revision: stored.revision,
+        updatedAt: stored.updatedAt,
+      });
+    }
     await this.state.storage.deleteAlarm();
 
     return new Response(null, { status: 101, webSocket: client });
@@ -95,9 +108,25 @@ export class SyncRoom {
       return;
     }
 
-    await this.state.storage.put('state', parsed.state);
+    const current = await this.state.storage.get<RoomRecord>('room');
+    const revision = (current?.revision ?? 0) + 1;
+    const updatedAt = new Date().toISOString();
+    const record: RoomRecord = {
+      state: parsed.state,
+      revision,
+      updatedAt,
+    };
+    await this.state.storage.put('room', record);
+    send(socket, { type: 'ack', revision, updatedAt });
     for (const target of this.state.getWebSockets()) {
-      if (target !== socket) send(target, { type: 'state', state: parsed.state });
+      if (target !== socket) {
+        send(target, {
+          type: 'state',
+          state: record.state,
+          revision,
+          updatedAt,
+        });
+      }
     }
   }
 

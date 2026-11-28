@@ -11,9 +11,21 @@ export type RealtimeClientMessage =
   | { type: 'ping' };
 
 export type RealtimeServerMessage =
-  | { type: 'welcome'; room: string; peers: RealtimePeer[] }
+  | {
+      type: 'welcome';
+      room: string;
+      peers: RealtimePeer[];
+      revision: number;
+      updatedAt: string | null;
+    }
   | { type: 'peers'; peers: RealtimePeer[] }
-  | { type: 'state'; state: Record<string, unknown> }
+  | {
+      type: 'state';
+      state: Record<string, unknown>;
+      revision: number;
+      updatedAt: string;
+    }
+  | { type: 'ack'; revision: number; updatedAt: string }
   | { type: 'pong' }
   | { type: 'error'; message: string };
 

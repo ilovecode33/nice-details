@@ -6,13 +6,14 @@ import {
   type RealtimeOptions,
   type RealtimePeer,
   type RealtimeSession,
+  type RealtimeStateMeta,
   type RealtimeStatus,
 } from '../realtime';
 import { DICTIONARIES } from '../i18n';
 import { SyncPanel } from './SyncPanel';
 
 type FakeSession = RealtimeSession & {
-  emitState: (state: unknown) => void;
+  emitState: (state: unknown, meta?: RealtimeStateMeta) => void;
   emitPeers: (peers: RealtimePeer[]) => void;
   emitStatus: (status: RealtimeStatus) => void;
   sent: OKRState[];
@@ -44,8 +45,9 @@ function createFakeSession(
       options.onStatus?.('closed');
     },
     sent,
-    emitState(state) {
-      options.onState?.(state);
+    emitState(state, meta = { revision: 1, updatedAt: '2026-11-28T00:00:00.000Z' }) {
+      options.onState?.(state, meta);
+      options.onVersion?.(meta);
     },
     emitPeers(peers) {
       options.onPeers?.(peers);
@@ -147,6 +149,21 @@ describe('SyncPanel', () => {
     });
 
     expect(onRemoteState).toHaveBeenCalledWith(remote);
+  });
+
+  test('shows the room id and data version', async () => {
+    const { getSession, getSessionOptions } = renderPanel();
+    await screen.findByText('Connected. Changes sync in realtime.');
+
+    const room = getSessionOptions()?.room ?? '';
+    expect(screen.getByText(room, { selector: 'code' })).toBeTruthy();
+    act(() => {
+      getSession()?.emitState(
+        { version: 1, objectives: [] },
+        { revision: 3, updatedAt: '2026-11-28T00:00:00.000Z' },
+      );
+    });
+    expect(screen.getByText('Data version 3')).toBeTruthy();
   });
 
   test('lists connected devices', async () => {

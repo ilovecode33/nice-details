@@ -26,6 +26,19 @@
   min-width: 0;
 }
 
+.roomMeta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.roomId {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  overflow-wrap: anywhere;
+}
+
 .qr {
   display: flex;
   flex-direction: column;
