@@ -8,7 +8,7 @@ import { comboboxSemantics, enabledIndexes, optionSemantics, selectionReducer } 
 import type { SelectionEvent, SelectionState } from '@ilovecode33/ui-types';
 import { Children, isValidElement, useEffect, useId, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent, type ReactNode } from 'react';
 import { Deformable } from './Deformable';
-import { LONG_PRESS_MS } from '../press';
+import { SELECT_LONG_PRESS_MS } from '../press';
 
 /**
  * Derives the option list from element children: skips non-elements and
@@ -354,7 +354,7 @@ export function Select<T extends string = string>({
     <Deformable
       enabled={deform && !disabled}
       touchAction="pan-y"
-      longPressMs={LONG_PRESS_MS}
+      longPressMs={SELECT_LONG_PRESS_MS}
       onGesture={onTriggerGesture}
       style={{ zIndex: state.open ? 50 : undefined }}
     >

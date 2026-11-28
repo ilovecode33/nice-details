@@ -4,7 +4,7 @@ import { toggleReducer, toggleSemantics } from '@ilovecode33/ui-core';
 import { useState } from 'react';
 import type { GestureSnapshot } from '@ilovecode33/ui-types';
 import { Deformable } from './Deformable';
-import { LONG_PRESS_MS } from '../press';
+import { SWITCH_LONG_PRESS_MS } from '../press';
 
 // The knob's full left-to-right travel inside the track.
 const KNOB_TRAVEL = 20;
@@ -69,7 +69,7 @@ export function Switch({
     <Deformable
       enabled={deform}
       touchAction="pan-y"
-      longPressMs={LONG_PRESS_MS}
+      longPressMs={SWITCH_LONG_PRESS_MS}
       onGesture={handleGesture}
     >
       <button
