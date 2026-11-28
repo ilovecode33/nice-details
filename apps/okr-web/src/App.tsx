@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   AccentSwitcher,
   ActivityIndicator,
@@ -43,10 +43,23 @@ import {
   Settings,
   Target,
 } from 'lucide-react';
-import { ObjectiveCard } from './components/ObjectiveCard';
-import { ObjectiveEditor } from './components/ObjectiveEditor';
-import { SyncPanel } from './components/SyncPanel';
 import { SyncStatus } from './components/SyncStatus';
+
+const ObjectiveCard = lazy(() =>
+  import('./components/ObjectiveCard').then((module) => ({
+    default: module.ObjectiveCard,
+  })),
+);
+const ObjectiveEditor = lazy(() =>
+  import('./components/ObjectiveEditor').then((module) => ({
+    default: module.ObjectiveEditor,
+  })),
+);
+const SyncPanel = lazy(() =>
+  import('./components/SyncPanel').then((module) => ({
+    default: module.SyncPanel,
+  })),
+);
 import { LOCALES, LOCALE_NAMES, useOkrI18n } from './i18n';
 import { formatBuildTime } from './buildInfo';
 import { useAppUpdate } from './useAppUpdate';
@@ -550,31 +563,33 @@ export function App({ storage }: AppProps = {}) {
                   </div>
                 </Card>
               ) : (
-                <section className={styles.list} aria-label={t('list.aria')}>
-                  {visible.map((objective) => (
-                    <ObjectiveCard
-                      key={objective.id}
-                      objective={objective}
-                      onEdit={() => setEditing(objective)}
-                      onDelete={() => askToDeleteObjective(objective)}
-                      onUpdateKr={(krId, current) =>
-                        patchObjective(objective.id, (currentObjective) => ({
-                          ...currentObjective,
-                          keyResults: currentObjective.keyResults.map((kr) =>
-                            kr.id === krId
-                              ? {
-                                  ...kr,
-                                  current,
-                                  updatedAt: new Date().toISOString(),
-                                }
-                              : kr,
-                          ),
-                        }))
-                      }
-                      onDeleteKr={(krId) => askToDeleteKr(objective, krId)}
-                    />
-                  ))}
-                </section>
+                <Suspense fallback={<ActivityIndicator label={t('loading')} />}>
+                  <section className={styles.list} aria-label={t('list.aria')}>
+                    {visible.map((objective) => (
+                      <ObjectiveCard
+                        key={objective.id}
+                        objective={objective}
+                        onEdit={() => setEditing(objective)}
+                        onDelete={() => askToDeleteObjective(objective)}
+                        onUpdateKr={(krId, current) =>
+                          patchObjective(objective.id, (currentObjective) => ({
+                            ...currentObjective,
+                            keyResults: currentObjective.keyResults.map((kr) =>
+                              kr.id === krId
+                                ? {
+                                    ...kr,
+                                    current,
+                                    updatedAt: new Date().toISOString(),
+                                  }
+                                : kr,
+                            ),
+                          }))
+                        }
+                        onDeleteKr={(krId) => askToDeleteKr(objective, krId)}
+                      />
+                    ))}
+                  </section>
+                </Suspense>
               )}
             </>
           )}
@@ -780,33 +795,37 @@ export function App({ storage }: AppProps = {}) {
       </div>
 
       {state && (
-        <SyncPanel
-          key={syncLink || 'sync-manual'}
-          open={syncOpen}
-          onClose={() => setSyncOpen(false)}
-          onDisconnect={() => {
-            setSyncOpen(false);
-            setSyncLink('');
-          }}
-          state={state}
-          initialRoom={syncLink}
-          onStatusChange={setSyncStatus}
-          loadStoredRoom={loadStoredRoom}
-          saveStoredRoom={saveStoredRoom}
-          clearStoredRoom={clearStoredRoom}
-          loadStoredDeviceName={loadStoredDeviceName}
-          saveStoredDeviceName={saveStoredDeviceName}
-          onRemoteState={(next) => setState(next)}
-        />
+        <Suspense fallback={null}>
+          <SyncPanel
+            key={syncLink || 'sync-manual'}
+            open={syncOpen}
+            onClose={() => setSyncOpen(false)}
+            onDisconnect={() => {
+              setSyncOpen(false);
+              setSyncLink('');
+            }}
+            state={state}
+            initialRoom={syncLink}
+            onStatusChange={setSyncStatus}
+            loadStoredRoom={loadStoredRoom}
+            saveStoredRoom={saveStoredRoom}
+            clearStoredRoom={clearStoredRoom}
+            loadStoredDeviceName={loadStoredDeviceName}
+            saveStoredDeviceName={saveStoredDeviceName}
+            onRemoteState={(next) => setState(next)}
+          />
+        </Suspense>
       )}
 
       {state && editing !== undefined && (
-        <ObjectiveEditor
-          key={editing?.id ?? 'new'}
-          objective={editing}
-          onSave={saveObjective}
-          onClose={() => setEditing(undefined)}
-        />
+        <Suspense fallback={null}>
+          <ObjectiveEditor
+            key={editing?.id ?? 'new'}
+            objective={editing}
+            onSave={saveObjective}
+            onClose={() => setEditing(undefined)}
+          />
+        </Suspense>
       )}
 
       {confirmation && (

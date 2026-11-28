@@ -154,7 +154,7 @@ describe('SyncPanel', () => {
     const { getSessionOptions } = renderPanel();
     await startHost();
 
-    expect(screen.getByRole('img', { name: 'Sync QR code' })).toBeTruthy();
+    expect(await screen.findByRole('img', { name: 'Sync QR code' })).toBeTruthy();
     expect(
       (screen.getByLabelText('Room link') as HTMLTextAreaElement).value,
     ).toContain('#sync=');

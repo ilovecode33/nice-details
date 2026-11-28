@@ -122,7 +122,16 @@ export function useAppUpdate(currentVersion: string): AppUpdateState {
   }, [checkForUpdates]);
 
   const update = useCallback(() => {
-    window.location.reload();
+    const refreshUrl = new URL(window.location.href);
+    refreshUrl.pathname = '/';
+    refreshUrl.hash = '';
+    refreshUrl.search = '';
+    refreshUrl.searchParams.set('__refresh', String(Date.now()));
+    void fetch(refreshUrl, { cache: 'no-store' })
+      .catch(() => undefined)
+      .finally(() => {
+        window.location.reload();
+      });
   }, []);
 
   return {
