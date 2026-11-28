@@ -3,6 +3,7 @@ import { toggleReducer, toggleSemantics } from '@ilovecode33/ui-core';
 
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 import { Deformable } from './Deformable';
+import { LONG_PRESS_MS, LONG_PRESS_SLOP } from '../press';
 
 // px the pointer must travel before the press becomes a drag, and the knob's
 // full left-to-right travel inside the track.
@@ -11,9 +12,10 @@ const KNOB_TRAVEL = 20;
 
 /**
  * Toggle switch with `aria-checked` synced to the controlled `checked` prop.
- * Clicking calls `onChange` with the toggled value. Dragging the knob follows
- * the pointer (with `Deformable` supplying stretch/squash feedback) and commits
- * the side the knob ends on when released; a sub-threshold press stays a click.
+ * Clicking calls `onChange` with the toggled value. A touch drag arms only
+ * after a long press, so swiping the page never flips the switch; dragging the
+ * knob then follows the pointer (with `Deformable` supplying stretch/squash
+ * feedback) and commits the side it ends on. Mouse drags stay immediate.
  * `label` is supplied by props and used as the accessible name.
  */
 export function Switch({
@@ -36,17 +38,36 @@ export function Switch({
   const dragRef = useRef<{
     pointerId: number;
     startX: number;
+    startY: number;
     moved: boolean;
+    armed: boolean;
     base: number;
   } | null>(null);
   const detachRef = useRef<(() => void) | null>(null);
+  const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const detachDrag = () => {
     detachRef.current?.();
     detachRef.current = null;
   };
 
-  useEffect(() => () => detachDrag(), []);
+  const clearLongPress = () => {
+    if (longPressTimerRef.current !== null) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+  };
+
+  useEffect(
+    () => () => {
+      detachDrag();
+      if (longPressTimerRef.current !== null) {
+        clearTimeout(longPressTimerRef.current);
+        longPressTimerRef.current = null;
+      }
+    },
+    [],
+  );
 
   /** Blocks the synthetic click that follows a drag, without touching later taps. */
   const blockNextClick = () => {
@@ -64,16 +85,39 @@ export function Switch({
   const onPointerDown = (event: ReactPointerEvent<HTMLButtonElement>) => {
     if (event.pointerType === 'mouse' && event.button !== 0) return;
     detachDrag();
+    clearLongPress();
+    const isTouch = event.pointerType === 'touch';
     dragRef.current = {
       pointerId: event.pointerId,
       startX: event.clientX,
+      startY: event.clientY,
       moved: false,
+      armed: !isTouch,
       base,
     };
+    if (isTouch) {
+      // A swipe that starts on the switch must scroll the page. Dragging the
+      // knob only arms after a held press.
+      longPressTimerRef.current = setTimeout(() => {
+        longPressTimerRef.current = null;
+        if (dragRef.current) dragRef.current.armed = true;
+      }, LONG_PRESS_MS);
+    }
 
     const onMove = (moveEvent: PointerEvent) => {
       const drag = dragRef.current;
       if (!drag || moveEvent.pointerId !== drag.pointerId) return;
+      if (!drag.armed) {
+        if (
+          Math.abs(moveEvent.clientX - drag.startX) > LONG_PRESS_SLOP ||
+          Math.abs(moveEvent.clientY - drag.startY) > LONG_PRESS_SLOP
+        ) {
+          clearLongPress();
+          dragRef.current = null;
+          detachDrag();
+        }
+        return;
+      }
       const raw = moveEvent.clientX - drag.startX;
       if (!drag.moved && Math.abs(raw) >= DRAG_START) drag.moved = true;
       if (drag.moved) setDragRaw(raw);
@@ -83,6 +127,7 @@ export function Switch({
       const drag = dragRef.current;
       if (!drag || upEvent.pointerId !== drag.pointerId) return;
       dragRef.current = null;
+      clearLongPress();
       detachDrag();
       if (!drag.moved || upEvent.type !== 'pointerup') {
         setDragRaw(null);
@@ -119,7 +164,7 @@ export function Switch({
   const previewOn = dragging ? knobTranslate > KNOB_TRAVEL / 2 : checked;
 
   return (
-    <Deformable enabled={deform} touchAction="pan-y">
+    <Deformable enabled={deform} touchAction="pan-y" longPressMs={LONG_PRESS_MS}>
       <button
         type="button"
         role={semantics.role}

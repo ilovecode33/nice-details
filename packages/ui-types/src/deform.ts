@@ -37,6 +37,11 @@ export interface DeformOptions {
   enabled?: boolean;
   /** Override `touch-action`; by axis: x → pan-y, y → pan-x, both → none. */
   touchAction?: CSSProperties['touchAction'];
+  /**
+   * Touch press (ms) that arms drag feedback. Until it elapses, movement
+   * scrolls the page and never deforms the control. Mouse input is immediate.
+   */
+  longPressMs?: number;
 }
 
 export interface DeformResult {

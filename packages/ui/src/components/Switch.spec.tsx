@@ -1,5 +1,5 @@
-import { describe, expect, test } from '@rstest/core';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { describe, expect, rs, test } from '@rstest/core';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { useState } from 'react';
 import { expectComponentSnapshot } from '../test-utils/snapshot';
 import { Switch } from './Switch';
@@ -17,6 +17,13 @@ const pointer = {
   button: 0,
 } as const;
 
+const touch = {
+  pointerId: 2,
+  pointerType: 'touch',
+  isPrimary: true,
+  button: 0,
+} as const;
+
 /** The component listens for move/up on document, outside the React tree. */
 const move = (clientX: number) =>
   fireEvent.pointerMove(document, { ...pointer, clientX });
@@ -27,6 +34,40 @@ const getKnob = (control: HTMLElement) =>
   control.querySelector('[class*="ui-switch__knob"]') as HTMLElement;
 
 describe('Switch', () => {
+  test('a touch swipe scrolls instead of flipping the switch', () => {
+    render(<SwitchDemo />);
+    const control = screen.getByRole('switch', { name: 'Wifi' });
+
+    fireEvent.pointerDown(control, { ...touch, clientX: 100 });
+    fireEvent.pointerMove(document, { ...touch, clientX: 160 });
+    fireEvent.pointerUp(document, { ...touch, clientX: 160 });
+
+    expect(control).toHaveAttribute('aria-checked', 'false');
+  });
+
+  test('a held touch then drag flips the switch', () => {
+    rs.useFakeTimers();
+    try {
+      render(<SwitchDemo />);
+      const control = screen.getByRole('switch', { name: 'Wifi' });
+
+      fireEvent.pointerDown(control, { ...touch, clientX: 100 });
+      act(() => {
+        rs.advanceTimersByTime(500);
+      });
+      fireEvent.pointerMove(document, { ...touch, clientX: 130 });
+      fireEvent.pointerUp(document, { ...touch, clientX: 130 });
+      // Flush the deferred click blocker so it cannot leak into the next test.
+      act(() => {
+        rs.advanceTimersByTime(0);
+      });
+
+      expect(control).toHaveAttribute('aria-checked', 'true');
+    } finally {
+      rs.useRealTimers();
+    }
+  });
+
   test('exposes switch semantics and syncs aria-checked with the visual state', () => {
     render(<SwitchDemo />);
     const control = screen.getByRole('switch', { name: 'Wifi' });

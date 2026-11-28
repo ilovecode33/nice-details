@@ -2,8 +2,9 @@ import type { DeformOptions, DeformResult } from '@ilovecode33/ui-types';
 import { deformReducer } from '@ilovecode33/ui-core';
 import type { DeformState } from '@ilovecode33/ui-types';
 import { MOTION } from '@ilovecode33/ui-tokens';
-import { useReducer, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react';
+import { useEffect, useReducer, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react';
 import { usePrefersReducedMotion } from './usePrefersReducedMotion';
+import { LONG_PRESS_SLOP } from '../press';
 
 const num = (value: string) => Number.parseFloat(value);
 const DEFAULT_MAX = num(MOTION.deformShift);
@@ -24,7 +25,8 @@ function initialState(): DeformState {
  * Pointer-drag feedback returning handlers for the target, a transform/glow
  * style, the deform state, and a `pulse` counter incremented per press. `max`
  * is the px resistance limit, `axis` selects responsive directions, `enabled`
- * disables feedback, and `touchAction` overrides the axis-derived default.
+ * disables feedback, `touchAction` overrides the axis-derived default, and
+ * `longPressMs` delays touch gestures so page swipes still scroll.
  * Inactive under reduced motion; capture starts after a 4px move, and drags or
  * outside releases suppress the following click so nested controls still tap.
  */
@@ -33,6 +35,7 @@ export function useDeform({
   axis = 'both',
   enabled = true,
   touchAction,
+  longPressMs = 0,
 }: DeformOptions = {}): DeformResult {
   const [state, dispatch] = useReducer(deformReducer, undefined, initialState);
   const [glow, setGlow] = useState({ x: 50, y: 50, pulse: 0 });
@@ -41,39 +44,88 @@ export function useDeform({
   const moved = useRef(false);
   const captured = useRef<number | null>(null);
   const cleanupTouch = useRef<(() => void) | null>(null);
+  const pending = useRef<{
+    pointerId: number;
+    x: number;
+    y: number;
+    timer: ReturnType<typeof setTimeout>;
+  } | null>(null);
   const reduced = usePrefersReducedMotion();
   const active = enabled && !reduced;
 
+  useEffect(
+    () => () => {
+      if (pending.current) clearTimeout(pending.current.timer);
+      pending.current = null;
+      cleanupTouch.current?.();
+    },
+    [],
+  );
+
   const onPointerDown = (event: ReactPointerEvent<HTMLElement>) => {
     if (!active || (event.pointerType === 'mouse' && event.button !== 0)) return;
-    origin.current = { x: event.clientX, y: event.clientY };
-    const rect = event.currentTarget.getBoundingClientRect();
+    const element = event.currentTarget;
+    const { clientX, clientY, pointerId, pointerType } = event;
+    const rect = element.getBoundingClientRect();
     size.current = { width: rect.width, height: rect.height };
     const width = rect.width || 1;
     const height = rect.height || 1;
     setGlow((current) => ({
-      x: clampPercent(((event.clientX - rect.left) / width) * 100),
-      y: clampPercent(((event.clientY - rect.top) / height) * 100),
+      x: clampPercent(((clientX - rect.left) / width) * 100),
+      y: clampPercent(((clientY - rect.top) / height) * 100),
       pulse: current.pulse + 1,
     }));
     moved.current = false;
-    // Touch gestures must not be stolen by the page scroller mid-drag.
-    if (event.pointerType === 'touch') {
-      const element = event.currentTarget;
-      const preventScroll = (touchEvent: TouchEvent) => {
-        if (origin.current) touchEvent.preventDefault();
+
+    const start = () => {
+      origin.current = { x: clientX, y: clientY };
+      // Touch gestures must not be stolen by the page scroller mid-drag.
+      if (pointerType === 'touch') {
+        const preventScroll = (touchEvent: TouchEvent) => {
+          if (origin.current) touchEvent.preventDefault();
+        };
+        element.addEventListener('touchmove', preventScroll, { passive: false });
+        cleanupTouch.current = () =>
+          element.removeEventListener('touchmove', preventScroll);
+      }
+      // Do not capture on pointerdown: capture retargets the subsequent click to
+      // this container, which would break onClick on nested controls (e.g. the
+      // footer dock buttons). Capture only once a real drag starts.
+      dispatch({ type: 'start' });
+    };
+
+    if (pointerType === 'touch' && longPressMs > 0) {
+      // A touch that may be a page swipe waits. Movement cancels it; only a held
+      // press arms the drag and blocks scrolling.
+      if (pending.current) clearTimeout(pending.current.timer);
+      pending.current = {
+        pointerId,
+        x: clientX,
+        y: clientY,
+        timer: setTimeout(() => {
+          pending.current = null;
+          start();
+        }, longPressMs),
       };
-      element.addEventListener('touchmove', preventScroll, { passive: false });
-      cleanupTouch.current = () =>
-        element.removeEventListener('touchmove', preventScroll);
+      return;
     }
-    // Do not capture on pointerdown: capture retargets the subsequent click to
-    // this container, which would break onClick on nested controls (e.g. the
-    // footer dock buttons). Capture only once a real drag starts.
-    dispatch({ type: 'start' });
+
+    start();
   };
 
   const onPointerMove = (event: ReactPointerEvent<HTMLElement>) => {
+    const waiting = pending.current;
+    if (waiting) {
+      if (waiting.pointerId !== event.pointerId) return;
+      if (
+        Math.abs(event.clientX - waiting.x) > LONG_PRESS_SLOP ||
+        Math.abs(event.clientY - waiting.y) > LONG_PRESS_SLOP
+      ) {
+        clearTimeout(waiting.timer);
+        pending.current = null;
+      }
+      return;
+    }
     if (!origin.current) return;
     if (
       !moved.current &&
@@ -98,6 +150,11 @@ export function useDeform({
   };
 
   const end = (event: ReactPointerEvent<HTMLElement>) => {
+    if (pending.current) {
+      clearTimeout(pending.current.timer);
+      pending.current = null;
+      return;
+    }
     if (!origin.current) return;
     const element = event.currentTarget as HTMLElement;
     const hit = document.elementFromPoint(event.clientX, event.clientY);

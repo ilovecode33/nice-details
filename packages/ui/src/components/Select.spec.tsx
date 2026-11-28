@@ -1,5 +1,5 @@
-import { describe, expect, test } from '@rstest/core';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { describe, expect, rs, test } from '@rstest/core';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { Select } from './Select';
 import { expectComponentSnapshot } from '../test-utils/snapshot';
 
@@ -49,6 +49,13 @@ describe('Select', () => {
     button: 0,
   } as const;
 
+  const touch = {
+    pointerId: 2,
+    pointerType: 'touch',
+    isPrimary: true,
+    button: 0,
+  } as const;
+
   /** Makes hit-testing deterministic; returns a restore function. */
   const stubElementFromPoint = (element: Element | null) => {
     const original = document.elementFromPoint;
@@ -57,6 +64,50 @@ describe('Select', () => {
       document.elementFromPoint = original;
     };
   };
+
+  test('a touch swipe scrolls the page instead of opening the list', () => {
+    renderSelect();
+    const trigger = screen.getByRole('combobox', { name: 'Fruit' });
+
+    fireEvent.pointerDown(trigger, { ...touch, clientY: 150 });
+    fireEvent.pointerMove(document, { ...touch, clientY: 220 });
+    expect(screen.queryByRole('listbox')).toBeNull();
+
+    fireEvent.pointerUp(document, { ...touch, clientY: 220 });
+    expect(screen.queryByRole('listbox')).toBeNull();
+  });
+
+  test('a held touch then drag opens the list', () => {
+    rs.useFakeTimers();
+    try {
+      renderSelect();
+      const trigger = screen.getByRole('combobox', { name: 'Fruit' });
+
+      fireEvent.pointerDown(trigger, { ...touch, clientY: 150 });
+      act(() => {
+        rs.advanceTimersByTime(500);
+      });
+      fireEvent.pointerMove(document, { ...touch, clientY: 220 });
+
+      expect(screen.getByRole('listbox')).toHaveAttribute(
+        'data-ui',
+        'select__menu',
+      );
+    } finally {
+      rs.useRealTimers();
+    }
+  });
+
+  test('a touch tap still opens the list', () => {
+    renderSelect();
+    const trigger = screen.getByRole('combobox', { name: 'Fruit' });
+
+    fireEvent.pointerDown(trigger, { ...touch, clientY: 150 });
+    fireEvent.pointerUp(document, { ...touch, clientY: 150 });
+    fireEvent.click(trigger);
+
+    expect(screen.getByRole('listbox')).toBeTruthy();
+  });
 
   test('opens upward when dragged above the trigger', () => {
     renderSelect();

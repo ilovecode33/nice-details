@@ -4,6 +4,7 @@ import { comboboxSemantics, enabledIndexes, optionSemantics, selectionReducer } 
 import type { SelectionEvent, SelectionState } from '@ilovecode33/ui-types';
 import { Children, isValidElement, useEffect, useId, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent, type ReactNode } from 'react';
 import { Deformable } from './Deformable';
+import { LONG_PRESS_MS, LONG_PRESS_SLOP } from '../press';
 
 /**
  * Derives the option list from element children: skips non-elements and
@@ -52,6 +53,8 @@ type DragGesture = {
   listOpen: boolean;
   /** Sticky: once horizontal intent wins, the rest of the gesture is ignored. */
   horizontal: boolean;
+  /** Touch drags stay inert until a long press; mouse drags arm immediately. */
+  armed: boolean;
 };
 
 /**
@@ -60,7 +63,9 @@ type DragGesture = {
  * Controlled via `value` or uncontrolled via `defaultValue`; closes on outside
  * pointerdown or Escape (focus returns to the trigger on select and Escape).
  * A vertical-dominant trigger drag opens the menu toward the drag; a
- * horizontal-dominant drag is ignored; a plain click toggles.
+ * horizontal-dominant drag is ignored; a plain click toggles. On touch the drag
+ * arms only after a long press, so swiping the page over the trigger scrolls
+ * instead of opening the menu.
  * `placeholder` defaults to 'Select...'; labels come from props or children.
  */
 export function Select<T extends string = string>({
@@ -152,6 +157,7 @@ export function Select<T extends string = string>({
   const dragRef = useRef<DragGesture | null>(null);
   const suppressClickRef = useRef(false);
   const detachDragRef = useRef<(() => void) | null>(null);
+  const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Press-and-slide inside an open menu: the option under the pointer becomes
   // active as the finger moves, and releasing applies it and closes the list.
   const menuDragRef = useRef<{
@@ -173,12 +179,23 @@ export function Select<T extends string = string>({
     detachMenuDragRef.current = null;
   };
 
+  const clearLongPress = () => {
+    if (longPressTimerRef.current !== null) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+  };
+
   useEffect(() => {
     return () => {
       detachDragRef.current?.();
       detachDragRef.current = null;
       detachMenuDragRef.current?.();
       detachMenuDragRef.current = null;
+      if (longPressTimerRef.current !== null) {
+        clearTimeout(longPressTimerRef.current);
+        longPressTimerRef.current = null;
+      }
     };
   }, []);
 
@@ -197,6 +214,8 @@ export function Select<T extends string = string>({
     if (disabled || (event.pointerType === 'mouse' && event.button !== 0)) return;
 
     detachDragListeners();
+    clearLongPress();
+    const isTouch = event.pointerType === 'touch';
     dragRef.current = {
       pointerId: event.pointerId,
       startX: event.clientX,
@@ -204,16 +223,39 @@ export function Select<T extends string = string>({
       direction: null,
       listOpen: state.open,
       horizontal: false,
+      armed: !isTouch,
     };
+    if (isTouch) {
+      // A swipe that starts on the control keeps scrolling the page. Only a
+      // held press arms the vertical drag that opens the list.
+      longPressTimerRef.current = setTimeout(() => {
+        longPressTimerRef.current = null;
+        if (dragRef.current) dragRef.current.armed = true;
+      }, LONG_PRESS_MS);
+    }
 
     const onMove = (moveEvent: PointerEvent) => {
       const drag = dragRef.current;
       if (!drag || moveEvent.pointerId !== drag.pointerId) return;
-      // A horizontal intent is sticky: ignore every later move of this gesture.
-      if (drag.horizontal) return;
 
       const deltaX = moveEvent.clientX - drag.startX;
       const deltaY = moveEvent.clientY - drag.startY;
+
+      if (!drag.armed) {
+        if (
+          Math.abs(deltaX) > LONG_PRESS_SLOP ||
+          Math.abs(deltaY) > LONG_PRESS_SLOP
+        ) {
+          // The finger is swiping, not pressing: hand the gesture back to the page.
+          clearLongPress();
+          dragRef.current = null;
+          detachDragListeners();
+        }
+        return;
+      }
+
+      // A horizontal intent is sticky: ignore every later move of this gesture.
+      if (drag.horizontal) return;
 
       if (!drag.direction) {
         // Decide intent once: the first move with clear dominance wins.
@@ -261,6 +303,7 @@ export function Select<T extends string = string>({
       const drag = dragRef.current;
       if (!drag || endEvent.pointerId !== drag.pointerId) return;
       dragRef.current = null;
+      clearLongPress();
       detachDragListeners();
       // A vertical drag released over an option commits it and closes the menu.
       if (endEvent.type !== 'pointerup' || !drag.direction) return;
@@ -412,6 +455,7 @@ export function Select<T extends string = string>({
     <Deformable
       enabled={deform}
       touchAction="pan-y"
+      longPressMs={LONG_PRESS_MS}
       style={{ zIndex: state.open ? 50 : undefined }}
     >
     <div

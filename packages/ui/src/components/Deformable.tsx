@@ -18,6 +18,7 @@ export function Deformable({
   axis,
   enabled,
   touchAction,
+  longPressMs,
   onDragStateChange,
   style,
   ...rest
@@ -26,9 +27,10 @@ export function Deformable({
   axis?: DeformAxis;
   enabled?: boolean;
   touchAction?: CSSProperties['touchAction'];
+  longPressMs?: number;
   onDragStateChange?: (state: DeformState) => void;
 }) {
-  const deform = useDeform({ max, axis, enabled, touchAction });
+  const deform = useDeform({ max, axis, enabled, touchAction, longPressMs });
   useEffect(() => {
     onDragStateChange?.(deform.state);
   }, [deform.state, onDragStateChange]);
