@@ -95,3 +95,15 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ steps.changesets.outputs.pullRequestNumber }}
         run: gh pr merge "$PR_NUMBER" --squash --delete-branch
+
+      # The version commit is pushed by GITHUB_TOKEN, so it does not trigger the
+      # deploy workflows on its own. Without this dispatch, production keeps the
+      # pre-bump build until the next feature deploy and the About version lags.
+      - name: Deploy the version commit
+        if: steps.changesets.outputs.pullRequestNumber != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Let the squash merge land on main before dispatching against it.
+          sleep 5
+          gh workflow run deploy-okr-web.yml --ref main
