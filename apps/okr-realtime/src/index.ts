@@ -1,10 +1,10 @@
 import { isAllowedOrigin, parseConnection } from './protocol';
-import { PairRoom } from './room';
+import { SyncRoom } from './room';
 
-export { PairRoom };
+export { SyncRoom };
 
 export interface Env {
-  PAIR_ROOM: DurableObjectNamespace;
+  SYNC_ROOM: DurableObjectNamespace;
 }
 
 const CORS_HEADERS = {
@@ -34,10 +34,10 @@ export default {
     }
     const connection = parseConnection(url);
     if (!connection) {
-      return new Response('Invalid room or role', { status: 400 });
+      return new Response('Invalid room', { status: 400 });
     }
 
-    const id = env.PAIR_ROOM.idFromName(connection.room);
-    return env.PAIR_ROOM.get(id).fetch(request);
+    const id = env.SYNC_ROOM.idFromName(connection.room);
+    return env.SYNC_ROOM.get(id).fetch(request);
   },
 } satisfies ExportedHandler<Env>;

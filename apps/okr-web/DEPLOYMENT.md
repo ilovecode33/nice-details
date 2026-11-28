@@ -1,63 +1,52 @@
 # Deployment — @ilovecode33/okr-web
 
-The OKR tracker is a static site on Cloudflare Pages, with a separate Cloudflare Worker for one-scan pairing. See the [app README](README.md) for an overview.
+The OKR tracker is a static site on Cloudflare Pages. Realtime sync uses a separate Cloudflare Worker with a Durable Object room. See the [app README](README.md) for an overview.
 
 ## URLs
 
 | Purpose | URL |
 | --- | --- |
 | Production app | `https://okr.ilovecode33.fyi` |
-| Production relay | `https://sync.ilovecode33.fyi` |
+| Production realtime Worker | `https://sync.ilovecode33.fyi` |
 | PR app preview | `https://pr-<PR number>.ilovecode33-okr-web.pages.dev` |
-| PR relay preview | `https://ilovecode33-okr-sync-pr-<PR number>.2y6ddt55g7.workers.dev` |
 
 ## PR previews
 
-[`.github/workflows/preview-okr-web.yml`](../../.github/workflows/preview-okr-web.yml) runs on pull requests targeting `main`.
+[`.github/workflows/preview-okr-web.yml`](../../.github/workflows/preview-okr-web.yml) runs on pull requests targeting `main`. It builds `@ilovecode33/okr-web`, deploys `apps/okr-web/dist` under `pr-<PR number>`, and comments the Pages URL on the PR.
 
-1. Deploys a PR-specific signaling Worker named `ilovecode33-okr-sync-pr-<PR number>`.
-2. Builds `@ilovecode33/okr-web` with `PUBLIC_SYNC_RELAY_URL` pointing at that Worker.
-3. Deploys `apps/okr-web/dist` to the `ilovecode33-okr-web` Pages project under `pr-<PR number>`.
-4. Comments the Pages preview URL on the PR.
-
-If the `CLOUDFLARE_WORKERS_API_TOKEN` secret is missing, the preview falls back to the production relay (`https://sync.ilovecode33.fyi`) so the Pages preview still deploys; add the secret to get a relay per PR. At runtime the app also falls back to the stable production relay when the PR relay is unreachable, and writes the working relay origin into the pairing link.
-
-Each PR gets a stable Pages alias and its own relay, so a preview never uses the production relay. [`.github/workflows/cleanup-okr-sync-relay.yml`](../../.github/workflows/cleanup-okr-sync-relay.yml) deletes the PR Worker when the PR closes.
+Preview deployments use the production realtime Worker. Rooms are random and scoped to the link, so a preview and production do not share state unless someone opens the same room link. No per-PR Worker is deployed.
 
 The workflow has a fork guard: pull requests from forks do not get previews, because they cannot access the Cloudflare secrets.
 
-Because previews are served over HTTPS, the camera QR scanner and WebRTC pairing work on phones without a local certificate. The app still stores its data in each browser's IndexedDB, so a preview URL has its own local data.
-
 ## Production
 
-[`.github/workflows/deploy-okr-web.yml`](../../.github/workflows/deploy-okr-web.yml) deploys `main` to the Pages project with `--branch=main`. The `okr.ilovecode33.fyi` custom domain is attached to the project. The production build uses the default relay URL `https://sync.ilovecode33.fyi`.
+[`.github/workflows/deploy-okr-web.yml`](../../.github/workflows/deploy-okr-web.yml) deploys `main` to the Pages project with `--branch=main`. The `okr.ilovecode33.fyi` custom domain is attached to the project.
 
-## Signaling relay
+## Realtime Worker
 
-- Worker: `ilovecode33-okr-sync`
-- Source: `apps/sync-relay`
-- Production domain: `sync.ilovecode33.fyi` (attached as a Workers custom domain)
-- Production deploy: [`.github/workflows/deploy-sync-relay.yml`](../../.github/workflows/deploy-sync-relay.yml) on pushes to `main`
-- PR deploy: the preview workflow deploys a per-PR Worker
+- Worker: `ilovecode33-okr-realtime`
+- Source: `apps/okr-realtime`
+- Production domain: `sync.ilovecode33.fyi` (Workers custom domain)
+- Deploy: [`.github/workflows/deploy-okr-realtime.yml`](../../.github/workflows/deploy-okr-realtime.yml) on pushes to `main`
 
-The Worker has a `PairRoom` Durable Object that relays WebRTC offer/answer messages. It also forwards app data when WebRTC cannot connect; that fallback data is not stored. OKR data stays peer-to-peer whenever the direct connection succeeds. The origin allowlist accepts `https://okr.ilovecode33.fyi`, Pages preview/production domains, and `localhost`.
+The Worker has a `SyncRoom` Durable Object. Each room stores the latest OKR state and broadcasts changes over WebSocket. It keeps state for up to 24 hours after the last device leaves. The origin allowlist accepts `https://okr.ilovecode33.fyi`, Pages preview/production domains, and `localhost`.
 
 ## Required GitHub secrets
 
 - `CLOUDFLARE_API_TOKEN` — Pages deployments
 - `CLOUDFLARE_ACCOUNT_ID`
-- `CLOUDFLARE_WORKERS_API_TOKEN` — optional until relay deploys are needed; requires Workers Scripts:Edit and Durable Objects:Edit
+- `CLOUDFLARE_WORKERS_API_TOKEN` — realtime Worker deploys; requires Workers Scripts:Edit and Durable Objects:Edit
 
-The Pages token is the same one used by the blog and UI landing workflows. The relay token is separate and is used only by the relay deploy, cleanup, and PR relay steps. Without it, PR previews use the production relay and relay deploys are skipped.
+Without the Workers token, the realtime Worker deploy is skipped; the Pages app still deploys.
 
 ## Cloudflare resources
 
 - Pages project: `ilovecode33-okr-web`
 - DNS: `okr.ilovecode33.fyi` CNAME → `ilovecode33-okr-web.pages.dev` (proxied)
-- Worker: `ilovecode33-okr-sync`
+- Worker: `ilovecode33-okr-realtime`
 - Worker custom domain: `sync.ilovecode33.fyi`
 
-No GitHub-to-Cloudflare Git integration is required. Deployments are Direct Upload through `wrangler` and the API token. The "Ensure Pages project exists" step is idempotent.
+No GitHub-to-Cloudflare Git integration is required. Deployments are Direct Upload through `wrangler` and the API token.
 
 ## Local commands
 

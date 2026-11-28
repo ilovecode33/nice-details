@@ -22,7 +22,7 @@ import {
   type ObjectiveSort,
   type OKRState,
 } from '@ilovecode33/okr-shared';
-import { parsePairingLink } from '@ilovecode33/local-sync';
+import { parseSyncLink } from './realtime';
 import { AlertTriangle, Plus, RefreshCw, RotateCcw, Target } from 'lucide-react';
 import { ObjectiveCard } from './components/ObjectiveCard';
 import { ObjectiveEditor } from './components/ObjectiveEditor';
@@ -68,8 +68,8 @@ export function App({ storage }: AppProps = {}) {
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    const pairing = parsePairingLink(window.location.href);
-    if (!pairing) return;
+    const room = parseSyncLink(window.location.href);
+    if (!room) return;
     setSyncLink(window.location.href);
     setSyncOpen(true);
     window.history.replaceState(

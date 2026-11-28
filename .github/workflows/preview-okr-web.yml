@@ -31,32 +31,7 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Select relay URL
-        id: relay
-        env:
-          WORKERS_TOKEN: ${{ secrets.CLOUDFLARE_WORKERS_API_TOKEN }}
-        run: |
-          if [ -n "${WORKERS_TOKEN}" ]; then
-            echo "url=https://ilovecode33-okr-sync-pr-${{ github.event.pull_request.number }}.2y6ddt55g7.workers.dev" >> "$GITHUB_OUTPUT"
-            echo "per_pr=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "url=https://sync.ilovecode33.fyi" >> "$GITHUB_OUTPUT"
-            echo "per_pr=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Deploy PR sync relay
-        if: steps.relay.outputs.per_pr == 'true'
-        uses: cloudflare/wrangler-action@v4
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_WORKERS_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          workingDirectory: apps/sync-relay
-          packageManager: bun
-          command: deploy --name ilovecode33-okr-sync-pr-${{ github.event.pull_request.number }}
-
       - name: Build OKR web
-        env:
-          PUBLIC_SYNC_RELAY_URL: ${{ steps.relay.outputs.url }}
         run: bunx turbo run build --filter=@ilovecode33/okr-web
 
       - name: Ensure Pages project exists

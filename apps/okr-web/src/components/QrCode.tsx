@@ -5,18 +5,15 @@ import styles from './QrCode.module.css';
 export interface QrCodeProps {
   value: string;
   size?: number;
-  label?: string;
+  label: string;
   className?: string;
 }
 
-/**
- * Renders a scannable QR code as an inline SVG. QR pixels stay black on white
- * for contrast, independent of the current theme.
- */
+/** Renders a QR code as an inline SVG with fixed black-on-white contrast. */
 export function QrCode({
   value,
-  size = 256,
-  label = 'Pairing QR code',
+  size = 280,
+  label,
   className = '',
 }: QrCodeProps) {
   const [svg, setSvg] = useState('');
@@ -43,8 +40,8 @@ export function QrCode({
       })
       .catch((reason: unknown) => {
         if (cancelled) return;
-        setError(reason instanceof Error ? reason.message : String(reason));
         setSvg('');
+        setError(reason instanceof Error ? reason.message : String(reason));
       });
     return () => {
       cancelled = true;
@@ -68,7 +65,11 @@ export function QrCode({
       style={{ width: size, maxWidth: '100%' }}
       {...(svg
         ? { dangerouslySetInnerHTML: { __html: svg } }
-        : { children: <span className={styles.placeholder} aria-hidden="true" /> })}
+        : {
+            children: (
+              <span className={styles.placeholder} aria-hidden="true" />
+            ),
+          })}
     />
   );
 }

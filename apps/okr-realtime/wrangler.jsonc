@@ -1,18 +1,18 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "ilovecode33-okr-sync",
+  "name": "ilovecode33-okr-realtime",
   "main": "src/index.ts",
   "compatibility_date": "2026-11-27",
   "durable_objects": {
     "bindings": [
       {
-        "name": "PAIR_ROOM",
-        "class_name": "PairRoom"
+        "name": "SYNC_ROOM",
+        "class_name": "SyncRoom"
       }
     ]
   },
   "exports": {
-    "PairRoom": {
+    "SyncRoom": {
       "type": "durable-object",
       "storage": "sqlite"
     }

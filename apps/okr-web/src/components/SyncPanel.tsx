@@ -1,45 +1,32 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { Badge, Button, Select, Sheet, TextArea, TextInput } from '@ilovecode33/ui';
-import {
-  QrCode,
-  QrScanner,
-  createLocalSync,
-  parsePairingLink,
-  startRelayPairing,
-  type LocalSyncError,
-  type LocalSyncOptions,
-  type LocalSyncPeer,
-  type LocalSyncSession,
-  type RelayPairing,
-  type RelayPairingOptions,
-  type RelayPairingStatus,
-} from '@ilovecode33/local-sync';
 import type { OKRState } from '@ilovecode33/okr-shared';
 import { loadDeviceName, saveDeviceName } from '../deviceName';
 import { useOkrI18n } from '../i18n';
-import { SYNC_ICE_SERVERS, SYNC_RELAY_FALLBACK_URL, SYNC_RELAY_URL } from '../syncConfig';
+import {
+  buildSyncUrl,
+  createRealtimeSession,
+  createRoomId,
+  parseSyncLink,
+  type RealtimePeer,
+  type RealtimeSession,
+  type RealtimeStatus,
+} from '../realtime';
+import { SYNC_URL } from '../syncConfig';
+import { QrCode } from './QrCode';
 import styles from './SyncPanel.module.css';
 
 type SyncMode = 'host' | 'join';
-type PanelStatus = RelayPairingStatus | 'idle';
+type PanelStatus = RealtimeStatus | 'idle';
+
+function isOkrState(value: unknown): value is OKRState {
+  if (typeof value !== 'object' || value === null) return false;
+  const state = value as Partial<OKRState>;
+  return state.version === 1 && Array.isArray(state.objectives);
+}
 
 function messageOf(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
-}
-
-function isStateMessage(
-  value: unknown,
-): value is { type: 'state'; state: OKRState } {
-  if (typeof value !== 'object' || value === null) return false;
-  const message = value as { type?: unknown; state?: unknown };
-  if (message.type !== 'state') return false;
-  const state = message.state as Partial<OKRState> | null;
-  return (
-    typeof state === 'object' &&
-    state !== null &&
-    state.version === 1 &&
-    Array.isArray(state.objectives)
-  );
 }
 
 export interface SyncPanelProps {
@@ -50,12 +37,9 @@ export interface SyncPanelProps {
   onRemoteState: (state: OKRState) => void;
   initialMode?: SyncMode;
   initialRoom?: string;
-  /** Injected in tests; defaults to the real WebRTC factory. */
-  createSession?: (options: LocalSyncOptions) => LocalSyncSession;
-  /** Injected in tests; defaults to the Cloudflare signaling relay. */
-  startPairing?: (options: RelayPairingOptions) => Promise<RelayPairing>;
-  relayUrl?: string;
-  fallbackRelayUrl?: string;
+  /** Injected in tests; defaults to the realtime WebSocket client. */
+  createRealtime?: typeof createRealtimeSession;
+  syncUrl?: string;
 }
 
 export function SyncPanel({
@@ -66,10 +50,8 @@ export function SyncPanel({
   onRemoteState,
   initialMode = 'host',
   initialRoom = '',
-  createSession = createLocalSync,
-  startPairing = startRelayPairing,
-  relayUrl = SYNC_RELAY_URL,
-  fallbackRelayUrl = SYNC_RELAY_FALLBACK_URL,
+  createRealtime = createRealtimeSession,
+  syncUrl = SYNC_URL,
 }: SyncPanelProps) {
   const { t } = useOkrI18n();
   const deviceNameId = useId();
@@ -77,24 +59,19 @@ export function SyncPanel({
   const [started, setStarted] = useState(false);
   const [deviceName, setDeviceName] = useState(() => loadDeviceName());
   const [nameDraft, setNameDraft] = useState(deviceName);
-  const [relayStatus, setRelayStatus] = useState<PanelStatus>('idle');
-  const [pairUrl, setPairUrl] = useState('');
+  const [status, setStatus] = useState<PanelStatus>('idle');
+  const [room, setRoom] = useState('');
+  const [roomUrl, setRoomUrl] = useState('');
   const [joinInput, setJoinInput] = useState('');
   const [error, setError] = useState('');
-  const [known, setKnown] = useState(false);
-  const [peers, setPeers] = useState<LocalSyncPeer[]>([]);
-  const [showScanner, setShowScanner] = useState(false);
+  const [peers, setPeers] = useState<RealtimePeer[]>([]);
   const [copied, setCopied] = useState(false);
-  const [retryKey, setRetryKey] = useState(0);
-  const sessionRef = useRef<LocalSyncSession | null>(null);
-  const pairingRef = useRef<RelayPairing | null>(null);
+  const sessionRef = useRef<RealtimeSession | null>(null);
   const stateRef = useRef(state);
   const onRemoteStateRef = useRef(onRemoteState);
   const skipSendRef = useRef(false);
-  const connectedRef = useRef(false);
+  const readyToSendRef = useRef(false);
   const copiedTimer = useRef<number | null>(null);
-  const offRelayMessagesRef = useRef<(() => void) | null>(null);
-  const sendStateRef = useRef<() => void>(() => {});
 
   stateRef.current = state;
   onRemoteStateRef.current = onRemoteState;
@@ -107,67 +84,85 @@ export function SyncPanel({
     };
   }, []);
 
-  function refreshPeers(session: LocalSyncSession) {
-    void session.listPeers().then(setPeers).catch(() => {});
-  }
+  useEffect(() => {
+    if (open) setStarted(true);
+  }, [open]);
 
-  function handleStatus(next: RelayPairingStatus) {
-    setRelayStatus(next);
-    const session = sessionRef.current;
-    if (
-      next === 'connected' ||
-      next === 'relay' ||
-      next === 'signaling'
-    ) {
-      connectedRef.current = true;
-    } else if (next === 'failed' || next === 'closed') {
-      connectedRef.current = false;
-    }
-    if (session && (next === 'connected' || next === 'relay')) {
-      setKnown(session.knownPeer);
-      refreshPeers(session);
-    }
-    if (session?.role === 'host' && (next === 'signaling' || next === 'relay')) {
-      sendStateRef.current();
-    }
-  }
-
-  function handleError(reason: LocalSyncError) {
-    setRelayStatus('failed');
-    setError(reason.code === 'timeout' ? t('sync.timeout') : messageOf(reason));
-  }
-
-  function applyMessage(message: string) {
-    let parsed: unknown;
-    try {
-      parsed = JSON.parse(message);
-    } catch {
-      return;
-    }
-    if (!isStateMessage(parsed)) return;
+  function applyRemoteState(value: unknown) {
+    if (!isOkrState(value)) return;
     skipSendRef.current = true;
-    onRemoteStateRef.current(parsed.state);
-    const session = sessionRef.current;
-    if (session) setKnown(session.knownPeer);
+    readyToSendRef.current = true;
+    onRemoteStateRef.current(value);
   }
 
-  function sendMessage(message: string) {
-    const session = sessionRef.current;
-    if (session?.state === 'connected') {
-      try {
-        session.send(message);
-        return;
-      } catch {
-        /* Fall through to the relay. */
+  function handleStatus(next: RealtimeStatus) {
+    setStatus(next);
+    if (next === 'connected') readyToSendRef.current = true;
+  }
+
+  function connectRoom(nextRoom: string, role: SyncMode) {
+    sessionRef.current?.close();
+    const session = createRealtime({
+      url: syncUrl,
+      room: nextRoom,
+      device: deviceName,
+      ...(role === 'host' ? { initialState: stateRef.current } : {}),
+      onState: applyRemoteState,
+      onPeers: setPeers,
+      onStatus: handleStatus,
+    });
+    sessionRef.current = session;
+    setRoom(nextRoom);
+    setRoomUrl(
+      buildSyncUrl(
+        `${window.location.origin}${window.location.pathname}`,
+        nextRoom,
+      ),
+    );
+    setStatus(session.status);
+    setError('');
+  }
+
+  useEffect(() => {
+    if (!started) return;
+    readyToSendRef.current = false;
+    skipSendRef.current = false;
+    setPeers([]);
+    setError('');
+    setCopied(false);
+
+    if (mode === 'host') {
+      connectRoom(createRoomId(), 'host');
+    } else if (initialRoom) {
+      const nextRoom = parseSyncLink(initialRoom);
+      if (nextRoom) {
+        connectRoom(nextRoom, 'join');
+      } else {
+        setStatus('failed');
+        setError(t('sync.invalidLink'));
       }
+    } else {
+      setStatus('idle');
+      setRoom('');
+      setRoomUrl('');
     }
-    const pairing = pairingRef.current;
-    if (pairing) {
-      pairing.send(message);
+
+    return () => {
+      sessionRef.current?.close();
+      sessionRef.current = null;
+    };
+    // connectRoom is intentionally not a dependency: it would recreate the
+    // session on every render.
+  }, [started, mode, deviceName, initialRoom, createRealtime, syncUrl]);
+
+  useEffect(() => {
+    if (!started || !readyToSendRef.current) return;
+    if (skipSendRef.current) {
+      skipSendRef.current = false;
       return;
     }
-    throw new Error('No sync transport is available');
-  }
+    sessionRef.current?.sendState(state);
+  }, [state, started]);
 
   function applyDeviceName() {
     const next = nameDraft.trim();
@@ -177,191 +172,21 @@ export function SyncPanel({
     setNameDraft(next);
   }
 
-  useEffect(() => {
-    if (open) setStarted(true);
-  }, [open]);
-
-  useEffect(() => {
-    if (!started) return;
-    let cancelled = false;
-    const autoRoom = retryKey === 0 ? initialRoom : '';
-    setRelayStatus('idle');
-    setPairUrl('');
-    setJoinInput(autoRoom);
-    setError('');
-    setKnown(false);
-    setPeers([]);
-    setShowScanner(false);
-    setCopied(false);
-    connectedRef.current = false;
-    skipSendRef.current = false;
-
-    const session = createSession({
-      role: mode === 'host' ? 'host' : 'guest',
-      label: deviceName,
-      iceServers: SYNC_ICE_SERVERS,
-    });
-    sessionRef.current = session;
-
-    refreshPeers(session);
-
-    const sendState = () => {
-      try {
-        sendMessage(
-          JSON.stringify({ type: 'state', state: stateRef.current }),
-        );
-      } catch (reason) {
-        setError(messageOf(reason));
-      }
-    };
-    sendStateRef.current = sendState;
-
-    const offMessage = session.onMessage(applyMessage);
-
-    const offState = session.onStateChange((next) => {
-      connectedRef.current = next === 'connected';
-      if (next === 'connected') {
-        setKnown(session.knownPeer);
-        refreshPeers(session);
-        if (session.role === 'host') sendState();
-      }
-    });
-
-    const start = async (room?: string, explicitRelay?: string) => {
-      if (cancelled) return;
-      setRelayStatus('connecting');
-      const candidates = [
-        explicitRelay ?? relayUrl,
-        ...(explicitRelay ? [] : [fallbackRelayUrl]),
-      ].filter((value, index, all) => Boolean(value) && all.indexOf(value) === index);
-      let lastError: unknown = null;
-      for (const candidate of candidates) {
-        try {
-          const pairing = await startPairing({
-            relayUrl: candidate,
-            role: mode === 'host' ? 'host' : 'guest',
-            session,
-            ...(room ? { room } : {}),
-            onStatus: handleStatus,
-            onError: handleError,
-          });
-          if (cancelled) {
-            pairing.close();
-            return;
-          }
-          pairingRef.current = pairing;
-          offRelayMessagesRef.current?.();
-          offRelayMessagesRef.current = pairing.onMessage(applyMessage);
-          setPairUrl(pairing.pairUrl);
-          setRelayStatus(pairing.status);
-          if (mode === 'join') setJoinInput('');
-          return;
-        } catch (reason) {
-          lastError = reason;
-          if (cancelled) return;
-        }
-      }
-      setRelayStatus('failed');
-      setError(
-        messageOf(lastError ?? new Error('No pairing relay available')),
-      );
-    };
-
-    if (mode === 'host') {
-      void start();
-    } else if (autoRoom) {
-      const parsed = parsePairingLink(autoRoom);
-      if (parsed) {
-        void start(parsed.room, parsed.relayUrl);
-      } else {
-        setRelayStatus('failed');
-        setError(t('sync.invalidLink'));
-      }
-    }
-
-    return () => {
-      cancelled = true;
-      offMessage();
-      offState();
-      offRelayMessagesRef.current?.();
-      offRelayMessagesRef.current = null;
-      pairingRef.current?.close();
-      pairingRef.current = null;
-      session.close();
-      if (sessionRef.current === session) sessionRef.current = null;
-      connectedRef.current = false;
-      sendStateRef.current = () => {};
-    };
-  }, [
-    started,
-    mode,
-    deviceName,
-    createSession,
-    startPairing,
-    relayUrl,
-    fallbackRelayUrl,
-    retryKey,
-  ]);
-
-  useEffect(() => {
-    if (!connectedRef.current) return;
-    if (skipSendRef.current) {
-      skipSendRef.current = false;
-      return;
-    }
-    try {
-      sendMessage(JSON.stringify({ type: 'state', state }));
-    } catch (reason) {
-      setError(messageOf(reason));
-    }
-  }, [state]);
-
-  async function joinWith(value: string) {
-    const session = sessionRef.current;
-    if (!session || session.role !== 'guest' || !value.trim()) return;
-    const parsed = parsePairingLink(value);
-    if (!parsed) {
+  function joinWith(value: string) {
+    if (mode !== 'join' || !value.trim()) return;
+    const nextRoom = parseSyncLink(value);
+    if (!nextRoom) {
       setError(t('sync.invalidLink'));
       return;
     }
-    setError('');
-    setShowScanner(false);
-    setRelayStatus('connecting');
-    pairingRef.current?.close();
-    const candidates = [
-      parsed.relayUrl ?? relayUrl,
-      ...(parsed.relayUrl ? [] : [fallbackRelayUrl]),
-    ].filter((candidate, index, all) => Boolean(candidate) && all.indexOf(candidate) === index);
-    let lastError: unknown = null;
-    for (const candidate of candidates) {
-      try {
-        const pairing = await startPairing({
-          relayUrl: candidate,
-          role: 'guest',
-          session,
-          room: parsed.room,
-          onStatus: handleStatus,
-          onError: handleError,
-        });
-        pairingRef.current = pairing;
-        offRelayMessagesRef.current?.();
-        offRelayMessagesRef.current = pairing.onMessage(applyMessage);
-        setPairUrl(pairing.pairUrl);
-        setRelayStatus(pairing.status);
-        setJoinInput('');
-        return;
-      } catch (reason) {
-        lastError = reason;
-      }
-    }
-    setRelayStatus('failed');
-    setError(messageOf(lastError ?? new Error('No pairing relay available')));
+    connectRoom(nextRoom, 'join');
+    setJoinInput('');
   }
 
   async function copyLink() {
-    if (!pairUrl) return;
+    if (!roomUrl) return;
     try {
-      await navigator.clipboard.writeText(pairUrl);
+      await navigator.clipboard.writeText(roomUrl);
       setCopied(true);
       if (copiedTimer.current !== null) {
         window.clearTimeout(copiedTimer.current);
@@ -372,19 +197,11 @@ export function SyncPanel({
     }
   }
 
-  async function forgetPeer(id: string) {
-    const session = sessionRef.current;
-    if (!session) return;
-    await session.forgetPeer(id);
-    setPeers(await session.listPeers());
-    setKnown(false);
-  }
-
   function disconnect() {
     setStarted(false);
-    setPairUrl('');
-    setRelayStatus('idle');
-    setKnown(false);
+    setStatus('idle');
+    setRoom('');
+    setRoomUrl('');
     setPeers([]);
     setError('');
     if (onDisconnect) onDisconnect();
@@ -392,24 +209,16 @@ export function SyncPanel({
   }
 
   const statusText =
-    relayStatus === 'connecting'
-      ? t('sync.creating')
-      : relayStatus === 'waiting'
-        ? mode === 'host'
-          ? t('sync.waitingForGuest')
-          : t('sync.waitingForHost')
-        : relayStatus === 'signaling'
-          ? t('sync.connecting')
-          : relayStatus === 'connected'
-            ? t('sync.connected')
-            : relayStatus === 'relay'
-              ? t('sync.relayConnected')
-              : relayStatus === 'failed'
-                ? t('sync.failed')
-                : '';
-  const isConnected =
-    relayStatus === 'connected' || relayStatus === 'relay';
-  const canJoin = mode === 'join' && !isConnected && relayStatus === 'idle';
+    status === 'connecting'
+      ? t('sync.connecting')
+      : status === 'connected'
+        ? t('sync.realtimeConnected')
+        : status === 'reconnecting'
+          ? t('sync.reconnecting')
+          : status === 'failed'
+            ? t('sync.failed')
+            : '';
+  const isConnected = status === 'connected';
 
   return (
     <Sheet
@@ -472,10 +281,10 @@ export function SyncPanel({
           </p>
         )}
 
-        {mode === 'host' && !isConnected && relayStatus !== 'failed' && pairUrl && (
+        {mode === 'host' && roomUrl && (
           <div className={styles.qr}>
             <QrCode
-              value={pairUrl}
+              value={roomUrl}
               size={280}
               label={t('sync.offerQr')}
             />
@@ -491,53 +300,22 @@ export function SyncPanel({
               )}
             </div>
             <label className={styles.field}>
-              <span className={styles.fieldLabel}>{t('sync.pairLink')}</span>
+              <span className={styles.fieldLabel}>{t('sync.roomLink')}</span>
               <TextArea
                 className={styles.code}
                 readOnly
                 rows={2}
-                value={pairUrl}
-                aria-label={t('sync.pairLink')}
+                value={roomUrl}
+                aria-label={t('sync.roomLink')}
               />
             </label>
           </div>
         )}
 
-        {mode === 'join' && canJoin && (
+        {mode === 'join' && status === 'idle' && (
           <>
-            {showScanner ? (
-              <div className={styles.scanner}>
-                <QrScanner
-                  onScan={(value) => void joinWith(value)}
-                  labels={{
-                    scanning: t('sync.scanHint'),
-                    camera: t('sync.camera'),
-                    unavailable: t('sync.cameraUnavailable'),
-                    insecure: t('sync.cameraInsecure'),
-                    permission: t('sync.cameraPermission'),
-                    error: t('sync.cameraError'),
-                    success: t('sync.scanSuccess'),
-                  }}
-                />
-                <Button
-                  size="compact"
-                  variant="secondary"
-                  onClick={() => setShowScanner(false)}
-                >
-                  {t('sync.stopScan')}
-                </Button>
-              </div>
-            ) : (
-              <Button
-                variant="secondary"
-                onClick={() => setShowScanner(true)}
-              >
-                {t('sync.scan')}
-              </Button>
-            )}
-
             <label className={styles.field}>
-              <span className={styles.fieldLabel}>{t('sync.pairLink')}</span>
+              <span className={styles.fieldLabel}>{t('sync.roomLink')}</span>
               <TextArea
                 className={styles.code}
                 rows={2}
@@ -548,7 +326,7 @@ export function SyncPanel({
             </label>
             <Button
               variant="primary"
-              onClick={() => void joinWith(joinInput)}
+              onClick={() => joinWith(joinInput)}
               disabled={joinInput.trim() === ''}
             >
               {t('sync.connect')}
@@ -556,34 +334,16 @@ export function SyncPanel({
           </>
         )}
 
-        {mode === 'join' &&
-          !isConnected &&
-          relayStatus !== 'idle' &&
-          relayStatus !== 'failed' && (
-            <p className={styles.hint}>{t('sync.joinHint')}</p>
-          )}
-
-        {relayStatus === 'failed' && (
-          <Button
-            variant="secondary"
-            onClick={() => setRetryKey((value) => value + 1)}
-          >
-            {t('sync.retry')}
-          </Button>
+        {mode === 'join' && status !== 'idle' && status !== 'failed' && (
+          <p className={styles.hint}>{t('sync.joinHint')}</p>
         )}
 
-        {relayStatus !== 'idle' && relayStatus !== 'failed' && (
+        {(isConnected || status === 'reconnecting') && (
           <div className={styles.row}>
             {isConnected && (
-              <Badge tone={known ? 'success' : 'neutral'}>
-                {known ? t('sync.known') : t('sync.newPairing')}
-              </Badge>
+              <Badge tone="success">{t('sync.realtimeBadge')}</Badge>
             )}
-            <Button
-              variant="plain"
-              size="compact"
-              onClick={disconnect}
-            >
+            <Button variant="plain" size="compact" onClick={disconnect}>
               {t('sync.disconnect')}
             </Button>
           </div>
@@ -591,22 +351,19 @@ export function SyncPanel({
 
         {peers.length > 0 && (
           <div>
-            <p className={styles.section}>{t('sync.peers')}</p>
+            <p className={styles.section}>{t('sync.connectedDevices')}</p>
             <ul className={styles.peers}>
               {peers.map((peer) => (
                 <li className={styles.peer} key={peer.id}>
-                  <span className={styles.peerLabel}>{peer.label}</span>
-                  <Button
-                    size="compact"
-                    variant="plain"
-                    onClick={() => void forgetPeer(peer.id)}
-                  >
-                    {t('sync.forget')}
-                  </Button>
+                  <span className={styles.peerLabel}>{peer.device}</span>
                 </li>
               ))}
             </ul>
           </div>
+        )}
+
+        {room && isConnected && peers.length === 0 && (
+          <p className={styles.hint}>{t('sync.hostHint')}</p>
         )}
       </div>
     </Sheet>

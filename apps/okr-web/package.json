@@ -12,12 +12,12 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@ilovecode33/local-sync": "workspace:*",
     "@ilovecode33/okr-shared": "workspace:*",
     "@ilovecode33/persistence": "workspace:*",
     "@ilovecode33/ui": "workspace:*",
     "@ilovecode33/ui-types": "workspace:*",
     "lucide-react": "^1.82.0",
+    "qrcode": "^1.5.4",
     "react": "^19.3.1",
     "react-dom": "^19.3.1"
   },
@@ -27,6 +27,7 @@
     "@rstest/core": "^0.12.6",
     "@testing-library/jest-dom": "^8.0.0",
     "@testing-library/react": "^16.3.3",
+    "@types/qrcode": "^1.5.6",
     "@types/react": "^19.3.3",
     "@types/react-dom": "^19.3.0",
     "fake-indexeddb": "^6.2.8",

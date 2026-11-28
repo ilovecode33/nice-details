@@ -44,7 +44,7 @@ bun run version:packages                               # consume changesets, bum
 
 ## Workspaces, versions and READMEs
 
-All fifteen npm workspaces have a README, as does the Swift package. Versions below are the current ones.
+All fourteen npm workspaces have a README, as does the Swift package. Versions below are the current ones.
 
 | Workspace | Version | README |
 |---|---|---|
@@ -52,10 +52,9 @@ All fifteen npm workspaces have a README, as does the Swift package. Versions be
 | [`@ilovecode33/editor-app`](apps/editor/README.md) | 0.1.1 | App |
 | [`@ilovecode33/ui-landing`](apps/ui-landing/README.md) | 0.1.1 | App |
 | [`@ilovecode33/okr-web`](apps/okr-web/README.md) | 0.1.0 | App |
-| [`@ilovecode33/sync-relay`](apps/sync-relay/README.md) | 0.1.0 | Worker |
+| [`@ilovecode33/okr-realtime`](apps/okr-realtime/README.md) | 0.1.0 | Worker |
 | [`@ilovecode33/ai-rules`](packages/ai-rules/README.md) | 0.1.1 | Rule index |
 | [`@ilovecode33/editor-core`](packages/editor-core/README.md) | 0.1.1 | SDK |
-| [`@ilovecode33/local-sync`](packages/local-sync/README.md) | 0.1.0 | Library |
 | [`@ilovecode33/okr-shared`](packages/okr-shared/README.md) | 0.1.0 | Library |
 | [`@ilovecode33/persistence`](packages/persistence/README.md) | 0.1.0 | Library |
 | [`@ilovecode33/photo-wall`](packages/photo-wall/README.md) | 0.2.0 | Library |
@@ -85,4 +84,4 @@ The four `ui*` packages are a Changesets `fixed` group and always upgrade togeth
 
 ## Blog deployment
 
-The blog is deployed to Cloudflare Pages by [`.github/workflows/deploy-blog.yml`](.github/workflows/deploy-blog.yml) on pushes to `main`; pull requests get a preview deployment from [`.github/workflows/preview-blog.yml`](.github/workflows/preview-blog.yml). Client-side routing for direct visits to `/about` uses [`apps/blog/public/_redirects`](apps/blog/public/_redirects). Caching is declared in [`apps/blog/public/_headers`](apps/blog/public/_headers): only hashed `/static/*` assets get a one-year immutable cache. HTML is intentionally not matched, so it keeps Pages' `max-age=0, must-revalidate` and every deployment refreshes immediately — no extra API token or zone-level configuration is required. The ui-landing component gallery has the same PR preview support: [`.github/workflows/preview-ui-landing.yml`](.github/workflows/preview-ui-landing.yml) deploys each PR build to the `ilovecode33-ui` Pages project under `pr-<PR number>` and comments the URL on the PR. Its production deployment is not enabled yet; see [`apps/ui-landing/DEPLOYMENT.md`](apps/ui-landing/DEPLOYMENT.md). The OKR web app also gets PR previews through [`.github/workflows/preview-okr-web.yml`](.github/workflows/preview-okr-web.yml) on the `ilovecode33-okr-web` Pages project; each PR also gets its own `ilovecode33-okr-sync-pr-<PR>` Worker. Production deploys from `main` to `https://okr.ilovecode33.fyi`, with the relay at `https://sync.ilovecode33.fyi`; setup details live in [`apps/okr-web/DEPLOYMENT.md`](apps/okr-web/DEPLOYMENT.md) and [`apps/sync-relay/README.md`](apps/sync-relay/README.md).
+The blog is deployed to Cloudflare Pages by [`.github/workflows/deploy-blog.yml`](.github/workflows/deploy-blog.yml) on pushes to `main`; pull requests get a preview deployment from [`.github/workflows/preview-blog.yml`](.github/workflows/preview-blog.yml). Client-side routing for direct visits to `/about` uses [`apps/blog/public/_redirects`](apps/blog/public/_redirects). Caching is declared in [`apps/blog/public/_headers`](apps/blog/public/_headers): only hashed `/static/*` assets get a one-year immutable cache. HTML is intentionally not matched, so it keeps Pages' `max-age=0, must-revalidate` and every deployment refreshes immediately — no extra API token or zone-level configuration is required. The ui-landing component gallery has the same PR preview support: [`.github/workflows/preview-ui-landing.yml`](.github/workflows/preview-ui-landing.yml) deploys each PR build to the `ilovecode33-ui` Pages project under `pr-<PR number>` and comments the URL on the PR. Its production deployment is not enabled yet; see [`apps/ui-landing/DEPLOYMENT.md`](apps/ui-landing/DEPLOYMENT.md). The OKR web app also gets PR previews through [`.github/workflows/preview-okr-web.yml`](.github/workflows/preview-okr-web.yml) on the `ilovecode33-okr-web` Pages project. Production deploys from `main` to `https://okr.ilovecode33.fyi`, with realtime sync served by the [`@ilovecode33/okr-realtime`](apps/okr-realtime/README.md) Worker at `https://sync.ilovecode33.fyi`; setup details live in [`apps/okr-web/DEPLOYMENT.md`](apps/okr-web/DEPLOYMENT.md).

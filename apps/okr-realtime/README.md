@@ -1,0 +1,46 @@
+# @ilovecode33/okr-realtime
+
+A Cloudflare Worker + Durable Object room for realtime OKR sync over WebSocket. It replaces the WebRTC/QR relay experiment: both devices connect to the same room, the room stores the latest state, and changes broadcast immediately.
+
+## Why
+
+WebRTC needs ICE/STUN/TURN and can fail on restrictive or isolated networks. A Durable Object WebSocket room is deterministic: if the Worker is reachable, sync works. Room state is scoped to a random room id from the QR/link.
+
+## Protocol
+
+- `GET /health` returns `{ "ok": true }`.
+- `GET /ws?room=<id>` upgrades to a WebSocket.
+- Client messages:
+  - `{ "type": "hello", "device": "Mac · Chrome" }`
+  - `{ "type": "state", "state": <OKRState> }`
+  - `{ "type": "ping" }`
+- Server messages:
+  - `{ "type": "welcome", "room": "...", "peers": [...] }`
+  - `{ "type": "peers", "peers": [...] }`
+  - `{ "type": "state", "state": ... }`
+  - `{ "type": "pong" }`
+- The latest state is stored in the Durable Object and sent to every new connection. Changes are broadcast to the other sockets immediately.
+- If all sockets disconnect, the room keeps its state for 24 hours.
+
+## URL
+
+Production: `https://sync.ilovecode33.fyi` (Workers custom domain).
+
+The OKR app's sync link is `https://okr.ilovecode33.fyi/#sync=<room>`.
+
+## Deploy
+
+```sh
+bunx turbo run build --filter=@ilovecode33/okr-realtime
+cd apps/okr-realtime && bunx wrangler deploy
+```
+
+GitHub Actions: [`.github/workflows/deploy-okr-realtime.yml`](../../.github/workflows/deploy-okr-realtime.yml) on pushes to `main`, using `CLOUDFLARE_WORKERS_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`.
+
+## Commands
+
+```sh
+bunx turbo run typecheck --filter=@ilovecode33/okr-realtime
+bunx turbo run test --filter=@ilovecode33/okr-realtime
+bunx turbo run build --filter=@ilovecode33/okr-realtime
+```

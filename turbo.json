@@ -1,6 +1,6 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalEnv": ["PUBLIC_SYNC_RELAY_URL"],
+  "globalEnv": ["PUBLIC_SYNC_URL"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],

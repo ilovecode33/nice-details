@@ -1,4 +1,4 @@
-name: Deploy OKR sync relay
+name: Deploy OKR realtime Worker
 
 on:
   push:
@@ -26,12 +26,12 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Deploy relay
+      - name: Deploy realtime Worker
         if: env.CLOUDFLARE_WORKERS_API_TOKEN != ''
         uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_WORKERS_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          workingDirectory: apps/sync-relay
+          workingDirectory: apps/okr-realtime
           packageManager: bun
           command: deploy

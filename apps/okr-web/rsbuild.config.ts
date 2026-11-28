@@ -1,7 +1,7 @@
 import { pluginReact } from '@rsbuild/plugin-react';
 import { defineConfig } from '@rsbuild/core';
 
-const relayUrl = process.env.PUBLIC_SYNC_RELAY_URL;
+const syncUrl = process.env.PUBLIC_SYNC_URL;
 
 export default defineConfig({
   plugins: [pluginReact()],
@@ -9,11 +9,11 @@ export default defineConfig({
     entry: {
       index: './src/main.tsx',
     },
-    // Per-PR previews point the app at their own signaling Worker.
-    ...(relayUrl
+    // Local or alternate realtime Worker during development.
+    ...(syncUrl
       ? {
           define: {
-            'import.meta.env.PUBLIC_SYNC_RELAY_URL': JSON.stringify(relayUrl),
+            'import.meta.env.PUBLIC_SYNC_URL': JSON.stringify(syncUrl),
           },
         }
       : {}),
