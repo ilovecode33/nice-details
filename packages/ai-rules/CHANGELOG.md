@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.3
+
+### Patch Changes
+
+- 95ae1f6: Add frontend project conventions for CSS Modules and same-name component, style, and test files.
+
 ## 0.1.2
 
 ### Patch Changes

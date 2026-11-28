@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.4.0
+
+### Minor Changes
+
+- 95ae1f6: Add `@ilovecode33/state-machine`, a minimal typed state machine (states, events, guards, actions; no interpreter, timers, or runtime dependencies), and move press handling onto it. `ui-core` exposes `createGestureMachine` (`idle → pressing → armed → dragging`) with long-press and scroll-handoff guards; `useDeform`/`Deformable` drive it from pointer events and report `onGesture` snapshots. `Select` and `Switch` consume those snapshots instead of keeping their own long-press timers, document listeners, pointer capture, and click suppression. The Switch arms after 250ms (the Select keeps 450ms), and `Field` captions no longer activate a Select or Switch inside them when clicked.
+- 95ae1f6: Build the library in bundleless (transform) mode so each component's CSS Module import is preserved for consumers. The aggregate `index.css` export is removed, and `UIFoundation` now loads the global `styles.css` (tokens + base) internally; apps no longer import it themselves.
+- 95ae1f6: Add English-default `closeLabel`, `decreaseLabel`, and `increaseLabel` props to Sheet and Stepper so consuming apps can localize their accessibility labels.
+- 95ae1f6: Require a 450ms touch hold before drag gestures arm on Select and Switch, so swiping the page over a control scrolls it instead of opening the menu or flipping the switch. Before the hold, movement past 8px cancels the press; mouse drags, taps, and keyboard activation are unchanged. `Deformable` and `useDeform` accept `longPressMs` for the same behavior.
+
+### Patch Changes
+
+- Updated dependencies [95ae1f6]
+- Updated dependencies [95ae1f6]
+  - @ilovecode33/ui-core@0.4.0
+  - @ilovecode33/ui-tokens@0.4.0
+  - @ilovecode33/ui-types@0.4.0
+
 ## 0.3.2
 
 ### Patch Changes
