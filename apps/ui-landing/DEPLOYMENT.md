@@ -1,16 +1,23 @@
 # Deployment — @ilovecode33/ui-landing
 
-The component gallery is a static site deployed to Cloudflare Pages. **PR previews are enabled; production deployment is deliberately not enabled yet.** See the [app README](README.md) for an overview.
+The component gallery is a static site deployed to Cloudflare Pages. **PR previews are enabled;
+production deployment is deliberately not enabled yet.** See the [app README](README.md) for an
+overview.
 
 ## PR previews
 
-[`.github/workflows/preview-ui-landing.yml`](../../.github/workflows/preview-ui-landing.yml) runs on pull requests targeting `main`. It creates the `ilovecode33-ui` Pages project if it is absent, builds `@ilovecode33/ui-landing`, and deploys `apps/ui-landing/dist` under the branch `pr-<PR number>`. The workflow comments the preview URL on the PR.
+[`.github/workflows/preview-ui-landing.yml`](../../.github/workflows/preview-ui-landing.yml) runs on
+pull requests targeting `main`. It creates the `ilovecode33-ui` Pages project if it is absent,
+builds `@ilovecode33/ui-landing`, and deploys `apps/ui-landing/dist` under the branch
+`pr-<PR number>`. The workflow comments the preview URL on the PR.
 
-The workflow has a fork guard: pull requests from forks do not get previews, because they cannot access the Cloudflare secrets.
+The workflow has a fork guard: pull requests from forks do not get previews, because they cannot
+access the Cloudflare secrets.
 
 ## Production (not enabled)
 
-The intended production hostname is `ui.ilovecode33.fyi`, to be attached as a custom domain to the `ilovecode33-ui` Pages project in the Cloudflare dashboard.
+The intended production hostname is `ui.ilovecode33.fyi`, to be attached as a custom domain to the
+`ilovecode33-ui` Pages project in the Cloudflare dashboard.
 
 Production deployment is intentionally disabled for now:
 
@@ -28,11 +35,18 @@ These are the same secrets used by the blog workflows; no new secret is needed.
 
 ## Caching
 
-[`public/_headers`](public/_headers) sets a one-year immutable cache for hashed `/static/*` assets. HTML is intentionally left unmatched by those headers; the service worker ([`public/sw.js`](public/sw.js)) handles it with local-first stale-while-revalidate: navigations are served from the cache immediately and the network copy replaces it in the background. Because of this, a deploy may show the previous HTML on the next open; the following open picks up the new markup. Hashed assets remain cache-first and immutable, so only the HTML incurs this one-open delay.
+[`public/_headers`](public/_headers) sets a one-year immutable cache for hashed `/static/*` assets.
+HTML is intentionally left unmatched by those headers; the service worker
+([`public/sw.js`](public/sw.js)) handles it with local-first stale-while-revalidate: navigations are
+served from the cache immediately and the network copy replaces it in the background. Because of
+this, a deploy may show the previous HTML on the next open; the following open picks up the new
+markup. Hashed assets remain cache-first and immutable, so only the HTML incurs this one-open delay.
 
 ## Manual Cloudflare dashboard step
 
-The preview workflow creates the `ilovecode33-ui` Pages project on its first run. The remaining manual step is to attach `ui.ilovecode33.fyi` to that project as a custom domain when production is activated; no production deployment has been performed.
+The preview workflow creates the `ilovecode33-ui` Pages project on its first run. The remaining
+manual step is to attach `ui.ilovecode33.fyi` to that project as a custom domain when production is
+activated; no production deployment has been performed.
 
 ## Local commands
 

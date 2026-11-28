@@ -37,6 +37,7 @@ import {
   LayoutDashboard,
   ListChecks,
   MonitorDown,
+  Pencil,
   Plus,
   RotateCcw,
   Settings,
@@ -453,9 +454,22 @@ export function App({ storage }: AppProps = {}) {
                       return (
                         <Card key={objective.id}>
                           <div className={styles.focusCard}>
-                            <span className={styles.focusTitle}>
-                              {objective.title}
-                            </span>
+                            <div className={styles.focusTitleRow}>
+                              <span className={styles.focusTitle}>
+                                {objective.title}
+                              </span>
+                              <Button
+                                size="compact"
+                                variant="plain"
+                                icon={<Pencil />}
+                                aria-label={t('objective.editLabel', {
+                                  title: objective.title,
+                                })}
+                                onClick={() => setEditing(objective)}
+                              >
+                                {t('common.edit')}
+                              </Button>
+                            </div>
                             <ProgressBar
                               value={value}
                               label={t('objective.progress', {
