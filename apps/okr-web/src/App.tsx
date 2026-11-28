@@ -46,6 +46,7 @@ import { SyncPanel } from './components/SyncPanel';
 import { SyncStatus } from './components/SyncStatus';
 import { LOCALES, LOCALE_NAMES, useOkrI18n } from './i18n';
 import { useInstallPrompt } from './useInstallPrompt';
+import { useThemeChrome } from './useThemeChrome';
 import { getOkrStorage, type OkrStorage, type StoredSyncRoom } from './storage';
 import styles from './App.module.css';
 
@@ -80,6 +81,7 @@ export interface AppProps {
 
 export function App({ storage }: AppProps = {}) {
   const { locale, setLocale, t } = useOkrI18n();
+  useThemeChrome();
   const [state, setState] = useState<OKRState | null>(null);
   const [page, setPage] = useState<AppPage>('dashboard');
   const [dockCollapsed, setDockCollapsed] = useState(true);
