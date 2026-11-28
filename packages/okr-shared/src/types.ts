@@ -39,11 +39,20 @@ export interface DeletedItems {
   keyResults?: Record<string, string>;
 }
 
+/** Display name shared by every device in a room. */
+export interface UserProfile {
+  /** Trimmed display name; empty means the name was cleared. */
+  name: string;
+  /** Last edit, used to merge concurrent name changes. */
+  updatedAt: string;
+}
+
 /** State persisted by the app and exchanged over a sync room. */
 export interface OKRState {
   version: 1;
   objectives: Objective[];
   deleted?: DeletedItems;
+  profile?: UserProfile;
 }
 
 /** Supported objective orderings. */
@@ -58,6 +67,7 @@ export interface StoredOKRState {
   version: 1;
   objectives: StoredObjective[];
   deleted?: DeletedItems;
+  profile?: UserProfile;
 }
 
 /** localStorage key used by the legacy adapter. */

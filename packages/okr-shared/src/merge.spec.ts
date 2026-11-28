@@ -149,6 +149,47 @@ describe('mergeStates', () => {
     expect(mergeStates(forward, forward)).toEqual(forward);
   });
 
+  test('keeps the newer display name from either side', () => {
+    const older = {
+      ...state([]),
+      profile: { name: 'Ada', updatedAt: '2026-11-01T00:00:00.000Z' },
+    };
+    const newer = {
+      ...state([]),
+      profile: { name: 'Grace', updatedAt: '2026-11-02T00:00:00.000Z' },
+    };
+
+    expect(mergeStates(older, newer).profile).toEqual(newer.profile);
+    expect(mergeStates(newer, older).profile).toEqual(newer.profile);
+  });
+
+  test('an empty name clears an older one', () => {
+    const named = {
+      ...state([]),
+      profile: { name: 'Ada', updatedAt: '2026-11-01T00:00:00.000Z' },
+    };
+    const cleared = {
+      ...state([]),
+      profile: { name: '', updatedAt: '2026-11-02T00:00:00.000Z' },
+    };
+
+    expect(mergeStates(named, cleared).profile).toEqual(cleared.profile);
+    expect(mergeStates(cleared, named).profile).toEqual(cleared.profile);
+  });
+
+  test('a display name survives when the other copy has none', () => {
+    const named = {
+      ...state([objective('a', '2026-11-20T10:00:00.000Z')]),
+      profile: { name: 'Ada', updatedAt: '2026-11-28T00:00:00.000Z' },
+    };
+    const unnamed = state([objective('b', '2026-11-21T10:00:00.000Z')]);
+
+    const merged = mergeStates(named, unnamed);
+    expect(merged.profile).toEqual(named.profile);
+    expect(merged.objectives.map((item) => item.id)).toEqual(['a', 'b']);
+    expect(mergeStates(unnamed, named)).toEqual(merged);
+  });
+
   test('ignores object key order when timestamps tie', () => {
     const first = objective('a', '2026-11-21T10:00:00.000Z', {
       title: 'Same',

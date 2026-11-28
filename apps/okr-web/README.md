@@ -100,6 +100,12 @@ You can edit it in **Sync → Device name**; the name and the last room are stor
 in the `okr-web` IndexedDB database through `@ilovecode33/persistence` and shown
 in **Connected devices**.
 
+The name in **Settings → Your name** is the document `profile`. Saving it updates
+the dashboard title on every device in the room. Concurrent edits keep the copy
+with the newer `updatedAt`; an empty name clears it. A name saved by the previous
+release under `state` → `user-name` is copied into `profile` on the next load,
+and that key is removed only after the copy is written.
+
 Room data is encrypted in the browser with AES-GCM. The key travels only in the
 URL fragment and never reaches Cloudflare. The Worker stores ciphertext and
 revision metadata for up to 24 hours after the last device leaves. Anyone who
@@ -115,7 +121,7 @@ data on that device only.
 
 | Item | Where | Shape |
 |---|---|---|
-| OKR document | IndexedDB `okr-web` v1 → `state` → `current` | `{ version: 1, objectives, deleted? }` |
+| OKR document | IndexedDB `okr-web` v1 → `state` → `current` | `{ version: 1, objectives, deleted?, profile? }` |
 | Backup of an unreadable document | `state` → `current.corrupt` | raw stored value |
 | Saved sync room | `state` → `sync-room` | `{ version: 1, room, role, key }` (version-less records read as v1) |
 | Device name | `state` → `device-name` | non-empty string |

@@ -222,6 +222,55 @@ describe('SyncPanel', () => {
     expect(ids).toContain('sample-running');
   });
 
+  test('shares a local name when sample data joins a room', async () => {
+    const onRemoteState = rs.fn();
+    const local = {
+      ...createSampleState(),
+      profile: { name: 'Ada', updatedAt: '2026-11-28T00:00:00.000Z' },
+    };
+    const remote = remoteState();
+    const { getSession } = renderPanel({
+      state: local,
+      initialRoom: `https://app.test/#sync=${room}&key=${key}`,
+      onRemoteState,
+    });
+    await screen.findByText('Connected. Changes sync in realtime.');
+
+    act(() => {
+      getSession()?.emitState(remote);
+    });
+
+    const next = onRemoteState.mock.calls[0]?.[0] as OKRState;
+    expect(next.objectives.map((item) => item.id)).toEqual(['remote-objective']);
+    expect(next.profile?.name).toBe('Ada');
+  });
+
+  test('a newer room name replaces the local one without the sample objectives', async () => {
+    const onRemoteState = rs.fn();
+    const local = {
+      ...createSampleState(),
+      profile: { name: 'Ada', updatedAt: '2026-11-01T00:00:00.000Z' },
+    };
+    const remote = {
+      ...remoteState(),
+      profile: { name: 'Grace', updatedAt: '2026-11-28T00:00:00.000Z' },
+    };
+    const { getSession } = renderPanel({
+      state: local,
+      initialRoom: `https://app.test/#sync=${room}&key=${key}`,
+      onRemoteState,
+    });
+    await screen.findByText('Connected. Changes sync in realtime.');
+
+    act(() => {
+      getSession()?.emitState(remote);
+    });
+
+    const next = onRemoteState.mock.calls[0]?.[0] as OKRState;
+    expect(next.objectives.map((item) => item.id)).toEqual(['remote-objective']);
+    expect(next.profile).toEqual(remote.profile);
+  });
+
   test('adopts the room document when joining from a link', async () => {
     const onRemoteState = rs.fn();
     const { getSession } = renderPanel({

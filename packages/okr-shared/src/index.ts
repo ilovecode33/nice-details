@@ -7,6 +7,7 @@ export type {
   ObjectiveSort,
   StoredObjective,
   StoredOKRState,
+  UserProfile,
 } from './types';
 export { STORAGE_KEY } from './types';
 

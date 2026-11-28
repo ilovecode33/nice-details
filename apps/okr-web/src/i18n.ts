@@ -42,7 +42,8 @@ const en: Record<string, string> = {
   'settings.profile': 'Profile',
   'settings.userName': 'Your name',
   'settings.userNamePlaceholder': 'Alex',
-  'settings.userNameHint': 'Shown in the dashboard title.',
+  'settings.userNameHint':
+    'Shown in the dashboard title and shared with devices in the same room.',
   'settings.version': 'Version',
   'settings.built': 'Built',
   'settings.updates': 'Updates',
@@ -243,7 +244,7 @@ const zhTW: Record<string, string> = {
   'settings.profile': '個人檔案',
   'settings.userName': '你的名字',
   'settings.userNamePlaceholder': '小明',
-  'settings.userNameHint': '顯示在標題上。',
+  'settings.userNameHint': '顯示在標題上，並與同一個房間的裝置共享。',
   'settings.version': '版本',
   'settings.built': '建置時間',
   'settings.updates': '更新',
@@ -439,7 +440,8 @@ const de: Record<string, string> = {
   'settings.profile': 'Profil',
   'settings.userName': 'Dein Name',
   'settings.userNamePlaceholder': 'Alex',
-  'settings.userNameHint': 'Erscheint im Titel des Dashboards.',
+  'settings.userNameHint':
+    'Erscheint im Titel und wird mit Geräten im selben Raum geteilt.',
   'settings.version': 'Version',
   'settings.built': 'Gebaut',
   'settings.updates': 'Updates',

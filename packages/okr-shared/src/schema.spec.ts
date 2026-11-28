@@ -49,6 +49,21 @@ describe('parseState', () => {
     expect(result.reason).toContain('Objective 0');
   });
 
+  test('keeps a shared profile on the document', () => {
+    const result = parseState({
+      version: 1,
+      objectives: [],
+      profile: { name: '  Ada  ', updatedAt: '2026-11-28T00:00:00.000Z' },
+    });
+
+    expect(result.status).toBe('ok');
+    if (result.status !== 'ok') return;
+    expect(result.state.profile).toEqual({
+      name: 'Ada',
+      updatedAt: '2026-11-28T00:00:00.000Z',
+    });
+  });
+
   test('reports a newer version without rewriting it', () => {
     const result = parseState({ version: 2, objectives: [] });
     expect(result).toEqual({ status: 'newer', version: 2 });

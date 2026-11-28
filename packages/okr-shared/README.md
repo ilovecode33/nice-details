@@ -29,7 +29,7 @@ saveState(state);
 
 | Export | Description |
 | --- | --- |
-| `KRUnit`, `KeyResult`, `Objective`, `OKRState`, `ObjectiveSort` | Domain types; `Objective` carries `startDate`/`endDate`. |
+| `KRUnit`, `KeyResult`, `Objective`, `OKRState`, `ObjectiveSort`, `UserProfile` | Domain types. `Objective` carries `startDate`/`endDate`. `UserProfile` is the display name shared through a room. |
 | `StoredObjective`, `StoredOKRState` | Legacy shapes accepted during migration. |
 | `STORAGE_KEY` | `okr-web.state.v1`, the persistence key. |
 | `newId()` | Unique id via `crypto.randomUUID`, with a fallback. |

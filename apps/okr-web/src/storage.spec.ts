@@ -162,15 +162,47 @@ describe('openOkrStorage', () => {
     expect(await storage.loadView()).toBeNull();
   });
 
-  test('persists and clears the user name', async () => {
-    const storage = await openOkrStorage(uniqueName());
+  test('copies a device-local user name into the shared profile', async () => {
+    const name = uniqueName();
+    const sample = createSampleState();
+    await seed(name, { current: sample, 'user-name': '  Ada  ' });
+
+    const storage = await openOkrStorage(name);
     opened.push(storage);
 
-    expect(await storage.loadUserName()).toBeNull();
-    await storage.saveUserName('  Ada  ');
-    expect(await storage.loadUserName()).toBe('Ada');
-    await storage.saveUserName('   ');
-    expect(await storage.loadUserName()).toBeNull();
+    const loaded = await storage.load();
+    expect(loaded.profile?.name).toBe('Ada');
+    expect(loaded.objectives).toEqual(sample.objectives);
+    expect(typeof loaded.profile?.updatedAt).toBe('string');
+    expect(await readRaw(name, 'user-name')).toBeUndefined();
+    expect(await readRaw(name, 'current')).toEqual(loaded);
+  });
+
+  test('keeps a shared profile and drops the old local name', async () => {
+    const name = uniqueName();
+    const profile = { name: 'Grace', updatedAt: '2026-11-28T00:00:00.000Z' };
+    await seed(name, {
+      current: { ...createSampleState(), profile },
+      'user-name': 'Ada',
+    });
+
+    const storage = await openOkrStorage(name);
+    opened.push(storage);
+
+    expect((await storage.load()).profile).toEqual(profile);
+    expect(await readRaw(name, 'user-name')).toBeUndefined();
+  });
+
+  test('leaves a non-string legacy user name untouched', async () => {
+    const name = uniqueName();
+    const sample = createSampleState();
+    await seed(name, { current: sample, 'user-name': 42 });
+
+    const storage = await openOkrStorage(name);
+    opened.push(storage);
+
+    expect(await storage.load()).toEqual(sample);
+    expect(await readRaw(name, 'user-name')).toBe(42);
   });
 
   test('accepts a sync room saved before records were versioned', async () => {

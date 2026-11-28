@@ -22,8 +22,6 @@ function createTestStorage(): OkrStorage {
     clearSyncRoom: async () => {},
     loadDeviceName: async () => null,
     saveDeviceName: async () => {},
-    loadUserName: async () => null,
-    saveUserName: async () => {},
     close: () => {},
     destroy: async () => {},
   };
@@ -96,10 +94,14 @@ describe('App', () => {
     ).toBeNull();
   });
 
-  test('shows the user name in the dashboard title', async () => {
+  test('shows the shared profile name in the dashboard title', async () => {
+    const sample = createSampleState();
     renderApp({
       ...createTestStorage(),
-      loadUserName: async () => 'Ada',
+      load: async () => ({
+        ...sample,
+        profile: { name: 'Ada', updatedAt: '2026-11-28T00:00:00.000Z' },
+      }),
     });
 
     expect(
@@ -108,9 +110,11 @@ describe('App', () => {
     expect(document.title).toBe("Ada's OKRs");
   });
 
-  test('saves the user name from settings and updates the title', async () => {
-    const saveUserName = rs.fn();
-    renderApp({ ...createTestStorage(), saveUserName });
+  test('saves the shared user name from settings and updates the title', async () => {
+    const save = rs.fn(async (next: OKRState) => {
+      void next;
+    });
+    renderApp({ ...createTestStorage(), save });
     await screen.findByText('Current focus');
     await openPage('Settings');
 
@@ -118,7 +122,10 @@ describe('App', () => {
       target: { value: 'Grace' },
     });
     fireEvent.click(screen.getByRole('button', { name: 'Save' }));
-    await waitFor(() => expect(saveUserName).toHaveBeenCalledWith('Grace'));
+    await waitFor(() => {
+      const saved = save.mock.calls.at(-1)?.[0] as OKRState | undefined;
+      expect(saved?.profile?.name).toBe('Grace');
+    });
 
     await openPage('Dashboard');
     expect(
