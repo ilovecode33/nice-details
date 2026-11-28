@@ -79,6 +79,7 @@ export function App({ storage }: AppProps = {}) {
   const { locale, setLocale, t } = useOkrI18n();
   const [state, setState] = useState<OKRState | null>(null);
   const [page, setPage] = useState<AppPage>('dashboard');
+  const [dockCollapsed, setDockCollapsed] = useState(true);
   const [period, setPeriod] = useState(ALL_PERIODS);
   const [sort, setSort] = useState<ObjectiveSort>('updated');
   // undefined = closed, null = create a new objective, otherwise the one to edit.
@@ -222,6 +223,10 @@ export function App({ storage }: AppProps = {}) {
       : page === 'okrs'
         ? t('okrs.subtitle')
         : t('settings.subtitle');
+  // The collapsed dock shows icons only; the label stays available to
+  // assistive tech and appears again when the dock is expanded.
+  const navLabel = (label: string) =>
+    dockCollapsed ? <span className="ui-sr-only">{label}</span> : label;
 
   const progress = state ? Math.round(overallProgress(objectives) * 100) : 0;
   const completedKrs = objectives.reduce(
@@ -581,12 +586,15 @@ export function App({ storage }: AppProps = {}) {
       <DockNavigation
         label={t('nav.label')}
         activeId={page}
-        collapsible={false}
+        collapsed={dockCollapsed}
+        onCollapsedChange={setDockCollapsed}
+        collapseLabel={t('nav.collapse')}
+        expandLabel={t('nav.expand')}
         onSelect={(id) => setPage(id as AppPage)}
         items={[
           {
             id: 'dashboard',
-            label: t('nav.dashboard'),
+            label: navLabel(t('nav.dashboard')),
             icon: (
               <span className={styles.navIcon}>
                 <LayoutDashboard size={18} />
@@ -595,7 +603,7 @@ export function App({ storage }: AppProps = {}) {
           },
           {
             id: 'okrs',
-            label: t('nav.okrs'),
+            label: navLabel(t('nav.okrs')),
             icon: (
               <span className={styles.navIcon}>
                 <ListChecks size={18} />
@@ -604,7 +612,7 @@ export function App({ storage }: AppProps = {}) {
           },
           {
             id: 'settings',
-            label: t('nav.settings'),
+            label: navLabel(t('nav.settings')),
             icon: (
               <span className={styles.navIcon}>
                 <Settings size={18} />
