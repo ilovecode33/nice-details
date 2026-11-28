@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.5.1
+
+### Patch Changes
+
+- 1819c1d: Joining a sync room now merges with the local document instead of replacing it, so an empty or partial room can no longer wipe a device that already has objectives. Only a fresh install still holding the untouched sample data adopts the room. Select menus wrapped in a label (quick length, unit, period, sort, accent) now close after choosing an option instead of reopening through the label's activation behavior.
+- @ilovecode33/ui-core@0.5.1
+  - @ilovecode33/ui-tokens@0.5.1
+  - @ilovecode33/ui-types@0.5.1
+
 ## 0.5.0
 
 ### Minor Changes

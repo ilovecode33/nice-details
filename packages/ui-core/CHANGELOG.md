@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.1
+
+### Patch Changes
+
+- @ilovecode33/ui-types@0.5.1
+
 ## 0.5.0
 
 ### Patch Changes
