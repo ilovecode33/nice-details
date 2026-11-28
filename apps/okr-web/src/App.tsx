@@ -84,7 +84,6 @@ export function App({ storage }: AppProps = {}) {
   useThemeChrome();
   const [state, setState] = useState<OKRState | null>(null);
   const [page, setPage] = useState<AppPage>('dashboard');
-  const [dockCollapsed, setDockCollapsed] = useState(true);
   const appVersion = import.meta.env.PUBLIC_APP_VERSION ?? '0.0.0';
   const install = useInstallPrompt();
   const [period, setPeriod] = useState(ALL_PERIODS);
@@ -230,10 +229,6 @@ export function App({ storage }: AppProps = {}) {
       : page === 'okrs'
         ? t('okrs.subtitle')
         : t('settings.subtitle');
-  // The collapsed dock shows icons only; the label stays available to
-  // assistive tech and appears again when the dock is expanded.
-  const navLabel = (label: string) =>
-    dockCollapsed ? <span className="ui-sr-only">{label}</span> : label;
 
   const progress = state ? Math.round(overallProgress(objectives) * 100) : 0;
   const completedKrs = objectives.reduce(
@@ -582,14 +577,6 @@ export function App({ storage }: AppProps = {}) {
                 />
               </Card>
 
-              <Card
-                className={styles.settingsCard}
-                title={t('sync.title')}
-                subtitle={t('settings.syncHint')}
-              >
-                <SyncStatus status={syncStatus} onOpen={() => setSyncOpen(true)} />
-              </Card>
-
               <Card className={styles.settingsCard} title={t('install.title')}>
                 {install.installed ? (
                   <p className={styles.installState}>
@@ -627,44 +614,47 @@ export function App({ storage }: AppProps = {}) {
         </>
       )}
 
-      <DockNavigation
-        label={t('nav.label')}
-        activeId={page}
-        collapsed={dockCollapsed}
-        onCollapsedChange={setDockCollapsed}
-        collapseLabel={t('nav.collapse')}
-        expandLabel={t('nav.expand')}
-        onSelect={(id) => setPage(id as AppPage)}
-        items={[
-          {
-            id: 'dashboard',
-            label: navLabel(t('nav.dashboard')),
-            icon: (
-              <span className={styles.navIcon}>
-                <LayoutDashboard size={18} />
-              </span>
-            ),
-          },
-          {
-            id: 'okrs',
-            label: navLabel(t('nav.okrs')),
-            icon: (
-              <span className={styles.navIcon}>
-                <ListChecks size={18} />
-              </span>
-            ),
-          },
-          {
-            id: 'settings',
-            label: navLabel(t('nav.settings')),
-            icon: (
-              <span className={styles.navIcon}>
-                <Settings size={18} />
-              </span>
-            ),
-          },
-        ]}
-      />
+      <div className={styles.bottomBar}>
+        <SyncStatus status={syncStatus} onOpen={() => setSyncOpen(true)} />
+        <DockNavigation
+          className={styles.dock}
+          label={t('nav.label')}
+          activeId={page}
+          collapsible={false}
+          onSelect={(id) => setPage(id as AppPage)}
+          items={[
+            {
+              id: 'dashboard',
+              label: (
+                <span className="ui-sr-only">{t('nav.dashboard')}</span>
+              ),
+              icon: (
+                <span className={styles.navIcon}>
+                  <LayoutDashboard size={18} />
+                </span>
+              ),
+            },
+            {
+              id: 'okrs',
+              label: <span className="ui-sr-only">{t('nav.okrs')}</span>,
+              icon: (
+                <span className={styles.navIcon}>
+                  <ListChecks size={18} />
+                </span>
+              ),
+            },
+            {
+              id: 'settings',
+              label: <span className="ui-sr-only">{t('nav.settings')}</span>,
+              icon: (
+                <span className={styles.navIcon}>
+                  <Settings size={18} />
+                </span>
+              ),
+            },
+          ]}
+        />
+      </div>
 
       {state && (
         <SyncPanel

@@ -82,9 +82,12 @@ describe('App', () => {
     expect(screen.getByRole('button', { name: 'Dashboard' })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'OKRs' })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Settings' })).toBeTruthy();
-    // The list actions and sync entry live on their own pages.
+    // The list actions live on the OKR page; the sync chip floats with the dock.
     expect(screen.queryByRole('button', { name: 'New objective' })).toBeNull();
-    expect(screen.queryByRole('button', { name: /^Sync/ })).toBeNull();
+    expect(screen.getByRole('button', { name: /^Sync/ })).toBeTruthy();
+    expect(
+      screen.queryByRole('button', { name: /Expand navigation/ }),
+    ).toBeNull();
     // Sample-data reset is a development-only convenience.
     expect(
       screen.queryByRole('button', { name: 'Reset sample data' }),
@@ -121,7 +124,7 @@ describe('App', () => {
     ).toBeTruthy();
   });
 
-  test('moves appearance, language, and sync into settings', async () => {
+  test('shows appearance, language, and install in settings', async () => {
     renderApp();
     await screen.findByText('Current focus');
     await openPage('Settings');

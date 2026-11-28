@@ -291,3 +291,36 @@ section.settingsCard {
   color: var(--text-dim);
   font-size: var(--text-sm);
 }
+
+.bottomBar {
+  position: fixed;
+  z-index: 450;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--safe-bottom) + var(--space-3));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding-inline:
+    calc(var(--safe-left) + var(--space-3))
+    calc(var(--safe-right) + var(--space-3));
+  pointer-events: none;
+}
+
+.bottomBar > * {
+  pointer-events: auto;
+}
+
+/* The dock floats inside the bottom row instead of centering on the viewport,
+   leaving room for the sync chip on its left. */
+[data-ui='floating-bar'].dock {
+  position: static;
+  left: auto;
+  right: auto;
+  bottom: auto;
+  width: auto;
+  max-width: none;
+  margin: 0;
+  transform: none;
+}
