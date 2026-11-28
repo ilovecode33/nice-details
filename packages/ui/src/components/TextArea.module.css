@@ -1,8 +1,10 @@
 .ui-textarea {
-  width: 100%; min-height: 96px; padding: var(--space-3);
+  width: 100%; min-height: calc(var(--touch) * 2); padding: var(--space-3);
   border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
-  background: var(--bg-elevated-2); color: var(--text); font-size: var(--text-base);
+  background: var(--bg-elevated-2); color: var(--text); font-size: var(--text-lg);
   resize: vertical;
 }
+
+.ui-textarea:focus { border-color: var(--accent); }
 
 .ui-textarea[aria-invalid='true'] { border-color: var(--danger); }

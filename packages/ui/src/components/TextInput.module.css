@@ -6,9 +6,9 @@
   border-radius: var(--radius-sm);
   background: var(--bg-elevated-2);
   color: var(--text);
-  font-size: var(--text-base);
+  font-size: var(--text-lg);
 }
 
-.ui-input:focus { outline: none; border-color: var(--accent); }
+.ui-input:focus { border-color: var(--accent); }
 
 .ui-input[aria-invalid='true'] { border-color: var(--danger); }

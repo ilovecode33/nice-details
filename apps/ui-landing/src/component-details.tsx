@@ -265,6 +265,7 @@ export function ComponentDetails({ onOpenIntro, dockRef, dockCollapsed, onReady 
                 />
                 <span id="component-switch" className="component-anchor" aria-hidden="true" />
                 <Switch checked={backup} onChange={setBackup} label={t('settings.backup')} />
+                <span id="component-field" className="component-anchor" aria-hidden="true" />
                 <span id="component-select" className="component-anchor" aria-hidden="true" />
                 <Field label={t('settings.sort')}>
                   <Select
@@ -324,24 +325,16 @@ export function ComponentDetails({ onOpenIntro, dockRef, dockCollapsed, onReady 
                   setDraftError(draftName.trim() ? '' : t('create.error'));
                 }}
               >
-                <span id="component-field" className="component-anchor" aria-hidden="true" />
-                <Field label={t('settings.name')} hint={t('settings.nameHint')}>
-                  <span id="component-textinput" className="component-anchor" aria-hidden="true" />
-                  <TextInput
-                    value={draftName}
-                    placeholder={t('settings.namePlaceholder')}
-                    onChange={(event) => {
-                      setDraftName(event.target.value);
-                      if (event.target.value.trim()) setDraftError('');
-                    }}
-                  />
-                </Field>
                 <span id="component-formfield" className="component-anchor" aria-hidden="true" />
+                <span id="component-textinput" className="component-anchor" aria-hidden="true" />
                 <FormField label={t('create.name')} hint={t('create.nameHint')} error={draftError}>
                   <TextInput
                     value={draftName}
                     placeholder={t('create.namePlaceholder')}
-                    onChange={(event) => setDraftName(event.target.value)}
+                    onChange={(event) => {
+                      setDraftName(event.target.value);
+                      if (event.target.value.trim()) setDraftError('');
+                    }}
                   />
                 </FormField>
                 <span id="component-searchbar" className="component-anchor" aria-hidden="true" />
