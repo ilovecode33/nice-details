@@ -14,6 +14,19 @@ const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value));
 const clampPercent = (value: number) => clamp(value, 0, 100);
 
+function nearestSlotIndex(pointerX: number, slots: ReadonlyArray<SegmentPillSlot>): number {
+  let nearest = 0;
+  let distance = Infinity;
+  slots.forEach((slot, index) => {
+    const delta = Math.abs(slot.left + slot.width / 2 - pointerX);
+    if (delta < distance) {
+      distance = delta;
+      nearest = index;
+    }
+  });
+  return nearest;
+}
+
 // Drag feel constants. `SLOT_RADIUS` is the px band around a slot centre where
 // the breakaway curve applies; `DEAD_ZONE_PX` is how far the pointer may move
 // while the seated pill stays completely still; `BREAKAWAY_PX` is the band over
@@ -118,6 +131,8 @@ export interface UseSegmentPillDragOptions<T extends string> {
   layoutKey?: unknown;
   /** Called once on release when the pointer's nearest slot differs. */
   onChange: (value: T) => void;
+  /** Called immediately while dragging when the pointer crosses into a different slot. */
+  onSlotChange?: (value: T, index: number) => void;
   /** Marks an index as non-draggable/non-selectable. */
   isDisabled?: (index: number) => boolean;
   /** Disables the elastic deform feedback (still allows selection). */
@@ -142,6 +157,7 @@ export function useSegmentPillDrag<T extends string>({
   value,
   layoutKey,
   onChange,
+  onSlotChange,
   isDisabled,
   deform = true,
   feel,
@@ -151,7 +167,12 @@ export function useSegmentPillDrag<T extends string>({
   const shiftRef = useRef<HTMLDivElement>(null);
   // `atEdge` records whether the latest move ran past an end slot and was
   // clamped, so release can skip the settle when the pill is already seated.
-  const drag = useRef<{ startX: number; baseLeft: number; atEdge: boolean } | null>(null);
+  const drag = useRef<{
+    startX: number;
+    baseLeft: number;
+    atEdge: boolean;
+    lastSlot: number;
+  } | null>(null);
   // Render the pill only once measured, so it mounts at its final size
   // instead of transitioning in from zero on first paint.
   const [slots, setSlots] = useState<SegmentPillSlot[] | null>(null);
@@ -274,7 +295,12 @@ export function useSegmentPillDrag<T extends string>({
     if (!deform || index !== activeIndex || isDisabled?.(index)) return;
     motion.handlers.onPointerDown(event);
     spark(relativeTo(shiftRef.current, event.clientX, event.clientY), true);
-    drag.current = { startX: event.clientX, baseLeft: geometry.left, atEdge: false };
+    drag.current = {
+      startX: event.clientX,
+      baseLeft: geometry.left,
+      atEdge: false,
+      lastSlot: activeIndex,
+    };
   };
 
   const onPointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
@@ -287,12 +313,20 @@ export function useSegmentPillDrag<T extends string>({
     // slot edge so release knows there is no excess to settle back from.
     drag.current.atEdge =
       raw <= minLeft - drag.current.baseLeft || raw >= maxLeft - drag.current.baseLeft;
+    const pointerX =
+      event.clientX -
+      (trackRef.current?.getBoundingClientRect().left ?? 0) +
+      (trackRef.current?.scrollLeft ?? 0);
+    const nearest = nearestSlotIndex(pointerX, slots);
+    if (nearest !== drag.current.lastSlot && !isDisabled?.(nearest)) {
+      drag.current.lastSlot = nearest;
+      onSlotChange?.(values[nearest], nearest);
+    }
     const nextOffset = reduced
       ? clamp(raw, minLeft - drag.current.baseLeft, maxLeft - drag.current.baseLeft)
       : weightedOffset(
           raw,
-          event.clientX - (trackRef.current?.getBoundingClientRect().left ?? 0) +
-            (trackRef.current?.scrollLeft ?? 0),
+          pointerX,
           drag.current.baseLeft,
           slots,
           feel,
@@ -319,15 +353,7 @@ export function useSegmentPillDrag<T extends string>({
       event.type === 'pointercancel'
         ? baseLeft + (dragOffset ?? 0) + geometry.width / 2
         : event.clientX - trackLeft + (track?.scrollLeft ?? 0);
-    let nearest = 0;
-    let distance = Infinity;
-    slots?.forEach((slot, index) => {
-      const delta = Math.abs(slot.left + slot.width / 2 - pointerX);
-      if (delta < distance) {
-        distance = delta;
-        nearest = index;
-      }
-    });
+    const nearest = slots?.length ? nearestSlotIndex(pointerX, slots) : 0;
     let selectionChanged = false;
     if (!isDisabled?.(nearest) && values[nearest] !== value) {
       onChange(values[nearest]);

@@ -1,5 +1,5 @@
-import { useEffect, useId, useRef, useState } from 'react';
-import { Badge, Button, Sheet, TextArea, TextInput } from '@ilovecode33/ui';
+import { Suspense, lazy, useEffect, useId, useRef, useState } from 'react';
+import { ActivityIndicator, Badge, Button, Sheet, TextArea, TextInput } from '@ilovecode33/ui';
 import {
   canonicalJson,
   createSampleState,
@@ -23,9 +23,14 @@ import {
 } from '../realtime';
 import { SYNC_URL } from '../syncConfig';
 import type { StoredSyncRoom } from '../storage';
-import { QrCode } from './QrCode';
-import { QrScanner } from './QrScanner';
 import styles from './SyncPanel.module.css';
+
+const QrCode = lazy(() =>
+  import('./QrCode').then((module) => ({ default: module.QrCode })),
+);
+const QrScanner = lazy(() =>
+  import('./QrScanner').then((module) => ({ default: module.QrScanner })),
+);
 
 type SyncMode = 'host' | 'join';
 type PanelStatus = RealtimeStatus | 'idle';
@@ -447,11 +452,13 @@ export function SyncPanel({
 
             {roomUrl && (
               <div className={styles.qr}>
-                <QrCode
-                  value={roomUrl}
-                  size={280}
-                  label={t('sync.offerQr')}
-                />
+                <Suspense fallback={null}>
+                  <QrCode
+                    value={roomUrl}
+                    size={280}
+                    label={t('sync.offerQr')}
+                  />
+                </Suspense>
                 <p className={styles.hint}>{t('sync.hostHint')}</p>
                 <div className={styles.row}>
                   <Button size="compact" onClick={() => void copyLink()}>
@@ -483,21 +490,23 @@ export function SyncPanel({
               <>
                 {showScanner ? (
                   <div className={styles.scanner}>
-                    <QrScanner
-                      onScan={(value) => {
-                        setShowScanner(false);
-                        joinWith(value);
-                      }}
-                      labels={{
-                        scanning: t('sync.scanHint'),
-                        camera: t('sync.camera'),
-                        unavailable: t('sync.cameraUnavailable'),
-                        insecure: t('sync.cameraInsecure'),
-                        permission: t('sync.cameraPermission'),
-                        error: t('sync.cameraError'),
-                        success: t('sync.scanSuccess'),
-                      }}
-                    />
+                    <Suspense fallback={<ActivityIndicator label={t('loading')} />}>
+                      <QrScanner
+                        onScan={(value) => {
+                          setShowScanner(false);
+                          joinWith(value);
+                        }}
+                        labels={{
+                          scanning: t('sync.scanHint'),
+                          camera: t('sync.camera'),
+                          unavailable: t('sync.cameraUnavailable'),
+                          insecure: t('sync.cameraInsecure'),
+                          permission: t('sync.cameraPermission'),
+                          error: t('sync.cameraError'),
+                          success: t('sync.scanSuccess'),
+                        }}
+                      />
+                    </Suspense>
                     <Button
                       size="compact"
                       variant="secondary"

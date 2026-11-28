@@ -2,6 +2,7 @@ import type { DockNavigationHandle, DockNavigationProps } from '@ilovecode33/ui-
 import styles from './DockNavigation.module.css';
 import { forwardRef, useImperativeHandle, useLayoutEffect, useRef, useState } from 'react';
 import { FloatingBar } from './FloatingBar';
+import { triggerHaptic } from '../haptics';
 import { useSegmentPillDrag } from '../hooks/useSegmentPillDrag';
 
 /**
@@ -249,6 +250,7 @@ export const DockNavigation = forwardRef<DockNavigationHandle, DockNavigationPro
       values: items.map((item) => item.id),
       value: activeId ?? items[0]?.id ?? '',
       onChange: (id) => onSelect?.(id),
+      onSlotChange: () => triggerHaptic('selection'),
       deform,
       layoutKey: collapsed,
     });
@@ -275,7 +277,10 @@ export const DockNavigation = forwardRef<DockNavigationHandle, DockNavigationPro
         label={label}
         collapsible={collapsible}
         collapsed={collapsed}
-        onCollapsedChange={changeCollapsed}
+        onCollapsedChange={(next) => {
+          triggerHaptic('selection');
+          changeCollapsed(next);
+        }}
         collapseLabel={collapseLabel}
         expandLabel={expandLabel}
         deform={false}
@@ -323,7 +328,10 @@ export const DockNavigation = forwardRef<DockNavigationHandle, DockNavigationPro
                   onPointerLeave={() => pill.setHoveredIndex(null)}
                   data-active={current}
                   aria-current={current ? 'page' : undefined}
-                  onClick={(event) => onSelect?.(item.id, event)}
+                  onClick={(event) => {
+                    if (!current) triggerHaptic('selection');
+                    onSelect?.(item.id, event);
+                  }}
                 >
                   {content}
                 </a>
@@ -339,7 +347,10 @@ export const DockNavigation = forwardRef<DockNavigationHandle, DockNavigationPro
                 onPointerLeave={() => pill.setHoveredIndex(null)}
                 data-active={current}
                 aria-current={current ? 'location' : undefined}
-                onClick={(event) => onSelect?.(item.id, event)}
+                onClick={(event) => {
+                  if (!current) triggerHaptic('selection');
+                  onSelect?.(item.id, event);
+                }}
               >
                 {content}
               </button>
