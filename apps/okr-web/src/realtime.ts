@@ -75,6 +75,12 @@ type ServerMessage =
 
 const ROOM_PATTERN = /^[A-Za-z0-9_-]{16,64}$/;
 const SOCKET_OPEN = 1;
+/** Mirrors MAX_MESSAGE_BYTES in the realtime Worker's protocol. */
+const MAX_SYNC_MESSAGE_BYTES = 64 * 1024;
+
+function serializedSize(value: unknown): number {
+  return new TextEncoder().encode(JSON.stringify(value)).length;
+}
 
 function randomRoom(): string {
   const bytes = new Uint8Array(18);
@@ -330,11 +336,20 @@ class RealtimeClient implements RealtimeSession {
       .then(async () => {
         const key = await this.getKey();
         const payload = await encryptState(key, state);
-        if (this.socket?.readyState === SOCKET_OPEN) {
-          this.sendRaw({ type: 'state', payload });
-        } else {
+        if (this.socket?.readyState !== SOCKET_OPEN) {
           this.pendingState ??= state;
+          return;
         }
+        const message = { type: 'state', payload } as const;
+        if (serializedSize(message) > MAX_SYNC_MESSAGE_BYTES) {
+          this.options.onError?.(
+            new Error(
+              'This room holds too much data for one sync message (64 KB). Delete old objectives or use a new room.',
+            ),
+          );
+          return;
+        }
+        this.sendRaw(message);
       })
       .catch((error: unknown) => {
         this.options.onError?.(

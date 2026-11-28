@@ -110,13 +110,29 @@ secret.
 ## Data
 
 The first visit loads a small sample set. Changes are written to the `okr-web`
-IndexedDB database (`state` key-value store) immediately, so the tool works
-offline and keeps one user's data on that device only.
+IndexedDB database immediately, so the tool works offline and keeps one user's
+data on that device only.
+
+| Item | Where | Shape |
+|---|---|---|
+| OKR document | IndexedDB `okr-web` v1 → `state` → `current` | `{ version: 1, objectives, deleted? }` |
+| Backup of an unreadable document | `state` → `current.corrupt` | raw stored value |
+| Saved sync room | `state` → `sync-room` | `{ version: 1, room, role, key }` (version-less records read as v1) |
+| Device name | `state` → `device-name` | non-empty string |
+| Realtime room | Durable Object storage → `room` | `{ recordVersion: 1, payload: { iv, data }, revision, updatedAt }` |
+
+The document is versioned (`CURRENT_STATE_VERSION`) and read through
+`parseState()`. It validates every objective, runs registered migrations, and
+normalizes derived dates. A newer document is refused and left untouched; a
+corrupt one is copied to `current.corrupt` before sample data replaces it.
 
 Existing data from the pre-IndexedDB `localStorage` key `okr-web.state.v1` is
-migrated on first load and the old key is removed. The language choice is saved
-under `okr-web.locale`; the device name and last sync room are stored in the
-`okr-web` IndexedDB database. Clearing site data restores the sample set.
+migrated on first load and the old key is removed only after a successful read.
+The language choice is saved under `okr-web.locale`. Clearing site data restores
+the sample set.
+
+Every stored-shape change must follow
+[`data-migrations.md`](../../packages/ai-rules/data-migrations.md).
 
 ## Deployment
 

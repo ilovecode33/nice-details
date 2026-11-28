@@ -7,6 +7,8 @@ import {
 } from './protocol';
 
 const ROOM_TTL_MS = 24 * 60 * 60 * 1000;
+/** Version of the stored room record. Bump with a reader change when it changes. */
+export const ROOM_RECORD_VERSION = 1;
 
 interface SocketAttachment {
   id: string;
@@ -14,9 +16,72 @@ interface SocketAttachment {
 }
 
 interface RoomRecord {
+  recordVersion: number;
   payload: EncryptedPayload;
   revision: number;
   updatedAt: string;
+}
+
+/**
+ * Reads a stored room record, including records written before
+ * `recordVersion` existed. Unknown future versions are ignored instead of
+ * being served with the wrong shape.
+ */
+export function normalizeRoomRecord(value: unknown): RoomRecord | null {
+  if (typeof value !== 'object' || value === null) return null;
+  const record = value as {
+    recordVersion?: unknown;
+    payload?: unknown;
+    revision?: unknown;
+    updatedAt?: unknown;
+  };
+  const recordVersion =
+    record.recordVersion === undefined ? 1 : record.recordVersion;
+  if (
+    typeof recordVersion !== 'number' ||
+    !Number.isInteger(recordVersion) ||
+    recordVersion < 1 ||
+    recordVersion > ROOM_RECORD_VERSION
+  ) {
+    return null;
+  }
+  const payload = record.payload as { iv?: unknown; data?: unknown } | null;
+  if (
+    typeof payload !== 'object' ||
+    payload === null ||
+    typeof payload.iv !== 'string' ||
+    typeof payload.data !== 'string'
+  ) {
+    return null;
+  }
+  const revision = record.revision;
+  if (
+    typeof revision !== 'number' ||
+    !Number.isFinite(revision) ||
+    revision < 0
+  ) {
+    return null;
+  }
+  if (typeof record.updatedAt !== 'string') return null;
+  return {
+    recordVersion,
+    payload: { iv: payload.iv, data: payload.data },
+    revision,
+    updatedAt: record.updatedAt,
+  };
+}
+
+async function loadRoom(
+  storage: DurableObjectStorage,
+): Promise<
+  { status: 'ok'; record: RoomRecord | null } | { status: 'unreadable' }
+> {
+  const raw = await storage.get<unknown>('room');
+  if (raw === undefined) return { status: 'ok', record: null };
+  const record = normalizeRoomRecord(raw);
+  // A record exists but this worker cannot read it. Serving "empty" would let
+  // the next update overwrite data written by a newer release.
+  return record ? { status: 'ok', record } : { status: 'unreadable' };
 }
 
 function send(socket: WebSocket, message: unknown): void {
@@ -44,6 +109,12 @@ export class SyncRoom {
       return new Response('Invalid room', { status: 400 });
     }
 
+    const room = await loadRoom(this.state.storage);
+    if (room.status === 'unreadable') {
+      return new Response('Room data needs a newer worker', { status: 503 });
+    }
+    const stored = room.record;
+
     const pair = new WebSocketPair();
     const [client, server] = Object.values(pair);
     this.state.acceptWebSocket(server);
@@ -52,7 +123,6 @@ export class SyncRoom {
       device: 'Device',
     } satisfies SocketAttachment);
 
-    const stored = await this.state.storage.get<RoomRecord>('room');
     send(server, {
       type: 'welcome',
       room: connection.room,
@@ -109,10 +179,16 @@ export class SyncRoom {
       return;
     }
 
-    const current = await this.state.storage.get<RoomRecord>('room');
+    const room = await loadRoom(this.state.storage);
+    if (room.status === 'unreadable') {
+      socket.close(1011, 'Room data needs a newer worker');
+      return;
+    }
+    const current = room.record;
     const revision = (current?.revision ?? 0) + 1;
     const updatedAt = new Date().toISOString();
     const record: RoomRecord = {
+      recordVersion: ROOM_RECORD_VERSION,
       payload: parsed.payload,
       revision,
       updatedAt,

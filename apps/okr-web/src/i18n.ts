@@ -153,6 +153,9 @@ const en: Record<string, string> = {
   'sync.lastUpdated': 'Last updated {time}',
   'sync.joinPlaceholder': 'Paste the room link',
   'sync.invalidLink': 'This room link is not valid.',
+  'sync.newerVersion':
+    'This room was saved by a newer app version. Update the app, then reconnect.',
+  'sync.invalidState': 'This room sent data this app could not read.',
   'sync.realtimeConnected': 'Connected. Changes sync in realtime.',
   'sync.reconnecting': 'Reconnecting…',
   'sync.realtimeBadge': 'Realtime',
@@ -315,6 +318,8 @@ const zhTW: Record<string, string> = {
   'sync.lastUpdated': '最後更新 {time}',
   'sync.joinPlaceholder': '貼上房間連結',
   'sync.invalidLink': '這個房間連結無效。',
+  'sync.newerVersion': '這個房間由較新版本的 App 儲存，請更新 App 後重新連線。',
+  'sync.invalidState': '這個房間送來的資料無法讀取。',
   'sync.realtimeConnected': '已連線，變更會即時同步。',
   'sync.reconnecting': '重新連線中…',
   'sync.realtimeBadge': '即時',
@@ -484,6 +489,9 @@ const de: Record<string, string> = {
   'sync.lastUpdated': 'Zuletzt aktualisiert {time}',
   'sync.joinPlaceholder': 'Raumlink einfügen',
   'sync.invalidLink': 'Dieser Raumlink ist ungültig.',
+  'sync.newerVersion':
+    'Dieser Raum wurde von einer neueren App-Version gespeichert. Aktualisiere die App und verbinde dich erneut.',
+  'sync.invalidState': 'Dieser Raum hat Daten gesendet, die diese App nicht lesen kann.',
   'sync.realtimeConnected':
     'Verbunden. Änderungen werden in Echtzeit synchronisiert.',
   'sync.reconnecting': 'Verbindung wird wiederhergestellt …',

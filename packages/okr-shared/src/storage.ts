@@ -1,62 +1,12 @@
-import { normalizeState } from './normalize';
 import { createSampleState } from './sample';
+import { parseState } from './schema';
 import { STORAGE_KEY } from './types';
-import type {
-  KeyResult,
-  KRUnit,
-  OKRState,
-  StoredObjective,
-  StoredOKRState,
-} from './types';
-
-const UNITS: readonly KRUnit[] = ['percent', 'number', 'currency'];
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
-
-function isKeyResult(value: unknown): value is KeyResult {
-  if (!isRecord(value)) return false;
-  return (
-    typeof value.id === 'string' &&
-    typeof value.title === 'string' &&
-    typeof value.start === 'number' &&
-    typeof value.target === 'number' &&
-    typeof value.current === 'number' &&
-    typeof value.weight === 'number' &&
-    typeof value.unit === 'string' &&
-    UNITS.includes(value.unit as KRUnit)
-  );
-}
-
-function isObjective(value: unknown): value is StoredObjective {
-  if (!isRecord(value)) return false;
-  return (
-    typeof value.id === 'string' &&
-    typeof value.title === 'string' &&
-    typeof value.note === 'string' &&
-    typeof value.period === 'string' &&
-    (value.startDate === undefined || typeof value.startDate === 'string') &&
-    (value.endDate === undefined || typeof value.endDate === 'string') &&
-    typeof value.createdAt === 'string' &&
-    typeof value.updatedAt === 'string' &&
-    Array.isArray(value.keyResults) &&
-    value.keyResults.every(isKeyResult)
-  );
-}
-
-function isOKRState(value: unknown): value is StoredOKRState {
-  return (
-    isRecord(value) &&
-    value.version === 1 &&
-    Array.isArray(value.objectives) &&
-    value.objectives.every(isObjective)
-  );
-}
+import type { OKRState, StoredOKRState } from './types';
 
 /**
- * Loads and validates persisted state, normalizes legacy period data, and
- * falls back to sample data on any problem.
+ * Loads and validates state from the legacy localStorage store, normalizes it,
+ * and falls back to sample data on any problem. IndexedDB data goes through
+ * `parseState` in the app instead, which can keep backups and report versions.
  */
 export function loadState(storage?: Storage): OKRState {
   try {
@@ -65,7 +15,8 @@ export function loadState(storage?: Storage): OKRState {
     const raw = store.getItem(STORAGE_KEY);
     if (!raw) return createSampleState();
     const parsed: unknown = JSON.parse(raw);
-    return isOKRState(parsed) ? normalizeState(parsed) : createSampleState();
+    const result = parseState(parsed);
+    return result.status === 'ok' ? result.state : createSampleState();
   } catch {
     return createSampleState();
   }

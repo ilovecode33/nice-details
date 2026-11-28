@@ -31,6 +31,12 @@ The workflow has a fork guard: pull requests from forks do not get previews, bec
 
 The Worker has a `SyncRoom` Durable Object. Each room stores the latest encrypted OKR payload and broadcasts changes over WebSocket. It keeps ciphertext and revision metadata for up to 24 hours after the last device leaves; the AES-GCM key stays in the URL fragment and never reaches the Worker. The origin allowlist accepts `https://okr.ilovecode33.fyi`, Pages preview/production domains, and `localhost`.
 
+The room record is versioned independently (`ROOM_RECORD_VERSION` in `apps/okr-realtime/src/room.ts`). Records written before versioning are read as version 1. Because the payload is opaque ciphertext, changing the OKR document shape requires only a client migration — the Worker never rewrites stored documents. Changes to the record envelope itself need a reader that accepts the previous shape.
+
+## Data migrations
+
+Persisted shapes (IndexedDB document, saved sync room, room record) follow [`data-migrations.md`](../../packages/ai-rules/data-migrations.md). Before releasing a change that alters a stored shape: bump the matching version constant, register the migration, keep old records readable, refuse newer records, and add tests for old, corrupt, and newer data.
+
 ## Required GitHub secrets
 
 - `CLOUDFLARE_API_TOKEN` — Pages deployments

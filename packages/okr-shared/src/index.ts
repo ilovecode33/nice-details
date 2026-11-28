@@ -38,5 +38,12 @@ export {
   deleteObjective,
   mergeStates,
 } from './merge';
+export {
+  CURRENT_STATE_VERSION,
+  isStoredObjective,
+  isStoredOKRState,
+  parseState,
+} from './schema';
+export type { StateReadResult } from './schema';
 export { createSampleState } from './sample';
 export { loadState, saveState } from './storage';

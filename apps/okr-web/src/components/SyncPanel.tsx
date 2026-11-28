@@ -3,6 +3,7 @@ import { Badge, Button, Sheet, TextArea, TextInput } from '@ilovecode33/ui';
 import {
   canonicalJson,
   mergeStates,
+  parseState,
   type OKRState,
 } from '@ilovecode33/okr-shared';
 import { defaultDeviceName } from '../deviceName';
@@ -27,12 +28,6 @@ import styles from './SyncPanel.module.css';
 
 type SyncMode = 'host' | 'join';
 type PanelStatus = RealtimeStatus | 'idle';
-
-function isOkrState(value: unknown): value is OKRState {
-  if (typeof value !== 'object' || value === null) return false;
-  const state = value as Partial<OKRState>;
-  return state.version === 1 && Array.isArray(state.objectives);
-}
 
 function messageOf(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
@@ -149,17 +144,29 @@ export function SyncPanel({
   function applyRemoteState(value: unknown, meta: RealtimeStateMeta) {
     setRevision(meta.revision);
     setUpdatedAt(meta.updatedAt);
-    if (!isOkrState(value)) return;
+    const parsed = parseState(value);
+    if (parsed.status === 'newer') {
+      setError(t('sync.newerVersion'));
+      return;
+    }
+    if (parsed.status === 'invalid') {
+      setError(t('sync.invalidState'));
+      return;
+    }
+    const remoteState = parsed.state;
     // Joining a room adopts its document; every later update merges per
     // objective so concurrent edits on the other device are kept.
     const adopt = adoptRef.current;
     adoptRef.current = false;
-    const next = adopt ? value : mergeStates(stateRef.current, value);
+    const next = adopt
+      ? remoteState
+      : mergeStates(stateRef.current, remoteState);
     // Keep the ref current for messages that arrive before React re-renders.
     stateRef.current = next;
     // Only talk back when merging produced something the sender lacks; a
     // deterministic merge stops after both sides agree.
-    skipSendRef.current = canonicalJson(next) === canonicalJson(value);
+    skipSendRef.current =
+      canonicalJson(next) === canonicalJson(remoteState);
     readyToSendRef.current = true;
     onRemoteStateRef.current(next);
   }

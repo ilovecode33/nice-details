@@ -1,8 +1,7 @@
 import { openPersistence, type Persistence } from '@ilovecode33/persistence';
 import {
   createSampleState,
-  loadState,
-  normalizeState,
+  parseState,
   STORAGE_KEY,
   type OKRState,
 } from '@ilovecode33/okr-shared';
@@ -12,7 +11,10 @@ export const OKR_DATABASE = 'okr-web';
 export const OKR_DATABASE_VERSION = 1;
 export const OKR_STORE = 'state';
 const OKR_KEY = 'current';
+/** Copy of a state that failed validation, kept for manual recovery. */
+const OKR_BACKUP_KEY = 'current.corrupt';
 const SYNC_ROOM_KEY = 'sync-room';
+const SYNC_ROOM_VERSION = 1;
 const DEVICE_NAME_KEY = 'device-name';
 const SYNC_ROOM_PATTERN = /^[A-Za-z0-9_-]{16,64}$/;
 
@@ -37,16 +39,18 @@ export interface OkrStorage {
 }
 
 /**
- * Moves pre-IndexedDB data from localStorage into IndexedDB once. The shared
- * load helper validates the value and falls back to sample data on corruption.
+ * Moves pre-IndexedDB data from localStorage into IndexedDB once. The legacy
+ * key is left untouched when the value cannot be read, so nothing is lost.
  */
 function migrateLegacyState(): OKRState | null {
   try {
     const storage = globalThis.localStorage;
-    if (!storage || storage.getItem(STORAGE_KEY) === null) return null;
-    const state = loadState(storage);
+    const raw = storage?.getItem(STORAGE_KEY);
+    if (raw === null || raw === undefined) return null;
+    const result = parseState(JSON.parse(raw));
+    if (result.status !== 'ok') return null;
     storage.removeItem(STORAGE_KEY);
-    return state;
+    return result.state;
   } catch {
     return null;
   }
@@ -63,13 +67,29 @@ export async function openOkrStorage(
       [OKR_STORE]: { type: 'kv' },
     },
   });
-  const kv = db.kv<OKRState>(OKR_STORE);
-  const syncKv = db.kv<unknown>(OKR_STORE);
+  const kv = db.kv<unknown>(OKR_STORE);
 
   return {
     async load() {
-      const saved = await kv.get(OKR_KEY);
-      if (saved) return normalizeState(saved);
+      const raw = await kv.get(OKR_KEY);
+      if (raw !== undefined) {
+        const parsed = parseState(raw);
+        if (parsed.status === 'ok') {
+          if (parsed.migrated) await kv.set(OKR_KEY, parsed.state);
+          return parsed.state;
+        }
+        if (parsed.status === 'newer') {
+          // Never overwrite data written by a newer app version.
+          throw new Error(
+            `Your saved OKRs use a newer format (version ${parsed.version}). Update the app to open them.`,
+          );
+        }
+        // Keep the unreadable value for recovery, then start from sample data.
+        await kv.set(OKR_BACKUP_KEY, raw);
+        const sample = createSampleState();
+        await kv.set(OKR_KEY, sample);
+        return sample;
+      }
 
       const migrated = migrateLegacyState();
       if (migrated) {
@@ -83,9 +103,18 @@ export async function openOkrStorage(
     },
     save: (state) => kv.set(OKR_KEY, state),
     async loadSyncRoom() {
-      const value = await syncKv.get(SYNC_ROOM_KEY);
+      const value = await kv.get(SYNC_ROOM_KEY);
       if (typeof value !== 'object' || value === null) return null;
-      const record = value as { room?: unknown; role?: unknown; key?: unknown };
+      const record = value as {
+        version?: unknown;
+        room?: unknown;
+        role?: unknown;
+        key?: unknown;
+      };
+      // Records written before versioning have no version field.
+      if (record.version !== undefined && record.version !== SYNC_ROOM_VERSION) {
+        return null;
+      }
       if (
         typeof record.room !== 'string' ||
         !SYNC_ROOM_PATTERN.test(record.room) ||
@@ -97,16 +126,16 @@ export async function openOkrStorage(
       }
       return { room: record.room, role: record.role, key: record.key };
     },
-    saveSyncRoom: (room) => syncKv.set(SYNC_ROOM_KEY, room),
-    clearSyncRoom: () => syncKv.delete(SYNC_ROOM_KEY),
+    saveSyncRoom: (room) =>
+      kv.set(SYNC_ROOM_KEY, { version: SYNC_ROOM_VERSION, ...room }),
+    clearSyncRoom: () => kv.delete(SYNC_ROOM_KEY),
     async loadDeviceName() {
-      const value = await syncKv.get(DEVICE_NAME_KEY);
+      const value = await kv.get(DEVICE_NAME_KEY);
       return typeof value === 'string' && value.trim()
         ? value.trim().slice(0, 40)
         : null;
     },
-    saveDeviceName: (name) =>
-      syncKv.set(DEVICE_NAME_KEY, name.trim().slice(0, 40)),
+    saveDeviceName: (name) => kv.set(DEVICE_NAME_KEY, name.trim().slice(0, 40)),
     close: () => db.close(),
     destroy: () => db.destroy(),
   };

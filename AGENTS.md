@@ -70,6 +70,7 @@ Reference: https://developer.apple.com/design/human-interface-guidelines/design-
   - `bunx turbo run dev --filter=@ilovecode33/okr-web...` (3201)
 - `turbo.json` task `outputs` must be accurate, otherwise a cache hit restores nothing.
 - Versioning and changelogs are managed with Changesets; follow [`RELEASING.md`](RELEASING.md) for authoring changesets, checking status before merge and releasing.
+- Persisted data changes only through a versioned migration: bump the schema constant, keep old records readable, back up unreadable values, and refuse records from a newer release. See [`data-migrations.md`](packages/ai-rules/data-migrations.md).
 - The `@ilovecode33/ai-rules` workspace holds the project rules as plain Markdown documents, one topic per file, with an index in `packages/ai-rules/README.md`. Rule content lives only in `AGENTS.md` and that workspace.
 - **Never push directly to `main`** — work on a topic branch and merge through a PR with green checks and a changeset. See [`git-workflow.md`](packages/ai-rules/git-workflow.md); install the local guard with `bun run hooks:install`.
 
