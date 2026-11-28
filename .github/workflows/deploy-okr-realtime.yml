@@ -9,6 +9,12 @@ on:
 permissions:
   contents: read
 
+# Deploys never overlap, so an older run cannot finish after a newer one and
+# leave a stale Worker live. A queued run is replaced by the newest one.
+concurrency:
+  group: deploy-okr-realtime
+  cancel-in-progress: false
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -18,16 +24,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
+      - name: Detect a pending version bump
+        id: gate
+        uses: ./.github/actions/pending-release
+
       - name: Set up Bun
+        if: steps.gate.outputs.skip != 'true'
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: '1.4.4'
 
       - name: Install dependencies
+        if: steps.gate.outputs.skip != 'true'
         run: bun install --frozen-lockfile
 
       - name: Deploy realtime Worker
-        if: env.CLOUDFLARE_WORKERS_API_TOKEN != ''
+        if: steps.gate.outputs.skip != 'true' && env.CLOUDFLARE_WORKERS_API_TOKEN != ''
         uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_WORKERS_API_TOKEN }}
