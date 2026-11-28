@@ -66,6 +66,9 @@ export default defineConfig({
       },
     ],
   },
+  resolve: {
+    aliasStrategy: 'prefer-alias',
+  },
   server: {
     port: 3201,
   },

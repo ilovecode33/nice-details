@@ -1,12 +1,15 @@
 // Rstest Snapshot v1
 
 exports[`Sheet > matches its structural snapshot 1`] = `
-<body>
+<body
+  style="position: fixed; top: 0px; left: 0px; right: 0px; width: 100%; overflow: hidden;"
+>
   <div>
     <div
       aria-label="Details"
       aria-modal="true"
       class="src-components-Sheet-module__ui-sheet-ur49n5"
+      data-phase="opening"
       role="dialog"
     >
       <div

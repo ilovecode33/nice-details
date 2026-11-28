@@ -4,6 +4,7 @@ Scope: Use for every PR that adds or changes a component.
 
 ```md
 ### Entry checks
+
 - [ ] Single responsibility
 - [ ] Minimal API / complete types
 - [ ] Component details scenario on the landing page
