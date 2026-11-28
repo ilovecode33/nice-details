@@ -27,6 +27,7 @@ rules for developers and agents, not user-facing copy.
 | [Photo wall](photo-wall.md)                                    | File layout, tests, and public API rules — `@ilovecode33/photo-wall`                              |
 | [Editor core](editor-core.md)                                  | Framework-agnostic Lexical SDK rules — `@ilovecode33/editor-core`                                 |
 | [Git workflow](git-workflow.md)                                | Never push directly to `main`; branch, PR, checks, changesets                                     |
+| [Deployment workflows](deployment.md)                          | Gate production deploys on pending changesets, dispatch them after the version commit             |
 | [Persisted data and migrations](data-migrations.md)            | Version every stored shape; keep old records readable, back up unreadable ones, refuse newer ones |
 
 ## Updating rules

@@ -62,7 +62,7 @@ const SyncPanel = lazy(() =>
 );
 import { LOCALES, LOCALE_NAMES, useOkrI18n } from './i18n';
 import { formatBuildTime } from './buildInfo';
-import { useAppUpdate } from './useAppUpdate';
+import { isNewerVersion, useAppUpdate } from './useAppUpdate';
 import { useInstallPrompt } from './useInstallPrompt';
 import { useThemeChrome } from './useThemeChrome';
 import { getOkrStorage, type OkrStorage, type StoredSyncRoom } from './storage';
@@ -104,9 +104,10 @@ export function App({ storage }: AppProps = {}) {
   const [page, setPage] = useState<AppPage>('dashboard');
   const [nameDraft, setNameDraft] = useState('');
   const appVersion = import.meta.env.PUBLIC_APP_VERSION ?? '0.0.0';
-  const buildTime = formatBuildTime(import.meta.env.PUBLIC_BUILD_TIME, intlLocale);
+  const appBuild = import.meta.env.PUBLIC_BUILD_TIME;
+  const buildTime = formatBuildTime(appBuild, intlLocale);
   const install = useInstallPrompt();
-  const appUpdate = useAppUpdate(appVersion);
+  const appUpdate = useAppUpdate(appVersion, appBuild);
   const [period, setPeriod] = useState(ALL_PERIODS);
   const [sort, setSort] = useState<ObjectiveSort>('updated');
   // undefined = closed, null = create a new objective, otherwise the one to edit.
@@ -716,7 +717,8 @@ export function App({ storage }: AppProps = {}) {
                       {appUpdate.checking
                         ? t('settings.updateChecking')
                         : appUpdate.updateReady
-                          ? appUpdate.latestVersion
+                          ? appUpdate.latestVersion &&
+                            isNewerVersion(appUpdate.latestVersion, appVersion)
                             ? t('settings.updateAvailable', {
                                 version: appUpdate.latestVersion,
                               })

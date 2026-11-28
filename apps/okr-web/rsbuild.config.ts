@@ -48,6 +48,11 @@ export default defineConfig({
       },
       {
         tag: 'meta',
+        attrs: { name: 'app-build', content: buildTime },
+        head: true,
+      },
+      {
+        tag: 'meta',
         attrs: { name: 'theme-color', content: SURFACES.light.bg },
         head: true,
       },

@@ -6,6 +6,12 @@ on:
       - main
   workflow_dispatch:
 
+# Deploys never overlap, so an older run cannot finish after a newer one and
+# leave stale content live. A queued run is replaced by the newest one.
+concurrency:
+  group: deploy-blog
+  cancel-in-progress: false
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -16,22 +22,29 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
+      - name: Detect a pending version bump
+        id: gate
+        uses: ./.github/actions/pending-release
+
       - name: Set up Bun
+        if: steps.gate.outputs.skip != 'true'
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: '1.4.4'
 
       - name: Install dependencies
+        if: steps.gate.outputs.skip != 'true'
         run: bun install --frozen-lockfile
 
       - name: Build blog
+        if: steps.gate.outputs.skip != 'true'
         run: bunx turbo run build --filter=@ilovecode33/blog
 
       - name: Deploy to Cloudflare Pages
+        if: steps.gate.outputs.skip != 'true'
         uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy apps/blog/dist --project-name=ilovecode33-blog --branch=main
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-

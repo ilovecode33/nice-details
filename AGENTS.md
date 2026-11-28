@@ -110,6 +110,11 @@ Reference:
 - **Never push directly to `main`** — work on a topic branch and merge through a PR with green
   checks and a changeset. See [`git-workflow.md`](packages/ai-rules/git-workflow.md); install the
   local guard with `bun run hooks:install`.
+- Every production deploy workflow (`.github/workflows/deploy-*.yml`) must skip a push to `main`
+  that still carries a pending changeset, so new content never goes live under the previous version.
+  Call the shared `pending-release` action, keep `workflow_dispatch` and a non-cancelling
+  `concurrency` group, and add the workflow to the dispatch loop in `release.yml`. See
+  [`deployment.md`](packages/ai-rules/deployment.md).
 
 ## 6. Definition of done
 
@@ -128,4 +133,6 @@ Before declaring work complete:
 6. Any changed behavior, convention, or setup is promptly updated in the relevant documentation
    (`README.md`, `AGENTS.md`, or `packages/ai-rules/`), and `bun run format:md` / `bun run check:md`
    pass.
-7. Never commit `node_modules`, `dist`, or `.turbo`.
+7. Any added or changed deploy workflow follows section 5 and
+   [`deployment.md`](packages/ai-rules/deployment.md) (version gate, dispatch loop, concurrency).
+8. Never commit `node_modules`, `dist`, or `.turbo`.

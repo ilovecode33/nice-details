@@ -1,0 +1,29 @@
+name: Detect a pending version bump
+description: >
+  Outputs `skip=true` for a push that still carries a releasable changeset. Such a
+  push would deploy new content under the previous version number; the
+  `Version packages` workflow merges the version bump next and dispatches every
+  deploy workflow for that commit. Manual dispatches never skip. Run it after
+  checkout.
+
+outputs:
+  skip:
+    description: "'true' when this deploy should be skipped"
+    value: ${{ steps.detect.outputs.skip }}
+
+runs:
+  using: composite
+  steps:
+    - name: Look for releasable changesets
+      id: detect
+      shell: bash
+      env:
+        EVENT_NAME: ${{ github.event_name }}
+      run: |
+        if [ "$EVENT_NAME" = "push" ] \
+          && grep -lE --exclude=README.md "^['\"]?@ilovecode33/[^:]+['\"]?: *(major|minor|patch)" .changeset/*.md > /dev/null 2>&1; then
+          echo "skip=true" >> "$GITHUB_OUTPUT"
+          echo "A version bump is pending; the version commit will deploy instead."
+        else
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+        fi

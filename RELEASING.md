@@ -40,6 +40,14 @@ Changesets and must not be hand-edited once changesets are in use.
    typecheck/build/test, reports the required preview checks, and squash-merges it back to `main`.
    No manual `bun run version:packages` is needed. If the automation cannot merge (for example a
    failing check), the version PR stays open for manual review; merging it by hand is always safe.
+4. Production deploys (`deploy-okr-web`, `deploy-blog`, `deploy-okr-realtime`) skip a push to `main`
+   that still carries a releasable changeset, because it would ship new content under the previous
+   version number. The version workflow dispatches all of them for the version commit, so content
+   and version go live together. If the version PR cannot merge, merge it by hand (or run the deploy
+   workflows manually with `workflow_dispatch`, which never skips). Every deploy workflow uses its
+   own non-overlapping concurrency group, and they all call the shared
+   [`pending-release`](.github/actions/pending-release/action.yml) action; new deploy workflows must
+   do the same and be added to the dispatch loop in `release.yml`.
 
 ## Manual fallback
 
