@@ -10,10 +10,21 @@ export interface AppUpdateState {
   update: () => void;
 }
 
+export interface AppUpdateOptions {
+  /** Overrides production-only polling and service-worker listeners (used in tests). */
+  enabled?: boolean;
+}
+
+interface DeployedBuild {
+  version: string;
+  build: string | null;
+}
+
 const VERSION_PATTERN = /^\d+\.\d+\.\d+$/;
 const UPDATE_CHECK_INTERVAL = 15 * 60 * 1000;
 
-function isNewerVersion(candidate: string, current: string): boolean {
+/** Returns true when `candidate` is strictly higher than `current` (major.minor.patch). */
+export function isNewerVersion(candidate: string, current: string): boolean {
   if (!VERSION_PATTERN.test(candidate) || !VERSION_PATTERN.test(current)) {
     return false;
   }
@@ -27,14 +38,8 @@ function isNewerVersion(candidate: string, current: string): boolean {
   return false;
 }
 
-async function fetchLatestVersion(): Promise<string> {
-  const url = new URL(window.location.href);
-  url.hash = '';
-  url.searchParams.set('__version_check', String(Date.now()));
-  const response = await fetch(url, { cache: 'no-store' });
-  if (!response.ok) throw new Error('Version check failed');
-
-  const html = await response.text();
+/** Extracts deployed version and build identifiers from HTML `<meta>` tags. */
+export function parseDeployedBuild(html: string): DeployedBuild {
   const document = new DOMParser().parseFromString(html, 'text/html');
   const version = document
     .querySelector('meta[name="app-version"]')
@@ -43,17 +48,36 @@ async function fetchLatestVersion(): Promise<string> {
   if (!version || !VERSION_PATTERN.test(version)) {
     throw new Error('Latest app version is unavailable');
   }
-  return version;
+  const build =
+    document
+      .querySelector('meta[name="app-build"]')
+      ?.getAttribute('content')
+      ?.trim() || null;
+  return { version, build };
+}
+
+async function fetchDeployedBuild(): Promise<DeployedBuild> {
+  const url = new URL(window.location.href);
+  url.hash = '';
+  url.searchParams.set('__version_check', String(Date.now()));
+  const response = await fetch(url, { cache: 'no-store' });
+  if (!response.ok) throw new Error('Version check failed');
+  return parseDeployedBuild(await response.text());
 }
 
 /**
  * Checks the deployed version on launch, when the app becomes visible, and
  * periodically while open. It never reloads unless the user chooses Update now.
  */
-export function useAppUpdate(currentVersion: string): AppUpdateState {
+export function useAppUpdate(
+  currentVersion: string,
+  currentBuild?: string,
+  { enabled = import.meta.env.PROD }: AppUpdateOptions = {},
+): AppUpdateState {
   const [workerUpdateReady, setWorkerUpdateReady] = useState(false);
   const [checking, setChecking] = useState(false);
   const [latestVersion, setLatestVersion] = useState<string | null>(null);
+  const [latestBuild, setLatestBuild] = useState<string | null>(null);
   const [checkFailed, setCheckFailed] = useState(false);
   const checkingRef = useRef(false);
 
@@ -71,7 +95,9 @@ export function useAppUpdate(currentVersion: string): AppUpdateState {
             /* Version lookup below still works when service-worker checks fail. */
           });
       }
-      setLatestVersion(await fetchLatestVersion());
+      const deployed = await fetchDeployedBuild();
+      setLatestVersion(deployed.version);
+      setLatestBuild(deployed.build);
     } catch {
       setCheckFailed(true);
     } finally {
@@ -81,7 +107,7 @@ export function useAppUpdate(currentVersion: string): AppUpdateState {
   }, []);
 
   useEffect(() => {
-    if (!import.meta.env.PROD) return;
+    if (!enabled) return;
     let cancelled = false;
     const markReady = () => {
       if (!cancelled) setWorkerUpdateReady(true);
@@ -94,6 +120,8 @@ export function useAppUpdate(currentVersion: string): AppUpdateState {
           if (cancelled || !registration) return;
           if (registration.waiting) markReady();
           registration.addEventListener('updatefound', () => {
+            // Initial registration has no active controller yet; its SW matches this load.
+            if (!navigator.serviceWorker.controller) return;
             const worker = registration.installing;
             worker?.addEventListener('statechange', () => {
               if (worker.state === 'installed' || worker.state === 'activated') {
@@ -119,7 +147,7 @@ export function useAppUpdate(currentVersion: string): AppUpdateState {
       document.removeEventListener('visibilitychange', checkWhenVisible);
       window.clearInterval(interval);
     };
-  }, [checkForUpdates]);
+  }, [checkForUpdates, enabled]);
 
   const update = useCallback(() => {
     const refreshUrl = new URL(window.location.href);
@@ -134,10 +162,18 @@ export function useAppUpdate(currentVersion: string): AppUpdateState {
       });
   }, []);
 
+  const hasNewerVersion =
+    latestVersion !== null && isNewerVersion(latestVersion, currentVersion);
+  const sameBuildId =
+    Boolean(currentBuild && latestBuild) && latestBuild === currentBuild;
+  const sameDeployedBuild = latestVersion === currentVersion && sameBuildId;
+  const hasNewerBuild =
+    latestVersion === currentVersion &&
+    Boolean(currentBuild && latestBuild && !sameBuildId);
+
   return {
     updateReady:
-      workerUpdateReady ||
-      (latestVersion !== null && isNewerVersion(latestVersion, currentVersion)),
+      hasNewerVersion || hasNewerBuild || (workerUpdateReady && !sameDeployedBuild),
     checking,
     latestVersion,
     checkFailed,

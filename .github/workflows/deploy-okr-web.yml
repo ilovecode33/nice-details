@@ -10,6 +10,12 @@ permissions:
   contents: read
   deployments: write
 
+# Deploys never overlap, so an older run cannot finish after a newer one and
+# leave stale content live. A queued run is replaced by the newest one.
+concurrency:
+  group: deploy-okr-web
+  cancel-in-progress: false
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -17,18 +23,37 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
+      # A push that still carries a releasable changeset would ship new content
+      # under the previous version number. The `Version packages` workflow
+      # merges the version bump next and dispatches this workflow for that
+      # commit, so skip the intermediate build. Manual dispatches always deploy.
+      - name: Detect a pending version bump
+        id: gate
+        run: |
+          if [ "${{ github.event_name }}" = "push" ] \
+            && grep -lE --exclude=README.md "^['\"]?@ilovecode33/[^:]+['\"]?: *(major|minor|patch)" .changeset/*.md > /dev/null 2>&1; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "A version bump is pending; the version commit will deploy instead."
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Set up Bun
+        if: steps.gate.outputs.skip != 'true'
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: '1.4.4'
 
       - name: Install dependencies
+        if: steps.gate.outputs.skip != 'true'
         run: bun install --frozen-lockfile
 
       - name: Build OKR web
+        if: steps.gate.outputs.skip != 'true'
         run: bunx turbo run build --filter=@ilovecode33/okr-web
 
       - name: Deploy to Cloudflare Pages
+        if: steps.gate.outputs.skip != 'true'
         uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}

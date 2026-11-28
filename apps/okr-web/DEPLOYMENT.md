@@ -32,6 +32,15 @@ access the Cloudflare secrets.
 to the Pages project with `--branch=main`. The `okr.ilovecode33.fyi` custom domain is attached to
 the project.
 
+A push to `main` that still carries a releasable changeset skips the build: it would publish new
+content under the previous version number. The `Version packages` workflow merges the version bump
+next and dispatches this workflow for that commit, so production always ships content together with
+its final version. Manual `workflow_dispatch` runs always deploy. Runs never overlap (concurrency
+group `deploy-okr-web`), so an older deploy cannot finish after a newer one.
+
+The app detects updates by comparing the deployed `app-version` and `app-build` meta tags with the
+values baked into the running bundle.
+
 ## Realtime Worker
 
 - Worker: `ilovecode33-okr-realtime`
