@@ -214,7 +214,7 @@ describe('DockNavigation', () => {
     }
   });
 
-  test('triggers haptic feedback when dragging across slots, clicking inactive items, and toggling collapse', () => {
+  test('triggers haptic feedback when dragging across slots, clicking inactive items, and toggling collapse', async () => {
     const vibrate = rs.fn(() => true);
     Object.defineProperty(navigator, 'vibrate', { configurable: true, value: vibrate });
     const original = Element.prototype.getBoundingClientRect;
@@ -248,7 +248,7 @@ describe('DockNavigation', () => {
       fireEvent.pointerDown(one, { pointerId: 7, pointerType: 'touch', clientX: 30, clientY: 20 });
       fireEvent.pointerMove(dock, { pointerId: 7, pointerType: 'touch', clientX: 90, clientY: 20 });
       fireEvent.pointerUp(dock, { pointerId: 7, pointerType: 'touch', clientX: 90, clientY: 20 });
-      expect(vibrate).toHaveBeenCalledWith(8);
+      expect(vibrate).toHaveBeenCalledWith(20);
 
       vibrate.mockClear();
       resetHapticThrottle();
@@ -256,12 +256,24 @@ describe('DockNavigation', () => {
       fireEvent.click(one);
       expect(vibrate).not.toHaveBeenCalled();
       fireEvent.click(two);
-      expect(vibrate).toHaveBeenCalledWith(8);
+      expect(vibrate).toHaveBeenCalledWith(20);
 
+      // If pointermove vibration was blocked (returned false), release onChange still vibrates.
+      vibrate.mockReset();
+      resetHapticThrottle();
+      vibrate.mockReturnValueOnce(false).mockReturnValueOnce(true);
+      fireEvent.pointerDown(one, { pointerId: 8, pointerType: 'touch', clientX: 30, clientY: 20 });
+      fireEvent.pointerMove(dock, { pointerId: 8, pointerType: 'touch', clientX: 90, clientY: 20 });
+      fireEvent.pointerUp(dock, { pointerId: 8, pointerType: 'touch', clientX: 90, clientY: 20 });
+      expect(vibrate).toHaveBeenCalledTimes(2);
+      expect(vibrate).toHaveBeenLastCalledWith(20);
+
+      // Wait for useDeform's post-drag click-suppression guard to clear.
+      await new Promise((resolve) => setTimeout(resolve, 10));
       vibrate.mockClear();
       resetHapticThrottle();
       fireEvent.click(screen.getByRole('button', { name: 'Collapse' }));
-      expect(vibrate).toHaveBeenCalledWith(8);
+      expect(vibrate).toHaveBeenCalledWith(20);
     } finally {
       Element.prototype.getBoundingClientRect = original;
     }

@@ -101,6 +101,7 @@ export const DockNavigation = forwardRef<DockNavigationHandle, DockNavigationPro
     const dockRef = useRef<HTMLDivElement>(null);
     const before = useRef<Geometry | null>(null);
     const animations = useRef<{ bar?: Animation; dock?: Animation }>({});
+    const dragHapticFiredRef = useRef(false);
 
     /**
      * Snapshots the current bar/dock geometry before a collapse change, updates
@@ -249,8 +250,16 @@ export const DockNavigation = forwardRef<DockNavigationHandle, DockNavigationPro
     const pill = useSegmentPillDrag({
       values: items.map((item) => item.id),
       value: activeId ?? items[0]?.id ?? '',
-      onChange: (id) => onSelect?.(id),
-      onSlotChange: () => triggerHaptic('selection'),
+      onChange: (id) => {
+        if (!dragHapticFiredRef.current) triggerHaptic('selection');
+        dragHapticFiredRef.current = false;
+        onSelect?.(id);
+      },
+      onSlotChange: () => {
+        if (triggerHaptic('selection')) {
+          dragHapticFiredRef.current = true;
+        }
+      },
       deform,
       layoutKey: collapsed,
     });
@@ -292,6 +301,10 @@ export const DockNavigation = forwardRef<DockNavigationHandle, DockNavigationPro
           data-ui="dock"
           className={[styles['ui-dock'], styles['ui-dock--enter'], styles[collapsed ? 'is-collapsed' : ''] || '', styles[collapsed && items.length < 3 ? 'is-short' : ''] || ''].filter(Boolean).join(' ')}
           {...pill.handlers}
+          onPointerDown={(event) => {
+            dragHapticFiredRef.current = false;
+            pill.handlers.onPointerDown(event);
+          }}
         >
           {pill.slots && (
             <div

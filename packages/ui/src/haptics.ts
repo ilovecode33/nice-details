@@ -1,10 +1,13 @@
 const HAPTIC_THROTTLE_MS = 32;
-const SELECTION_MS = 8;
-const IMPACT_MS = 14;
+const SELECTION_MS = 20;
+const IMPACT_MS = 35;
+const HAPTIC_INPUT_ID = 'ui-haptic-switch';
 
 export type HapticStyle = 'selection' | 'impact';
 
 let lastHapticAt = -Infinity;
+let iosInput: HTMLInputElement | null = null;
+let iosLabel: HTMLLabelElement | null = null;
 
 function nowMs(): number {
   return typeof performance !== 'undefined' ? performance.now() : Date.now();
@@ -27,10 +30,34 @@ function isTouchCapable(): boolean {
   );
 }
 
+function ensureIosSwitchLabel(): HTMLLabelElement | null {
+  if (typeof document === 'undefined' || !document.body) return null;
+  if (iosLabel?.isConnected && iosInput?.isConnected) return iosLabel;
+
+  const input = document.createElement('input');
+  input.type = 'checkbox';
+  input.id = HAPTIC_INPUT_ID;
+  input.setAttribute('switch', '');
+  input.tabIndex = -1;
+  input.setAttribute('aria-hidden', 'true');
+  input.style.display = 'none';
+
+  const label = document.createElement('label');
+  label.htmlFor = HAPTIC_INPUT_ID;
+  label.setAttribute('aria-hidden', 'true');
+  label.style.display = 'none';
+
+  document.body.append(input, label);
+  iosInput = input;
+  iosLabel = label;
+  return label;
+}
+
 /**
  * Triggers a subtle, throttled mobile haptic pulse: uses `navigator.vibrate` on
- * Android/supporting browsers and falls back to clicking a transient hidden
- * `<input type="checkbox" switch>` label for iOS 17.4+ Taptic Engine feedback.
+ * Android/supporting browsers and falls back to clicking a persistent hidden
+ * `<label>` bound to `<input type="checkbox" switch>` for iOS 17.4+ Taptic
+ * Engine feedback.
  */
 export function triggerHaptic(style: HapticStyle = 'selection'): boolean {
   if (typeof window === 'undefined' || typeof navigator === 'undefined') return false;
@@ -47,31 +74,21 @@ export function triggerHaptic(style: HapticStyle = 'selection'): boolean {
     }
   }
 
-  if (!isTouchCapable() || typeof document === 'undefined' || !document.body) {
-    return false;
-  }
+  if (!isTouchCapable()) return false;
 
-  const label = document.createElement('label');
-  const input = document.createElement('input');
-  input.type = 'checkbox';
-  input.setAttribute('switch', '');
-  input.tabIndex = -1;
-  input.setAttribute('aria-hidden', 'true');
-  label.setAttribute('aria-hidden', 'true');
-  label.style.cssText =
-    'position:fixed;width:1px;height:1px;opacity:0;pointer-events:none;overflow:hidden;';
-  label.append(input);
-  document.body.append(label);
-  try {
-    label.click();
-  } finally {
-    label.remove();
-  }
+  const label = ensureIosSwitchLabel();
+  if (!label) return false;
+
+  label.click();
   lastHapticAt = now;
   return true;
 }
 
-/** Resets the haptic throttle timestamp; intended for tests. */
+/** Resets throttle state and removes any injected iOS switch elements; intended for tests. */
 export function resetHapticThrottle(): void {
   lastHapticAt = -Infinity;
+  iosInput?.remove();
+  iosLabel?.remove();
+  iosInput = null;
+  iosLabel = null;
 }

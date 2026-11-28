@@ -46,17 +46,17 @@ function mockMedia({
 }
 
 describe('triggerHaptic', () => {
-  test('calls navigator.vibrate with 8ms for selection and 14ms for impact', () => {
+  test('calls navigator.vibrate with 20ms for selection and 35ms for impact', () => {
     mockMedia();
     const vibrate = rs.fn(() => true);
     Object.defineProperty(navigator, 'vibrate', { configurable: true, value: vibrate });
 
     expect(triggerHaptic('selection')).toBe(true);
-    expect(vibrate).toHaveBeenCalledWith(8);
+    expect(vibrate).toHaveBeenCalledWith(20);
 
     resetHapticThrottle();
     expect(triggerHaptic('impact')).toBe(true);
-    expect(vibrate).toHaveBeenCalledWith(14);
+    expect(vibrate).toHaveBeenCalledWith(35);
   });
 
   test('throttles consecutive calls within 32ms', () => {
@@ -78,7 +78,7 @@ describe('triggerHaptic', () => {
     expect(vibrate).not.toHaveBeenCalled();
   });
 
-  test('falls back to a transient switch checkbox click on touch devices without vibrate', () => {
+  test('mounts and reuses a persistent switch input + label singleton on touch devices without vibrate', () => {
     mockMedia({ coarsePointer: true });
     Object.defineProperty(navigator, 'vibrate', { configurable: true, value: undefined });
     Object.defineProperty(navigator, 'maxTouchPoints', { configurable: true, value: 5 });
@@ -94,10 +94,48 @@ describe('triggerHaptic', () => {
 
     try {
       expect(triggerHaptic('selection')).toBe(true);
-      expect(clickedSwitches).toEqual([true]);
-      expect(document.body.children).toHaveLength(0);
+      const firstInput = document.getElementById('ui-haptic-switch');
+      const firstLabel = document.querySelector('label[for="ui-haptic-switch"]');
+      expect(firstInput).not.toBeNull();
+      expect(firstLabel).not.toBeNull();
+
+      resetHapticThrottle();
+      // After resetHapticThrottle removes them, a new call recreates the singleton;
+      // before reset, repeated calls reuse the exact same elements.
+      expect(triggerHaptic('selection')).toBe(true);
+      const reusedInput = document.getElementById('ui-haptic-switch');
+      expect(reusedInput).not.toBeNull();
+      expect(clickedSwitches).toEqual([true, true]);
+
+      resetHapticThrottle();
+      expect(document.getElementById('ui-haptic-switch')).toBeNull();
+      expect(document.querySelector('label[for="ui-haptic-switch"]')).toBeNull();
     } finally {
       document.body.removeEventListener('click', onClick);
+    }
+  });
+
+  test('reuses the same persistent switch singleton across unthrottled triggers', () => {
+    mockMedia({ coarsePointer: true });
+    Object.defineProperty(navigator, 'vibrate', { configurable: true, value: undefined });
+    Object.defineProperty(navigator, 'maxTouchPoints', { configurable: true, value: 5 });
+
+    const nowSpy = rs.spyOn(performance, 'now');
+    nowSpy.mockReturnValueOnce(100).mockReturnValueOnce(200);
+
+    try {
+      expect(triggerHaptic('selection')).toBe(true);
+      const input1 = document.getElementById('ui-haptic-switch');
+      const label1 = document.querySelector('label[for="ui-haptic-switch"]');
+
+      expect(triggerHaptic('selection')).toBe(true);
+      const input2 = document.getElementById('ui-haptic-switch');
+      const label2 = document.querySelector('label[for="ui-haptic-switch"]');
+
+      expect(input2).toBe(input1);
+      expect(label2).toBe(label1);
+    } finally {
+      nowSpy.mockRestore();
     }
   });
 
