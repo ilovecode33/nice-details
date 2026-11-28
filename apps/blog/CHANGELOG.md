@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.1.3
+
+### Patch Changes
+
+- Updated dependencies [95ae1f6]
+- Updated dependencies [95ae1f6]
+- Updated dependencies [95ae1f6]
+- Updated dependencies [95ae1f6]
+- Updated dependencies [95ae1f6]
+  - @ilovecode33/editor-core@0.1.3
+  - @ilovecode33/ui@0.4.0
+
 ## 0.1.2
 
 ### Patch Changes

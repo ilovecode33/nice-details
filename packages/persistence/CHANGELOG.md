@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.0
+
+### Minor Changes
+
+- 95ae1f6: Add an IndexedDB-backed persistence library with typed key-value and table stores.
+
 All notable changes to `@ilovecode33/persistence` are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),

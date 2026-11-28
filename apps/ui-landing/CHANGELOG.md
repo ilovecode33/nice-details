@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.1.3
+
+### Patch Changes
+
+- Updated dependencies [95ae1f6]
+- Updated dependencies [95ae1f6]
+- Updated dependencies [95ae1f6]
+- Updated dependencies [95ae1f6]
+- Updated dependencies [95ae1f6]
+  - @ilovecode33/ui-types@0.4.0
+  - @ilovecode33/photo-wall@0.3.0
+  - @ilovecode33/ui@0.4.0
+
 ## 0.1.2
 
 ### Patch Changes
