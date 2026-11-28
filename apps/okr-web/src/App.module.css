@@ -220,6 +220,11 @@
   font-size: var(--text-sm);
 }
 
+section.settingsCard {
+  /* Let Select menus and segmented-control halos escape the card surface. */
+  overflow: visible;
+}
+
 .settings {
   display: flex;
   flex-direction: column;
@@ -249,6 +254,11 @@
 
 .settingsSelect {
   width: 100%;
+}
+
+.version {
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
 }
 
 @media (min-width: 768px) {

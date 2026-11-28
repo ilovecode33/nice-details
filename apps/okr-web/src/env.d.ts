@@ -1,6 +1,7 @@
 /// <reference types="@rsbuild/core/types" />
 
 interface ImportMetaEnv {
+  readonly PUBLIC_APP_VERSION?: string;
   readonly PUBLIC_SYNC_URL?: string;
 }
 

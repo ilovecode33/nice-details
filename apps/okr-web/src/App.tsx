@@ -80,6 +80,7 @@ export function App({ storage }: AppProps = {}) {
   const [state, setState] = useState<OKRState | null>(null);
   const [page, setPage] = useState<AppPage>('dashboard');
   const [dockCollapsed, setDockCollapsed] = useState(true);
+  const appVersion = import.meta.env.PUBLIC_APP_VERSION ?? '0.0.0';
   const [period, setPeriod] = useState(ALL_PERIODS);
   const [sort, setSort] = useState<ObjectiveSort>('updated');
   // undefined = closed, null = create a new objective, otherwise the one to edit.
@@ -536,7 +537,7 @@ export function App({ storage }: AppProps = {}) {
 
           {page === 'settings' && (
             <div className={styles.settings}>
-              <Card title={t('theme.group')}>
+              <Card className={styles.settingsCard} title={t('theme.group')}>
                 <div className={styles.settingsFields}>
                   <ThemeSwitcher
                     labels={{
@@ -562,7 +563,7 @@ export function App({ storage }: AppProps = {}) {
                 </div>
               </Card>
 
-              <Card title={t('app.language')}>
+              <Card className={styles.settingsCard} title={t('app.language')}>
                 <Select
                   className={styles.settingsSelect}
                   aria-label={t('app.language')}
@@ -575,8 +576,19 @@ export function App({ storage }: AppProps = {}) {
                 />
               </Card>
 
-              <Card title={t('sync.title')} subtitle={t('settings.syncHint')}>
+              <Card
+                className={styles.settingsCard}
+                title={t('sync.title')}
+                subtitle={t('settings.syncHint')}
+              >
                 <SyncStatus status={syncStatus} onOpen={() => setSyncOpen(true)} />
+              </Card>
+
+              <Card className={styles.settingsCard} title={t('settings.about')}>
+                <div className={styles.settingsRow}>
+                  <span className={styles.settingsLabel}>{t('settings.version')}</span>
+                  <span className={styles.version}>{appVersion}</span>
+                </div>
               </Card>
             </div>
           )}

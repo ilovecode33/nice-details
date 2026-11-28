@@ -33,6 +33,8 @@ const en: Record<string, string> = {
   'dashboard.empty': 'No objective is active right now.',
   'dashboard.viewAll': 'View all objectives',
   'settings.syncHint': 'Sync two devices through an encrypted room.',
+  'settings.about': 'About',
+  'settings.version': 'Version',
 
   'summary.aria': 'Summary',
   'summary.objectives': 'Objectives',
@@ -216,6 +218,8 @@ const zhTW: Record<string, string> = {
   'dashboard.empty': '目前沒有進行中的目標。',
   'dashboard.viewAll': '查看所有目標',
   'settings.syncHint': '透過加密房間在兩部裝置間同步。',
+  'settings.about': '關於',
+  'settings.version': '版本',
 
   'summary.aria': '摘要',
   'summary.objectives': '目標',
@@ -394,6 +398,8 @@ const de: Record<string, string> = {
   'dashboard.empty': 'Derzeit ist kein Ziel aktiv.',
   'dashboard.viewAll': 'Alle Ziele ansehen',
   'settings.syncHint': 'Synchronisiere zwei Geräte über einen verschlüsselten Raum.',
+  'settings.about': 'Über',
+  'settings.version': 'Version',
 
   'summary.aria': 'Zusammenfassung',
   'summary.objectives': 'Ziele',

@@ -135,6 +135,7 @@ describe('App', () => {
     ).toBeTruthy();
     expect(screen.getByRole('combobox', { name: 'Language' })).toBeTruthy();
     expect(screen.getByRole('button', { name: /^Sync/ })).toBeTruthy();
+    expect(screen.getByText('Version')).toBeTruthy();
   });
 
   test('restores the saved period and sort filters on the OKR list', async () => {
