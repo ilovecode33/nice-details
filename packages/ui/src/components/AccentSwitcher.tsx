@@ -25,7 +25,7 @@ export function AccentSwitcher({ labels }: { labels?: AccentSwitcherLabels }) {
   const l = { ...DEFAULT_ACCENT_LABELS, ...labels };
 
   return (
-    <label data-ui="inline-select" title={l.group}>
+    <div data-ui="inline-select" title={l.group}>
       <span aria-hidden="true">✦</span>
       <Select
         aria-label={l.group}
@@ -42,6 +42,6 @@ export function AccentSwitcher({ labels }: { labels?: AccentSwitcherLabels }) {
           ),
         }))}
       />
-    </label>
+    </div>
   );
 }

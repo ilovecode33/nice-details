@@ -6,7 +6,7 @@ exports[`AccentSwitcher > matches its structural snapshot 1`] = `
     <div
       class="src-components-UIFoundation-module__ui-foundation-PPch2H"
     >
-      <label
+      <div
         data-ui="inline-select"
         title="Accent color"
       >
@@ -52,7 +52,7 @@ exports[`AccentSwitcher > matches its structural snapshot 1`] = `
             </button>
           </div>
         </div>
-      </label>
+      </div>
     </div>
   </div>
 </body>

@@ -428,7 +428,12 @@ export function Select<T extends string = string>({
                 aria-label={optionState.label}
                 className={[styles['ui-select__option'], styles[index === state.activeIndex ? 'is-active' : ''] || ''].filter(Boolean).join(' ')}
                 onPointerEnter={() => !option.disabled && dispatch({ type: 'setActive', index })}
-                onClick={() => choose(option)}
+                onClick={(event) => {
+                  // Never let a surrounding <label> re-open the list through
+                  // its activation behavior after choosing an option.
+                  event.preventDefault();
+                  choose(option);
+                }}
               >
                 {option.leading && (
                   <span className={styles['ui-select__leading']} aria-hidden="true">
