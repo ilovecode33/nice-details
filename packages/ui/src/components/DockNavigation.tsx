@@ -2,7 +2,6 @@ import type { DockNavigationHandle, DockNavigationProps } from '@ilovecode33/ui-
 import styles from './DockNavigation.module.css';
 import { forwardRef, useImperativeHandle, useLayoutEffect, useRef, useState } from 'react';
 import { FloatingBar } from './FloatingBar';
-import { triggerHaptic } from '../haptics';
 import { useSegmentPillDrag } from '../hooks/useSegmentPillDrag';
 
 /**
@@ -101,7 +100,6 @@ export const DockNavigation = forwardRef<DockNavigationHandle, DockNavigationPro
     const dockRef = useRef<HTMLDivElement>(null);
     const before = useRef<Geometry | null>(null);
     const animations = useRef<{ bar?: Animation; dock?: Animation }>({});
-    const dragHapticFiredRef = useRef(false);
 
     /**
      * Snapshots the current bar/dock geometry before a collapse change, updates
@@ -250,16 +248,7 @@ export const DockNavigation = forwardRef<DockNavigationHandle, DockNavigationPro
     const pill = useSegmentPillDrag({
       values: items.map((item) => item.id),
       value: activeId ?? items[0]?.id ?? '',
-      onChange: (id) => {
-        if (!dragHapticFiredRef.current) triggerHaptic('selection');
-        dragHapticFiredRef.current = false;
-        onSelect?.(id);
-      },
-      onSlotChange: () => {
-        if (triggerHaptic('selection')) {
-          dragHapticFiredRef.current = true;
-        }
-      },
+      onChange: (id) => onSelect?.(id),
       deform,
       layoutKey: collapsed,
     });
@@ -286,10 +275,7 @@ export const DockNavigation = forwardRef<DockNavigationHandle, DockNavigationPro
         label={label}
         collapsible={collapsible}
         collapsed={collapsed}
-        onCollapsedChange={(next) => {
-          triggerHaptic('selection');
-          changeCollapsed(next);
-        }}
+        onCollapsedChange={changeCollapsed}
         collapseLabel={collapseLabel}
         expandLabel={expandLabel}
         deform={false}
@@ -301,10 +287,6 @@ export const DockNavigation = forwardRef<DockNavigationHandle, DockNavigationPro
           data-ui="dock"
           className={[styles['ui-dock'], styles['ui-dock--enter'], styles[collapsed ? 'is-collapsed' : ''] || '', styles[collapsed && items.length < 3 ? 'is-short' : ''] || ''].filter(Boolean).join(' ')}
           {...pill.handlers}
-          onPointerDown={(event) => {
-            dragHapticFiredRef.current = false;
-            pill.handlers.onPointerDown(event);
-          }}
         >
           {pill.slots && (
             <div
@@ -341,10 +323,7 @@ export const DockNavigation = forwardRef<DockNavigationHandle, DockNavigationPro
                   onPointerLeave={() => pill.setHoveredIndex(null)}
                   data-active={current}
                   aria-current={current ? 'page' : undefined}
-                  onClick={(event) => {
-                    if (!current) triggerHaptic('selection');
-                    onSelect?.(item.id, event);
-                  }}
+                  onClick={(event) => onSelect?.(item.id, event)}
                 >
                   {content}
                 </a>
@@ -360,10 +339,7 @@ export const DockNavigation = forwardRef<DockNavigationHandle, DockNavigationPro
                 onPointerLeave={() => pill.setHoveredIndex(null)}
                 data-active={current}
                 aria-current={current ? 'location' : undefined}
-                onClick={(event) => {
-                  if (!current) triggerHaptic('selection');
-                  onSelect?.(item.id, event);
-                }}
+                onClick={(event) => onSelect?.(item.id, event)}
               >
                 {content}
               </button>

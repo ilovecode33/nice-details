@@ -1,20 +1,9 @@
-import { afterEach, describe, expect, rs, test } from '@rstest/core';
+import { describe, expect, test } from '@rstest/core';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { createRef } from 'react';
 import { expectComponentSnapshot } from '../test-utils/snapshot';
-import { resetHapticThrottle } from '../haptics';
 import { DockNavigation } from './DockNavigation';
 import type { DockNavigationHandle } from '@ilovecode33/ui-types';
-
-const originalVibrate = navigator.vibrate;
-
-afterEach(() => {
-  resetHapticThrottle();
-  Object.defineProperty(navigator, 'vibrate', {
-    configurable: true,
-    value: originalVibrate,
-  });
-});
 
 describe('DockNavigation', () => {
   const items = [
@@ -209,71 +198,6 @@ describe('DockNavigation', () => {
       });
 
       expect(selected).toBe('two');
-    } finally {
-      Element.prototype.getBoundingClientRect = original;
-    }
-  });
-
-  test('triggers haptic feedback when dragging across slots, clicking inactive items, and toggling collapse', async () => {
-    const vibrate = rs.fn(() => true);
-    Object.defineProperty(navigator, 'vibrate', { configurable: true, value: vibrate });
-    const original = Element.prototype.getBoundingClientRect;
-    Element.prototype.getBoundingClientRect = function () {
-      if (this instanceof HTMLElement && this.dataset.index !== undefined) {
-        const index = Number(this.dataset.index);
-        return new DOMRect(index * 60, 0, 60, 44);
-      }
-      if (this instanceof HTMLElement && this.dataset.ui === 'dock') {
-        return new DOMRect(0, 0, 180, 44);
-      }
-      return original.call(this);
-    };
-
-    try {
-      render(
-        <DockNavigation
-          label="Dock"
-          items={[
-            { id: 'one', label: 'One' },
-            { id: 'two', label: 'Two' },
-          ]}
-          activeId="one"
-        />,
-      );
-      const dock = document.querySelector<HTMLElement>('[data-ui="dock"]')!;
-      const one = screen.getByRole('button', { name: 'One' });
-      const two = screen.getByRole('button', { name: 'Two' });
-
-      // Dragging from slot 0 into slot 1 triggers a selection tick.
-      fireEvent.pointerDown(one, { pointerId: 7, pointerType: 'touch', clientX: 30, clientY: 20 });
-      fireEvent.pointerMove(dock, { pointerId: 7, pointerType: 'touch', clientX: 90, clientY: 20 });
-      fireEvent.pointerUp(dock, { pointerId: 7, pointerType: 'touch', clientX: 90, clientY: 20 });
-      expect(vibrate).toHaveBeenCalledWith(20);
-
-      vibrate.mockClear();
-      resetHapticThrottle();
-      // Clicking the already-active item does not vibrate; clicking an inactive item does.
-      fireEvent.click(one);
-      expect(vibrate).not.toHaveBeenCalled();
-      fireEvent.click(two);
-      expect(vibrate).toHaveBeenCalledWith(20);
-
-      // If pointermove vibration was blocked (returned false), release onChange still vibrates.
-      vibrate.mockReset();
-      resetHapticThrottle();
-      vibrate.mockReturnValueOnce(false).mockReturnValueOnce(true);
-      fireEvent.pointerDown(one, { pointerId: 8, pointerType: 'touch', clientX: 30, clientY: 20 });
-      fireEvent.pointerMove(dock, { pointerId: 8, pointerType: 'touch', clientX: 90, clientY: 20 });
-      fireEvent.pointerUp(dock, { pointerId: 8, pointerType: 'touch', clientX: 90, clientY: 20 });
-      expect(vibrate).toHaveBeenCalledTimes(2);
-      expect(vibrate).toHaveBeenLastCalledWith(20);
-
-      // Wait for useDeform's post-drag click-suppression guard to clear.
-      await new Promise((resolve) => setTimeout(resolve, 10));
-      vibrate.mockClear();
-      resetHapticThrottle();
-      fireEvent.click(screen.getByRole('button', { name: 'Collapse' }));
-      expect(vibrate).toHaveBeenCalledWith(20);
     } finally {
       Element.prototype.getBoundingClientRect = original;
     }

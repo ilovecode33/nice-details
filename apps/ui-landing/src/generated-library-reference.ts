@@ -3902,12 +3902,6 @@ export const LIBRARY_REFERENCE: LibraryReferenceEntry[] = [
             "description": "Called once on release when the pointer's nearest slot differs."
           },
           {
-            "name": "onSlotChange",
-            "type": "((value: T, index: number) => void) | undefined",
-            "optional": true,
-            "description": "Called immediately while dragging when the pointer crosses into a different slot."
-          },
-          {
             "name": "isDisabled",
             "type": "((index: number) => boolean) | undefined",
             "optional": true,
@@ -3929,7 +3923,7 @@ export const LIBRARY_REFERENCE: LibraryReferenceEntry[] = [
       }
     ],
     "props": [],
-    "example": "const pill = useSegmentPillDrag({\n    values: items.map((item) => item.id),\n    value: activeId ?? items[0]?.id ?? '',\n    onChange: (id) => {\n        if (!dragHapticFiredRef.current)\n            triggerHaptic('selection');\n        dragHapticFiredRef.current = false;\n        onSelect?.(id);\n    },\n    onSlotChange: () => {\n        if (triggerHaptic('selection')) {\n            dragHapticFiredRef.current = true;\n        }\n    },\n    deform,\n    layoutKey: collapsed,\n});"
+    "example": "const pill = useSegmentPillDrag({\n    values: items.map((item) => item.id),\n    value: activeId ?? items[0]?.id ?? '',\n    onChange: (id) => onSelect?.(id),\n    deform,\n    layoutKey: collapsed,\n});"
   },
   {
     "name": "useSelectionMode",
