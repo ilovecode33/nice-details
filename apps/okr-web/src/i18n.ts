@@ -143,7 +143,7 @@ const en: Record<string, string> = {
   'sync.host': 'Host',
   'sync.join': 'Join',
   'sync.hostHint':
-    'Scan this QR or share the link. Changes sync in realtime.',
+    'Share this QR or link to add another device. Changes sync in realtime.',
   'sync.offerQr': 'Sync QR code',
   'sync.roomLink': 'Room link',
   'sync.roomId': 'Room ID',
@@ -306,7 +306,7 @@ const zhTW: Record<string, string> = {
   'sync.saveName': '儲存名稱',
   'sync.host': '主機',
   'sync.join': '加入',
-  'sync.hostHint': '用另一部裝置掃描這個 QR 或開啟連結，變更會即時同步。',
+  'sync.hostHint': '把 QR 或連結分享給另一部裝置即可加入，變更會即時同步。',
   'sync.offerQr': '同步 QR',
   'sync.roomLink': '房間連結',
   'sync.roomId': '房間 ID',
@@ -474,7 +474,7 @@ const de: Record<string, string> = {
   'sync.host': 'Host',
   'sync.join': 'Beitreten',
   'sync.hostHint':
-    'Scanne diesen QR oder teile den Link. Änderungen werden in Echtzeit synchronisiert.',
+    'Teile diesen QR-Code oder Link, um ein weiteres Gerät hinzuzufügen. Änderungen werden in Echtzeit synchronisiert.',
   'sync.offerQr': 'Sync-QR',
   'sync.roomLink': 'Raumlink',
   'sync.roomId': 'Raum-ID',
