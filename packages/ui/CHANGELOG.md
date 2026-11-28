@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.5.2
+
+### Patch Changes
+
+- 5f37fc8: Export the public callback and pill-hook types used by the UI API.
+- 5f37fc8: Improve text control sizing, keyboard focus, and form hint announcements.
+- 5f37fc8: Keep the dock navigation pill aligned with the active item when the dock wraps or scrolls.
+- @ilovecode33/ui-core@0.5.2
+  - @ilovecode33/ui-tokens@0.5.2
+  - @ilovecode33/ui-types@0.5.2
+
 ## 0.5.1
 
 ### Patch Changes

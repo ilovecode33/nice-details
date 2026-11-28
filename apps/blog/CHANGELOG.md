@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.6
+
+### Patch Changes
+
+- Updated dependencies [5f37fc8]
+- Updated dependencies [5f37fc8]
+- Updated dependencies [5f37fc8]
+  - @ilovecode33/ui@0.5.2
+
 ## 0.1.5
 
 ### Patch Changes
