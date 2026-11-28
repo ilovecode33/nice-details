@@ -21,6 +21,35 @@ describe('normalizeState', () => {
     expect(normalized.objectives).toHaveLength(3);
   });
 
+  test('trims a shared profile and keeps a cleared name', () => {
+    const named = normalizeState({
+      ...createSampleState(),
+      profile: { name: '  Ada  ', updatedAt: '2026-11-28T00:00:00.000Z' },
+    });
+    expect(named.profile).toEqual({
+      name: 'Ada',
+      updatedAt: '2026-11-28T00:00:00.000Z',
+    });
+
+    const cleared = normalizeState({
+      ...createSampleState(),
+      profile: { name: '   ', updatedAt: '2026-11-28T00:00:00.000Z' },
+    });
+    expect(cleared.profile).toEqual({
+      name: '',
+      updatedAt: '2026-11-28T00:00:00.000Z',
+    });
+  });
+
+  test('drops a profile that is not a name and timestamp', () => {
+    const state = {
+      ...createSampleState(),
+      profile: { name: 1 },
+    } as unknown as StoredOKRState;
+
+    expect(normalizeState(state).profile).toBeUndefined();
+  });
+
   test('drops malformed tombstones instead of failing the load', () => {
     const state = {
       ...createSampleState(),

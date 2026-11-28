@@ -34,6 +34,13 @@ function messageOf(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
+/** Sample objectives are placeholders. A shared name does not make them real data. */
+function withoutProfile(state: OKRState): OKRState {
+  if (state.profile === undefined) return state;
+  const { profile: _profile, ...rest } = state;
+  return rest;
+}
+
 export interface SyncPanelProps {
   open: boolean;
   onClose: () => void;
@@ -161,10 +168,20 @@ export function SyncPanel({
     // empty.
     const localState = stateRef.current;
     const pristineSample =
-      canonicalJson(localState) === canonicalJson(createSampleState());
+      canonicalJson(withoutProfile(localState)) ===
+      canonicalJson(createSampleState());
     const adopt = firstStateRef.current && pristineSample;
     firstStateRef.current = false;
-    const next = adopt ? remoteState : mergeStates(localState, remoteState);
+    // Adopting takes the room's objectives, then merges the display name so a
+    // name set on this device still reaches the room.
+    const next = adopt
+      ? mergeStates(
+          localState.profile
+            ? { ...remoteState, profile: localState.profile }
+            : remoteState,
+          remoteState,
+        )
+      : mergeStates(localState, remoteState);
     // Keep the ref current for messages that arrive before React re-renders.
     stateRef.current = next;
     // Only talk back when merging produced something the sender lacks; a

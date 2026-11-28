@@ -19,7 +19,12 @@ const SYNC_ROOM_VERSION = 1;
 const VIEW_KEY = 'view';
 const VIEW_VERSION = 1;
 const DEVICE_NAME_KEY = 'device-name';
-const USER_NAME_KEY = 'user-name';
+/**
+ * Display name from the release that stored it only on this device.
+ * The next successful load copies it into the document profile, then
+ * removes the key. A non-string value is left in place.
+ */
+const LEGACY_USER_NAME_KEY = 'user-name';
 const SYNC_ROOM_PATTERN = /^[A-Za-z0-9_-]{16,64}$/;
 const VIEW_PERIOD_PATTERN = /^(all|\d{4} Q[1-4])$/;
 const VIEW_SORTS: readonly ObjectiveSort[] = ['updated', 'progress', 'title'];
@@ -48,8 +53,6 @@ export interface OkrStorage {
   clearSyncRoom(): Promise<void>;
   loadDeviceName(): Promise<string | null>;
   saveDeviceName(name: string): Promise<void>;
-  loadUserName(): Promise<string | null>;
-  saveUserName(name: string): Promise<void>;
   close(): void;
   destroy(): Promise<void>;
 }
@@ -85,6 +88,23 @@ export async function openOkrStorage(
   });
   const kv = db.kv<unknown>(OKR_STORE);
 
+  async function foldLegacyUserName(state: OKRState): Promise<OKRState> {
+    const raw = await kv.get(LEGACY_USER_NAME_KEY);
+    if (typeof raw !== 'string') return state;
+    const name = raw.trim().slice(0, 40);
+    if (!name || state.profile) {
+      await kv.delete(LEGACY_USER_NAME_KEY);
+      return state;
+    }
+    const next: OKRState = {
+      ...state,
+      profile: { name, updatedAt: new Date().toISOString() },
+    };
+    await kv.set(OKR_KEY, next);
+    await kv.delete(LEGACY_USER_NAME_KEY);
+    return next;
+  }
+
   return {
     async load() {
       const raw = await kv.get(OKR_KEY);
@@ -92,7 +112,7 @@ export async function openOkrStorage(
         const parsed = parseState(raw);
         if (parsed.status === 'ok') {
           if (parsed.migrated) await kv.set(OKR_KEY, parsed.state);
-          return parsed.state;
+          return foldLegacyUserName(parsed.state);
         }
         if (parsed.status === 'newer') {
           // Never overwrite data written by a newer app version.
@@ -104,18 +124,18 @@ export async function openOkrStorage(
         await kv.set(OKR_BACKUP_KEY, raw);
         const sample = createSampleState();
         await kv.set(OKR_KEY, sample);
-        return sample;
+        return foldLegacyUserName(sample);
       }
 
       const migrated = migrateLegacyState();
       if (migrated) {
         await kv.set(OKR_KEY, migrated);
-        return migrated;
+        return foldLegacyUserName(migrated);
       }
 
       const sample = createSampleState();
       await kv.set(OKR_KEY, sample);
-      return sample;
+      return foldLegacyUserName(sample);
     },
     save: (state) => kv.set(OKR_KEY, state),
     async loadView() {
@@ -178,18 +198,6 @@ export async function openOkrStorage(
         : null;
     },
     saveDeviceName: (name) => kv.set(DEVICE_NAME_KEY, name.trim().slice(0, 40)),
-    async loadUserName() {
-      const value = await kv.get(USER_NAME_KEY);
-      return typeof value === 'string' && value.trim()
-        ? value.trim().slice(0, 40)
-        : null;
-    },
-    saveUserName: (name) => {
-      const trimmed = name.trim().slice(0, 40);
-      return trimmed
-        ? kv.set(USER_NAME_KEY, trimmed)
-        : kv.delete(USER_NAME_KEY);
-    },
     close: () => db.close(),
     destroy: () => db.destroy(),
   };

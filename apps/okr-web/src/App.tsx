@@ -88,7 +88,6 @@ export function App({ storage }: AppProps = {}) {
   useThemeChrome();
   const [state, setState] = useState<OKRState | null>(null);
   const [page, setPage] = useState<AppPage>('dashboard');
-  const [userName, setUserName] = useState<string | null>(null);
   const [nameDraft, setNameDraft] = useState('');
   const appVersion = import.meta.env.PUBLIC_APP_VERSION ?? '0.0.0';
   const buildTime = formatBuildTime(import.meta.env.PUBLIC_BUILD_TIME, intlLocale);
@@ -125,11 +124,15 @@ export function App({ storage }: AppProps = {}) {
     await storageRef.current?.saveDeviceName(name);
   }, []);
 
+  const sharedName = state?.profile?.name?.trim() ?? '';
   useEffect(() => {
-    document.title = userName
-      ? t('app.titleWithName', { name: userName })
+    setNameDraft(sharedName);
+  }, [sharedName]);
+  useEffect(() => {
+    document.title = sharedName
+      ? t('app.titleWithName', { name: sharedName })
       : t('app.title');
-  }, [locale, userName, t]);
+  }, [locale, sharedName, t]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -156,16 +159,13 @@ export function App({ storage }: AppProps = {}) {
     const pending = storage ? Promise.resolve(storage) : getOkrStorage();
     pending
       .then(async (current) => {
-        const [loaded, view, savedName] = await Promise.all([
+        const [loaded, view] = await Promise.all([
           current.load(),
           current.loadView(),
-          current.loadUserName(),
         ]);
         if (cancelled) return;
         storageRef.current = current;
         setState(loaded);
-        setUserName(savedName);
-        setNameDraft(savedName ?? '');
         if (view) {
           setSort(view.sort);
           setPeriod(
@@ -230,8 +230,8 @@ export function App({ storage }: AppProps = {}) {
         .slice(0, 3),
     [objectives],
   );
-  const title = userName
-    ? t('app.titleWithName', { name: userName })
+  const title = sharedName
+    ? t('app.titleWithName', { name: sharedName })
     : t('app.title');
   const pageTitle =
     page === 'dashboard'
@@ -311,10 +311,16 @@ export function App({ storage }: AppProps = {}) {
   }
 
   function saveUserName() {
-    const next = nameDraft.trim().slice(0, 40);
-    setUserName(next || null);
-    setNameDraft(next);
-    void storageRef.current?.saveUserName(next);
+    const name = nameDraft.trim().slice(0, 40);
+    setNameDraft(name);
+    if (name === sharedName) return;
+    // The profile lives in the synced document, so the other device sees the
+    // same title after the merge.
+    setState((prev) =>
+      prev
+        ? { ...prev, profile: { name, updatedAt: new Date().toISOString() } }
+        : prev,
+    );
   }
 
   function askToDeleteObjective(objective: Objective) {
@@ -581,7 +587,7 @@ export function App({ storage }: AppProps = {}) {
                     <Button
                       variant="secondary"
                       onClick={saveUserName}
-                      disabled={nameDraft.trim() === (userName ?? '')}
+                      disabled={nameDraft.trim() === sharedName}
                     >
                       {t('common.save')}
                     </Button>

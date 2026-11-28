@@ -3,6 +3,7 @@ import type {
   KeyResult,
   Objective,
   OKRState,
+  UserProfile,
 } from './types';
 
 type DeletedKind = keyof DeletedItems;
@@ -173,13 +174,27 @@ function mergeSingleObjective(
   return { ...objective, keyResults };
 }
 
+function mergeProfile(
+  local: UserProfile | undefined,
+  remote: UserProfile | undefined,
+): UserProfile | undefined {
+  if (!local) return remote;
+  if (!remote) return local;
+  if (local.updatedAt !== remote.updatedAt) {
+    return remote.updatedAt > local.updatedAt ? remote : local;
+  }
+  return stableCompare(remote, local) > 0 ? remote : local;
+}
+
 /**
  * Merges two copies of the same OKR document.
  *
  * Objectives are matched by id. For an objective edited on both sides, the copy
  * with the newer `updatedAt` supplies title, note, and dates, while key results
  * merge per id by their own `updatedAt`. Deletions are kept as tombstones so a
- * device that still has the old copy cannot bring the item back.
+ * device that still has the old copy cannot bring the item back. The display
+ * name in `profile` uses the same rule: the newer `updatedAt` wins, and an
+ * empty name clears it.
  *
  * The result is deterministic and commutative: merging the same pair in either
  * order returns equal data, which lets both devices converge without trading
@@ -210,10 +225,13 @@ export function mergeStates(local: OKRState, remote: OKRState): OKRState {
     return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
   });
 
+  const profile = mergeProfile(local.profile, remote.profile);
+
   return {
     version: 1,
     objectives: merged,
     ...(deleted ? { deleted } : {}),
+    ...(profile ? { profile } : {}),
   };
 }
 

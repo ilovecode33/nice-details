@@ -11,6 +11,7 @@ import type {
   OKRState,
   StoredObjective,
   StoredOKRState,
+  UserProfile,
 } from './types';
 
 /**
@@ -64,13 +65,30 @@ function normalizeDeleted(value: unknown): DeletedItems | undefined {
   };
 }
 
+/** Keeps a valid shared profile; an empty name is meaningful (cleared). */
+function normalizeProfile(value: unknown): UserProfile | undefined {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    return undefined;
+  }
+  const record = value as { name?: unknown; updatedAt?: unknown };
+  if (typeof record.name !== 'string' || typeof record.updatedAt !== 'string') {
+    return undefined;
+  }
+  return {
+    name: record.name.trim().slice(0, 40),
+    updatedAt: record.updatedAt,
+  };
+}
+
 /** Normalizes every objective in a persisted state. */
 export function normalizeState(state: StoredOKRState): OKRState {
-  const { deleted: rawDeleted, ...rest } = state;
+  const { deleted: rawDeleted, profile: rawProfile, ...rest } = state;
   const deleted = normalizeDeleted(rawDeleted);
+  const profile = normalizeProfile(rawProfile);
   return {
     ...rest,
     objectives: rest.objectives.map(normalizeObjective),
     ...(deleted ? { deleted } : {}),
+    ...(profile ? { profile } : {}),
   };
 }
