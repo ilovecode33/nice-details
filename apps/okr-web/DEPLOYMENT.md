@@ -14,7 +14,7 @@ The OKR tracker is a static site on Cloudflare Pages. Realtime sync uses a separ
 
 [`.github/workflows/preview-okr-web.yml`](../../.github/workflows/preview-okr-web.yml) runs on pull requests targeting `main`. It builds `@ilovecode33/okr-web`, deploys `apps/okr-web/dist` under `pr-<PR number>`, and comments the Pages URL on the PR.
 
-Preview deployments use the production realtime Worker. Rooms are random and scoped to the link, so a preview and production do not share state unless someone opens the same room link. No per-PR Worker is deployed.
+Preview deployments use the production realtime Worker through its workers.dev hostname (`https://ilovecode33-okr-realtime.2y6ddt55g7.workers.dev`) so custom-domain DNS changes cannot block a preview. Production uses `https://sync.ilovecode33.fyi`. Rooms are random and scoped to the link, so a preview and production do not share state unless someone opens the same room link. No per-PR Worker is deployed.
 
 The workflow has a fork guard: pull requests from forks do not get previews, because they cannot access the Cloudflare secrets.
 

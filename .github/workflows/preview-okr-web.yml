@@ -32,6 +32,10 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Build OKR web
+        env:
+          # Use the Worker hostname for previews so custom-domain DNS changes
+          # cannot block a PR preview. Production uses sync.ilovecode33.fyi.
+          PUBLIC_SYNC_URL: https://ilovecode33-okr-realtime.2y6ddt55g7.workers.dev
         run: bunx turbo run build --filter=@ilovecode33/okr-web
 
       - name: Ensure Pages project exists

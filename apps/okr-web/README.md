@@ -98,7 +98,8 @@ site data restores the sample set.
 Pull requests targeting `main` get a Cloudflare Pages preview at
 `https://pr-<PR number>.ilovecode33-okr-web.pages.dev`, deployed by
 [`.github/workflows/preview-okr-web.yml`](../../.github/workflows/preview-okr-web.yml).
-The preview uses the production realtime Worker at
+The preview build points at the realtime Worker's workers.dev hostname so
+custom-domain DNS cannot block a preview. Production uses
 `https://sync.ilovecode33.fyi`.
 
 Production deploys from `main` with
