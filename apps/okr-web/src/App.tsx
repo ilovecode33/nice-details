@@ -683,7 +683,7 @@ export function App({ storage }: AppProps = {}) {
                     <span className={styles.settingsLabel}>
                       {t('settings.updates')}
                     </span>
-                    <span className={styles.installHint}>
+                    <span className={styles.installHint} role="status">
                       {appUpdate.checking
                         ? t('settings.updateChecking')
                         : appUpdate.updateReady
@@ -692,21 +692,18 @@ export function App({ storage }: AppProps = {}) {
                                 version: appUpdate.latestVersion,
                               })
                             : t('settings.updateReady')
-                          : appUpdate.latestVersion
-                            ? t('settings.updateCurrent', {
-                                version: appUpdate.latestVersion,
-                              })
-                            : appUpdate.checkFailed
-                              ? t('settings.updateFailed')
+                          : appUpdate.checkFailed
+                            ? appUpdate.latestVersion
+                              ? t('settings.updateLastKnown', {
+                                  version: appUpdate.latestVersion,
+                                })
+                              : t('settings.updateFailed')
+                            : appUpdate.latestVersion
+                              ? t('settings.updateCurrent', {
+                                  version: appUpdate.latestVersion,
+                                })
                               : t('settings.updateHint')}
                     </span>
-                    <Button
-                      variant="secondary"
-                      onClick={() => void appUpdate.checkForUpdates()}
-                      disabled={appUpdate.checking}
-                    >
-                      {t('settings.checkUpdates')}
-                    </Button>
                     {appUpdate.updateReady && (
                       <Button
                         variant="primary"

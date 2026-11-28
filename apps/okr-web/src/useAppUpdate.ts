@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 export interface AppUpdateState {
   /** A newer app version or build is available to reload. */
@@ -6,13 +6,12 @@ export interface AppUpdateState {
   checking: boolean;
   latestVersion: string | null;
   checkFailed: boolean;
-  /** Checks the deployed app version without reloading. */
-  checkForUpdates: () => Promise<void>;
   /** Reloads after the user chooses to apply the update. */
   update: () => void;
 }
 
 const VERSION_PATTERN = /^\d+\.\d+\.\d+$/;
+const UPDATE_CHECK_INTERVAL = 15 * 60 * 1000;
 
 function isNewerVersion(candidate: string, current: string): boolean {
   if (!VERSION_PATTERN.test(candidate) || !VERSION_PATTERN.test(current)) {
@@ -48,56 +47,20 @@ async function fetchLatestVersion(): Promise<string> {
 }
 
 /**
- * Reports the deployed app version separately from installing it. A visible
- * page may check the service worker automatically, but only Update now reloads.
+ * Checks the deployed version on launch, when the app becomes visible, and
+ * periodically while open. It never reloads unless the user chooses Update now.
  */
 export function useAppUpdate(currentVersion: string): AppUpdateState {
   const [workerUpdateReady, setWorkerUpdateReady] = useState(false);
   const [checking, setChecking] = useState(false);
   const [latestVersion, setLatestVersion] = useState<string | null>(null);
   const [checkFailed, setCheckFailed] = useState(false);
-
-  useEffect(() => {
-    if (typeof navigator === 'undefined' || !('serviceWorker' in navigator)) {
-      return;
-    }
-    let cancelled = false;
-    let registration: ServiceWorkerRegistration | null = null;
-    const markReady = () => {
-      if (!cancelled) setWorkerUpdateReady(true);
-    };
-
-    void navigator.serviceWorker.getRegistration().then((current) => {
-      if (cancelled || !current) return;
-      registration = current;
-      if (current.waiting) markReady();
-      current.addEventListener('updatefound', () => {
-        const worker = current.installing;
-        worker?.addEventListener('statechange', () => {
-          if (worker.state === 'installed' || worker.state === 'activated') {
-            markReady();
-          }
-        });
-      });
-    });
-
-    const onVisible = () => {
-      if (document.visibilityState === 'visible') {
-        void registration?.update().catch(() => {
-          /* The next reload still fetches the latest shell. */
-        });
-      }
-    };
-    document.addEventListener('visibilitychange', onVisible);
-    return () => {
-      cancelled = true;
-      document.removeEventListener('visibilitychange', onVisible);
-    };
-  }, []);
+  const checkingRef = useRef(false);
 
   const checkForUpdates = useCallback(async () => {
+    if (checkingRef.current) return;
+    checkingRef.current = true;
     setChecking(true);
-    setLatestVersion(null);
     setCheckFailed(false);
     try {
       if ('serviceWorker' in navigator) {
@@ -112,9 +75,51 @@ export function useAppUpdate(currentVersion: string): AppUpdateState {
     } catch {
       setCheckFailed(true);
     } finally {
+      checkingRef.current = false;
       setChecking(false);
     }
   }, []);
+
+  useEffect(() => {
+    if (!import.meta.env.PROD) return;
+    let cancelled = false;
+    const markReady = () => {
+      if (!cancelled) setWorkerUpdateReady(true);
+    };
+
+    if ('serviceWorker' in navigator) {
+      void navigator.serviceWorker
+        .getRegistration()
+        .then((registration) => {
+          if (cancelled || !registration) return;
+          if (registration.waiting) markReady();
+          registration.addEventListener('updatefound', () => {
+            const worker = registration.installing;
+            worker?.addEventListener('statechange', () => {
+              if (worker.state === 'installed' || worker.state === 'activated') {
+                markReady();
+              }
+            });
+          });
+        })
+        .catch(() => {});
+    }
+
+    const checkWhenVisible = () => {
+      if (document.visibilityState === 'visible') {
+        void checkForUpdates();
+      }
+    };
+    checkWhenVisible();
+    document.addEventListener('visibilitychange', checkWhenVisible);
+    const interval = window.setInterval(checkWhenVisible, UPDATE_CHECK_INTERVAL);
+
+    return () => {
+      cancelled = true;
+      document.removeEventListener('visibilitychange', checkWhenVisible);
+      window.clearInterval(interval);
+    };
+  }, [checkForUpdates]);
 
   const update = useCallback(() => {
     window.location.reload();
@@ -127,7 +132,6 @@ export function useAppUpdate(currentVersion: string): AppUpdateState {
     checking,
     latestVersion,
     checkFailed,
-    checkForUpdates,
     update,
   };
 }

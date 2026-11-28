@@ -182,8 +182,13 @@ describe('App', () => {
     ).toBeTruthy();
     expect(screen.getByText('Version')).toBeTruthy();
     expect(
-      screen.getByRole('button', { name: 'Check for updates' }),
+      screen.getByText(
+        'Updates are checked automatically. You choose when to install.',
+      ),
     ).toBeTruthy();
+    expect(
+      screen.queryByRole('button', { name: 'Check for updates' }),
+    ).toBeNull();
   });
 
   test('offers the browser install prompt when the event fires', async () => {

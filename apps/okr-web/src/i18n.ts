@@ -48,14 +48,15 @@ const en: Record<string, string> = {
   'settings.built': 'Built',
   'settings.updates': 'Updates',
   'settings.updateHint':
-    'Check for the latest version. You choose when to install updates.',
+    'Updates are checked automatically. You choose when to install.',
   'settings.updateReady': 'An update is ready.',
   'settings.updateAvailable':
     'A newer build is available. Latest version: {version}.',
   'settings.updateCurrent': 'Latest version: {version}.',
+  'settings.updateLastKnown':
+    "Couldn't check now. Last detected version: {version}.",
   'settings.updateFailed': "Couldn't check for updates.",
   'settings.updateNow': 'Update now',
-  'settings.checkUpdates': 'Check for updates',
   'settings.updateChecking': 'Checking…',
 
   'summary.aria': 'Summary',
@@ -253,13 +254,13 @@ const zhTW: Record<string, string> = {
   'settings.version': '版本',
   'settings.built': '建置時間',
   'settings.updates': '更新',
-  'settings.updateHint': '檢查目前最新版本；是否安裝由你決定。',
+  'settings.updateHint': '會自動檢查更新；是否立即安裝由你決定。',
   'settings.updateReady': '有更新可以安裝。',
   'settings.updateAvailable': '有新版可用，最新版本號：{version}。',
   'settings.updateCurrent': '最新版本：{version}。',
+  'settings.updateLastKnown': '目前無法檢查；上次偵測的版本是：{version}。',
   'settings.updateFailed': '無法檢查更新。',
   'settings.updateNow': '立即更新',
-  'settings.checkUpdates': '檢查更新',
   'settings.updateChecking': '檢查中…',
 
   'summary.aria': '摘要',
@@ -454,14 +455,15 @@ const de: Record<string, string> = {
   'settings.built': 'Gebaut',
   'settings.updates': 'Updates',
   'settings.updateHint':
-    'Prüfe die neueste Version. Du entscheidest, wann du aktualisierst.',
+    'Updates werden automatisch gesucht. Du entscheidest, wann du aktualisierst.',
   'settings.updateReady': 'Ein Update ist bereit.',
   'settings.updateAvailable':
     'Ein neuer Build ist verfügbar. Neueste Version: {version}.',
   'settings.updateCurrent': 'Neueste Version: {version}.',
+  'settings.updateLastKnown':
+    'Prüfung fehlgeschlagen. Zuletzt erkannt: {version}.',
   'settings.updateFailed': 'Updates konnten nicht geprüft werden.',
   'settings.updateNow': 'Jetzt aktualisieren',
-  'settings.checkUpdates': 'Nach Updates suchen',
   'settings.updateChecking': 'Wird geprüft …',
 
   'summary.aria': 'Zusammenfassung',
