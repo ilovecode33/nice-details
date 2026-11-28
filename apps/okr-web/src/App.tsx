@@ -5,6 +5,7 @@ import {
   AlertDialog,
   Button,
   Card,
+  Deformable,
   DockNavigation,
   EmptyState,
   ProgressBar,
@@ -31,8 +32,10 @@ import {
 import { parseSyncLink, type RealtimeStatus } from './realtime';
 import {
   AlertTriangle,
+  Check,
   LayoutDashboard,
   ListChecks,
+  MonitorDown,
   Plus,
   RotateCcw,
   Settings,
@@ -43,6 +46,9 @@ import { ObjectiveEditor } from './components/ObjectiveEditor';
 import { SyncPanel } from './components/SyncPanel';
 import { SyncStatus } from './components/SyncStatus';
 import { LOCALES, LOCALE_NAMES, useOkrI18n } from './i18n';
+import { formatBuildTime } from './buildInfo';
+import { useInstallPrompt } from './useInstallPrompt';
+import { useThemeChrome } from './useThemeChrome';
 import { getOkrStorage, type OkrStorage, type StoredSyncRoom } from './storage';
 import styles from './App.module.css';
 
@@ -76,11 +82,13 @@ export interface AppProps {
 }
 
 export function App({ storage }: AppProps = {}) {
-  const { locale, setLocale, t } = useOkrI18n();
+  const { locale, setLocale, intlLocale, t } = useOkrI18n();
+  useThemeChrome();
   const [state, setState] = useState<OKRState | null>(null);
   const [page, setPage] = useState<AppPage>('dashboard');
-  const [dockCollapsed, setDockCollapsed] = useState(true);
   const appVersion = import.meta.env.PUBLIC_APP_VERSION ?? '0.0.0';
+  const buildTime = formatBuildTime(import.meta.env.PUBLIC_BUILD_TIME, intlLocale);
+  const install = useInstallPrompt();
   const [period, setPeriod] = useState(ALL_PERIODS);
   const [sort, setSort] = useState<ObjectiveSort>('updated');
   // undefined = closed, null = create a new objective, otherwise the one to edit.
@@ -224,10 +232,6 @@ export function App({ storage }: AppProps = {}) {
       : page === 'okrs'
         ? t('okrs.subtitle')
         : t('settings.subtitle');
-  // The collapsed dock shows icons only; the label stays available to
-  // assistive tech and appears again when the dock is expanded.
-  const navLabel = (label: string) =>
-    dockCollapsed ? <span className="ui-sr-only">{label}</span> : label;
 
   const progress = state ? Math.round(overallProgress(objectives) * 100) : 0;
   const completedKrs = objectives.reduce(
@@ -576,18 +580,48 @@ export function App({ storage }: AppProps = {}) {
                 />
               </Card>
 
-              <Card
-                className={styles.settingsCard}
-                title={t('sync.title')}
-                subtitle={t('settings.syncHint')}
-              >
-                <SyncStatus status={syncStatus} onOpen={() => setSyncOpen(true)} />
+              <Card className={styles.settingsCard} title={t('install.title')}>
+                {install.installed ? (
+                  <p className={styles.installState}>
+                    <Check size={16} aria-hidden="true" />
+                    {t('install.installed')}
+                  </p>
+                ) : (
+                  <div className={styles.installBody}>
+                    <p className={styles.installHint}>{t('install.hint')}</p>
+                    {install.canPrompt ? (
+                      <Button
+                        variant="primary"
+                        icon={<MonitorDown />}
+                        onClick={() => void install.prompt()}
+                      >
+                        {t('install.action')}
+                      </Button>
+                    ) : (
+                      <p className={styles.installHint}>
+                        {install.ios ? t('install.ios') : t('install.manual')}
+                      </p>
+                    )}
+                  </div>
+                )}
               </Card>
 
               <Card className={styles.settingsCard} title={t('settings.about')}>
-                <div className={styles.settingsRow}>
-                  <span className={styles.settingsLabel}>{t('settings.version')}</span>
-                  <span className={styles.version}>{appVersion}</span>
+                <div className={styles.settingsFields}>
+                  <div className={styles.settingsRow}>
+                    <span className={styles.settingsLabel}>
+                      {t('settings.version')}
+                    </span>
+                    <span className={styles.version}>{appVersion}</span>
+                  </div>
+                  {buildTime && (
+                    <div className={styles.settingsRow}>
+                      <span className={styles.settingsLabel}>
+                        {t('settings.built')}
+                      </span>
+                      <span className={styles.version}>{buildTime}</span>
+                    </div>
+                  )}
                 </div>
               </Card>
             </div>
@@ -595,44 +629,49 @@ export function App({ storage }: AppProps = {}) {
         </>
       )}
 
-      <DockNavigation
-        label={t('nav.label')}
-        activeId={page}
-        collapsed={dockCollapsed}
-        onCollapsedChange={setDockCollapsed}
-        collapseLabel={t('nav.collapse')}
-        expandLabel={t('nav.expand')}
-        onSelect={(id) => setPage(id as AppPage)}
-        items={[
-          {
-            id: 'dashboard',
-            label: navLabel(t('nav.dashboard')),
-            icon: (
-              <span className={styles.navIcon}>
-                <LayoutDashboard size={18} />
-              </span>
-            ),
-          },
-          {
-            id: 'okrs',
-            label: navLabel(t('nav.okrs')),
-            icon: (
-              <span className={styles.navIcon}>
-                <ListChecks size={18} />
-              </span>
-            ),
-          },
-          {
-            id: 'settings',
-            label: navLabel(t('nav.settings')),
-            icon: (
-              <span className={styles.navIcon}>
-                <Settings size={18} />
-              </span>
-            ),
-          },
-        ]}
-      />
+      <div className={styles.bottomBar}>
+        <Deformable touchAction="pan-y">
+          <SyncStatus status={syncStatus} onOpen={() => setSyncOpen(true)} />
+        </Deformable>
+        <DockNavigation
+          className={styles.dock}
+          label={t('nav.label')}
+          activeId={page}
+          collapsible={false}
+          onSelect={(id) => setPage(id as AppPage)}
+          items={[
+            {
+              id: 'dashboard',
+              label: (
+                <span className="ui-sr-only">{t('nav.dashboard')}</span>
+              ),
+              icon: (
+                <span className={styles.navIcon}>
+                  <LayoutDashboard size={18} />
+                </span>
+              ),
+            },
+            {
+              id: 'okrs',
+              label: <span className="ui-sr-only">{t('nav.okrs')}</span>,
+              icon: (
+                <span className={styles.navIcon}>
+                  <ListChecks size={18} />
+                </span>
+              ),
+            },
+            {
+              id: 'settings',
+              label: <span className="ui-sr-only">{t('nav.settings')}</span>,
+              icon: (
+                <span className={styles.navIcon}>
+                  <Settings size={18} />
+                </span>
+              ),
+            },
+          ]}
+        />
+      </div>
 
       {state && (
         <SyncPanel

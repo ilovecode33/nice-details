@@ -20,10 +20,22 @@ exports[`DockNavigation > matches its structural snapshot 1`] = `
             class="src-components-DockNavigation-module__ui-dock-yEALSM src-components-DockNavigation-module__ui-dock--enter-TwMRCa"
             data-ui="dock"
           >
+            <div
+              class="src-components-DockNavigation-module__ui-dock__thumb-IRdcz2"
+              data-ui="dock__thumb"
+              style="transform-origin: 50% 50%; transition: left var(--dur) var(--ease), width var(--dur) var(--ease), transform var(--dur) var(--ease); touch-action: pan-y; --glow-x: 50%; --glow-y: 50%; left: 0px; width: 0px;"
+            >
+              <div
+                class="src-components-DockNavigation-module__ui-dock__thumb-shift-rsAVdK"
+                data-ui="dock__thumb-shift"
+                style="transform: translate3d(0px, 0, 0); transition: none;"
+              />
+            </div>
             <a
               aria-current="page"
-              class="src-components-DockNavigation-module__ui-dock__item-ImyT1s"
+              class="src-components-DockNavigation-module__ui-dock__item-ImyT1s src-components-DockNavigation-module__is-current-V1llTo"
               data-active="true"
+              data-index="0"
               href="/"
             >
               Posts
@@ -31,6 +43,7 @@ exports[`DockNavigation > matches its structural snapshot 1`] = `
             <a
               class="src-components-DockNavigation-module__ui-dock__item-ImyT1s"
               data-active="false"
+              data-index="1"
               href="/about"
             >
               About

@@ -2,6 +2,7 @@
 
 interface ImportMetaEnv {
   readonly PUBLIC_APP_VERSION?: string;
+  readonly PUBLIC_BUILD_TIME?: string;
   readonly PUBLIC_SYNC_URL?: string;
 }
 

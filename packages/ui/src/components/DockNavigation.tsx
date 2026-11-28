@@ -2,6 +2,7 @@ import type { DockNavigationHandle, DockNavigationProps } from '@ilovecode33/ui-
 import styles from './DockNavigation.module.css';
 import { forwardRef, useImperativeHandle, useLayoutEffect, useRef, useState } from 'react';
 import { FloatingBar } from './FloatingBar';
+import { useSegmentPillDrag } from '../hooks/useSegmentPillDrag';
 
 /**
  * Pixel geometry captured before a collapse or expand. Using pixel frames
@@ -244,6 +245,18 @@ export const DockNavigation = forwardRef<DockNavigationHandle, DockNavigationPro
       return () => cancelAnimationFrame(frame);
     }, [activeId, collapsed]);
 
+    const pill = useSegmentPillDrag({
+      values: items.map((item) => item.id),
+      value: activeId ?? items[0]?.id ?? '',
+      onChange: (id) => onSelect?.(id),
+      deform,
+    });
+    // The dock element is both the collapse geometry source and the pill track.
+    const attachDock = (node: HTMLDivElement | null) => {
+      dockRef.current = node;
+      pill.trackRef.current = node;
+    };
+
     return (
       <FloatingBar
         position="bottom"
@@ -253,18 +266,34 @@ export const DockNavigation = forwardRef<DockNavigationHandle, DockNavigationPro
         onCollapsedChange={changeCollapsed}
         collapseLabel={collapseLabel}
         expandLabel={expandLabel}
-        deform={deform}
+        deform={false}
         className={className}
       >
         <div
           key={collapsed ? 'compact' : 'expanded'}
-          ref={dockRef}
+          ref={attachDock}
           data-ui="dock"
           className={[styles['ui-dock'], styles['ui-dock--enter'], styles[collapsed ? 'is-collapsed' : ''] || '', styles[collapsed && items.length < 3 ? 'is-short' : ''] || ''].filter(Boolean).join(' ')}
+          {...pill.handlers}
         >
-          {items.map((item) => {
+          {pill.slots && (
+            <div
+              ref={pill.thumbRef}
+              className={styles['ui-dock__thumb']}
+              data-ui="dock__thumb"
+              style={pill.thumbStyle}
+            >
+              <div
+                ref={pill.shiftRef}
+                className={[styles['ui-dock__thumb-shift'], pill.hoveredIndex === pill.activeIndex ? styles['is-hovered'] : ''].filter(Boolean).join(' ')}
+                data-ui="dock__thumb-shift"
+                style={pill.shiftStyle}
+              />
+            </div>
+          )}
+          {items.map((item, index) => {
             const current = item.id === activeId;
-            const itemClass = [styles['ui-dock__item'], styles[collapsed && current ? 'is-current' : ''] || ''].filter(Boolean).join(' ');
+            const itemClass = [styles['ui-dock__item'], styles[current ? 'is-current' : ''] || ''].filter(Boolean).join(' ');
             const content = (
               <>
                 {item.icon}
@@ -276,7 +305,10 @@ export const DockNavigation = forwardRef<DockNavigationHandle, DockNavigationPro
                 <a
                   key={item.id}
                   href={item.href}
+                  data-index={index}
                   className={itemClass}
+                  onPointerEnter={() => pill.setHoveredIndex(index)}
+                  onPointerLeave={() => pill.setHoveredIndex(null)}
                   data-active={current}
                   aria-current={current ? 'page' : undefined}
                   onClick={(event) => onSelect?.(item.id, event)}
@@ -289,7 +321,10 @@ export const DockNavigation = forwardRef<DockNavigationHandle, DockNavigationPro
               <button
                 key={item.id}
                 type="button"
+                data-index={index}
                 className={itemClass}
+                onPointerEnter={() => pill.setHoveredIndex(index)}
+                onPointerLeave={() => pill.setHoveredIndex(null)}
                 data-active={current}
                 aria-current={current ? 'location' : undefined}
                 onClick={(event) => onSelect?.(item.id, event)}

@@ -22,8 +22,8 @@ export interface DockNavigationHandle {
 export interface DockNavigationProps {
   items: readonly DockItem[];
   activeId?: string;
-  /** Receives the click event so hosts can implement client-side navigation. */
-  onSelect?: (id: string, event: ReactMouseEvent<HTMLElement>) => void;
+  /** Receives the click event; drag selection calls it without one. */
+  onSelect?: (id: string, event?: ReactMouseEvent<HTMLElement>) => void;
   label?: string;
   collapsible?: boolean;
   /** Controlled collapse state. */

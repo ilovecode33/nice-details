@@ -1,33 +1,52 @@
-function platformName(): string {
-  if (typeof navigator === 'undefined') return 'Device';
-  const ua = navigator.userAgent;
-  if (/iPhone|iPod/.test(ua)) return 'iPhone';
-  if (/iPad/.test(ua)) return 'iPad';
-  if (
-    /Macintosh|Mac OS X/.test(ua) &&
-    typeof navigator.maxTouchPoints === 'number' &&
-    navigator.maxTouchPoints > 1
-  ) {
-    return 'iPad';
+/** Friendly adjective and animal pools for a device's first name. */
+const ADJECTIVES = [
+  'Amber',
+  'Brave',
+  'Breezy',
+  'Cosmic',
+  'Gentle',
+  'Golden',
+  'Lucky',
+  'Mellow',
+  'Nimble',
+  'Quiet',
+  'Rapid',
+  'Sunny',
+  'Velvet',
+  'Witty',
+] as const;
+
+const ANIMALS = [
+  'Badger',
+  'Falcon',
+  'Koala',
+  'Lynx',
+  'Marmot',
+  'Narwhal',
+  'Otter',
+  'Owl',
+  'Panda',
+  'Puffin',
+  'Quokka',
+  'Robin',
+  'Seal',
+  'Wombat',
+] as const;
+
+function pick<T>(values: readonly T[]): T {
+  const bytes = new Uint8Array(1);
+  if (globalThis.crypto?.getRandomValues) {
+    globalThis.crypto.getRandomValues(bytes);
+  } else {
+    bytes[0] = Math.floor(Math.random() * 256);
   }
-  if (/Android/.test(ua)) return 'Android';
-  if (/Macintosh|Mac OS X/.test(ua)) return 'Mac';
-  if (/Windows/.test(ua)) return 'Windows';
-  if (/Linux/.test(ua)) return 'Linux';
-  return 'Device';
+  return values[bytes[0] % values.length] as T;
 }
 
-function browserName(): string {
-  if (typeof navigator === 'undefined') return 'Browser';
-  const ua = navigator.userAgent;
-  if (/Edg\//.test(ua)) return 'Edge';
-  if (/Firefox\//.test(ua)) return 'Firefox';
-  if (/Chrome\//.test(ua)) return 'Chrome';
-  if (/Safari\//.test(ua)) return 'Safari';
-  return 'Browser';
-}
-
-/** A readable default such as "Mac · Chrome" or "iPhone · Safari". */
-export function defaultDeviceName(): string {
-  return `${platformName()} · ${browserName()}`;
+/**
+ * A memorable first name such as "Sunny Otter" instead of a platform label.
+ * The app stores it on first launch, so it stays stable across visits.
+ */
+export function randomDeviceName(): string {
+  return `${pick(ADJECTIVES)} ${pick(ANIMALS)}`;
 }

@@ -47,6 +47,18 @@ describe('DockNavigation', () => {
     expect(selected).toBe('layout');
   });
 
+  test('marks the active item in the expanded dock too', () => {
+    render(<DockNavigation label="Dock" items={items} activeId="about" />);
+    const strip = document.querySelector<HTMLElement>('[data-ui="dock"]');
+    expect(strip?.className).not.toContain('is-collapsed');
+    expect(screen.getByRole('link', { name: 'About' }).className).toContain(
+      'is-current',
+    );
+    expect(screen.getByRole('link', { name: 'Posts' }).className).not.toContain(
+      'is-current',
+    );
+  });
+
   test('collapses to a scrollable strip with the active item highlighted', () => {
     render(
       <DockNavigation label="Dock" items={items} activeId="about" defaultCollapsed />,
@@ -61,6 +73,62 @@ describe('DockNavigation', () => {
     expect(screen.getByRole('link', { name: 'Posts' }).className).not.toContain(
       'is-current',
     );
+  });
+
+  test('drag-selects the item under the pointer', () => {
+    const original = Element.prototype.getBoundingClientRect;
+    Element.prototype.getBoundingClientRect = function () {
+      if (this instanceof HTMLElement && this.dataset.index !== undefined) {
+        const index = Number(this.dataset.index);
+        return new DOMRect(index * 60, 0, 60, 44);
+      }
+      if (this instanceof HTMLElement && this.dataset.ui === 'dock') {
+        return new DOMRect(0, 0, 180, 44);
+      }
+      return original.call(this);
+    };
+
+    try {
+      let selected = '';
+      render(
+        <DockNavigation
+          items={[
+            { id: 'one', label: 'One' },
+            { id: 'two', label: 'Two' },
+          ]}
+          activeId="one"
+          onSelect={(id) => {
+            selected = id;
+          }}
+        />,
+      );
+      const dock = document.querySelector<HTMLElement>('[data-ui="dock"]');
+      if (!dock) throw new Error('dock missing');
+      const one = screen.getByRole('button', { name: 'One' });
+
+      fireEvent.pointerDown(one, {
+        pointerId: 7,
+        pointerType: 'touch',
+        clientX: 30,
+        clientY: 20,
+      });
+      fireEvent.pointerMove(dock, {
+        pointerId: 7,
+        pointerType: 'touch',
+        clientX: 90,
+        clientY: 20,
+      });
+      fireEvent.pointerUp(dock, {
+        pointerId: 7,
+        pointerType: 'touch',
+        clientX: 90,
+        clientY: 20,
+      });
+
+      expect(selected).toBe('two');
+    } finally {
+      Element.prototype.getBoundingClientRect = original;
+    }
   });
 
   test('the imperative handle toggles the dock', () => {

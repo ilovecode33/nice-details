@@ -15,6 +15,7 @@
     "@ilovecode33/okr-shared": "workspace:*",
     "@ilovecode33/persistence": "workspace:*",
     "@ilovecode33/ui": "workspace:*",
+    "@ilovecode33/ui-tokens": "workspace:*",
     "@ilovecode33/ui-types": "workspace:*",
     "jsqr": "^1.4.0",
     "lucide-react": "^1.82.0",
