@@ -262,6 +262,17 @@ describe('SyncPanel', () => {
     expect(screen.getByText('Mac · Chrome')).toBeTruthy();
   });
 
+  test('generates and keeps a friendly device name on first launch', async () => {
+    const { getSavedDeviceName } = renderPanel({ storedDeviceName: null });
+
+    const input = (await screen.findByLabelText('Device name')) as HTMLInputElement;
+    expect(input.value).toMatch(/^[A-Z][a-z]+ [A-Z][a-z]+$/);
+
+    await waitFor(() => {
+      expect(getSavedDeviceName()).toBe(input.value);
+    });
+  });
+
   test('saves a distinct device name and uses it for the session', async () => {
     const { getSavedDeviceName, getSessionOptions } = renderPanel({
       initialStatus: 'connecting',

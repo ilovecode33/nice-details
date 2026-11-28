@@ -24,6 +24,8 @@ exports[`DockNavigation > matches its structural snapshot 1`] = `
               aria-current="page"
               class="src-components-DockNavigation-module__ui-dock__item-ImyT1s src-components-DockNavigation-module__is-current-V1llTo"
               data-active="true"
+              data-index="0"
+              data-preview="false"
               href="/"
             >
               Posts
@@ -31,6 +33,8 @@ exports[`DockNavigation > matches its structural snapshot 1`] = `
             <a
               class="src-components-DockNavigation-module__ui-dock__item-ImyT1s"
               data-active="false"
+              data-index="1"
+              data-preview="false"
               href="/about"
             >
               About

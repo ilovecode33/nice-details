@@ -1,6 +1,6 @@
 import type { DockNavigationHandle, DockNavigationProps } from '@ilovecode33/ui-types';
 import styles from './DockNavigation.module.css';
-import { forwardRef, useImperativeHandle, useLayoutEffect, useRef, useState } from 'react';
+import { forwardRef, useImperativeHandle, useLayoutEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 import { FloatingBar } from './FloatingBar';
 
 /**
@@ -25,6 +25,9 @@ function durationMs(variable: string, fallback: number): number {
   if (!Number.isFinite(value)) return fallback;
   return raw.endsWith('ms') ? value : value * 1000;
 }
+
+/** Travel (px) that turns a dock press into a horizontal select drag. */
+const DRAG_SELECT_THRESHOLD = 8;
 
 /** Returns the `--morph-dur` duration in milliseconds, defaulting to 260. */
 function morphDurationMs(): number {
@@ -97,6 +100,13 @@ export const DockNavigation = forwardRef<DockNavigationHandle, DockNavigationPro
     const [internalCollapsed, setInternalCollapsed] = useState(defaultCollapsed);
     const collapsed = controlledCollapsed ?? internalCollapsed;
     const dockRef = useRef<HTMLDivElement>(null);
+    const dragRef = useRef<{
+      pointerId: number;
+      startX: number;
+      startY: number;
+      moved: boolean;
+    } | null>(null);
+    const [previewIndex, setPreviewIndex] = useState<number | null>(null);
     const before = useRef<Geometry | null>(null);
     const animations = useRef<{ bar?: Animation; dock?: Animation }>({});
 
@@ -244,6 +254,77 @@ export const DockNavigation = forwardRef<DockNavigationHandle, DockNavigationPro
       return () => cancelAnimationFrame(frame);
     }, [activeId, collapsed]);
 
+    /** Resolves the item index under a client point, or null outside the dock. */
+    const indexAt = (x: number, y: number): number | null => {
+      const dock = dockRef.current;
+      if (!dock || typeof document.elementFromPoint !== 'function') return null;
+      const hit = document
+        .elementFromPoint(x, y)
+        ?.closest<HTMLElement>('[data-index]');
+      if (!hit || !dock.contains(hit)) return null;
+      const index = Number(hit.dataset.index);
+      return Number.isInteger(index) ? index : null;
+    };
+
+    const onDockPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+      if (event.pointerType === 'mouse' && event.button !== 0) return;
+      dragRef.current = {
+        pointerId: event.pointerId,
+        startX: event.clientX,
+        startY: event.clientY,
+        moved: false,
+      };
+    };
+
+    const onDockPointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
+      const drag = dragRef.current;
+      if (!drag || event.pointerId !== drag.pointerId) return;
+      const dx = event.clientX - drag.startX;
+      const dy = event.clientY - drag.startY;
+      if (!drag.moved) {
+        // Horizontal intent only; a vertical swipe stays a page scroll.
+        if (
+          Math.abs(dx) < DRAG_SELECT_THRESHOLD ||
+          Math.abs(dx) <= Math.abs(dy)
+        ) {
+          return;
+        }
+        drag.moved = true;
+        try {
+          event.currentTarget.setPointerCapture?.(event.pointerId);
+        } catch {
+          /* capture is best-effort */
+        }
+      }
+      setPreviewIndex(indexAt(event.clientX, event.clientY));
+    };
+
+    const onDockPointerEnd = (event: ReactPointerEvent<HTMLDivElement>) => {
+      const drag = dragRef.current;
+      if (!drag || event.pointerId !== drag.pointerId) return;
+      dragRef.current = null;
+      const wasDragging = drag.moved;
+      const index = wasDragging ? indexAt(event.clientX, event.clientY) : null;
+      setPreviewIndex(null);
+      if (!wasDragging) return;
+
+      // The drag itself selects; block the click that follows pointerup.
+      const block = (clickEvent: MouseEvent) => {
+        clickEvent.preventDefault();
+        clickEvent.stopPropagation();
+      };
+      document.addEventListener('click', block, { capture: true, once: true });
+      window.setTimeout(
+        () => document.removeEventListener('click', block, { capture: true }),
+        0,
+      );
+
+      const item = index !== null ? items[index] : undefined;
+      if (item) {
+        onSelect?.(item.id, event as unknown as Parameters<NonNullable<typeof onSelect>>[1]);
+      }
+    };
+
     return (
       <FloatingBar
         position="bottom"
@@ -261,8 +342,12 @@ export const DockNavigation = forwardRef<DockNavigationHandle, DockNavigationPro
           ref={dockRef}
           data-ui="dock"
           className={[styles['ui-dock'], styles['ui-dock--enter'], styles[collapsed ? 'is-collapsed' : ''] || '', styles[collapsed && items.length < 3 ? 'is-short' : ''] || ''].filter(Boolean).join(' ')}
+          onPointerDown={onDockPointerDown}
+          onPointerMove={onDockPointerMove}
+          onPointerUp={onDockPointerEnd}
+          onPointerCancel={onDockPointerEnd}
         >
-          {items.map((item) => {
+          {items.map((item, index) => {
             const current = item.id === activeId;
             const itemClass = [styles['ui-dock__item'], styles[current ? 'is-current' : ''] || ''].filter(Boolean).join(' ');
             const content = (
@@ -276,6 +361,8 @@ export const DockNavigation = forwardRef<DockNavigationHandle, DockNavigationPro
                 <a
                   key={item.id}
                   href={item.href}
+                  data-index={index}
+                  data-preview={previewIndex === index}
                   className={itemClass}
                   data-active={current}
                   aria-current={current ? 'page' : undefined}
@@ -289,6 +376,8 @@ export const DockNavigation = forwardRef<DockNavigationHandle, DockNavigationPro
               <button
                 key={item.id}
                 type="button"
+                data-index={index}
+                data-preview={previewIndex === index}
                 className={itemClass}
                 data-active={current}
                 aria-current={current ? 'location' : undefined}

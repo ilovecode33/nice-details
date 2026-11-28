@@ -75,6 +75,52 @@ describe('DockNavigation', () => {
     );
   });
 
+  test('drag-selects the item under the pointer', () => {
+    let selected = '';
+    render(
+      <DockNavigation
+        items={[
+          { id: 'one', label: 'One' },
+          { id: 'two', label: 'Two' },
+        ]}
+        activeId="one"
+        onSelect={(id) => {
+          selected = id;
+        }}
+      />,
+    );
+    const dock = document.querySelector<HTMLElement>('[data-ui="dock"]');
+    if (!dock) throw new Error('dock missing');
+    const one = screen.getByRole('button', { name: 'One' });
+    const two = screen.getByRole('button', { name: 'Two' });
+    const original = document.elementFromPoint;
+    document.elementFromPoint = () => two;
+    try {
+      fireEvent.pointerDown(one, {
+        pointerId: 7,
+        pointerType: 'touch',
+        clientX: 10,
+        clientY: 10,
+      });
+      fireEvent.pointerMove(dock, {
+        pointerId: 7,
+        pointerType: 'touch',
+        clientX: 80,
+        clientY: 12,
+      });
+      fireEvent.pointerUp(dock, {
+        pointerId: 7,
+        pointerType: 'touch',
+        clientX: 80,
+        clientY: 12,
+      });
+    } finally {
+      document.elementFromPoint = original;
+    }
+
+    expect(selected).toBe('two');
+  });
+
   test('the imperative handle toggles the dock', () => {
     const ref = createRef<DockNavigationHandle>();
     render(<DockNavigation ref={ref} label="Dock" items={items} />);

@@ -7,6 +7,7 @@
   justify-content: center;
   gap: var(--space-1);
   max-width: 100%;
+  touch-action: pan-y;
 }
 
 .ui-dock__item {
@@ -36,6 +37,12 @@
 .ui-dock__item.is-current {
   color: var(--accent);
   font-weight: 700;
+}
+
+/* The item under a horizontal select drag, committed on release. */
+.ui-dock__item[data-preview='true'] {
+  color: var(--accent);
+  background: var(--accent-soft);
 }
 
 .ui-dock.is-collapsed {

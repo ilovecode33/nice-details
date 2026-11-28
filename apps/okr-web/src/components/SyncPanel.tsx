@@ -6,7 +6,7 @@ import {
   parseState,
   type OKRState,
 } from '@ilovecode33/okr-shared';
-import { defaultDeviceName } from '../deviceName';
+import { randomDeviceName } from '../deviceName';
 import { createRoomKey } from '../crypto';
 import { useOkrI18n } from '../i18n';
 import {
@@ -73,7 +73,7 @@ export function SyncPanel({
   const [started, setStarted] = useState(false);
   const [booted, setBooted] = useState(false);
   const [pendingRoom, setPendingRoom] = useState<SyncTarget | null>(null);
-  const [deviceName, setDeviceName] = useState(() => defaultDeviceName());
+  const [deviceName, setDeviceName] = useState(() => randomDeviceName());
   const [nameDraft, setNameDraft] = useState(deviceName);
   const [status, setStatus] = useState<PanelStatus>('idle');
   const [room, setRoom] = useState('');
@@ -118,6 +118,9 @@ export function SyncPanel({
       if (savedDevice) {
         setDeviceName(savedDevice);
         setNameDraft(savedDevice);
+      } else {
+        // First launch: keep the friendly generated name on this device.
+        void saveStoredDeviceName?.(deviceName);
       }
       const linkRoom = parseSyncLink(initialRoom);
       if (linkRoom) {
