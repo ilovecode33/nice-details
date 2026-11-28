@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.8.0
+
+### Minor Changes
+
+- 421dd21: Show the deployed latest app version when checking for updates, and wait for the user to choose Update now before reloading.
+- de231cc: Detect new app versions automatically and let the user choose when to reload.
+
 ## 0.7.0
 
 ### Minor Changes
