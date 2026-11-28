@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.3
+
+### Patch Changes
+
+- @ilovecode33/ui-tokens@0.5.3
+
 ## 0.5.2
 
 ### Patch Changes
