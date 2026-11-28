@@ -11,6 +11,7 @@ import {
   ProgressBar,
   Select,
   Stat,
+  TextInput,
   ThemeSwitcher,
 } from '@ilovecode33/ui';
 import {
@@ -87,6 +88,8 @@ export function App({ storage }: AppProps = {}) {
   useThemeChrome();
   const [state, setState] = useState<OKRState | null>(null);
   const [page, setPage] = useState<AppPage>('dashboard');
+  const [userName, setUserName] = useState<string | null>(null);
+  const [nameDraft, setNameDraft] = useState('');
   const appVersion = import.meta.env.PUBLIC_APP_VERSION ?? '0.0.0';
   const buildTime = formatBuildTime(import.meta.env.PUBLIC_BUILD_TIME, intlLocale);
   const install = useInstallPrompt();
@@ -123,8 +126,10 @@ export function App({ storage }: AppProps = {}) {
   }, []);
 
   useEffect(() => {
-    document.title = t('app.title');
-  }, [locale]);
+    document.title = userName
+      ? t('app.titleWithName', { name: userName })
+      : t('app.title');
+  }, [locale, userName, t]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -151,13 +156,16 @@ export function App({ storage }: AppProps = {}) {
     const pending = storage ? Promise.resolve(storage) : getOkrStorage();
     pending
       .then(async (current) => {
-        const [loaded, view] = await Promise.all([
+        const [loaded, view, savedName] = await Promise.all([
           current.load(),
           current.loadView(),
+          current.loadUserName(),
         ]);
         if (cancelled) return;
         storageRef.current = current;
         setState(loaded);
+        setUserName(savedName);
+        setNameDraft(savedName ?? '');
         if (view) {
           setSort(view.sort);
           setPeriod(
@@ -222,9 +230,12 @@ export function App({ storage }: AppProps = {}) {
         .slice(0, 3),
     [objectives],
   );
+  const title = userName
+    ? t('app.titleWithName', { name: userName })
+    : t('app.title');
   const pageTitle =
     page === 'dashboard'
-      ? t('app.title')
+      ? title
       : page === 'okrs'
         ? t('nav.okrs')
         : t('nav.settings');
@@ -297,6 +308,13 @@ export function App({ storage }: AppProps = {}) {
       };
     });
     setEditing(undefined);
+  }
+
+  function saveUserName() {
+    const next = nameDraft.trim().slice(0, 40);
+    setUserName(next || null);
+    setNameDraft(next);
+    void storageRef.current?.saveUserName(next);
   }
 
   function askToDeleteObjective(objective: Objective) {
@@ -543,6 +561,37 @@ export function App({ storage }: AppProps = {}) {
 
           {page === 'settings' && (
             <div className={styles.settings}>
+              <Card className={styles.settingsCard} title={t('settings.profile')}>
+                <div className={styles.settingsFields}>
+                  <div className={styles.settingsRow}>
+                    <span className={styles.settingsLabel}>
+                      {t('settings.userName')}
+                    </span>
+                    <TextInput
+                      className={styles.settingsSelect}
+                      aria-label={t('settings.userName')}
+                      value={nameDraft}
+                      maxLength={40}
+                      placeholder={t('settings.userNamePlaceholder')}
+                      onChange={(event) => setNameDraft(event.target.value)}
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter') saveUserName();
+                      }}
+                    />
+                    <Button
+                      variant="secondary"
+                      onClick={saveUserName}
+                      disabled={nameDraft.trim() === (userName ?? '')}
+                    >
+                      {t('common.save')}
+                    </Button>
+                    <span className={styles.installHint}>
+                      {t('settings.userNameHint')}
+                    </span>
+                  </div>
+                </div>
+              </Card>
+
               <Card className={styles.settingsCard} title={t('theme.group')}>
                 <div className={styles.settingsFields}>
                   <ThemeSwitcher

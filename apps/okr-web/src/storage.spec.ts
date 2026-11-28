@@ -162,6 +162,17 @@ describe('openOkrStorage', () => {
     expect(await storage.loadView()).toBeNull();
   });
 
+  test('persists and clears the user name', async () => {
+    const storage = await openOkrStorage(uniqueName());
+    opened.push(storage);
+
+    expect(await storage.loadUserName()).toBeNull();
+    await storage.saveUserName('  Ada  ');
+    expect(await storage.loadUserName()).toBe('Ada');
+    await storage.saveUserName('   ');
+    expect(await storage.loadUserName()).toBeNull();
+  });
+
   test('accepts a sync room saved before records were versioned', async () => {
     const name = uniqueName();
     const key = 'A'.repeat(43);

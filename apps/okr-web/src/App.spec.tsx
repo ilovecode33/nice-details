@@ -22,6 +22,8 @@ function createTestStorage(): OkrStorage {
     clearSyncRoom: async () => {},
     loadDeviceName: async () => null,
     saveDeviceName: async () => {},
+    loadUserName: async () => null,
+    saveUserName: async () => {},
     close: () => {},
     destroy: async () => {},
   };
@@ -92,6 +94,36 @@ describe('App', () => {
     expect(
       screen.queryByRole('button', { name: 'Reset sample data' }),
     ).toBeNull();
+  });
+
+  test('shows the user name in the dashboard title', async () => {
+    renderApp({
+      ...createTestStorage(),
+      loadUserName: async () => 'Ada',
+    });
+
+    expect(
+      await screen.findByRole('heading', { level: 1, name: "Ada's OKRs" }),
+    ).toBeTruthy();
+    expect(document.title).toBe("Ada's OKRs");
+  });
+
+  test('saves the user name from settings and updates the title', async () => {
+    const saveUserName = rs.fn();
+    renderApp({ ...createTestStorage(), saveUserName });
+    await screen.findByText('Current focus');
+    await openPage('Settings');
+
+    fireEvent.change(screen.getByRole('textbox', { name: 'Your name' }), {
+      target: { value: 'Grace' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await waitFor(() => expect(saveUserName).toHaveBeenCalledWith('Grace'));
+
+    await openPage('Dashboard');
+    expect(
+      await screen.findByRole('heading', { level: 1, name: "Grace's OKRs" }),
+    ).toBeTruthy();
   });
 
   test('shows active objectives on the dashboard', async () => {
