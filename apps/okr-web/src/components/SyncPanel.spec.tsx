@@ -138,6 +138,14 @@ describe('SyncPanel', () => {
     expect(starts[0]).toMatchObject({ room });
   });
 
+  test('offers camera scanning when joining manually', async () => {
+    renderPanel({ initialMode: 'join' });
+    expect(
+      await screen.findByRole('button', { name: 'Scan with camera' }),
+    ).toBeTruthy();
+    expect(screen.getByLabelText('Room link')).toBeTruthy();
+  });
+
   test('applies a remote state message', async () => {
     const onRemoteState = rs.fn();
     const { getSession } = renderPanel({ onRemoteState });
